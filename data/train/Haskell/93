@@ -1,0 +1,29 @@
+module Main where
+import Data.List.Split
+import Debug.Trace
+import Control.Monad
+import Data.List
+
+main = do 
+  input <- fmap lines getContents
+  let (n:testLines) = filter (/= "") input
+  let testCases = chunksOf 4 testLines
+  let results = map processTestCase $ testCases
+  let output = map (\(i,x) -> "Case #" ++ (show i) ++ ": " ++ x) $ zip [1..] results
+  mapM putStrLn output
+
+processTestCase :: [String] -> String
+processTestCase board | any (id) $ rows       'X' board  = "X won"
+                      | any (id) $ rows       'X' t      = "X won"
+                      | any (id) $ rows       'O' board  = "O won"
+                      | any (id) $ rows       'O' t      = "O won"
+                      | all (id) $ diagonalsd 'O' board  = "O won"
+                      | all (id) $ diagonalsu 'O' board  = "O won"
+                      | all (id) $ diagonalsd 'X' board  = "X won"
+                      | all (id) $ diagonalsu 'X' board  = "X won"
+                      | all (\row -> all (\elem -> elem /= '.') row) board = "Draw"
+                      | otherwise = "Game has not completed"
+    where rows c b = map (\line -> all (\x -> x == c || x == 'T') line) b
+          diagonalsd c brd = [(brd !! x !! y) == c || (brd !! x !! y) == 'T' | x <- [0..3], y <- [0..3], x == y]
+          diagonalsu c brd = [(brd !! x !! y) == c || (brd !! x !! y) == 'T' | x <- [0..3], y <- [0..3], x + y == 3]
+          t = transpose board

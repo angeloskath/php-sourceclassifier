@@ -1,0 +1,88 @@
+<?php
+
+set_time_limit(600);
+
+$inputFile  = 'input.txt';
+$outputFile = 'output.txt';
+$handleIn   = fopen($inputFile, "rb");
+$handleOut  = fopen($outputFile, "w+");
+$counter    = 0;
+$i          = 0;
+$linesIn    = array();
+
+while (($lineIn = fgets($handleIn, 4096)) !== false) {
+    
+    if($lineIn=='') continue;
+
+    if($counter==0) {
+        $counter = (int) $lineIn;
+        continue;
+    }
+    
+    if($i==$counter) break;
+
+    if(count($linesIn)<4) {
+        $linesIn[] = $lineIn;
+        continue;
+    }
+    
+    $lineOut = TicTacToeTomek($linesIn);
+    $linesIn = array();
+
+    $i++;
+    
+    echo $echo = 'Case #'.$i.': ' . $lineOut."\n";
+    fwrite($handleOut, $echo);
+}
+
+fclose($handleIn);
+fclose($handleOut);
+
+
+function TicTacToeTomek($lines) {
+    $data = array();
+    foreach($lines as $line) {
+        $data[] = str_split(substr($line, 0, 4));
+    }
+    
+    for($r=0;$r<4;$r++) {
+        $line = array();
+        for($c=0;$c<4;$c++) {
+            $line[] = $data[$c][$r];
+        }
+        $data[] = $line;
+    }
+    
+    $line = array();
+    for($r=0;$r<4;$r++) {
+        $line[] = $data[$r][$r];
+    }
+    $data[] = $line;
+
+    $line = array();
+    for($r=0;$r<4;$r++) {
+        $line[] = $data[$r][3-$r];
+    }
+    $data[] = $line;
+
+    $dotsFound = 0;
+
+    foreach($data as $each) {
+        $line = array_count_values($each);
+        if(!empty($line['.'])) {
+            $dotsFound = 1;
+        } else if(!empty($line['X']) && ($line['X']==4 || ($line['X']==3 && !empty($line['T'])))) {
+            return 'X won';
+        } else if(!empty($line['O']) && ($line['O']==4 || ($line['O']==3 && !empty($line['T'])))) {
+            return 'O won';
+        }
+    }
+    
+    if($dotsFound==1) {
+        return 'Game has not completed';
+    } else {
+        return 'Draw';
+    }
+}
+
+?>

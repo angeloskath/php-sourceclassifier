@@ -1,0 +1,63 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var
+a: array[1..4, 1..4] of char;
+t, f: boolean;
+n, d, win, i, j, posjt, posit: integer;
+zero, zero1, zero2: char;
+begin
+ reset(input,'a.in');
+ rewrite(output,'b.out');
+ readln(n);
+ for d:=1 to n do begin
+  t:=false;
+  win:=0;
+  posit:=0;
+  posjt:=0;
+  for i:=1 to 4 do begin
+   for j:=1 to 4 do begin
+   read(a[i,j]);
+   if a[i,j]='.' then t:=true;
+   if a[i,j]='T' then begin posit:=i; posjt:=j; end;
+   end;
+  readln;
+  end;
+ readln;
+ for i:=1 to 4 do if (a[i,1]=a[i,2]) and (a[i,3]=a[i,4]) and (a[i,2]=a[i,3]) and (a[i,1]<>'.') then
+ if a[i,1]='X' then win:=1 else win:=2;
+ for j:=1 to 4 do if (a[1,j]=a[2,j]) and (a[3,j]=a[4,j]) and (a[2,j]=a[3,j]) and (a[1,j]<>'.') then
+ if a[1,j]='X' then win:=1 else win:=2;
+ if posit<>0 then begin
+ if a[posit,1]<>'T' then zero:=a[posit,1];
+ if a[posit,2]<>'T' then zero:=a[posit,2];
+ f:=true;
+ for j:=1 to posjt-1 do if a[posit,j]<>zero then f:=false;
+ for j:=posjt+1 to 4 do if a[posit,j]<>zero then f:=false;
+ if f=true then begin if zero='X' then win:=1; if zero='O' then win:=2; end;
+ if a[1,posjt]<>'T' then zero:=a[1,posjt];
+ if a[2,posjt]<>'T' then zero:=a[2,posjt];
+ f:=true;
+ for i:=1 to posit-1 do if a[i,posjt]<>zero then f:=false;
+ for i:=posit+1 to 4 do if a[i,posjt]<>zero then f:=false;
+ if f=true then begin if zero='X' then win:=1; if zero='O' then win:=2; end;
+ if a[1,1]<>'T' then zero1:=a[1,1];
+ if a[2,2]<>'T' then zero1:=a[2,2];
+ if a[4,1]<>'T' then zero2:=a[4,1];
+ if a[3,2]<>'T' then zero2:=a[3,2];
+ if posit=posjt then a[posit, posjt]:=zero1;
+ if posit+posjt=5 then a[posit, posjt]:=zero2;
+ end;
+ if (a[1,1]=a[2,2]) and(a[3,3]=a[4,4]) and (a[2,2]=a[3,3]) and (a[1,1]<>'.') then begin
+ if a[1,1]='X' then win:=1; if a[1,1]='O' then win:=2; end;
+ if (a[4,1]=a[3,2])and(a[2,3]=a[1,4]) and (a[3,2]=a[2,3]) and (a[4,1]<>'.') then  begin
+ if a[4,1]='X' then win:=1; if a[4,1]='O' then win:=2; end;
+ if win=1 then begin write('Case #'); write(d); writeln(': X won'); end;
+ if win=2 then begin write('Case #'); write(d); writeln(': O won'); end;
+ if (win=0) and (t=false) then begin write('Case #'); write(d); writeln(': Draw'); end;
+ if (win=0) and (t=true) then begin write('Case #'); write(d); writeln(': Game has not completed'); end;
+end;
+end.

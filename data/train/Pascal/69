@@ -1,0 +1,87 @@
+program ProblemA;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+  ans, k, j, i, n : longint;
+  a : array[1..4, 1..4] of char;
+
+function pr() : integer;
+var
+  f2, f, f1 : boolean;
+  i : longint;
+begin
+  f := false;
+  f1 := false;
+  f2 := false;
+  for i := 1 to n do
+  begin
+    if ((a[i, 1] = 'X') or (a[i, 1] = 'T')) and ((a[i, 2] = 'X') or (a[i, 2] = 'T')) and ((a[i, 3] = 'X') or (a[i, 3] = 'T')) and ((a[i, 4] = 'X') or (a[i, 4] = 'T')) then
+      f := true;
+    if ((a[i, 1] = 'O') or (a[i, 1] = 'T')) and ((a[i, 2] = 'O') or (a[i, 2] = 'T')) and ((a[i, 3] = 'O') or (a[i, 3] = 'T')) and ((a[i, 4] = 'O') or (a[i, 4] = 'T')) then
+      f1 := true;
+
+    if ((a[1, i] = 'X') or (a[1, i] = 'T')) and ((a[2, i] = 'X') or (a[2, i] = 'T')) and ((a[3, i] = 'X') or (a[3, i] = 'T')) and ((a[4, i] = 'X') or (a[4, i] = 'T')) then
+      f := true;
+    if ((a[1, i] = 'O') or (a[1, i] = 'T')) and ((a[2, i] = 'O') or (a[2, i] = 'T')) and ((a[3, i] = 'O') or (a[3, i] = 'T')) and ((a[4, i] = 'O') or (a[4, i] = 'T')) then
+      f1 := true;
+  end;
+
+  if ((a[1, 1] = 'X') or (a[1, 1] = 'T')) and ((a[2, 2] = 'X') or (a[2, 2] = 'T')) and ((a[3, 3] = 'X') or (a[3, 3] = 'T')) and ((a[4, 4] = 'X') or (a[4, 4] = 'T')) then
+    f := true;
+  if ((a[1, 1] = 'O') or (a[1, 1] = 'T')) and ((a[2, 2] = 'O') or (a[2, 2] = 'T')) and ((a[3, 3] = 'O') or (a[3, 3] = 'T')) and ((a[4, 4] = 'O') or (a[4, 4] = 'T')) then
+    f1 := true;
+
+  if ((a[1, 4] = 'O') or (a[1, 4] = 'T')) and ((a[2, 3] = 'O') or (a[2, 3] = 'T')) and ((a[3, 2] = 'O') or (a[3, 2] = 'T')) and ((a[4, 1] = 'O') or (a[4, 1] = 'T')) then
+    f1 := true;
+  if ((a[1, 4] = 'X') or (a[1, 4] = 'T')) and ((a[2, 3] = 'X') or (a[2, 3] = 'T')) and ((a[3, 2] = 'X') or (a[3, 2] = 'T')) and ((a[4, 1] = 'X') or (a[4, 1] = 'T')) then
+    f := true;
+
+  for i := 1 to 4 do
+    for j := 1 to 4 do
+      if a[i, j] = '.' then
+        f2 := true;
+
+  if f then
+    result := 1
+  else
+    if f1 then
+      result := 2
+    else
+    if f2 then
+      result := 3
+    else
+      result := 4;
+
+
+end;
+
+begin
+ { reset(input, 'AAA.in');
+  rewrite(output, 'output.out');}
+
+  readln(n);
+
+  for i := 1 to n do
+  begin
+    for j := 1 to 4 do
+    begin
+      for k := 1 to 4 do
+        read(a[j, k]);
+      readln;
+    end;
+    readln;
+    ans := pr;
+    if ans = 1 then
+      writeln('Case #', i, ': X won');
+    if ans = 2 then
+      writeln('Case #', i, ': O won');
+    if ans = 3 then
+      writeln('Case #', i, ': Game has not completed');
+    if ans = 4 then
+      writeln('Case #', i, ': Draw');
+  end;
+end.

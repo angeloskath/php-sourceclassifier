@@ -1,0 +1,121 @@
+NOT_FINISHED = 1
+X_WON = 2
+O_WON = 3
+DRAW = 4
+
+def get_row_status(row)
+
+  puts row.join('|')
+  x_win = true
+  o_win = true
+
+  for r in row
+    if r == 'X' or r == '.' then o_win = false end
+    if r == 'O' or r == '.' then x_win = false end
+  end
+
+  puts "x_win #{x_win} o_win #{o_win}"
+
+  if x_win then return X_WON end
+  if o_win then return O_WON end
+  return DRAW
+
+end
+
+def get_status(rows)
+
+  verts = []
+  diags = []
+  hors = []
+  for r in rows
+    verts << []
+    hors << []
+  end
+
+  diags << []
+  diags << []
+
+  status = DRAW
+  
+  for i in 0..(rows.count - 1)
+
+    diags[0] << rows[i][i]
+    diags[1] << rows[i][rows.count - i - 1] 
+
+    for j in 0..(rows.count - 1)
+      verts[j] << rows[i][j]
+      hors[j] << rows[j][i]
+
+      if rows[i][j] == '.' then status = NOT_FINISHED end
+    end
+  end   
+
+  # for v in verts
+  #   puts v.join('|')
+  # end
+
+  # puts ' '
+
+  # for v in hors
+  #   puts v.join('|')
+  # end
+
+  # puts ' '
+
+  # for v in diags
+  #   puts v.join('|')
+  # end
+
+  # puts '------'
+
+  for r in verts.concat(hors).concat(diags)
+    s = get_row_status r 
+    puts s
+    if s == O_WON then return O_WON end
+    if s == X_WON then return X_WON end
+  end
+
+  return status
+
+end
+
+def get_status_title(status)
+  if status == NOT_FINISHED 
+    return "Game has not completed"
+  elsif status == DRAW
+    return "Draw"
+  elsif status == O_WON
+    return "O won"
+  elsif status == X_WON
+    return "X won"
+  end 
+end
+
+input = []
+file = File.new("input.txt", "r")
+num = Integer(file.gets)
+
+data = []
+
+
+
+for i in 0..(num-1)
+    rows = []
+
+    for i in 0..3
+      rows << file.gets.chomp
+    end
+    file.gets
+
+    data << rows
+end
+file.close
+
+
+file = File.new("output.txt", "w")
+for i in 0..(num-1)
+  rows = data[i]
+  file.write "Case ##{i + 1}: "
+  file.puts(get_status_title(get_status rows))
+end
+file.close

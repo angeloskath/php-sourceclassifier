@@ -1,0 +1,86 @@
+package qualification
+
+import scala.io.Source
+
+/*
+Input
+The first line of the input gives the number of test cases, T.
+T test cases follow. Each test case consists of 4 lines with 4 characters each, with
+each character being 'X', 'O', '.' or 'T' (quotes for clarity only). Each test case is followed by an empty line.
+
+Output
+For each test case, output one line containing "Case #x: y", where x is the case number (starting from 1) and y is
+one of the statuses given above. Make sure to get the statuses exactly right. When you run
+your code on the sample input, it should create the sample output exactly, including
+the "Case #1: ", the capital letter "O" rather than the number "0", and so on.
+
+Limits
+The game board provided will represent a valid state that was reached through play of
+the game Tic-Tac-Toe-Tomek as described above.
+Small dataset
+1 ≤ T ≤ 10.
+Large dataset
+1 ≤ T ≤ 1000.
+ */
+object TicTacToeCheck extends App {
+  val lines = Source.fromFile("/home/kefu/IdeaProjects/CodeJam/CodeJam2013/A-large.in").getLines
+  val T = lines.next().toInt
+  val cases = lines.toVector.grouped(5).map(_.toVector.dropRight(1)).toVector
+
+  (0 until T).map(i => println(checkCase(i, cases)))
+
+  def checkCase(count: Int, cases: Vector[Vector[String]]): String = {
+    val board = cases(count).map(_.trim.toVector)
+    val status =
+      if (isXWin(board)) {
+        "X won"
+      } else if (isOWin(board)) {
+        "O won"
+      } else if (isIncomplete(board)) {
+        "Game has not completed"
+      } else {
+        "Draw"
+      }
+    s"Case #${count + 1}: $status"
+  }
+
+  def isIncomplete(board: Vector[Vector[Char]]) = board.flatten.contains('.')
+
+  def isXWin(board: Vector[Vector[Char]]): Boolean = {
+    isHorizontalWin('X', board) ||
+      isVerticalWin('X', board) ||
+      isDiagonalWin('X', board)
+  }
+
+  def isOWin(board: Vector[Vector[Char]]): Boolean = {
+    isHorizontalWin('O', board) ||
+      isVerticalWin('O', board) ||
+      isDiagonalWin('O', board)
+  }
+
+  def isHorizontalWin(char: Char, board: Vector[Vector[Char]]): Boolean = {
+    board.exists(lineChecker(char, _) == true)
+  }
+
+  def isVerticalWin(char: Char, board: Vector[Vector[Char]]): Boolean = {
+    val transposed = board.transpose
+    isHorizontalWin(char, transposed)
+  }
+
+  def isDiagonalWin(char: Char, board: Vector[Vector[Char]]): Boolean = {
+    val lr = (0 until 4).map(i => board(i)(i)).toVector
+    val rl = (0 until 4).map(i => board(i)(4 - i - 1)).toVector
+    isHorizontalWin(char, Vector(lr, rl))
+  }
+
+  def lineChecker(char: Char, board: Vector[Char]): Boolean = {
+    val charCount = board.count(_ == char)
+    charCount match {
+      case 4 => true
+      case 3 if (board.contains('T')) => true
+      case _ => false
+    }
+  }
+
+
+}

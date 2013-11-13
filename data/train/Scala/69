@@ -1,0 +1,71 @@
+type Board = Seq[Seq[Char]]
+val tomek = 'T'
+val empty = '.'
+
+class Status
+case object O extends Status
+case object X extends Status
+case object Draw extends Status
+case object Incomplete extends Status
+
+def winning(player: Char, board: Board): Boolean = (
+  // Rows
+  board exists { row =>
+    row forall { symbol =>
+      symbol == player || symbol == tomek }}
+
+  ) || (
+
+  // Columns
+  board.transpose exists { column =>
+    column forall { symbol =>
+      symbol == player || symbol == tomek }}
+
+  ) || (
+
+  // Diagonals
+  // ...there's probably a general way of doing this
+  board.zipWithIndex forall { case(row, i) => {
+    val symbol = board(i)(i)
+    symbol == player || symbol == tomek }}
+
+  ) || (
+
+  board.zipWithIndex forall { case(row, i) => {
+    val symbol = board(i)(board.size - i - 1)
+    symbol == player || symbol == tomek }}
+
+  )
+
+def algorithm(board: Board): Status = {
+  val x = winning('X', board)
+  val o = winning('O', board)
+  val done = board forall(_ forall(_ != empty))
+
+  if (x) X
+  else if (o) O
+  else if (done) Draw
+  else Incomplete
+}
+
+{
+  import java.util.Scanner
+  val scanner = new Scanner(System.in)
+
+  val totalCases = scanner.nextInt
+  scanner.nextLine
+  
+  for (caseNum <- 1 to totalCases) {
+    val board = for (_ <- 1 to 4) yield scanner.nextLine.toCharArray.toSeq
+    scanner.nextLine
+
+    val status = algorithm(board) match {
+      case X => "X won"
+      case O => "O won"
+      case Incomplete => "Game has not completed"
+      case Draw => "Draw"
+    }
+
+    println("Case #%d: %s".format(caseNum, status))
+  }
+}

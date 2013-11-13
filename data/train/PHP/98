@@ -1,0 +1,116 @@
+<?php
+
+
+function checkResult($testCase)
+{
+    // Check lines first
+    $hasDots = false;
+
+    for ($i = 0; $i < 4; $i++) {
+        $xLCount = 0;
+        $xRCount = 0;
+        $oLCount = 0;
+        $oRCount = 0;
+
+        for ($j = 0; $j < 4; $j++) {
+            if ($testCase[$i][$j] == '.') {
+                $hasDots = true;
+            }
+
+            // Line reading
+            if ($testCase[$i][$j] == 'X' || $testCase[$i][$j] == 'T') {
+                $xLCount++;
+            }
+
+            // Column reading
+            if ($testCase[$j][$i] == 'X' || $testCase[$j][$i] == 'T') {
+                $xRCount++;
+            }
+
+            if ($testCase[$i][$j] == 'O' || $testCase[$i][$j] == 'T') {
+                $oLCount++;
+            }
+
+            if ($testCase[$j][$i] == 'O' || $testCase[$j][$i] == 'T') {
+                $oRCount++;
+            }
+        }
+
+        if ($xLCount == 4 || $xRCount == 4) {
+            return 'X won';
+        }
+
+        if ($oLCount == 4 || $oRCount == 4) {
+            return 'O won';
+        }
+    }
+
+    $xDCount  = 0;
+    $xDRCount = 0;
+    $oDCount  = 0;
+    $oDRCount = 0;
+
+    for ($i = 0; $i < 4; $i++) {
+
+        // Diagonal reading
+        if ($testCase[$i][$i] == 'X' || $testCase[$i][$i] == 'T') {
+            $xDCount++;
+        }
+
+        // Reverse diagonal reading
+        if ($testCase[$i][3 - $i] == 'X' || $testCase[$i][3 - $i] == 'T') {
+            $xDRCount++;
+        }
+
+        if ($testCase[$i][$i] == 'O' || $testCase[$i][$i] == 'T') {
+            $oDCount++;
+        }
+
+        if ($testCase[$i][3 - $i] == 'O' || $testCase[$i][3 - $i] == 'T') {
+            $oDRCount++;
+        }
+    }
+
+    if ($xDCount == 4 || $xDRCount == 4) {
+        return 'X won';
+    }
+
+    if ($oDCount == 4 || $oDRCount == 4) {
+        return 'O won';
+    }
+
+    if ($hasDots) {
+        return 'Game has not completed';
+    }
+
+    return 'Draw';
+}
+
+$f = fopen('A-large.in', 'r');
+$r = fopen('A-large.out', 'w+');
+
+// Read T
+$t = fgets($f);
+
+// Read the test cases
+for ($i = 0; $i < $t; $i++) {
+    $testCase = array();
+
+    // Read the test case
+    for ($j = 0; $j < 4; $j++) {
+        // Since this is PHP we won't bother on making each line an array
+        // as we can access the string easily as an array
+        $testCase[] = fgets($f);
+    }
+
+    // Check the solution and output the result
+    fputs($r, 'Case #' . ($i + 1) . ': ' . checkResult($testCase) . "\n");
+
+    // Skip the next line as it's empty
+    fgets($f);
+}
+
+fclose($r);
+fclose($f);
+
+echo PHP_EOL;

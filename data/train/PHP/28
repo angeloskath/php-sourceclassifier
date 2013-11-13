@@ -1,0 +1,72 @@
+<?php
+
+function r($x)
+{
+	var_dump($x);
+}
+
+$input = file($argv[1]);
+$nrCases = array_shift($input);
+
+$out = '';
+
+for ($i = 1; $i <= $nrCases; $i++) {
+
+	$positions  = trim(array_shift($input));
+	$positions .= trim(array_shift($input));
+	$positions .= trim(array_shift($input));
+	$positions .= trim(array_shift($input));
+
+	$line5 = array_shift($input);
+
+	$out .= 'Case #' . $i . ': ' . calc($positions) . "\n";
+}
+
+function calc($positions)
+{
+	$winningPatterns = array(
+		array(0, 1, 2, 3),
+		array(4, 5, 6, 7),
+		array(8, 9, 10, 11),
+		array(12, 13, 14, 15),
+
+		array(0, 4, 8, 12),
+		array(1, 5, 9, 13),
+		array(2, 6, 10, 14),
+		array(3, 7, 11, 15),
+
+		array(0, 5, 10, 15),
+		array(3, 6, 9, 12),
+		);
+
+	$positions = str_split($positions);
+
+	foreach ($winningPatterns as $pattern) {
+
+		$cX = $cO = 0;
+		foreach ($pattern as $pos) {
+			if ($positions[$pos] == 'X' || $positions[$pos] == 'T') {
+				$cX++;
+			}
+			if ($positions[$pos] == 'O' || $positions[$pos] == 'T') {
+				$cO++;
+			}
+		}
+
+		if ($cX == 4) {
+			return 'X won';
+		}
+		if ($cO == 4) {
+			return 'O won';
+		}
+	}
+
+	if (in_array('.', $positions)) {
+		return 'Game has not completed';
+	}
+
+	return 'Draw';
+}
+
+echo $out;
+file_put_contents(str_replace('.in', '.out', $argv[1]), $out);

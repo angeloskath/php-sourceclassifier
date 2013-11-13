@@ -1,0 +1,113 @@
+var fs = require('fs');
+
+fs.readFile('A.in', 'utf8', main);
+
+function main(err, data) {
+
+  if (err) throw err;
+
+  data = data.split('\n');
+  var i = 0,
+      n = parseInt(data[i++], 10),
+      tests = [
+        testDiagonal1, testDiagonal2,
+        row(0), row(1), row(2), row(3),
+        col(0), col(1), col(2), col(3)
+      ];
+
+
+  var results = [];
+
+  while (n--) {
+
+    var game = makeGame(i, data),
+        caseNumber = results.length,
+        msg = 'Case #' + (caseNumber + 1) + ': ',
+        context = {},
+        success = tests.some(function(test) { return test(context, game); });
+
+    if (success) {
+      results[caseNumber] = msg + context.victory + ' won';
+    } else {
+
+      results[caseNumber] = msg + (context.hasEmpty? 'Game has not completed': 'Draw');
+    }
+
+    i += 5;
+  }
+
+  fs.writeFileSync('A.out', results.join('\n'));
+}
+
+
+function sumFunction(memo, a) {
+  return memo + a;
+}
+
+function wins(ctx, data) {
+
+  var sum = data.reduce(sumFunction),
+      hasT = false;
+
+  if (sum > 50) {
+    sum -= 100;
+    sum = sum > 0? sum+1: sum < 0? sum-1: 0;
+    hasT = true;
+  }
+
+  var abs = Math.abs(sum);
+  ctx.hasEmpty = ctx.hasEmpty || data.indexOf(0) >= 0;
+
+  var ends = abs == 4;
+  if (ends) {
+    ctx.victory = sum > 0? 'X': 'O';
+  }
+
+  return ends;
+}
+
+function testDiagonal1(ctx, game) {
+  var data = [game[0][0], game[1][1], game[2][2], game[3][3]];
+  return wins(ctx, data);
+}
+
+function testDiagonal2(ctx, game) {
+  var data = [game[3][0], game[2][1], game[1][2], game[0][3]];
+  return wins(ctx, data);
+}
+
+function row(rowNumber) {
+
+  return function(ctx, game) {
+    var data = [game[rowNumber][0], game[rowNumber][1], game[rowNumber][2], game[rowNumber][3]];
+    return wins(ctx, data);
+  };
+}
+
+function col(colNumber) {
+
+  return function(ctx, game) {
+    var data = [game[0][colNumber], game[1][colNumber], game[2][colNumber], game[3][colNumber]];
+    return wins(ctx, data);
+  };
+}
+
+function makeGame(i, data) {
+  return [
+    data[i].split('').map(parse),
+    data[i+1].split('').map(parse),
+    data[i+2].split('').map(parse),
+    data[i+3].split('').map(parse)
+  ];
+}
+
+var dict = {
+  'X':   1,
+  'O':  -1,
+  '.':   0,
+  'T': 100
+};
+
+function parse(value) {
+  return dict[value];
+}

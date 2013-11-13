@@ -1,0 +1,196 @@
+class TicTacToemek
+  def debug
+    false
+  end
+
+  def solve (board)
+    return "X won" if see_if_winner(board, 'X')
+    return "O won" if see_if_winner(board, 'O')
+    return 'Game has not completed' if see_if_open_squares(board)
+    'Draw'
+  end
+
+  def see_if_winner(board, side)
+    see_if_winner_horizontal(board, side) or
+    see_if_winner_vertical(board, side) or
+    see_if_winner_diagonal(board, side)
+  end
+  def see_if_winner_diagonal(board, side)
+    see_if_winner_diagonal_jj(board, side) or
+    see_if_winner_diagonal_jOPPj(board, side)
+  end
+  def see_if_winner_diagonal_jOPPj(board, side)
+    so_far_so_good = true
+    for j in 0..3 do
+      if board[j][3-j] == side or board[j][3-j] == 'T'
+        #noop
+        puts "jOPPj - Going well #{board[j][3-j]} = board[#{j}][#{3-j}]" if debug
+      else
+        puts "jOPPj - No good... #{board[j][3-j]} = board[#{j}][#{3-j}].. hopefully break" if debug
+        so_far_so_good = false
+        break
+      end
+    end
+    if so_far_so_good
+      puts 'Yeah -- apparently this was a diagonal jj winner...' if debug
+      return true
+    end
+    false
+  end
+  def see_if_winner_diagonal_jj(board, side)
+    so_far_so_good = true
+    for j in 0..3 do
+      if board[j][j] == side or board[j][j] == 'T'
+        #noop
+        puts "Going well #{board[j][j]} = board[#{j}][#{j}]" if debug
+      else
+        puts "No good... #{board[j][j]} = board[#{j}][#{j}].. hopefully break" if debug
+        so_far_so_good = false
+        break
+      end
+    end
+    if so_far_so_good
+      puts 'Yeah -- apparently this was a diagonal jj winner...' if debug
+      return true
+    end
+    false
+  end
+  def see_if_winner_vertical(board, side)
+    for j in 0..3 do
+      so_far_so_good = true
+      for i in 0..3 do
+        if board[i][j] == side or board[i][j] == 'T'
+          #noop
+          puts "Going well #{board[i][j]} = board[#{i}][#{j}]" if debug
+        else
+          puts "No good... #{board[i][j]} = board[#{i}][#{j}].. hopefully break" if debug
+          so_far_so_good = false
+          break
+        end
+      end
+      if so_far_so_good
+        puts 'Yeah -- apparently this was a vertical winner...' if debug
+        return true
+      end
+    end
+    false
+  end
+  def see_if_winner_horizontal(board, side)
+    for i in 0..3 do
+      so_far_so_good = true
+      for j in 0..3 do
+        if board[i][j] == side or board[i][j] == 'T'
+          #noop
+          puts "Going well #{board[i][j]} = board[#{i}][#{j}]" if debug
+        else
+          puts "No good... #{board[i][j]} = board[#{i}][#{j}].. hopefully break" if debug
+          so_far_so_good = false
+          next
+        end
+      end
+      if so_far_so_good
+        puts 'Yeah -- apparently this was a horizontal winner...' if debug
+        return true
+      end
+    end
+    false
+  end
+
+  def see_if_open_squares(board)
+    for i in 0..3 do
+      for j in 0..3 do
+        return true if board[i][j] == '.'
+      end
+    end
+    false
+  end
+  
+  def input(filename)
+    arr = IO.readlines(filename)
+    line_num = 0
+    t = arr[line_num].strip.to_i
+    File.open(filename + '.out', 'w') do |out|
+      for case_num in 1..t do
+        board = []
+        for i in 0..3 do
+          line = arr[line_num+=1].strip
+          board[i] = []
+          for j in 0..3 do
+            board[i][j] = line[j]
+          end
+        end
+        line_num+=1
+        output = "Case ##{case_num}: " + solve(board)
+        puts '-----------------------------------------------------' if debug
+        puts '-----------------------------------------------------' if debug
+        puts '-----------------------------------------------------' if debug
+        puts output
+        out.puts output
+      end
+    end
+  end
+end
+
+TicTacToemek.new.input('A-large.in')
+
+require 'rspec'
+describe 'TicTacToemek' do
+  let(:fs) { TicTacToemek.new }
+  describe '.solve' do
+    it 'outputs X won for case 1 - horizontal' do
+      board = [
+        [ 'X' , 'X' , 'X' , 'T' ],
+        [ '.' , '.' , '.' , '.' ],
+        [ 'O' , 'O' , '.' , '.' ],
+        [ '.' , '.' , '.' , '.' ],
+      ]
+      fs.solve(board).should == 'X won'
+    end
+    
+    it 'outputs O won for case 4 - vertical' do
+      board = [
+        [ 'O' , 'O' , 'X' , 'X' ],
+        [ 'O' , 'X' , 'X' , 'X' ],
+        [ 'O' , 'X' , '.' , 'T' ],
+        [ 'O' , '.' , '.' , 'O' ],
+      ]
+      fs.solve(board).should == 'O won'
+    end
+    it 'outputs O won for case 6 - diagonal j-j' do
+      board = [
+        [ 'O' , 'O' , 'X' , 'X' ],
+        [ 'X' , 'O' , 'X' , 'X' ],
+        [ 'O' , 'X' , 'T' , 'T' ],
+        [ 'O' , '.' , '.' , 'O' ],
+      ]
+      fs.solve(board).should == 'O won'
+    end
+    it 'outputs O won for case 5 - diagonal j-OPPj' do
+      board = [
+        [ 'O' , 'O' , 'X' , 'O' ],
+        [ 'X' , '.' , 'O' , 'X' ],
+        [ 'O' , 'O' , 'X' , '.' ],
+        [ 'T' , '.' , '.' , 'O' ],
+      ]
+      fs.solve(board).should == 'O won'
+    end
+    it 'outputs Game has not completed for case 3' do
+      board = [
+        [ 'X' , 'O' , 'X' , '.' ],
+        [ 'O' , 'X' , '.' , '.' ],
+        [ '.' , '.' , '.' , '.' ],
+        [ '.' , '.' , '.' , '.' ],
+      ]
+      fs.solve(board).should == 'Game has not completed'
+    end
+    it 'outputs Draw for case 2' do
+      board = [
+        [ 'X' , 'O' , 'X' , 'T' ],
+        [ 'X' , 'X' , 'O' , 'O' ],
+        [ 'O' , 'X' , 'O' , 'X' ],
+        [ 'X' , 'X' , 'O' , 'O' ],
+      ]
+      fs.solve(board).should == 'Draw'
+    end
+  end
+end

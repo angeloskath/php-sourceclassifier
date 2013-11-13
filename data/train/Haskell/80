@@ -1,0 +1,74 @@
+module Main where
+
+import Data.List
+
+data GameState = Draw
+	       | NotOver
+	       | OWon
+	       | XWon
+	       deriving (Eq,Ord)
+
+instance Show GameState where
+	show XWon = "X won"
+	show OWon = "O won"
+	show Draw = "Draw"
+	show NotOver = "Game has not completed"
+
+type Game = [[Char]]
+type Row = String
+
+solutions :: [[(Int,Int)]]
+solutions =  [[(0,0),(0,1),(0,2),(0,3)],
+	      [(1,0),(1,1),(1,2),(1,3)],
+	      [(2,0),(2,1),(2,2),(2,3)],
+	      [(3,0),(3,1),(3,2),(3,3)],
+	      [(0,0),(1,0),(2,0),(3,0)],
+	      [(0,1),(1,1),(2,1),(3,1)],
+	      [(0,2),(1,2),(2,2),(3,2)],
+	      [(0,3),(1,3),(2,3),(3,3)],
+	      [(0,0),(1,1),(2,2),(3,3)],
+	      [(3,0),(2,1),(1,2),(0,3)]
+	     ]
+
+data PieceOwner = X | O | Both | Nobody deriving(Eq)
+
+getPieceOwner :: Char -> PieceOwner
+getPieceOwner 'X' = X
+getPieceOwner 'O' = O
+getPieceOwner 'T' = Both
+getPieceOwner '.' = Nobody
+
+getRow :: Game -> [(Int,Int)] -> Row
+getRow g = map (\(x,y) -> g !! y !! x)
+
+getRows :: Game -> [[(Int,Int)]] -> [Row]
+getRows g = map $ getRow g
+
+evalRow :: Row -> GameState
+evalRow r = let owners = map getPieceOwner r
+	    in  case () of _ | any (==Nobody) owners		      -> NotOver
+			     | all (\o -> (o==X) || (o==Both)) owners -> XWon
+			     | all (\o -> (o==O) || (o==Both)) owners -> OWon
+			     | otherwise			      -> Draw
+
+evalRows :: [Row] -> GameState
+evalRows = maximum . map evalRow
+
+evalGame :: Game -> GameState
+evalGame = evalRows . flip getRows solutions
+
+main :: IO ()
+main = interact (unlines . map (uncurry showAnswer) . enumerate . map evalGame . getGames . drop 1 . lines)
+
+getGames :: [String] -> [Game]
+getGames = unfoldr getGame
+
+getGame :: [String] -> Maybe (Game, [String])
+getGame [] = Nothing
+getGame s  = Just (take 4 s, drop 5 s)
+
+showAnswer :: Int -> GameState -> String
+showAnswer i s = "Case #" ++ show i ++ ": " ++ show s
+
+enumerate :: [a] -> [(Int,a)]
+enumerate = zip [x | x <- [1..]]

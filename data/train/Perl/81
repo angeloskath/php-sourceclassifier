@@ -1,0 +1,205 @@
+#!/usr/bin/perl -w
+#
+#   README 
+
+use strict; 
+use Data::Dumper;
+use POSIX qw/ceil/;
+
+my $DEBUG	= 0; 	# For Debugging
+my $SUCCESS	= 0;	# Valid number
+my $EINVNARG = 1;	# Invalid number of arguments
+my $ENOFILE = 2; 	# Error file does not exists
+
+my %ERROR = (
+		$EINVNARG 	=> "Invalid number of arguments", 
+		$ENOFILE	=> "File does not exist\n",
+        );
+
+sub file_exist { 
+    return $EINVNARG if (@_ != 1); 
+    return $SUCCESS if (-e $_[0]);
+    return $ENOFILE; 
+}
+
+
+sub trim { 
+	my @elems = @_; 
+	foreach my $str (@elems) { 
+		$str =~ s/^\s+|\s+$//g;
+	}
+	return @elems;
+}
+
+		
+sub validate_file { 
+    return $EINVNARG 	if (@_ != 1); 
+    my $number = $_[0]; 
+    
+    return $SUCCESS;
+}
+
+sub combination { 
+	my ($hash) = @_; 
+	for (my $n = 0; $n < 4; $n++) {
+		if (($$hash{$n}{0} eq 'X' or $$hash{$n}{0} eq 'T') and 
+			($$hash{$n}{1} eq 'X' or $$hash{$n}{1} eq 'T') and 
+			($$hash{$n}{2} eq 'X' or $$hash{$n}{2} eq 'T') and 
+			($$hash{$n}{3} eq 'X' or $$hash{$n}{3} eq 'T')) { 
+			return 'X'; 
+		}
+		if (($$hash{$n}{0} eq  'O' or $$hash{$n}{0} eq 'T') and 
+			($$hash{$n}{1} eq  'O' or $$hash{$n}{1} eq 'T') and 
+			($$hash{$n}{2} eq  'O' or $$hash{$n}{2} eq 'T') and 
+			($$hash{$n}{3} eq  'O' or $$hash{$n}{3} eq 'T')) { 
+			return 'O'; 
+		}
+		if (($$hash{0}{$n} eq 'X' or $$hash{0}{$n} eq 'T') and 
+			($$hash{1}{$n} eq 'X' or $$hash{1}{$n} eq 'T') and 
+			($$hash{2}{$n} eq 'X' or $$hash{2}{$n} eq 'T') and 
+			($$hash{3}{$n} eq 'X' or $$hash{3}{$n} eq 'T')) { 
+			return 'X'; 
+		}
+		if (($$hash{0}{$n} eq  'O' or $$hash{0}{$n} eq 'T') and 
+			($$hash{1}{$n} eq  'O' or $$hash{1}{$n} eq 'T') and 
+			($$hash{2}{$n} eq  'O' or $$hash{2}{$n} eq 'T') and 
+			($$hash{3}{$n} eq  'O' or $$hash{3}{$n} eq 'T')) { 
+			return 'O'; 
+		}
+	}
+	if (($$hash{0}{0} eq 'X' or $$hash{0}{0} eq 'T') and 
+		($$hash{1}{1} eq 'X' or $$hash{1}{1} eq 'T') and 
+		($$hash{2}{2} eq 'X' or $$hash{2}{2} eq 'T') and 
+		($$hash{3}{3} eq 'X' or $$hash{3}{3} eq 'T')) { 
+		return 'X'; 
+	}
+	if (($$hash{0}{0} eq 'O' or $$hash{0}{0} eq 'T') and 
+		($$hash{1}{1} eq 'O' or $$hash{1}{1} eq 'T') and 
+		($$hash{2}{2} eq 'O' or $$hash{2}{2} eq 'T') and 
+		($$hash{3}{3} eq 'O' or $$hash{3}{3} eq 'T')) { 
+		return 'O'; 
+	}
+	if (($$hash{0}{3} eq 'X' or $$hash{0}{3} eq 'T') and 
+		($$hash{1}{2} eq 'X' or $$hash{1}{2} eq 'T') and 
+		($$hash{2}{1} eq 'X' or $$hash{2}{1} eq 'T') and 
+		($$hash{3}{0} eq 'X' or $$hash{3}{0} eq 'T')) { 
+		return 'X'; 
+	}
+	if (($$hash{0}{3} eq 'O' or $$hash{0}{3} eq 'T') and 
+		($$hash{1}{2} eq 'O' or $$hash{1}{2} eq 'T') and 
+		($$hash{2}{1} eq 'O' or $$hash{2}{1} eq 'T') and 
+		($$hash{3}{0} eq 'O' or $$hash{3}{0} eq 'T')) { 
+		return 'O'; 
+	}
+	for(my $i = 0; $i < 4; $i++) { 
+		for(my $j = 0; $j< 4; $j++) { 
+			if ($$hash{$i}{$j} eq '.') { 
+				return '.'; 
+			}
+		}
+	}
+	return 'Draw'; 
+}
+
+sub find_winner { 
+	my ($test, $hash) = @_; 
+	print "Case #".$test.": ";
+	print OFH "Case #".$test.": ";
+
+	my $result = combination($hash); 
+	#print " $result";
+	if ($result eq '.') { 
+		$result = "Game has not completed"; 
+		print $result."\n";
+		print OFH $result."\n";
+		#$$output{$test} = $result; 
+		return; 
+	} elsif ($result eq 'Draw') { 
+		$result = "Draw"; 
+		print $result."\n";
+		print OFH $result."\n";
+		#$$output{$test} = $result; 
+		return; 
+	} else { 
+		$result =  "$result won";
+		print $result."\n";
+		print OFH $result."\n";
+		#$$output{$test} = $result; 
+		return; 
+	}
+	return;
+}
+
+
+# Main function: It was called by exit function at the bottom
+sub main () { 
+	my $dfname = "A-large.in";
+
+	my $fname = <STDIN>;
+    chomp $fname if defined $fname; 
+	if ($fname eq '') { 
+		$fname = $dfname;
+	}
+	
+	print "Input File used : ". $fname."\n"; 
+	my $err = 0; 
+    if (($err = file_exist($fname)) != $SUCCESS) { 
+		print $ERROR{$err};
+		return $err; 
+    }
+    # Open passwd file for read only. 
+    open(FH, "<", $fname) or die "Unable to open $fname: $!\n"; 
+
+	my $outf = "output_".$fname; 
+    open(OFH, ">", $outf) or die "Unable to open $outf: $!\n"; 
+
+	my $ntests = <FH>;
+	print "number of test cases = $ntests \n";
+	my $test = 0; 
+	my $i = 0; 
+	my %hash = (); 
+	my %output = (); 
+	foreach my $line (<FH>) {
+		if (defined $line) { 
+			chomp $line; 
+			#print "line = $line \n";
+			if ($line ne '') { 
+				my @row = split('', $line);
+				#print "row = @row\n";
+				my $row = $i % 4;
+				for(my $j = 0; $j< 4; $j++) { 
+					$hash{$row}{$j} = shift @row; 
+					print $hash{$row}{$j}; 
+				}
+				$i++; 
+				print "\n"; 
+			} else { 
+				#print "line = $line \n";
+				$test++;
+				#print Dumper(\%hash);
+				find_winner($test, \%hash); 
+			} 
+		}
+    }
+	print "Finished \n";
+	my $break = <STDIN>;
+	close(FH); 
+
+	#my $outf = "output_".$fname; 
+    #open(OFH, ">", $outf) or die "Unable to open $outf: $!\n"; 
+
+	#foreach my $case ( sort{$a <=> $b}  keys %output) { 
+	#	my $result = $hash{$case};
+	#	print OFH "Case #$case: $result\n";
+	#	print "Case #$case: $result\n" if ($DEBUG);
+	#}
+	close(OFH);
+
+	print "Output file : ".$outf."\n";
+
+
+    return $SUCCESS; 
+}
+
+exit (&main);
+

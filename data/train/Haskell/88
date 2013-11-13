@@ -1,0 +1,164 @@
+module CodeJam (readMany, runMain) where
+
+import Control.Applicative
+import Control.Monad
+
+import System.IO
+import System.FilePath
+import System.Environment
+
+readMany :: (Handle -> IO a) -> Handle -> IO [a]
+readMany readUnit h = do
+    t <- read <$> hGetLine h
+    replicateM t $ readUnit h
+
+writeSolution :: [String] -> Handle -> IO ()
+writeSolution sols h = do
+    forM_ (zip [1..] sols) $ \(i, sol) -> do
+        hPutStr h $ concat ["Case #", show i, ": "]
+        hPutStrLn h sol
+
+runMain :: (Handle -> IO [a]) -> (a -> IO String) -> IO ()
+runMain readInput solve = do
+    [infile] <- getArgs
+    let outfile = replaceExtension infile "out"
+
+    input <- withFile infile ReadMode readInput
+    results <- mapM solve input
+    withFile outfile WriteMode $ writeSolution results
+
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE FlexibleContexts #-}
+module Solve(Board, analyze, parseBoard, boardSize) where
+
+import Data.Array.Repa (Array, Z(..), (:.)(..), D)
+import qualified Data.Array.Repa as Repa
+import Data.Array.Repa.Eval as Repa
+import Data.Array.Repa.Repr.Vector (V)
+
+data Piece = E | T | X | O
+           deriving Show
+
+goodFor :: Piece -> Piece -> Bool
+goodFor X T = True
+goodFor X X = True
+goodFor O T = True
+goodFor O O = True
+goodFor _ _ = False
+
+isEmpty :: Piece -> Bool
+isEmpty E = True
+isEmpty _ = False
+
+type Board r = Array r (Z :. Int :. Int) Piece
+
+boardSize :: Int
+boardSize = 4
+
+boardShape :: Z :. Int :. Int
+boardShape = Z :. boardSize :. boardSize
+
+type Region r = Array r (Z :. Int) Piece
+
+regionShape :: Z :. Int
+regionShape = Z :. boardSize
+
+test1 :: Board V
+test1 = Repa.fromList boardShape $ concat rows
+  where
+    rows = [ [ X, X, X, T ]
+           , [ E, E, E, E ]
+           , [ O, O, E, E ]
+           , [ E, E, E, E ]
+           ]
+
+parseBoard :: [String] -> Board V
+parseBoard = Repa.fromList boardShape . concat . map (map toPiece)
+  where
+    toPiece 'X' = X
+    toPiece 'O' = O
+    toPiece 'T' = T
+    toPiece '.' = E
+
+test2 :: Board V
+test2 = parseBoard
+        [ "XOXT"
+        , "XXOO"
+        , "OXOX"
+        , "XXOO"
+        ]
+
+getRegion :: (Repa.Source r Piece)
+          => (Int -> (Int, Int)) -> Board r -> Region D
+getRegion idx = Repa.backpermute regionShape idx'
+  where
+    idx' (Z :. i) = case idx i of
+        (x, y) -> Z :. x :. y
+
+rows :: (Repa.Source r Piece) => Board r -> [Region D]
+rows board = map row [0..boardSize - 1]
+  where
+    row x = getRegion (\y -> (x ,y)) board
+
+cols :: (Repa.Source r Piece)
+     => Board r -> [Region D]
+cols board = map col [0..boardSize - 1]
+  where
+    col y = getRegion (\x -> (x, y)) board
+
+diags :: (Repa.Source r Piece)
+      => Board r -> [Region D]
+diags board = [diag1, diag2]
+  where
+    diag1 = getRegion (\i -> (i, i)) board
+    diag2 = getRegion (\i -> (i, boardSize - (i + 1))) board
+
+regionsOf :: (Repa.Source r Piece)
+          => Board r -> [Region D]
+regionsOf board = concat [ rows board, cols board, diags board ]
+
+repaAll :: (Repa.Shape sh, Repa.Source r a, Repa.Source r Bool)
+        => (a -> Bool) -> Array r sh a -> Bool
+repaAll p = Repa.foldAllS (&&) True . Repa.map p
+
+winRegion :: (Repa.Source r Piece, Repa.Source r Bool)
+          => Piece -> Region r -> Bool
+winRegion p = repaAll (goodFor p)
+
+data AnalResult = WinX
+                | WinO
+                | Draw
+                | Incomplete
+
+instance Show AnalResult where
+    show WinX = "X won"
+    show WinO = "O won"
+    show Draw = "Draw"
+    show Incomplete = "Game has not completed"
+
+analyze :: (Repa.Source r Piece, Repa.Source r Bool)
+        => Board r -> AnalResult
+analyze board | any (winRegion X) regions = WinX
+              | any (winRegion O) regions = WinO
+              | draw = Draw
+              | otherwise = Incomplete
+  where
+    regions = regionsOf board
+    draw = repaAll (not . isEmpty) board
+
+foo :: Region D -> Region V
+foo = Repa.computeS
+import CodeJam
+import Solve
+import System.IO
+import Control.Monad
+
+main = runMain (readMany readBoard) solve
+  where
+    readBoard h = do
+        rows <- replicateM boardSize (hGetLine h)
+        hGetLine h -- Skip newline at end
+        return $ parseBoard rows
+
+    solve = return . show . analyze

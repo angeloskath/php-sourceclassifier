@@ -1,0 +1,69 @@
+(ns code-jam.ttt
+  (:use code-jam.cheese
+        [clojure.string :only [join split-lines]]))
+
+(def zero {:x {:r (zipmap (range 4) (repeat 0))
+               :c (zipmap (range 4) (repeat 0))
+               :d (zipmap (range 2) (repeat 0))}
+           :o {:r (zipmap (range 4) (repeat 0))
+               :c (zipmap (range 4) (repeat 0))
+               :d (zipmap (range 2) (repeat 0))}
+           :t false})
+
+(defn score
+  [s [x y c]]
+  (condp = c
+    \X (-> s
+           (update-in [:x :r x] inc)
+           (update-in [:x :c y] inc)
+           (update-in [:x :d 0] (if (= x y) inc identity))
+           (update-in [:x :d 1] (if (= (+ x y) 3) inc identity)))
+    \O (-> s
+           (update-in [:o :r x] inc)
+           (update-in [:o :c y] inc)
+           (update-in [:o :d 0] (if (= x y) inc identity))
+           (update-in [:o :d 1] (if (= (+ x y) 3) inc identity)))
+    \T (-> s
+           (update-in [:x :r x] inc)
+           (update-in [:x :c y] inc)
+           (update-in [:x :d 0] (if (= x y) inc identity))
+           (update-in [:x :d 1] (if (= (+ x y) 3) inc identity))
+           (update-in [:o :r x] inc)
+           (update-in [:o :c y] inc)
+           (update-in [:o :d 0] (if (= x y) inc identity))
+           (update-in [:o :d 1] (if (= (+ x y) 3) inc identity))
+           (assoc-in [:t] true))
+    \. s))
+
+(defn winner [s]
+  (let [xs (:x s)
+        os (:o s)
+        x-scores (for [t (keys xs)
+                       i (keys (xs t))]
+                   (get-in xs [t i]))
+        o-scores (for [t (keys os)
+                       i (keys (os t))]
+                   (get-in os [t i]))]
+    (cond (some (partial = 4) x-scores) "X won"
+          (some (partial = 4) o-scores) "O won"
+          (= (+ 32 (if (:t s) 2 0))
+             (reduce + (for [l [:x :o]
+                             t [:r :c]
+                             i (range 4)]
+                         (get-in s [l t i])))) "Draw"
+          :else "Game has not completed")))
+
+(defn solve-all
+  [prefix]
+  (let [in (split-lines (slurp (str prefix ".in")))
+        numcases (read-string (first in))
+        cases (partition 5 (rest in))]
+    (spit (str prefix ".out") (join "\n"
+      (for [[c cn] (map vector cases (range 1 (inc numcases)))]
+        (->> c
+             (take 4)
+             (map-indexed (fn [x ln] (map-indexed (fn [y c] [x y c]) ln)))
+             (apply concat)
+             (reduce score zero)
+             winner
+             (str "Case #" cn ": ")))))))

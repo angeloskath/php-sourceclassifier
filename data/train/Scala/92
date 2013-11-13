@@ -1,0 +1,82 @@
+package net.flicken
+
+import collection.Iterator
+import io.Source
+import java.io.{FileWriter, File}
+import scala.Array.canBuildFrom
+import scala.collection.JavaConversions._
+
+object Skeleton {
+  import GoogleCodeHelper.iteratorToHelper
+
+  private def hasWon(player: Char)(board: Seq[Char]) = {
+    board.count(c => c == player || c == 'T') == 4
+  }
+  
+  private def won(player: Char)(board: Seq[Seq[Char]]) = {
+    board.exists(hasWon(player)) || board.transpose.exists(hasWon(player)) || 
+	              Seq(Seq(board(0)(0), board(1)(1), board(2)(2), board(3)(3)), Seq(board(0)(3), board(1)(2), board(2)(1), board(3)(0))).exists(hasWon(player))
+  }
+  
+  def solveProblem(reader: Iterator[String]) = {
+    val lines = reader.take(4).toList
+    reader.next
+	val board = lines.map(_.split("").flatMap(_.headOption).toSeq)
+	val xWon = won('X')(board)
+	val oWon = won('O')(board)
+	if (xWon && oWon) "Draw"
+	else if (xWon) "X won"
+	else if (oWon) "O won"
+	else if (lines.exists(_.contains("."))) "Game has not completed"
+	else "Draw"
+  }
+
+  def main(args: Array[String]) {
+    val maybeInput = (args.toSeq.headOption orElse new File("src/main/resources").listFiles().sortBy(_.lastModified()).filter(_.getName().endsWith("in")).reverse.headOption.map(_.getAbsolutePath()))
+    if (maybeInput.isEmpty) {
+      throw new IllegalArgumentException("Could not find input file in arguments on in src/main/resources")
+    } else {
+      println("Reading from " + maybeInput.get)
+    }
+
+    val input = maybeInput.get
+    val outputFile = new File((input.substring(0, input.lastIndexOf("."))) + ".out")
+    val reader: Iterator[String] = Source.fromFile(input).getLines()
+    val nrProblems = reader.nextInt
+    val results = new Array[String](nrProblems)
+    for (i <- 1 to nrProblems) {
+      println("Solving case " + i)
+      results(i - 1) = "Case #" + i + ": " + solveProblem(reader)
+      println(results(i - 1))
+    }
+    val fw = new FileWriter(outputFile)
+    try {
+      fw.write(results.mkString("\n"))
+    } finally {
+      fw.close()
+    }
+  }
+
+  class GoogleCodeHelper(val iterator: Iterator[String]) {
+
+    def trimmedLine = iterator.next().trim()
+    def nextInt: Int = trimmedLine.toInt
+    def nextIntArray: Array[Int] = nextStringArray map (_.toInt)
+    def nextCharArray: Array[Char] = iterator.next().toCharArray
+    def nextLongArray: Array[Long] = nextStringArray map (_.toLong)
+    def nextDoubleArray: Array[Double] = nextStringArray map (_.toDouble)
+    def nextBigDecimalArray: Array[BigDecimal] = nextLongArray map (BigDecimal(_))
+    def nextBigIntArray: Array[BigInt] = nextStringArray map (BigInt(_))
+    def nextStringArray: Array[String] = trimmedLine split " "
+
+    def skipLines(nr: Int) {
+      for (i <- 1 to nr) {
+        iterator.next()
+      }
+    }
+  }
+
+  object GoogleCodeHelper {
+    implicit def iteratorToHelper(x: Iterator[String]): GoogleCodeHelper = new GoogleCodeHelper(x)
+  }
+}

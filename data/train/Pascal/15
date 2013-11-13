@@ -1,0 +1,97 @@
+program tic_tac;
+type tar = array [1..4,1..4] of char;
+
+var a : tar;
+s : string;
+t, it, i, j, x, o, uni : longint;
+dot : boolean;
+begin
+	Assign(input,'input.txt'); Reset(input);
+	Assign(output,'output.txt'); Rewrite(output);
+
+	Readln(t);
+	for it:=1 to t do begin
+		//input
+		dot:=false;
+		for i:=1 to 4 do begin
+			for j:=1 to 4 do begin
+				Read(a[i,j]);
+				if a[i,j]='.' then dot:=true;
+			end;
+			readln;
+		end;
+		readln;
+
+		//solve
+		s:='';
+		//Horizontal
+		for i:=1 to 4 do begin
+			x:=0; o:=0; uni:=0;
+			for j:=1 to 4 do begin
+				case a[i,j] of
+					'X' : inc(x);
+					'O' : inc(o);
+					'T' : inc(uni);
+				end;
+			end;
+			if (x = 4) then s:='X won';
+			if (x = 3) and (uni = 1) then s:='X won';
+			if (o = 4) then s:='O won';
+			if (o = 3) and (uni = 1) then s:='O won';
+		end;
+
+		//Vertical
+		for j:=1 to 4 do begin
+			x:=0; o:=0; uni:=0;
+			for i:=1 to 4 do begin
+				case a[i,j] of
+					'X' : inc(x);
+					'O' : inc(o);
+					'T' : inc(uni);
+				end;
+			end;
+			if (x = 4) then s:='X won';
+			if (x = 3) and (uni = 1) then s:='X won';
+			if (o = 4) then s:='O won';
+			if (o = 3) and (uni = 1) then s:='O won';
+		end;
+
+		//1 diagonal
+		x:=0; o:=0; uni:=0;
+		for i:=1 to 4 do begin
+			case a[i,i] of
+				'X' : inc(x);
+				'O' : inc(o);
+				'T' : inc(uni);
+			end;
+		end;
+		if (x = 4) then s:='X won';
+		if (x = 3) and (uni = 1) then s:='X won';
+		if (o = 4) then s:='O won';
+		if (o = 3) and (uni = 1) then s:='O won';
+		//2 diagonal
+		x:=0; o:=0; uni:=0;
+		for i:=1 to 4 do begin
+			case a[i,5-i] of
+				'X' : inc(x);
+				'O' : inc(o);
+				'T' : inc(uni);
+			end;
+		end;
+		if (x = 4) then s:='X won';
+		if (x = 3) and (uni = 1) then s:='X won';
+		if (o = 4) then s:='O won';
+		if (o = 3) and (uni = 1) then s:='O won';
+
+
+
+
+		if (s='') then begin
+			if dot then s:='Game has not completed'
+			else s:='Draw';
+		end;
+		Writeln('Case #',it,': ',s);
+	end;
+
+	Close(input); Close(output);
+end.

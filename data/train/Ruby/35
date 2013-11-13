@@ -1,0 +1,46 @@
+def good?(player,letter)
+  player == letter || letter == 'T'
+end
+def has_won(player,board)
+  # check horizontal
+  board.each do |row|
+    win = row.all? {|p| p == player || p == 'T'}
+    return true if win
+  end
+
+  # check vertical
+  4.times do |col|
+    bad = false
+    4.times do |row|
+      bad = true unless good?(player,board[row][col])
+    end
+    return true unless bad
+  end
+
+  # check diagonal
+  return true if (0..3).all? {|z| good?(player,board[z][z])}
+  return true if (0..3).all? {|z| good?(player,board[z][3-z])}
+end
+
+def draw?(board)
+  board.all? do |row|
+    row.all? {|p| p != '.'}
+  end
+end
+
+gets.to_i.times do |n|
+  board = []
+  4.times do
+    board << gets.chomp.chars
+  end
+  gets # new line
+  status = "Game has not completed"
+  if has_won('X',board)
+    status = "X won"
+  elsif has_won('O',board)
+    status = "O won"
+  elsif draw?(board)
+    status = "Draw"
+  end
+  puts "Case ##{n+1}: #{status}"
+end

@@ -1,0 +1,154 @@
+var fs = require('fs');
+var inFile = "c:\\temp\\a.in";
+var outFile = "c:\\temp\\a.out";
+
+
+
+function main()
+{
+	var data = fs.readFileSync(inFile,"ascii");
+	var lines = data.split('\n')
+
+	console.log('test')
+
+	var count = parseInt(lines[0],10);
+	console.log(count)
+
+	var output = "";
+	var board = [];
+	var x =0;
+	var caseNum = 1;
+
+	for (var i =1;i<lines.length;i++)
+	{
+		if(lines[i].length <=1)
+		{	
+			output += processBoard(caseNum,board);
+			board = [];
+			x = 0;
+			caseNum++;
+
+			continue;
+		}
+
+		board[x] = lines[i];
+		x++;
+
+	}
+
+	console.log(output)
+	fs.writeFile(outFile,output,"ascii");
+
+}
+
+function processBoard(caseNum, board)
+{
+	var filled = 0;
+	for (var y = 0;y<4;y++)
+		for (var x =0;x<4;x++)
+			if (board[x][y] != '.') filled ++;
+
+	var xWon =false
+	var oWon = false;
+	//check for horizonal wins
+	for (var y = 0;y<4;y++)
+	{
+		var cx = 0;
+		var co = 0;
+		for (var x =0;x<4;x++)
+		{
+			if (board[y][x] == 'X' )
+				cx++;
+			if (board[y][x] == 'O' )
+				co++;
+			if (board[y][x] == 'T' )
+			{
+				cx++;
+				co++;
+			}
+
+		}
+
+		if (cx == 4) xWon = true;
+		if (co == 4) oWon = true;
+	}
+
+
+	//check vertical wins
+	for (var x =0;x<4;x++)
+	{
+		var cx = 0;
+		var co = 0;
+		for (var y = 0;y<4;y++)
+		{
+			if (board[y][x] == 'X' )
+				cx++;
+			if (board[y][x] == 'O' )
+				co++;
+			if (board[y][x] == 'T' )
+			{
+				cx++;
+				co++;
+			}
+
+		}
+
+		if (cx == 4) xWon = true;
+		if (co == 4) oWon = true;
+	}
+
+	// top left to bottom right diag
+		var cx = 0;
+		var co = 0;
+	for (var t =0;t<4;t++)
+	{
+			if (board[t][t] == 'X' )
+				cx++;
+			if (board[t][t] == 'O' )
+				co++;
+			if (board[t][t] == 'T' )
+			{
+				cx++;
+				co++;
+			}
+		}
+		if (cx == 4) xWon = true;
+		if (co == 4) oWon = true;
+
+
+
+	// top right to bottom left diag (3,0  2,1  1,2,    0,3
+		var cx = 0;
+		var co = 0;
+	for (var t =0;t<4;t++)
+	{
+		
+			if (board[3-t][t] == 'X' )
+				cx++;
+			if (board[3-t][t] == 'O' )
+				co++;
+			if (board[3-t][t] == 'T' )
+			{
+				cx++;
+				co++;
+			}
+		}
+		if (cx == 4) xWon = true;
+		if (co == 4) oWon = true;
+
+
+
+
+
+	if (xWon == true )  return 'Case #'+caseNum+': X won\n'
+	if (oWon == true )  return 'Case #'+caseNum+': O won\n'
+	if (filled ==16)return 'Case #'+caseNum+': Draw\n'
+	return 'Case #'+caseNum+': Game has not completed\n'
+
+
+}
+
+
+main();
+
+

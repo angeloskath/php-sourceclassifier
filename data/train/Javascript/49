@@ -1,0 +1,79 @@
+var fs = require('fs');
+
+function solveProblem(filePath){
+    var data = fs.readFileSync(filePath).toString(),
+        lines = data.split('\n'),
+        num = lines[0],
+        result;
+
+    for (var i = 0; i < num; i++) {
+        result = solveMatrix(lines.slice(4 * i + i + 1, 4 * i + i + 5));
+        switch (result){
+            case 'X':
+            case 'O':
+                console.log('Case #'+ (i + 1) + ': ' + result + ' won');
+                break;
+            case true:
+                console.log('Case #'+ (i + 1) + ': Draw');
+                break;
+            default:
+                console.log('Case #'+ (i + 1) + ': Game has not completed');
+        }
+    }
+}
+
+function solveMatrix(rows) {
+
+    var rowSol = [],
+        colSol = [],
+        value = null,
+        isDraw = true,
+        d1, d2;
+
+    for (var r = 0; r < rows.length; r++) {
+        for (var c = 0; c < rows[r].length; c++) {
+            value = rows[r][c];
+            rowSol[r] = checkValue(value, rowSol[r]);
+            colSol[c] = checkValue(value, colSol[c]);
+            if (c === r) {
+                d1 = checkValue(value, d1);
+            }
+            if (r === rows[r].length - c - 1) {
+                d2 = checkValue(value, d2);
+            }
+            isDraw = isDraw && (value!='.');
+        }
+
+        if (rowSol[r] !== null) {
+            return rowSol[r];
+        }
+    }
+
+    for (c = 0; c < colSol.length; c++) {
+        if (colSol[c] !== null) {
+            return colSol[c];
+        }
+    }
+    if (d1 !== null) {
+        return d1;
+    } else if (d2 !== null) {
+        return d2;
+    } else {
+        return isDraw;
+    }
+}
+
+function checkValue(value, oldValue) {
+    var result = value;
+
+    if (value === 'T') {
+        result = oldValue;
+    } else if (value === '.' || (oldValue !== undefined && value !== oldValue)) {
+        result = null; //invalid
+
+    }
+    return result;
+
+}
+
+solveProblem('./test_s.txt');

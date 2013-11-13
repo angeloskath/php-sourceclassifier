@@ -1,0 +1,58 @@
+{ Borland Delphi 7.0 }
+{ Compatible with others versions of Delphi and Free Pascal }
+
+program A;
+
+var i,T: integer;
+    c: array [1..4,1..4] of char;
+    m: array [0..4,0..4] of shortint;
+    answer: array [1..1000] of string;
+    h,w,d1,d2: integer;
+    not_filled,O_won,X_won: boolean;
+    o: text;
+                                                      begin
+assign(o,'input.in');  reset(o);
+readln(o,t);                           for i:=1 to T do begin
+for h:=0 to 4 do for w:=0 to 4 do m[h,w]:=0;
+                          not_filled:=false;
+for h:=1 to 4 do                     begin
+for w:=1 to 4 do read(o,c[h,w]); readln(o);         end;
+for h:=1 to 4 do                             begin
+for w:=1 to 4 do if c[h,w]='X' then m[h,w]:=2
+            else if c[h,w]='O' then m[h,w]:=-2
+            else if c[h,w]='T' then m[h,w]:=1
+            else not_filled:=true;             end;
+for h:=1 to 4 do                                  begin
+m[h,0]:=0;  for w:=1 to 4 do m[h,0]:=m[h,0]+m[h,w]; end;
+for w:=1 to 4 do                                  begin
+m[0,w]:=0;  for h:=1 to 4 do m[0,w]:=m[0,w]+m[h,w]; end;
+d1:=m[1,1]+m[2,2]+m[3,3]+m[4,4];
+d2:=m[1,4]+m[2,3]+m[3,2]+m[4,1];
+
+O_won:=false;
+for h:=1 to 4 do O_won:=O_won or (m[h,0]=-8)
+                              or (m[h,0]=-5);
+for w:=1 to 4 do O_won:=O_won or (m[0,w]=-8)
+                              or (m[0,w]=-5);
+O_won:=O_won or (d1=-8) or (d1=-5);
+O_won:=O_won or (d2=-8) or (d2=-5);
+
+X_won:=false;
+for h:=1 to 4 do X_won:=X_won or (m[h,0]=+8)
+                              or (m[h,0]=+7);
+for w:=1 to 4 do X_won:=X_won or (m[0,w]=+8)
+                              or (m[0,w]=+7);
+X_won:=X_won or (d1=+8) or (d1=+7);
+X_won:=X_won or (d2=+8) or (d2=+7);
+if i<t then readln(o);
+if O_won      then answer[I]:='O won' else
+if X_won      then answer[I]:='X won' else
+if not_filled then answer[I]:='Game has not completed' else
+                   answer[I]:='Draw';                   end;
+close(o);
+assign(o,'output.out');
+rewrite(o);
+
+for i:=1 to T do writeln(o,'Case #',i,': ',answer[i]);
+close(o);
+   end.

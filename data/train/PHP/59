@@ -1,0 +1,151 @@
+<?php
+ /**
+ * Qualification round, A - Tic-Tac-Toe-Tomek solution
+ Problem A
+ *
+ * PHP Version 5.3
+ *
+ 
+ */
+
+$input_file = "A-large.in";
+$output_file = "outputfile.in";
+
+$codes = array(
+    0 => "X won",
+    1 => "O won",
+    2 => "Draw",
+    3 => "Game has not completed",
+);
+
+function evaluateString($string)
+{
+    $numX = 0;
+    $numO = 0;
+    $numT = 0;
+    for ($col = 0; $col < 4; $col++) {
+        $ch = $string[$col];
+        if ($ch == 'X') {
+            ++$numX;
+        } else if ($ch == 'O') {
+            ++$numO;
+        } else if ($ch == 'T') {
+            ++$numT;
+        }
+    }
+
+    if ($numT + $numX == 4) {
+        return 0;
+    }
+    if ($numT + $numO == 4) {
+        return 1;
+    }
+    return false;
+}
+
+/**
+ *  Solve a board.
+ *
+ *  @param array $curBoard array board
+ *
+ *  @return int result
+ */
+function solveBoard ($curBoard)
+{
+    // check for good rows
+    for ($row = 0; $row < 4; $row++) {
+        $result = evaluateString($curBoard[$row]);
+        if ($result !== false) {
+            return $result;
+        }
+    }
+
+    // check for good cols
+    for ($col = 0; $col < 4; ++$col) {
+        $string = '';
+        for ($row = 0; $row < 4; ++$row) {
+            $string .= $curBoard[$row][$col];
+        }
+
+        $result = evaluateString($string);
+        if ($result !== false) {
+            return $result;
+        }
+    }
+
+    // check diagonals
+    $lDiag = '';
+    $rDiag = '';
+    for ($pos = 0; $pos < 4; ++$pos) {
+        $lDiag .= $curBoard[$pos][$pos];
+        $rDiag .= $curBoard[3 - $pos][$pos];
+    }
+
+    $result = evaluateString($lDiag);
+    if ($result !== false) {
+        return $result;
+    }
+
+    $result = evaluateString($rDiag);
+    if ($result !== false) {
+        return $result;
+    }
+
+    foreach ($curBoard as $str) {
+        if (strstr($str, '.') !== false) {
+            return 3;
+        }
+    }
+
+    return 2;
+}
+
+/**
+ *  To Print result.
+ *
+ *  @param int $result   result code
+ *  @param int $curBoard which board
+ *
+ *  @return null
+ */
+function printResult($output, $result, $curBoard)
+{
+    global $codes;
+    fwrite($output, "Case #$curBoard: " . $codes[$result] . "\n");
+}
+
+$output = fopen($output_file, 'w');
+$input = fopen($input_file, 'r');
+if ($input && $output) {
+    $counter = 0;
+    $numBoards = 0;
+    $curBoard = 1;
+    $curBoardArr = array();
+    while (($buffer = fgets($input)) !== false) {
+        if ($counter == 0) {
+            $numBoards = intval($buffer);
+        } else if ($curBoard > $numBoards) {
+            break;
+        } else if (count($curBoardArr) < 4) {
+            if (!empty($buffer)) {
+                $curBoardArr[] = $buffer;
+            }
+        } else {
+            $result = solveBoard($curBoardArr);
+            printResult($output, $result, $curBoard);
+
+            $curBoardArr = array();
+            $boardPos = 0;
+            $curBoard++;
+        }
+        ++$counter;
+    }
+
+    if (!feof($input)) {
+        echo "Error: unexpected fgets() fail\n";
+    }
+    fclose($input);
+    fclose($output);
+} else {
+    echo "Error: File couldn't read\n";
+}

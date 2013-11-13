@@ -1,0 +1,35 @@
+import Control.Applicative
+import Control.Monad
+
+type Test = [String]
+
+readTest :: IO Test
+readTest = (sequence $ take 4 $ repeat getLine) <* getLine
+
+(|||) :: (a -> Bool) -> (a -> Bool) -> (a -> Bool)
+(f ||| g) x = f x || g x
+
+win :: Test -> Char -> Bool
+win t c = any (all ((== c) ||| (== 'T'))) $ [[t !! i !! j | j <- [0..3]] | i <- [0..3]] ++
+    [[t !! i !! j | i <- [0..3]] | j <- [0..3]] ++
+    [[t !! i !! i | i <- [0..3]]] ++
+    [[t !! i !! (3 - i) | i <- [0..3]]]
+
+solve :: Test -> String
+solve t = case (wO, wX) of
+    (True, True) -> error "Oooops, both players won!"
+    (True, False) -> "O won"
+    (False, True) -> "X won"
+    (False, False) -> if all (not . ('.' `elem`)) t
+        then "Draw"
+        else "Game has not completed"
+  where
+    wO = win t 'O'
+    wX = win t 'X'
+
+main = do
+    n <- read <$> getLine
+    tests <- sequence $ take n $ repeat readTest
+    forM (zip [1..] tests) $ \(cs, tst) ->
+        putStrLn $ "Case #" ++ show cs ++ ": " ++ solve tst
+

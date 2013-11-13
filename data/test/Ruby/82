@@ -1,0 +1,156 @@
+class Array
+    def sum()
+        s = 0
+
+        self.each do |x|
+            s = s + x
+        end
+
+        return s
+    end
+
+    def sort_desc!()
+        sort! { |x, y| y <=> x }
+    end
+
+    def column(u)
+        rv = []
+
+        self.each do |row|
+            rv << row[u]
+        end
+
+        return rv
+    end
+end
+
+class File
+    def readchars()
+        return readline.gsub(/\n/, '').split(//)
+    end
+
+    def readint()
+        return readline.to_i
+    end
+
+    def readints()
+        return readline.split(' ').collect! { |x| x.to_i }
+    end
+
+    def readfloat()
+        return readline.to_f
+    end
+
+    def readfloats()
+        return readline.split(' ').collect! { |x| x.to_f }
+    end
+end
+
+# FIXME parameter list
+def solve(board)
+    rv = 0
+
+    # Code starts here
+    0.upto(3) do |i|
+        init = board[i][0]
+        next if init == "."
+
+        1.upto(3) do |j|
+            init = board[i][j] if init == "T"
+
+            if (board[i][j] != "T" and board[i][j] != init) or board[i][j] == "."
+                init = ""
+                break
+            end
+        end
+
+        if init != ""
+            return init + " won"
+        end
+    end
+
+    0.upto(3) do |i|
+        init = board[0][i]
+        next if init == "."
+
+        1.upto(3) do |j|
+            init = board[j][i] if init == "T"
+
+            if (board[j][i] != "T" && board[j][i] != init) or board[j][i] == "."
+                init = ""
+                break
+            end
+        end
+
+        if init != ""
+            return init + " won"
+        end
+    end
+
+    init = board[0][0]
+    if init != "."
+        1.upto(3) do |j|
+            init = board[j][j] if init == "T"
+
+            if (board[j][j] != "T" && board[j][j] != init) or board[j][j] == "."
+                init = ""
+                break
+            end
+        end
+        if init != ""
+            return init + " won"
+        end
+    end
+
+    init = board[0][3]
+    if init != "."
+        1.upto(3) do |j|
+            init = board[j][3 - j] if init == "T"
+
+            if (board[j][3 - j] != "T" && board[j][3 - j] != init) or board[j][3 - j] == "."
+                init = ""
+                break
+            end
+        end
+        if init != ""
+            return init + " won"
+        end
+    end
+
+    0.upto(3) do |i|
+        0.upto(3) do |j|
+            if board[i][j] == "."
+                return "Game has not completed"
+            end
+        end
+    end
+
+    return "Draw"
+    # Code ends here
+end
+
+file_in = File.new(ARGV[0] + ".in")
+file_out = File.open(ARGV[0] + ".out", 'w')
+
+cases = file_in.readint
+
+1.upto(cases) do |c|
+    # Code starts here
+    board = Array.new(4)
+    board[0] = file_in.readchars
+    board[1] = file_in.readchars
+    board[2] = file_in.readchars
+    board[3] = file_in.readchars
+
+    file_in.readline.gsub(/\n/, '')
+    # Code ends here
+
+    # FIXME parameter list
+    ans = solve(board)
+
+    file_out.puts("Case ##{c}: #{ans}")
+end
+
+# Close both files
+file_in.close()
+file_out.close()

@@ -1,0 +1,116 @@
+<?php
+
+$filename = 'A-large.in'; 
+
+$fileContents = file_get_contents($filename);
+$fileContentsArray = explode("\n", $fileContents);
+
+$numberOfSample = (int)$fileContentsArray[0];
+//echo "Number: $numberOfSample\n";
+
+$matrix = array();
+$currentLine = 0;
+for ($i = 1; $i <= $numberOfSample; $i++) {
+    echo "Case #$i: ";
+    $matrix[$i][0] = str_split($fileContentsArray[++$currentLine]);
+    $matrix[$i][1] = str_split($fileContentsArray[++$currentLine]);
+    $matrix[$i][2] = str_split($fileContentsArray[++$currentLine]);
+    $matrix[$i][3] = str_split($fileContentsArray[++$currentLine]);
+
+    $result = checkGame($matrix[$i]);
+    echo "\n";
+    //die;
+    $currentLine++;
+}
+//    $countChars = count_chars($fileContentsArray[$currentLine], 1);
+//    checkChars($countChars);
+
+
+function checkChars($chars) {
+    var_dump($chars);
+    foreach ($chars as $chr => $k) {
+        echo $k . " " . chr($chr) . PHP_EOL;
+    }
+}
+
+function checkGame($game) {
+    $notDraw = false;
+
+    $diag1 = array($game[0][0], $game[1][1], $game[2][2], $game[3][3]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+    $diag1 = array($game[0][3], $game[1][2], $game[2][1], $game[3][0]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+    foreach ($game as $row) {
+       $res1 = check4($row);
+       if ($res1 > 0) {
+            return $res1;
+        }
+        if ($res1 < 0) {
+            $notDraw = true;
+        }
+   }
+
+    $diag1 = array($game[0][0], $game[1][0], $game[2][0], $game[3][0]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+    $diag1 = array($game[0][1], $game[1][1], $game[2][1], $game[3][1]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+    $diag1 = array($game[0][2], $game[1][2], $game[2][2], $game[3][2]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+    $diag1 = array($game[0][3], $game[1][3], $game[2][3], $game[3][3]);
+    $res1 = check4($diag1);
+    if ($res1 > 0) {
+        return $res1;
+    }
+
+   if ($notDraw) {
+        echo "Game has not completed";
+    } else {
+        echo "Draw";
+    }
+}
+
+function check4($letters) {
+        $X = 0;
+        $O = 0;
+        $dot = 0;
+         foreach ($letters as $col) {
+            if ($col == 'X') $X++;
+            if ($col == 'O') $O++;
+            if ($col == 'T') {$X++; $O++;}
+            if ($col == '.') {$dot++;}
+        }
+
+        if ($X == 4) {
+            echo "X won";
+            return 1;
+        }
+        if ($O == 4) {
+            echo "O won";
+            return 2;
+        }
+        if ($dot == 0) {
+            return 0;
+        }
+        
+        return -1;
+ }

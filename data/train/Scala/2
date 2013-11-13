@@ -1,0 +1,33 @@
+import java.util._
+
+object Main extends App {
+  val sc = new Scanner(System.in)
+  val T = sc.nextInt
+  val map = new Array[Array[Char]](4)
+  for (i <- 1 to T) {
+    for (j <- 0 until 4) {
+      map(j) = sc.next.toCharArray
+    }
+    println("Case #%d: %s".format(i, check(map)))
+  }
+
+  def check(map: Array[Array[Char]]): String = {
+    def checkWin(c: Char): Boolean = {
+      // horizontal
+      (0 until 4).exists(y => map(y).forall(j => j == c || j == 'T')) ||
+      // vertical
+      (0 until 4).exists(x => (0 until 4).forall(y => map(y)(x) == c || map(y)(x) == 'T')) ||
+      // cross
+      (0 until 4).forall(j => map(j)(j) == c || map(j)(j) == 'T') ||
+      (0 until 4).forall(j => map(3-j)(j) == c || map(3-j)(j) == 'T')
+    }
+    if (checkWin('O'))
+      "O won"
+    else if (checkWin('X'))
+      "X won"
+    else if (map.exists(chars => chars.exists(_ == '.')))
+      "Game has not completed"
+    else
+      "Draw"
+  }
+}

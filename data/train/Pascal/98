@@ -1,0 +1,147 @@
+const
+    finp = 'tictac.inp';
+    fout = 'tictac.out';
+
+var
+    fi, fo: text;
+    a: array[ 1..5 , 1..5 ] of integer;
+    kt: array[ 1..5 , 1..5 ] of boolean;
+    t, tong, k: longint;
+    s: char;
+    check: boolean;
+
+procedure openfile;
+begin
+    assign( fi, finp );
+    reset( fi );
+    assign( fo, fout );
+    rewrite( fo );
+end;
+
+procedure closefile;
+begin
+    close( fi );
+    close( fo );
+end;
+
+procedure init;
+var
+	i, j: longint;
+begin
+	tong:= 0;
+    fillchar( kt, sizeof(kt), false );	
+	for i:= 1 to 4 do
+    begin
+        for j:= 1 to 4 do
+        begin
+            read( fi, s );
+            case s of
+            	'X': a[i , j]:= 1;
+            	'T': begin a[i , j]:= 0; kt[i , j]:= true; end;
+            	'O': a[i , j]:= -1;
+            	'.': a[i , j]:= 10;
+        	end;
+        end;
+        readln( fi );
+    end;
+end;
+
+procedure answer;
+var
+	i, j: longint;
+begin
+	for i:= 1 to 4 do
+    for j:= 1 to 4 do
+    if a[i , j] = 10 then
+    begin
+        writeln( fo, 'Case #',k,': Game has not completed' );
+        exit;
+    end;
+    writeln( fo, 'Case #',k,': Draw' );
+end;
+
+procedure main;
+var
+	i, j: longint;
+begin
+	for i:= 1 to 4 do
+    begin
+    	check:= false;
+        tong:= 0;
+        for j:= 1 to 4 do
+        begin
+        	tong:= tong + a[i , j];
+            if kt[i , j] then check:= true;
+        end;
+
+        if ( ( abs(tong) = 3 ) and ( check ) ) or ( abs(tong) = 4 ) then
+		begin
+        	if abs(tong) = tong then writeln( fo, 'Case #',k,': X won' ) else writeln( fo, 'Case #',k,': O won' );
+            exit;
+        end;
+    end;
+
+    for j:= 1 to 4 do
+    begin
+    	check:= false;
+        tong:= 0;
+        for i:= 1 to 4 do
+        begin
+        	tong:= tong + a[i , j];
+            if kt[i , j] then check:= true;
+        end;
+
+        if ( ( abs(tong) = 3 ) and ( check ) ) or ( abs(tong) = 4 ) then
+        begin
+			if abs(tong) = tong then writeln( fo, 'Case #',k,': X won' ) else writeln( fo, 'Case #',k,': O won' );
+            exit;
+        end;
+    end;
+
+    tong:= 0;
+    for i:= 1 to 4 do
+    begin
+        check:= false;
+        tong:= tong + a[i , i];
+        if kt[i , i] then check:= true;
+    end;
+    if ( ( abs(tong) = 3 ) and ( check ) ) or ( abs(tong) = 4 ) then
+    begin
+		if abs(tong) = tong then writeln( fo, 'Case #',k,': X won' ) else writeln( fo, 'Case #',k,': O won' );
+        exit;
+    end;
+
+    tong:= 0;
+    for i:= 1 to 4 do
+    begin
+        check:= false;
+        tong:= tong + a[i , ( 5 - i )];
+        if kt[i , 5 - i] then check:= true;
+    end;
+    if ( ( abs(tong) = 3 ) and ( check ) ) or ( abs(tong) = 4 ) then
+    begin
+		if abs(tong) = tong then writeln( fo, 'Case #',k,': X won' ) else writeln( fo, 'Case #',k,': O won' );
+        exit;
+    end;
+
+    answer;
+end;
+
+procedure enter;
+var
+	i: longint;
+begin
+	readln( fi, t );
+    for k:= 1 to t do
+    begin
+        init;
+        readln( fi );
+        main;
+    end;
+end;
+
+BEGIN
+    openfile;
+    enter;
+    closefile;
+END.

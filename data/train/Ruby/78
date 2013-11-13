@@ -1,0 +1,84 @@
+t = STDIN.gets.to_i
+Win = 0
+Lose = -1
+XWin = 1
+OWin = 2
+Draw = 3
+NotComplete = 4
+
+def check_winning_for_row(row, letter)
+  row.count(letter)==4 || (row.count(letter)==3 && row.count('T')==1)
+end
+
+def check_winning_for_letter(table, letter)
+  4.times do |i|
+    if check_winning_for_row(table[i], letter)
+      return true
+    end
+  end
+  
+  4.times do |i|
+    column = table.map{|m|m[i]}.join
+    if check_winning_for_row(column, letter)
+      return true
+    end
+  end
+  
+  diagonal = table.map.with_index{|m, i|m[i]}.join
+  if check_winning_for_row(diagonal, letter)
+    return true
+  end
+  
+  diagonal = table.map.with_index{|m,i|m[3-i]}.join
+  if check_winning_for_row(diagonal, letter)
+    return true
+  end
+  
+  false
+end
+  
+def check_winning_for_table(table, letter, letter2)
+  win = check_winning_for_letter(table, letter)
+  win2 = check_winning_for_letter(table, letter2)
+  if win
+    Win
+  elsif win2
+    Lose
+  elsif table.inject(0){|sum, row|sum+=row.count('.')}>0
+    return NotComplete
+  else
+    return Draw
+  end
+end
+
+def check_table(table)
+  res = check_winning_for_table(table, 'X', 'O')
+  case res
+  when Win
+    XWin
+  when Lose
+    OWin
+  when NotComplete
+    NotComplete
+  when Draw
+    Draw
+  end
+end
+
+t.times do |i|
+  table = []
+  4.times do
+    table << STDIN.gets
+  end
+  case check_table(table)
+  when XWin
+    STDOUT.puts "Case ##{i+1}: X won"
+  when OWin
+    STDOUT.puts "Case ##{i+1}: O won"
+  when Draw
+    STDOUT.puts "Case ##{i+1}: Draw"
+  else
+    STDOUT.puts "Case ##{i+1}: Game has not completed"
+  end
+  STDIN.gets if i!= t-1
+end

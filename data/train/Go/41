@@ -1,0 +1,160 @@
+package main
+
+import (
+    "fmt"
+    "bufio"
+    "os"
+)
+
+var stdin = bufio.NewReader(os.Stdin)
+
+var board [4]([]byte)
+
+func check(k int) byte {
+    var oc, xc, tc int
+    for _, i := range board[k][0:4] {
+        if i == 'O' {
+            oc++
+        } else if i == 'X' {
+            xc++
+        } else if i == 'T' {
+            tc++
+        }
+    }
+    if oc + tc == 4 {
+        return 'O'
+    } else if xc + tc == 4 {
+        return 'X'
+    }
+    return 0
+}
+
+func check2(k int) byte {
+    var oc, xc, tc int
+    for j := 0; j < 4; j++ {
+        i := board[j][k]
+        if i == 'O' {
+            oc++
+        } else if i == 'X' {
+            xc++
+        } else if i == 'T' {
+            tc++
+        }
+    }
+    if oc + tc == 4 {
+        return 'O'
+    } else if xc + tc == 4 {
+        return 'X'
+    }
+    return 0
+}
+
+func check3() byte {
+    var oc, xc, tc int
+    for j := 0; j < 4; j++ {
+        i := board[j][j]
+        if i == 'O' {
+            oc++
+        } else if i == 'X' {
+            xc++
+        } else if i == 'T' {
+            tc++
+        }
+    }
+    if oc + tc == 4 {
+        return 'O'
+    } else if xc + tc == 4 {
+        return 'X'
+    }
+    return 0
+}
+
+func check4() byte {
+    var oc, xc, tc int
+    for j := 0; j < 4; j++ {
+        i := board[j][3-j]
+        if i == 'O' {
+            oc++
+        } else if i == 'X' {
+            xc++
+        } else if i == 'T' {
+            tc++
+        }
+    }
+    if oc + tc == 4 {
+        return 'O'
+    } else if xc + tc == 4 {
+        return 'X'
+    }
+    return 0
+}
+
+func full() bool {
+    for i := 0; i < 4; i++ {
+        for j := 0; j < 4; j++ {
+            if board[i][j] == '.' {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+func main() {
+    var T int
+    fmt.Scanf("%d", &T)
+    for t := 1; t <= T; t++ {
+        board[0], _ = stdin.ReadBytes('\n')
+        board[1], _ = stdin.ReadBytes('\n')
+        board[2], _ = stdin.ReadBytes('\n')
+        board[3], _ = stdin.ReadBytes('\n')
+        _, _ = stdin.ReadByte()
+
+        var won byte
+        if won = check(0); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check(1); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check(2); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check(3); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check2(0); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check2(1); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check2(2); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check2(3); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check3(); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if won = check4(); won != 0 {
+            fmt.Printf("Case #%d: %c won\n", t, won)
+            continue
+        }
+        if full() {
+            fmt.Printf("Case #%d: Draw\n", t)
+        } else {
+            fmt.Printf("Case #%d: Game has not completed\n", t)
+        }
+    }
+}

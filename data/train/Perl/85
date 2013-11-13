@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+use strict;
+++$|;
+use Data::Dumper;
+my $DEBUG=0;
+
+sub linestr {
+	my($board,$x,$y,$dx,$dy)=@_;
+	my $s = '';
+	for(my $i=0; $i<4; ++$i) {
+		$s.=$board->[$x+$i*$dx]->[$y+$i*$dy];
+	}
+	return $s;
+}
+sub solve {
+	my($board)=@_;
+	my(@space,%space);
+	print STDERR Dumper($board) if $DEBUG;
+	for(my $i=0; $i<4; ++$i) {
+		push @space, linestr($board,$i,0,0,1), linestr($board,0,$i,1,0);
+	}
+		push @space, linestr($board,0,0,1,1), linestr($board,0,3,1,-1);
+	print STDERR Dumper(\@space) if $DEBUG;
+	my $open=0;
+	foreach my $p (@space) {
+		++$space{$p};
+		if($p=~/X/ && $p=~/^[XT]{4}$/) {
+				return "X won";
+		} elsif($p=~m/O/ && $p=~m/^[OT]{4}$/) {
+			return "O won";
+		}
+		$open||=$p=~m/\./;
+	}
+	return $open ?  "Game has not completed" : 'Draw';
+}
+
+my $file = shift(@ARGV)||die("Usage: $0 <input file>\n");
+open(FILE,"<$file")||die($!);
+my $cnt;
+chomp($cnt=<FILE>);
+for(my $i=0;$i<$cnt;++$i) {
+	my $board;
+	for(my $j=0; $j<4; ++$j) {
+		my $line = <FILE>;
+		chomp($line);
+		$board->[$j] = [split(//,$line)];
+	}
+	<FILE>;
+	my $r = solve($board);
+	print "Case #",1+$i,": ",$r,"\n";
+	exit if $DEBUG;
+}

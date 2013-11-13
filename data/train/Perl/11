@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+my $T = <>;
+chomp($T);
+my $judge = [
+    [[0, 0], [0, 1], [0, 2], [0, 3]],
+    [[1, 0], [1, 1], [1, 2], [1, 3]],
+    [[2, 0], [2, 1], [2, 2], [2, 3]],
+    [[3, 0], [3, 1], [3, 2], [3, 3]],
+    [[0, 0], [1, 0], [2, 0], [3, 0]],
+    [[0, 1], [1, 1], [2, 1], [3, 1]],
+    [[0, 2], [1, 2], [2, 2], [3, 2]],
+    [[0, 3], [1, 3], [2, 3], [3, 3]],
+    [[0, 0], [1, 1], [2, 2], [3, 3]],
+    [[0, 3], [1, 2], [2, 1], [3, 0]]
+];
+
+for (my $i = 1; $i <= $T; $i++) {
+    my @board;
+    my $completed = 1;
+    for my $row (0..3) {
+        my $line = <>;
+        chomp($line);
+        $board[$row] = [split('', $line)];
+        if ($line =~ /\./) {
+            $completed = 0;
+        }
+    }
+
+    # try X
+    my $dummy = <>;
+    my $x_win = try(\@board, 'X');
+    my $o_win = try(\@board, 'O');
+    printf("Case #%d: ", $i);
+    if ($x_win) {
+        print "X won\n";
+    }
+    elsif ($o_win) {
+        print "O won\n";
+    }
+    elsif ($completed) {
+        print "Draw\n";
+    }
+    else {
+        print "Game has not completed\n";
+    }
+}
+
+sub try {
+    my $board = shift;
+    my @board = @$board;
+    my $TARGET = shift;
+    my $win = 1;
+    foreach my $try (@$judge) {
+        $win = 1;
+        foreach my $xy (@$try) {
+            if ($board[$xy->[0]][$xy->[1]]ne 'T' && $$board[$xy->[0]][$xy->[1]] ne $TARGET) {
+                $win = 0;
+                last;
+            }
+        }
+        if ($win) {
+            last;
+        }
+    }
+    return $win;
+}
+

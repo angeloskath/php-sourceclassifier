@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tic-Tac-Toe-Tomek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PUBLICLY AVAILABLE LIBRARIES START -->
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css"/>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap-button.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap-collapse.js"></script>
+    <!-- PUBLICLY AVAILABLE LIBRARIES END -->
+  </head>
+  <body>
+    <textarea id="inputArea" rows="1000" placeholder="input"></textarea>
+    <textarea id="outputArea" rows="1000" placeholder="output"></textarea>
+    <script>
+$('#inputArea').change(function() {
+
+  $('#outputArea').val(''); // clear
+  var fields = $('#inputArea').val().split('\n\n');
+  $.each(fields, function(idx, field) {
+
+    var rows = field.split('\n');
+    var cols = [];
+    var diad = ''; // diag down
+    var diau = ''; // diag up
+    var flat = ''; // flattened
+    var lines = []; // collection of all matches
+    var result = ''; // game result
+
+    if(idx == 0) { rows.shift(); } // throw away count
+
+    flat = rows.join('');
+
+    $.each(rows, function(idx, val) {
+      cols[idx] = rows[0][idx] + rows[1][idx] + rows[2][idx] + rows[3][idx];
+      diad += val[idx];
+      diau += val[3-idx];
+    });
+
+    lines = rows.concat(cols, diad, diau);
+
+    $.each(lines, function(idx, line) {
+      if(line.match(/[XT]{4}/)) { result = 'X won'; }
+      if(line.match(/[OT]{4}/)) { result = 'O won'; }
+    });
+
+    if(result == '') { result = flat.match(/\./) ? 'Game has not completed' : 'Draw' ; }
+
+    $('#outputArea').val($('#outputArea').val() + 'Case #' + (idx+1) + ': ' + result + '\n');
+
+  });
+
+});
+    </script>
+  </body>
+</html>

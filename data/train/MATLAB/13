@@ -1,0 +1,36 @@
+function tictactoe (infile)
+
+	tic;
+	fin=fopen(infile,'r');
+	fout=fopen([infile '.out'],'w');
+	% get testcases
+	T=str2num(fgetl(fin))
+	for t=1:T
+		disp('********************')
+		t
+		for i=1:4
+			board(i,:) = fgetl(fin);
+		endfor
+		fgetl(fin);
+%		board
+		fflush(stdout);
+		Xpos = (board == 'X') | (board == 'T');
+		Opos = (board == 'O') | (board == 'T');
+		if any(all(Xpos,1)) || any(all(Xpos,2)) || all(diag(Xpos)) || all(diag(rot90(Xpos)))
+			fprintf(fout,"Case #%d: X won\n",t);
+			printf("Case #%d: X won\n",t);
+		elseif any(all(Opos,1)) || any(all(Opos,2)) || all(diag(Opos)) || all(diag(rot90(Opos)))
+			fprintf(fout,"Case #%d: O won\n",t);
+			printf("Case #%d: O won\n",t);
+		elseif any(board(:) == '.')
+			fprintf(fout,"Case #%d: Game has not completed\n",t);
+			printf("Case #%d: Game has not completed\n",t);
+		else
+			fprintf(fout,"Case #%d: Draw\n",t);
+			printf("Case #%d: Draw\n",t);
+		endif
+	endfor
+	fclose(fin);
+	fclose(fout);
+	toc;
+endfunction

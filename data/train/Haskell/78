@@ -1,0 +1,63 @@
+
+import System.IO
+import Data.List
+import Debug.Trace
+
+main = interact inputOutput 
+
+
+inputOutput s = out
+	where
+		tests = divideTests s
+		result = map decide tests
+		out = unlines (map f (zip [1..] result)) 
+		f = \(i,s) -> "Case #"++(show i)++": "++s
+
+divideTests s = sep t (tail l)
+	where
+		l = lines s
+		t = (read (head l)::Int)
+		sep 0 _ = []
+		sep t' (a:b:c:d:_:ls) = [a,b,c,d]:(sep (t'-1) ls)
+
+decide x = res  
+	where
+		r = checkRows x 
+		c = checkRows (transpose x)
+		d = checkDiags x
+		res = if r=='X' || c == 'X' || d=='X'
+				then "X won"
+				else
+				  if r=='O' || c== 'O' || d== 'O'
+					then "O won" 	
+					else
+					  if (full x)
+						then "Draw"
+						else "Game has not completed"
+
+checkRows::[String] -> Char
+checkRows x = res3
+	where
+	  res = map checkRow x
+	  res2 = filter (/='D') res 
+	  res3 = if not (null res2) then (head res2) else 'D'
+
+checkRow::String -> Char
+checkRow "OOOO" = 'O'  
+checkRow "TOOO" = 'O'  
+checkRow "OTOO" = 'O'  
+checkRow "OOTO" = 'O'  
+checkRow "OOOT" = 'O'  
+checkRow "XXXX" = 'X'  
+checkRow "TXXX" = 'X'  
+checkRow "XTXX" = 'X'  
+checkRow "XXTX" = 'X'  
+checkRow "XXXT" = 'X'  
+checkRow _ = 'D'
+
+checkDiags [[a1,_,_,a4],[_,b2,b3,_],[_,c2,c3,_],[d1,_,_,d4]] = check
+	where
+	  check = checkRows [[a1,b2,c3,d4],[a4,b3,c2,d1]]
+
+full x = null $ filter (=='.') (concat x) 
+

@@ -1,0 +1,290 @@
+#!/usr/bin/php
+<?php
+
+/* $a = '01';
+$b = '00';
+$c = '11';
+echo ($a & $c);
+exit; */
+
+/* 
+
+X - 01
+O - 10
+. - 00
+T - 11
+
+*/
+
+$file = $argv[1];
+
+$fh = fopen($file, 'r');
+
+$num_cases = fgets($fh);
+$num_cases = substr($num_cases, 0, strlen($num_cases)-1);
+
+$output = array();
+
+for ($i=1; $i<=$num_cases; $i++) {
+    $grids = array();
+    $moves_left = 0;
+
+    $horizontal_moves_left = array(0, 0, 0, 0);
+    $vertical_moves_left = array(0, 0, 0, 0);
+    $diagonal_moves_left = array(0, 0);
+
+    $horizontal_possible = array('11', '11', '11', '11');
+    $vertical_possible = array('11', '11', '11', '11');
+    $diagonal_possible = array('11', '11');
+
+    for ($j=0; $j<4; $j++) {
+    	$input = fgets($fh);
+	$input = substr($input, 0, strlen($input)-1);  
+
+	$cells = str_split($input);
+
+	for ($k=0; $k<4; $k++) {
+		switch ($cells[$k]) {
+		       case 'X':
+		       	    $grids[$j][$k] = '01';
+			    $horizontal_possible[$j] = $horizontal_possible[$j] & $grids[$j][$k];
+			    $vertical_possible[$k] = $vertical_possible[$k] & $grids[$j][$k];
+			    if ($j == $k) {
+			       $diagonal_possible[0] = $diagonal_possible[0] & $grids[$j][$k];
+			    }
+
+			    $combined = "{$j}{$k}";
+			    
+			    if (in_array($combined, array('03', '12', '21', '30'))) {
+			       $diagonal_possible[1] = $diagonal_possible[1] & $grids[$j][$k];
+			    }
+			    break;
+		       case 'O':
+		       	    $grids[$j][$k] = '10';
+			    $horizontal_possible[$j] = $horizontal_possible[$j] & $grids[$j][$k];
+			    $vertical_possible[$k] = $vertical_possible[$k] & $grids[$j][$k];
+			    if ($j == $k) {
+			       $diagonal_possible[0] = $diagonal_possible[0] & $grids[$j][$k];
+			    }
+
+			    $combined = "{$j}{$k}";
+			    
+			    if (in_array($combined, array('03', '12', '21', '30'))) {
+			       $diagonal_possible[1] = $diagonal_possible[1] & $grids[$j][$k];
+			    }
+			    break;
+		       case 'T':
+		       	    $grids[$j][$k] = '11';
+			    break;
+		       case '.':
+		       	    $grids[$j][$k] = '00';
+			    $moves_left++;
+			    $horizontal_moves_left[$j]++;
+			    $vertical_moves_left[$k]++;
+			    if ($j == $k) {
+			       $diagonal_moves_left[0]++;
+			    }
+			    
+			    $combined = "{$j}{$k}";
+			   
+			    if (in_array($combined, array('03', '12', '21', '30'))) {
+			       $diagonal_moves_left[1]++;
+			    }
+		}
+	}
+    } 
+    $input = fgets($fh);
+
+    $result = ''; //'Not determined yet';
+    $done = false;
+
+    // check horizontal
+    for ($row=0; $row<4; $row++) {
+    	$status = $grids[$row][0] & $grids[$row][1] & $grids[$row][2] & $grids[$row][3];
+	switch ($status) {
+	       case '01':
+	       	    $result = 'X won';
+		    $done = true;
+		    break;
+	       case '10':
+	       	    $result = 'O won';
+		    $done = true;
+		    break;
+	}
+
+	if ($done) break;
+    }
+
+    if (!$done) {
+       // check vertical
+       for ($col=0; $col<4; $col++) {
+       	   $status = $grids[0][$col] & $grids[1][$col] & $grids[2][$col] & $grids[3][$col];
+	   switch ($status) {
+	       case '01':
+	       	    $result = 'X won';
+		    $done = true;
+		    break;
+	       case '10':
+	       	    $result = 'O won';
+		    $done = true;
+		    break;
+	   }
+       }
+
+       // check diagonal
+       $status = $grids[0][0] & $grids[1][1] & $grids[2][2] & $grids[3][3];
+       if ($status == '01') {
+       	  $result = 'X won';
+	  $done = true;
+       }
+       else if ($status == '10') {
+       	  $result = 'O won';
+	  $done = true;
+       }
+
+       if (!$done) {
+       	  $status = $grids[3][0] & $grids[2][1] & $grids[1][2] & $grids[0][3];
+       	  if ($status == '01') {
+       	     $result = 'X won';
+	     $done = true;
+       	  }
+       	  else if ($status == '10') {
+       	       $result = 'O won';
+	       $done = true;
+       	  }
+       }
+
+    } // if (!$done) {
+
+
+    if (!$done) {
+       // check draw or not determined
+       /* $result = implode(':', $horizontal_moves_left);
+       $result .= ' ' . implode(':', $vertical_moves_left);
+       $result .= ' ' . implode(':', $diagonal_moves_left);
+       $result .= ' ' . $moves_left; */
+
+
+       /* $result = implode(':', $horizontal_possible);
+       $result .= ' ' . implode(':', $vertical_possible);
+       $result .= ' ' . implode(':', $diagonal_possible);
+       //$result .= ' ' . $moves_left;
+
+       echo "$result\n"; */
+
+       $impossible = true;
+       if (in_array('01', $horizontal_possible) || in_array('10', $horizontal_possible) || in_array('11', $horizontal_possible)) {
+       	  $impossible = false;
+       }
+
+       if (in_array('01', $vertical_possible) || in_array('10', $vertical_possible) || in_array('11', $vertical_possible)) {
+       	  $impossible = false;
+       }
+
+       if (in_array('01', $diagonal_possible) || in_array('10', $diagonal_possible) || in_array('11', $diagonal_possible)) {
+       	  $impossible = false;
+       }
+
+       if ($impossible) {
+       	  $result = 'Draw';
+       }
+       else {
+       	    for ($j=0; $j<4; $j++) {
+	    	$less_step = 0;
+		if ($horizontal_possible[$j] != '00') {
+	       	   if ($horizontal_possible[$j] == '01') {
+	      	      // possible X
+		      if (($moves_left % 2) == 0) {
+		      	 // even number
+		      	 $less_step = 1;
+		      }
+		   }
+	    	   else if ($horizontal_possible[$j] == '10') {
+		   	// possible O
+			if (($moves_left % 2) == 1) {
+		      	   // odd number
+		      	   $less_step = 1;
+		   	}
+		   }
+
+		   if ((($horizontal_moves_left[$j] * 2) - $less_step) <= $moves_left) {
+		      $result = 'Game has not completed';
+		      $done = true;
+		      break;
+		   }
+	    	}
+	    }
+
+	    if (!$done) {
+       	      for ($j=0; $j<4; $j++) {
+	       	$less_step = 0;
+		if ($vertical_possible[$j] != '00') {
+	       	   if ($vertical_possible[$j] == '01') {
+	      	      // possible X
+		      if (($moves_left % 2) == 0) {
+		      	 // even number
+		      	 $less_step = 1;
+		      }
+		   }
+	    	   else if ($vertical_possible[$j] == '10') {
+		   	// possible O
+			if (($moves_left % 2) == 1) {
+		      	   // odd number
+		      	   $less_step = 1;
+		   	}
+		   }
+
+		   if ((($vertical_moves_left[$j] * 2) - $less_step) <= $moves_left) {
+		      $result = 'Game has not completed';
+		      $done = true;
+		      break;
+		   }
+	    	}
+	      }
+
+	    }
+
+	    if (!$done) {
+       	      for ($j=0; $j<2; $j++) {
+	       	$less_step = 0;
+		if ($diagonal_possible[$j] != '00') {
+	       	   if ($diagonal_possible[$j] == '01') {
+	      	      // possible X
+		      if (($moves_left % 2) == 0) {
+		      	 // even number
+		      	 $less_step = 1;
+		      }
+		   }
+	    	   else if ($diagonal_possible[$j] == '10') {
+		   	// possible O
+			if (($moves_left % 2) == 1) {
+		      	   // odd number
+		      	   $less_step = 1;
+		   	}
+		   }
+		   if ((($diagonal_moves_left[$j] * 2) - $less_step) <= $moves_left) {
+		      $result = 'Game has not completed';
+		      $done = true;
+		      break;
+		   }
+	    	}
+	      }
+	    }
+       }
+    }
+    
+    if (!$result) {
+       $result = 'Draw';
+    }
+    //$result = $moves_left;
+    // push the result into an array
+    array_push($output, "Case #{$i}: " . $result);
+    //print_r($grids);
+}
+
+foreach ($output as $output_elm) {
+  echo "$output_elm\n";
+}
+
+fclose($fh);
+?>

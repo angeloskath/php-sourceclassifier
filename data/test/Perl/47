@@ -1,0 +1,58 @@
+#!/usr/intel/bin/perl -w
+#use bigint;
+use strict;
+
+my ($inp) = @ARGV;
+open (I, $inp);
+my $t = <I>;
+for (my $idx = 0; $idx < $t; $idx++) {
+  my @arr;
+  for (my $i = 0; $i < 4; $i++) {
+    my $line = <I>;
+    $arr[$i] = [split //, $line];
+  }
+  my $empty = <I>;
+  print "Case #".(1+$idx).": " . calc(\@arr) . "\n";
+}
+
+sub calc {
+  my ($arr) = @_;
+  my $dotleft = 0;
+  foreach my $p ('X', 'O') {
+    for (my $i = 0; $i < 4; $i++) {
+      my $foundr = 1;
+      my $foundc = 1;
+      for (my $j = 0; $j < 4; $j++) {
+        if ($arr->[$i][$j] ne $p && $arr->[$i][$j] ne 'T') {
+          $foundr = 0;
+        }
+        if ($arr->[$j][$i] ne $p && $arr->[$j][$i] ne 'T') {
+          $foundc = 0;
+        }
+        if ($arr->[$i][$j] eq '.') {
+          $dotleft = 1;
+        }
+      }
+      if ($foundr || $foundc) {
+        return "$p won";
+      }
+    }
+    my $fd = 1;
+    my $fdd = 1;
+    for (my $i = 0; $i < 4; $i++) {
+      if ($arr->[$i][$i] ne $p && $arr->[$i][$i] ne 'T') {
+        $fd = 0;
+      }
+      if ($arr->[$i][3-$i] ne $p && $arr->[$i][3-$i] ne 'T') {
+        $fdd = 0;
+      }
+    }
+    if ($fd || $fdd) {
+      return "$p won";
+    }
+  }
+  if ($dotleft) {
+    return "Game has not completed";
+  }
+  return "Draw";
+}

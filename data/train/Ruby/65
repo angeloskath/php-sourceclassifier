@@ -1,0 +1,40 @@
+l = File.open("input.in").read.lines.collect(&:chomp)
+
+def check(puzzle)
+  4.times do |i|
+    if puzzle[i].split('').all?{|a| a=="X" || a=="T"}
+      return "X won"
+    elsif puzzle[i].split('').all?{|a| a=="O" || a=="T"}
+      return "O won"
+    end
+  end
+  4.times do |i|
+    if puzzle.all?{|a| a[i]=="X" || a[i]=="T"}
+      return "X won"
+    elsif puzzle.all?{|a| a[i]=="O" || a[i]=="T"}
+      return "O won"
+    end
+  end
+  if (0..3).all?{|i| puzzle[i][i]=="X" || puzzle[i][i]=="T"}
+    return "X won"
+  elsif (0..3).all?{|i| puzzle[i][i]=="O" || puzzle[i][i]=="T"}
+    return "O won"
+  end
+  if (0..3).all?{|i| puzzle[i][-1-i]=="X" || puzzle[i][-1-i]=="T"}
+    return "X won"
+  elsif (0..3).all?{|i| puzzle[i][-1-i]=="O" || puzzle[i][-1-i]=="T"}
+    return "O won"
+  end
+  if puzzle.join.split('').any?{|a| a=="."}
+    return "Game has not completed"
+  else
+    return "Draw"
+  end
+end
+
+f = File.open("output.out", 'w')
+l.shift.to_i.times do |i|
+  puzzle = l.shift(4)
+  f.puts "Case ##{i+1}: #{check(puzzle)}"
+  l.shift
+end

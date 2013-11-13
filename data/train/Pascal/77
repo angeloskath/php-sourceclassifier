@@ -1,0 +1,80 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+const
+  x = 'X';
+  o = 'O';
+  y = 'T';
+
+var
+  s : string;
+  i, j, tt, ttt, t : integer;
+  a : array[1..4, 1..4] of char;
+
+
+
+procedure prov(const s : string);
+var
+  i : integer;
+  p : array['O'..'X'] of byte;
+begin
+  p[o] := 0;
+  p[x] := 0;
+  p[y] := 0;
+  for i := 1 to 4 do
+    inc(p[s[i]]);
+  if p[o] + p[y] = 4 then
+    t := 2;
+  if p[x] + p[y] = 4 then
+    t := 1;
+end;
+
+begin
+  reset(input, 'A-large.in');
+  rewrite(output, 'output.txt');
+  readln(tt);
+  for ttt := 1 to tt do begin
+    t := -1;
+    for i := 1 to 4 do begin
+      for j := 1 to 4 do begin
+        read(a[i][j]);
+        if a[i][j] = '.' then
+          t := 0;
+      end;
+      readln;
+    end;
+    readln;
+    for i := 1 to 4 do begin
+      s := '';
+      for j := 1 to 4 do begin
+        s := s + a[i][j];
+      end;
+      prov(s);
+      s := '';
+      for j := 1 to 4 do begin
+        s := s + a[j][i];
+      end;
+      prov(s);
+    end;
+    s := '';
+    for i := 1 to 4 do
+      s := s + a[i][i];
+    prov(s);
+    s := '';
+    for i := 1 to 4 do
+      s := s + a[i][5 - i];
+    prov(s);
+    write('Case #', ttt, ': ');
+    case t of
+      -1: writeln('Draw');
+      0: writeln('Game has not completed');
+      1: writeln('X won');
+      2: writeln('O won');
+    end;
+
+  end;
+end.

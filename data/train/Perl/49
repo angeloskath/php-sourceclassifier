@@ -1,0 +1,74 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+# Input data
+my $T = <>;
+chomp($T);
+
+my $t;
+
+for ($t=1; $t<=$T; $t++) {
+  &test_case($t);
+  <>; # Skip blank lines
+}
+
+exit;
+
+sub test_case {
+  my $t = $_[0];
+  my @l;
+  $l[0]= <>;
+  $l[1]= <>;
+  $l[2]= <>;
+  $l[3]= <>;
+  my $i;
+  my $is_draw = 1;
+  for ($i=0; $i<4; $i++) {
+    chomp($l[$i]);
+    if ( $l[$i] =~ m/\./) {
+       $is_draw = 0;
+    } else {
+       return if &ox_won($t, $l[$i]);
+    }
+  }
+  # Diagonals
+  my $diag = "";
+  for ($i=0; $i<4; $i++) {
+     $diag .= substr($l[$i],$i,1);
+  }
+  return if &ox_won($t, $diag);
+  $diag = "";
+  for ($i=0; $i<4; $i++) {
+     $diag .= substr($l[$i],3-$i,1);
+  }
+  return if &ox_won($t, $diag);
+  # Columns
+  my $j;
+  for ($i=0; $i<4; $i++) {
+    my $col = "";
+    for ($j=0; $j<4; $j++) {
+       $col .= substr($l[$j],$i,1);
+    }
+    return if &ox_won($t,$col);
+  }
+  if ($is_draw) {
+     print "Case #${t}: Draw\n";
+  } else {
+     print "Case #${t}: Game has not completed\n";
+  } 
+}
+
+sub ox_won {
+  my ($t,$line,) = @_;
+  if ( $line =~ m/^[TX]+$/) {
+     print "Case #${t}: X won\n";
+     return 1;
+  } elsif ( $line =~ m/^[TO]+$/) {
+     print "Case #${t}: O won\n";
+     return 1;
+  }
+  return 0;
+}
+
+	

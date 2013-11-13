@@ -1,0 +1,102 @@
+package main
+
+import (
+    "fmt"
+    "bufio"
+    "os"
+    "strings"
+    "strconv"
+)
+
+type Case struct {
+    index int
+    tx int
+    ty int
+    field []int
+}
+
+
+func read(name string) (cases []Case, t int) {
+    f, err := os.Open(name)
+    if err != nil {
+        return
+    }
+    r := bufio.NewReader(f)
+
+    var lineStr string
+    var line []string
+    
+    // read number of cases
+    lineStr, err = r.ReadString('\n')
+    line = strings.Fields(lineStr)
+    t, _ = strconv.Atoi(line[0])
+    cases = make([]Case, t)
+    for i:= 0; i < t; i++ {
+        c := &cases[i]
+        c.field = make([]int, 16)
+        if i != 0 {
+            lineStr, err = r.ReadString('\n')
+        }
+        for j := 0; j < 4; j++ {
+            lineStr, err = r.ReadString('\n')
+            line = strings.Split(lineStr,"")
+            for k := 0; k < 4; k++ {
+                t := 0
+                if line[k] == "X" {
+                    t = 2
+                } else if line[k] == "O" {
+                    t = 3
+                } else if line[k] == "T" {
+                    c.tx = k
+                    c.ty = j
+                    t = -1
+                }
+                c.field[j*4 + k] = t
+            }
+        }
+    }
+    f.Close()
+    return
+}
+
+func main() {
+    cases, _ := read(os.Args[1])
+    for i,c := range cases {
+        sol := solveCase(c)
+        fmt.Printf("Case #%d: %s\n", i+1, sol) 
+    }
+}
+
+func has(a []int, i int) bool {
+    for _, x := range a {
+        if x == i {
+            return true
+        }
+    }
+    return false
+}
+
+
+func mult(a int, b int, c int, d int) int {
+    return a*b*c*d
+}
+
+
+func solveCase(c Case) string {
+    res := make([]int, 10)
+    for i := 0; i < 4; i++ {
+        res[i] = mult(c.field[i*4],c.field[i*4+1],c.field[i*4+2],c.field[i*4+3])
+        res[i+4] = mult(c.field[i],c.field[4+i],c.field[8+i],c.field[12+i])
+    }
+    res[8] = mult(c.field[0],c.field[5],c.field[10],c.field[15])
+    res[9] = mult(c.field[3],c.field[6],c.field[9],c.field[12])
+
+    if has(res, 16) || has(res, -8) {
+        return "X won"
+    } else if has(res, 81) || has(res, -27) {
+        return "O won"
+    } else if has(res, 0) {
+        return "Game has not completed"
+    }
+    return "Draw"
+}

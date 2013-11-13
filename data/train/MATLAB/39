@@ -1,0 +1,88 @@
+function check_win(file_name)
+    file_id = fopen(file_name);
+    num_cases = fscanf(file_id,'%d',1);
+    
+    delete('output.txt');
+    output_id = fopen('output.txt','w');
+    
+    k = 0;
+    l = 0;
+    
+    for i=1:num_cases
+        for j=1:4
+            current_case(j,:) = fscanf(file_id,'%s',1);
+        end
+        
+        A = current_case;
+        A = int32(A);
+        A(A == 46) = 0;
+        A(A == 79) = 1;
+        A(A == 48) = 1;
+        A(A == 88) = 0;
+        A(A == 84) = 1;
+        
+        B = current_case;
+        B = int32(B);
+        B(B == 46) = 0;
+        B(B == 79) = 0;
+        B(B == 48) = 0;
+        B(B == 88) = 1;
+        B(B == 84) = 1;
+        
+        C = current_case;
+        C = int32(C);
+        C(C == 46) = 0;
+        C(C == 79) = 1;
+        C(C == 48) = 1;
+        C(C == 88) = 1;
+        C(C == 84) = 1;
+        
+        k = 0;
+        k = [k,sum(diag(A,-1))];
+        k = [k,sum(diag(A,0))];
+        k = [k,sum(diag(A,1))];
+        k = [k,sum(diag(rot90(A),-1))];
+        k = [k,sum(diag(rot90(A),0))];
+        k = [k,sum(diag(rot90(A),1))];
+        %k = [k,3*(ismember(A,[1,1,1,0],'rows').')];
+        %k = [k,3*(ismember(A,[0,1,1,1],'rows').')];
+        k = [k,4*(ismember(A,[1,1,1,1],'rows').')];
+        %k = [k,3*(ismember(rot90(A),[1,1,1,0],'rows').')];
+        %k = [k,3*(ismember(rot90(A),[0,1,1,1],'rows').')];
+        k = [k,4*(ismember(rot90(A),[1,1,1,1],'rows').')];
+        
+        l = 0;
+        l = [l,sum(diag(B,-1))];
+        l = [l,sum(diag(B,0))];
+        l = [l,sum(diag(B,1))];
+        l = [l,sum(diag(rot90(B),-1))];
+        l = [l,sum(diag(rot90(B),0))];
+        l = [l,sum(diag(rot90(B),1))];
+        %l = [l,3*(ismember(B,[1,1,1,0],'rows').')];
+        %l = [l,3*(ismember(B,[0,1,1,1],'rows').')];
+        l = [l,4*(ismember(B,[1,1,1,1],'rows').')];
+        %l = [l,3*(ismember(rot90(B),[1,1,1,0],'rows').')];
+        %l = [l,3*(ismember(rot90(B),[0,1,1,1],'rows').')];
+        l = [l,4*(ismember(rot90(B),[1,1,1,1],'rows').')];
+        
+        if any(k>3) & any(l>3)
+            state = 'Draw';
+        elseif any(k>3)
+            state = 'O won';
+        elseif any(l>3)
+            state = 'X won';
+        elseif any(C==0)
+            state = 'Game has not completed';
+        else
+            state = 'Draw';
+        end
+        
+        fprintf(output_id,'Case #%d: %s\n',i,state);
+        clearvars A B C current_case;
+        
+    end
+    
+    fclose(file_id);
+    fclose(output_id);
+    
+end

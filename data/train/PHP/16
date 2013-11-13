@@ -1,0 +1,89 @@
+#!/usr/bin/php
+<?php
+function checkBoard( $board ) {
+    $full = true;
+    $digA = null;
+    $digB = null;
+
+    for ( $i = 0; $i < 4; $i++ ) {
+        $row = null;
+        $col = null;
+        for ( $j = 0; $j < 4; $j++ ) {
+            $cell = $board[$i][$j];
+            if ( $cell === '.' ) {
+                $full = false;
+                $row = false;
+            } else if ( $cell === 'T' ) {
+            } else if ( $row !== false && ( $row === null || $cell == $row ) ) {
+                $row = $cell;
+            } else {
+                $row = false;
+            }
+
+            $cell = $board[$j][$i];
+            if ( $cell === '.' ) {
+                $col = false;
+            } else if ( $cell === 'T') {
+            } else if ( $col !== false && ( $col === null || $cell == $col ) ) {
+                $col = $cell;
+            } else {
+                $col = false;
+            }
+        }
+
+        $cell = $board[$i][$i];
+        if ( $cell === '.' ) {
+            $digA = false;
+        } else if ( $cell === 'T') {
+        } else if ( $digA !== false && ( $digA === null || $cell == $digA ) ) {
+            $digA = $cell;
+        } else {
+            $digA = false;
+        }
+
+        $cell = $board[3-$i][$i];
+        if ( $cell === '.' ) {
+            $digB = false;
+        } else if ( $cell === 'T') {
+        } else if ( $digB !== false && ( $digB === null || $cell == $digB ) ) {
+            $digB = $cell;
+        } else {
+            $digB = false;
+        }
+
+        if ( $row != null && $row !== false ) {
+            return $row . ' won';
+        }
+        if ( $col !== null && $col !== false ) {
+            return $col . ' won';
+        }
+    }
+
+    if ( $digA != null && $digA !== false ) {
+        return $digA . ' won';
+    }
+
+    if ( $digB != null && $digB !== false ) {
+        return $digB . ' won';
+    }
+
+    return $full ? 'Draw' : 'Game has not completed';
+}
+
+$line = 0;
+$file = file($argv[1]);
+$T = trim($file[$line]);
+
+$line = 1;
+for($t = 1; $t <= $T; $t++) {
+    $board = array();
+    $board[] = str_split( trim($file[$line++]) );
+    $board[] = str_split( trim($file[$line++]) );
+    $board[] = str_split( trim($file[$line++]) );
+    $board[] = str_split( trim($file[$line++]) );
+    $line++;
+
+    $result = checkBoard($board);
+    printf("Case #%d: %s\n", $t, $result);
+}
+?>

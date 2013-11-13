@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+
+var fs = require('fs'),
+  _ = require('underscore');
+
+var lines = fs.readFileSync('A-large.in').toString().split("\n");
+var T = parseInt(lines.shift(), 10);
+
+
+for (var caseNo = 1; caseNo <= T; caseNo++) {
+  var horz = [
+      lines.shift().split(''),
+      lines.shift().split(''),
+      lines.shift().split(''),
+      lines.shift().split('')
+    ],
+    vert = [
+      [horz[0][0], horz[1][0], horz[2][0], horz[3][0]],
+      [horz[0][1], horz[1][1], horz[2][1], horz[3][1]],
+      [horz[0][2], horz[1][2], horz[2][2], horz[3][2]],
+      [horz[0][3], horz[1][3], horz[2][3], horz[3][3]]
+    ],
+    diag = [
+      [horz[0][0], horz[1][1], horz[2][2], horz[3][3]],
+      [horz[0][3], horz[1][2], horz[2][1], horz[3][0]]
+    ],
+    winner = null, draw = true;
+
+  _.each(horz, checkWInner);
+  _.each(vert, checkWInner);
+  _.each(diag, checkWInner);
+
+  function checkWInner(r) {
+    var uniq = _.uniq(r).sort();
+    if (uniq.length === 1 && (uniq[0] === 'X' || uniq[0] === 'O')) {
+      winner = uniq[0];
+    } else if (uniq.length === 2) {
+      if (uniq[0] === 'O' && uniq[1] === 'T') {
+        winner = 'O';
+      } else if (uniq[0] === 'T' && uniq[1] === 'X') {
+        winner = 'X';
+      }
+    }
+    if (r.indexOf('.') >= 0) {
+      draw = false;
+    }
+  }
+
+  if (winner) {
+    console.log('Case #' + caseNo + ': ' + winner + ' won');
+  } else if (draw) {
+    console.log('Case #' + caseNo + ': Draw');
+  } else {
+    console.log('Case #' + caseNo + ': Game has not completed');
+  }
+
+  lines.shift();
+}

@@ -1,0 +1,52 @@
+(ns tic-tac-toe.core
+  (:use clojure.java.io))
+
+(defn read-in [file] 
+  (line-seq (reader file)))
+
+(defn write-to [file output]
+  (with-open [the-writer (writer file :append true)]
+    (.write the-writer output)))
+
+(defn contains-winning-line [data matcher]
+  (some (partial = matcher) data))
+
+(defn contains-empty-space [data]
+  (some (partial = true) (map #(if (re-find #"\." %1) true) data)))
+
+(defn replace-T [data symbol]
+  (map #(clojure.string/replace %1 "T" symbol) data))
+
+(defn solve-problem [data]
+ (cond 
+   (contains-winning-line (replace-T data "X") "XXXX") "X won"
+   (contains-winning-line (replace-T data "O") "OOOO") "O won"
+   (contains-empty-space data) "Game has not completed"
+   :else "Draw"))
+
+(defn get-columns [rows position]
+ (map #(loop [data %1
+             column ""
+             index %2]
+        (if (empty? data)
+          column
+          (do 
+            (recur (next data)
+                   (str column (nth (first data) index))
+                   index
+          ))))
+        (repeat 4 rows) position))
+
+(defn -main [in-file out-file]
+  (loop [case 1
+         data (next (read-in in-file))]
+    (if (not (empty? data))
+      (do
+        (let [rows (take 4 data)
+              columns (get-columns rows '(0 1 2 3))
+              diagonal-1 (list (apply str (map #(nth %1 %2) rows '(0 1 2 3))))
+              diagonal-2 (list (apply str (map #(nth %1 %2) rows '(3 2 1 0))))]
+        (write-to out-file
+                  (format "Case #%d: %s\n" case (solve-problem (concat rows columns diagonal-1 diagonal-2))))
+        (recur (inc case)
+               (drop 5 data)))))))

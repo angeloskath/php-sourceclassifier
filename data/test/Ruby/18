@@ -1,0 +1,60 @@
+class Solver
+  def self.main
+    t = gets.chomp.to_i
+    
+    t.times do |i|
+      game_state = read_state
+      gets
+      puts "Case ##{i+1}: #{solve(game_state)}"
+    end
+  end
+  
+  def self.read_state
+    res = []
+    4.times do |i|
+      res << gets.chomp.split("")
+    end
+    res
+  end
+  
+  def self.solve game_state
+    if check("X", game_state)
+      return "X won"
+    elsif check("O", game_state)
+      return "O won"
+    elsif completed(game_state)
+      return "Draw"
+    end
+    "Game has not completed"
+  end
+  
+  def self.winner_line player, line
+#     puts line.to_s
+    line.all? { |letter| letter == player or letter == "T" }
+  end
+  
+  def self.check player, game_state
+    if game_state.any? { |line| winner_line player, line}
+      return true
+    elsif game_state.transpose.any? { |line| winner_line player, line }
+      return true
+    end
+    
+    if winner_line( player, (0...4).collect{|i| game_state[i][i]})
+      return true
+    end
+    
+    if winner_line(player, (0...4).collect{|i| game_state[i][3-i]})
+      return true
+    end
+    
+    return false
+  end
+  
+  def self.completed game_state
+    not game_state.flatten.any? {|letter| letter == "."}
+  end
+end
+
+
+Solver.main

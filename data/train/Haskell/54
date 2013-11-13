@@ -1,0 +1,49 @@
+import Control.Monad
+import Data.Array
+
+
+main :: IO ()
+main = do
+  numberOfCases <- liftM read getLine
+  forM_ [1 .. numberOfCases] $ \caseNumber -> do
+    board <- readBoard
+    putStr $ "Case #" ++ (shows caseNumber ": ")
+    putStrLn $ getOutcome board
+
+
+readBoard :: IO (Array (Int, Int) Char)
+readBoard = do
+  lines <- forM [1 .. 4] $ const $ liftM (take 4) getLine
+  getLine
+  return $ listArray ((1, 1), (4, 4)) $ concat lines
+
+
+getOutcome :: Array (Int, Int) Char -> String
+getOutcome board
+  | wins board 'X' = "X won"
+  | wins board 'O' = "O won"
+  | hasEmptyCells board = "Game has not completed"
+  | otherwise = "Draw"
+
+
+wins :: Array (Int, Int) Char -> Char -> Bool
+wins board c =
+  any (winsLine board c) [1 .. 4] ||
+  any (winsColumn board c) [1 .. 4] ||
+  winsFirstDiagonal board c ||
+  winsSecondDiagonal board c
+
+
+winsLine board c i = matches board c [(i, j) | j <- [1 .. 4]]
+winsColumn board c j = matches board c [(i, j) | i <- [1 .. 4]]
+winsFirstDiagonal board c = matches board c [(x, x) | x <- [1 .. 4]]
+winsSecondDiagonal board c = matches board c [(x, 5 - x) | x <- [1 .. 4]]
+
+
+matches :: Array (Int, Int) Char -> Char -> [(Int, Int)] -> Bool
+matches board c positions = and [v == c || v == 'T' | p <- positions,
+                                                      let v = board ! p]
+
+
+hasEmptyCells :: Array (Int, Int) Char -> Bool
+hasEmptyCells board = or [board ! (i, j) == '.' | i <- [1 .. 4], j <- [1 .. 4]]

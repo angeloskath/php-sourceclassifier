@@ -1,0 +1,97 @@
+<?php
+ini_set('max_execution_time', 600);
+
+function checkLine($line, $hasEmpty)
+{
+    $result = '';
+    //echo $line; echo '<br/>';
+    $line = str_replace('T', '', $line);
+    if(str_replace('X', '', $line) == '')
+    {
+        $result = 'X won';
+    }
+    else if(str_replace('O', '', $line) == '')
+    {
+        $result = 'O won';
+    }
+    else if(str_replace('.', '', $line) != $line)
+    {
+        $hasEmpty = true;
+    }
+    $ret = array($result, $hasEmpty);
+    return $ret;
+}
+
+
+$handle = @fopen('A-large.in', 'r');
+$handle2 = @fopen('A-large.out', 'w+');
+$T = substr(fgets($handle), 0, -1);
+for($i = 0; $i < $T; $i++)
+{
+    $diag1 = '';
+    $diag2 = '';
+    $vert1 = '';
+    $vert2 = '';
+    $vert3 = '';
+    $vert4 = '';
+    $hasEmpty = false;
+    $result = '';
+    
+    for($j = 0; $j < 4; $j++)
+    {
+        $line = trim(fgets($handle));
+        $diag1 .= substr($line, $j, 1);
+        $diag2 .= substr($line, 3 - $j, 1);
+        $vert1 .= substr($line, 0, 1);
+        $vert2 .= substr($line, 1, 1);
+        $vert3 .= substr($line, 2, 1);
+        $vert4 .= substr($line, 3, 1);
+
+        if($result == '')
+        {
+            list($result, $hasEmpty) = checkLine($line, $hasEmpty);
+        }
+    }
+    
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($diag1, $hasEmpty);
+    }
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($diag2, $hasEmpty);
+    }
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($vert1, $hasEmpty);
+    }
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($vert2, $hasEmpty);
+    }
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($vert3, $hasEmpty);
+    }
+    if($result == '')
+    {
+        list($result, $hasEmpty) = checkLine($vert4, $hasEmpty);
+    }
+    
+    if($result == '')
+    {
+        if($hasEmpty)
+        {
+            $result = 'Game has not completed';
+        }
+        else
+        {
+            $result = 'Draw';
+        }
+    }
+    fgets($handle);
+    echo 'Case #' . ($i + 1) . ': ' . $result . '<br/>';
+    fputs($handle2, 'Case #' . ($i + 1) . ': ' . $result . PHP_EOL);
+}
+fclose($handle);
+fclose($handle2);

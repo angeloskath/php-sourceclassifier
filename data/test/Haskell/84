@@ -1,0 +1,53 @@
+#!/usr/local/bin/runhaskell
+import Data.List as List
+import Debug.Trace
+
+ifElse = \p a b -> if p then a else b
+
+stringReplace = \from to string -> (List.map (\x -> ifElse ((==) x from) to x) string)
+
+ 
+matrixReplace = \from to -> (List.map (stringReplace from to))
+
+allEqualTo = \char string -> (and (List.map (\x -> ((==) x char)) string))
+
+checkWin = \tboard char -> let
+    board = (matrixReplace 'T' char tboard)
+    allEqual = (allEqualTo char)
+    rows_same = (or (List.map allEqual board))
+    columns_same = (or (List.map allEqual (List.transpose board)))
+    getDiaganol = \board -> (foldl (\diag i -> ((:) ((!!) ((!!) board i) i) diag)) [] [0..((-) (length board) 1)])
+    down_right = (allEqual (getDiaganol board))
+    down_left = (allEqual (getDiaganol (List.reverse board)))
+    in (or [rows_same, columns_same, down_right, down_left])
+
+checkTie = \board -> (not (List.elem '.' (concat board)))
+
+splitCases :: String -> [[String]]
+splitCases = \input -> let
+    count = (read (head (lines input))) :: Int
+    remaining = (tail (lines input)) :: [String]
+    splitRemaining = ((.) (splitAt 5) snd)
+    takes = (iterate splitRemaining (undefined, remaining)) :: [([String], [String])]
+    boards = (List.map ((.) List.init fst) (List.take count (List.tail takes)))
+    in boards
+
+solveCase = \(index, board) -> let
+    x_wins = (checkWin board 'X')
+    o_wins = (checkWin board 'O')
+    tie = (checkTie board)
+    result = (ifElse x_wins "X won"
+        (ifElse o_wins "O won"
+            (ifElse tie "Draw"
+                "Game has not completed")))
+    in (concat ["Case #", show index, ": ", result])
+
+main = do
+    input <- (readFile "/dev/stdin")
+    let boards = (splitCases input)
+    let cases = (zip [1..(length boards)] boards)
+    let outputs = (List.map solveCase cases)
+    (putStr (unlines outputs))
+    
+    
+    

@@ -1,0 +1,234 @@
+Imports System.IO
+Imports System.Text
+
+Module Q1Solver
+    Private InputFilePath As String = "A-small-attempt1.in"
+    Private OutputFilePath As String = "Output.txt"
+
+    Private NumberOfTestCases As Integer
+    Private TestCases As New List(Of TestCase)
+
+    Sub Main()
+        'Console.WriteLine("Code Jam Qualifying, Problem A")
+        Dim myWatch As New Stopwatch
+        myWatch.Start()
+        ParseInput(InputFilePath)
+
+        Dim output As New StringBuilder
+
+        For Each tc As TestCase In TestCases
+            output.AppendLine(String.Format("Case #{0}: {1}", tc.ID, ConvertIntToString(tc.CheckState)))
+        Next
+        myWatch.Stop()
+        SaveToFile(output.ToString, OutputFilePath)
+        Console.WriteLine(output.ToString)
+        Console.WriteLine(String.Format("Elapsed Time: {0} ms", myWatch.ElapsedMilliseconds.ToString))
+        Console.ReadLine()
+    End Sub
+
+    Public Sub SaveToFile(output As String, path As String)
+        Using File As New StreamWriter(path)
+            File.Write(output)
+        End Using
+    End Sub
+
+    Public Function ConvertIntToString(ByVal i As Integer) As String
+        Select Case i
+            Case 1
+                Return "X won"
+
+            Case 2
+                Return "O won"
+
+            Case 3
+                Return "Game has not completed"
+            Case 4
+                Return "Draw"
+            Case Else
+                Return "ERR"
+        End Select
+    End Function
+
+    Public Sub ParseInput(ByVal inputPath As String)
+        Dim strLine As String
+        Dim currentTestCase As TestCase
+        Dim rawData As New List(Of String)
+        Dim caseID As Integer = 1
+        Using file As New StreamReader(InputFilePath)
+            strLine = file.ReadLine
+
+            If IsNumeric(strLine) Then
+                NumberOfTestCases = Integer.Parse(strLine)
+            End If
+
+            While (Not file.EndOfStream)
+                'your code
+                rawData = New List(Of String)
+                For i As Integer = 0 To 4
+                    rawData.Add(file.ReadLine)
+                Next
+                currentTestCase = New TestCase(caseID, rawData)
+                caseID += 1
+                TestCases.Add(currentTestCase)
+            End While
+        End Using
+    End Sub
+
+    Public Class TestCase
+        Public Property ID As Integer
+        Public Property state As New List(Of Char())
+        Public Property result As Integer = 0
+
+        Public Sub New(ByVal id As Integer, ByVal rawData As List(Of String))
+            Me.ID = id
+            Dim charArray() As Char
+            If rawData.Count < 4 Then
+                Throw New Exception("Raw Data is wrong.")
+            Else
+                For Each line As String In rawData
+                    If Not String.IsNullOrEmpty(line) Then
+                        charArray = {line(0),
+                                       line(1),
+                                       line(2),
+                                       line(3)
+                                       }
+                        Me.state.Add(charArray)
+                    End If
+                Next
+            End If
+        End Sub
+
+        Public Function CountChar(ByVal c As Char) As Integer
+            Dim count As Integer = 0
+            For Each line As Char() In state
+                For Each test As Char In line
+                    If test = c Then
+                        count += 1
+                    End If
+                Next
+            Next
+            Return count
+        End Function
+
+        Public Sub DisplayToConsole()
+            For Each line As Char() In state
+                For Each c As Char In line
+                    Console.Write(c)
+                Next
+                Console.Write(vbCrLf)
+            Next
+            'Console.WriteLine(String.Format("Total X's {0} and total O's {1}", Me.CountChar("X"), Me.CountChar("O")))
+            Console.Write(vbCrLf)
+        End Sub
+
+        Public Function CheckState() As Integer
+            Dim result As Integer = 0
+            If CheckEmpty() = True Then
+                Return 3
+            End If
+            Select Case CheckDiagonalsRL()
+                Case 1
+                    Return 1
+                Case 2
+                    Return 2
+            End Select
+            Select Case CheckDiagonalsLR()
+                Case 1
+                    Return 1
+                Case 2
+                    Return 2
+            End Select
+            For i As Integer = 0 To 3
+                Select Case CheckRow(i)
+                    Case 1
+                        Return 1
+                    Case 2
+                        Return 2
+                End Select
+                Select Case CheckColumn(i)
+                    Case 1
+                        Return 1
+                    Case 2
+                        Return 2
+                End Select
+
+
+            Next
+            If CheckFull() Then
+                Return 3
+            Else
+                Return 4
+            End If
+            Return result
+        End Function
+
+        Public Function CheckRow(ByVal rowNumber As Integer)
+            Dim seq = Me.state(rowNumber)
+            Return CheckSequence(seq)
+        End Function
+
+        Public Function CheckSequence(ByVal seq As Char()) As Integer
+            Dim x = New String(seq)
+            If x(0) = "T" Or x(3) = "T" Then
+                If x.ToString.Substring(0, 3) = "XXX" Or x.ToString.Substring(1, 3) = "XXX" Then
+                    Return 1
+                End If
+                If x.ToString.Substring(0, 3) = "OOO" Or x.ToString.Substring(1, 3) = "OOO" Then
+                    Return 2
+                End If
+            Else
+                If x = "XXXX" Then
+                    Return 1
+                End If
+                If x = "OOOO" Then
+                    Return 2
+                End If
+            End If
+            Return 0
+        End Function
+
+        Public Function CheckColumn(ByVal colNumber As Integer)
+            Dim seq As Char() = {",", ",", ",", ","}
+            Dim index = 0
+            For Each line As Char() In Me.state
+                seq(index) = line(colNumber)
+                index += 1
+            Next
+            Return CheckSequence(seq)
+        End Function
+
+        Public Function CheckDiagonalsLR()
+            Dim seq As Char() = {",", ",", ",", ","}
+            For I As Integer = 0 To 3
+                seq(I) = Me.state(I)(I)
+            Next
+            Return CheckSequence(seq)
+        End Function
+
+        Public Function CheckDiagonalsRL()
+            Dim seq As Char() = {",", ",", ",", ","}
+            For I As Integer = 0 To 3
+                seq(I) = Me.state(I)(3 - I)
+            Next
+            Return CheckSequence(seq)
+        End Function
+
+        Public Function CheckFull()
+            If Me.CountChar(".") = 0 Then
+                Return False
+            Else
+                Return True
+            End If
+        End Function
+        Public Function CheckEmpty()
+            If Me.CountChar(".") = 16 Or (Me.CountChar(".") = 15 And Me.CountChar("T") = 1) Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+    End Class
+
+
+
+End Module

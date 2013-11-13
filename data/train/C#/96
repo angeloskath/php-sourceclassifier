@@ -1,0 +1,213 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+
+namespace ProblemA
+{
+	class Program
+	{
+		enum CellState
+		{
+			X,
+			O,
+			Empty,
+			T
+		}
+
+		struct Position
+		{
+			public Position(int column, int row)
+			{
+				Column = column;
+				Row = row;
+			}
+			public int Column;
+			public int Row;
+		}
+
+		static void Main(string[] args)
+		{
+			var generators = new SequenceGenerator[]
+			{
+				GetMainDiag,
+				GetNonMainDiag,
+				() => GetRow(0),
+				() => GetRow(1),
+				() => GetRow(2),
+				() => GetRow(3),
+				() => GetColumn(0),
+				() => GetColumn(1),
+				() => GetColumn(2),
+				() => GetColumn(3)
+			};
+			using (var inFile = new FileStream("A.in", FileMode.Open, FileAccess.Read))
+			{
+				using (var reader = new StreamReader(inFile))
+				{
+					using (var outFile = new FileStream("A.out", FileMode.Create, FileAccess.Write))
+					{
+						using (var writer = new StreamWriter(outFile))
+						{
+							var line = reader.ReadLine();
+							var testCount = int.Parse(line);
+							for (int testIndex = 0; testIndex < testCount; testIndex++)
+							{
+								var cells = new CellState[4, 4];
+								for (int i = 0; i < 4; i++)
+								{
+									line = reader.ReadLine();
+									for (int j = 0; j < 4; j++)
+									{
+										if (line[j] == 'X')
+											cells[i, j] = CellState.X;
+										else if (line[j] == 'O')
+											cells[i, j] = CellState.O;
+										else if (line[j] == '.')
+											cells[i, j] = CellState.Empty;
+										else if (line[j] == 'T')
+											cells[i, j] = CellState.T;
+									}
+								}
+								reader.ReadLine();
+								bool done = false;
+								foreach (var generator in generators)
+								{
+									var positions = generator();
+									var states = GetStates(cells, positions);
+									var result = CellState.T;
+									for (int i = 0; i < 4; i++)
+									{
+										if (states[i] == CellState.X)
+										{
+											if (result == CellState.O)
+											{
+												result = CellState.Empty;
+												break;
+											}
+											else if (result == CellState.X)
+											{
+												continue;
+											}
+											else if (result == CellState.T)
+											{
+												result = CellState.X;
+											}
+										}
+										if (states[i] == CellState.O)
+										{
+											if (result == CellState.O) continue;
+											else if (result == CellState.X)
+											{
+												result = CellState.Empty;
+												break;
+											}
+											else if (result == CellState.T)
+											{
+												result = CellState.O;
+											}
+										}
+										if (states[i] == CellState.Empty)
+										{
+											result = CellState.Empty;
+											break;
+										}
+										if (states[i] == CellState.T)
+										{
+											continue;
+										}
+									}
+									if (result == CellState.X)
+									{
+										done = true;
+										writer.WriteLine("Case #" + (testIndex + 1) + ": X won");
+										break;
+									}
+									else if (result == CellState.O)
+									{
+										done = true;
+										writer.WriteLine("Case #" + (testIndex + 1) + ": O won");
+										break;
+									}
+								}
+								if (done) continue;
+								bool hasEmpty = false;
+								for (int i = 0; i < 4; i++)
+									for (int j = 0; j < 4; j++)
+										if (cells[i, j] == CellState.Empty)
+											hasEmpty = true;
+								if (hasEmpty)
+								{
+									writer.WriteLine("Case #" + (testIndex + 1) + ": Game has not completed");
+								}
+								else
+								{
+									writer.WriteLine("Case #" + (testIndex + 1) + ": Draw");
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		static CellState[] GetStates(CellState[,] board, Position[] positions)
+		{
+			var states = new CellState[positions.Length];
+			for (int i = 0; i < positions.Length; i++)
+			{
+				states[i] = board[positions[i].Row, positions[i].Column];
+			}
+			return states;
+		}
+
+		delegate Position[] SequenceGenerator();
+
+		static Position[] GetRow(int rowIndex)
+		{
+			return new Position[]
+			{
+				new Position(0, rowIndex),
+				new Position(1, rowIndex),
+				new Position(2, rowIndex),
+				new Position(3, rowIndex)
+			};
+		}
+
+		static Position[] GetColumn(int columnIndex)
+		{
+			return new Position[]
+			{
+				new Position(columnIndex, 0),
+				new Position(columnIndex, 1),
+				new Position(columnIndex, 2),
+				new Position(columnIndex, 3)
+			};
+		}
+
+		static Position[] GetMainDiag()
+		{
+			return new Position[]
+			{
+				new Position(0, 0),
+				new Position(1, 1),
+				new Position(2, 2),
+				new Position(3, 3)
+			};
+		}
+
+		static Position[] GetNonMainDiag()
+		{
+			return new Position[]
+			{
+				new Position(3, 0),
+				new Position(2, 1),
+				new Position(1, 2),
+				new Position(0, 3)
+			};
+		}
+	}
+
+
+}

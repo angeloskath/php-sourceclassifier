@@ -1,0 +1,37 @@
+#!/usr/bin/ruby -w
+
+def winner(board_orig, symbol)
+	ok = [true] * 10  # 10 combinations
+	board = []
+	board_orig.each { |row|	board.push row.sub(/T/, symbol) }
+	s = symbol[0]
+	4.times { |i|
+		4.times { |j|
+			ok[i] &= s == board[i][j] and s == board[i][0]  # row
+			ok[4 + i] &= s == board[j][i] and s == board[0][i]  # col
+		}
+		ok[8] &= s == board[i][i] and s == board[0][0]  # 1st diagonal
+		ok[9] &= s == board[i][3 - i] and s == board[3][0]  # 2nd diagonal
+	}
+	ok.include? true
+end
+
+ARGF.readline.chomp.to_i.times { |tc|
+	# read data
+	space = false
+	board = []
+	4.times {
+		line = ARGF.readline.chomp
+		space |= line.include? '.'
+		board.push line
+	}
+	ARGF.readline  # empty
+
+	# process
+	result = nil
+	['X', 'O'].each { |s| result = s + ' won'  if winner(board, s) }
+	result = space ? "Game has not completed" : "Draw"  if not result
+
+	puts "Case ##{tc + 1}: #{result}"
+}
+

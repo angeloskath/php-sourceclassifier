@@ -1,0 +1,67 @@
+#include <stdio.h>
+
+char mp[8][8];
+int t;
+int ti, row, col;
+
+int win(char player) {
+   int i, j;
+   for(i = 0; i < 4; i++) {
+       int r = 1, c = 1, d1 = 1, d2 = 1;
+       for(j = 0; j < 4; j++) {
+           if(mp[j][j] != 'T' && mp[j][j] != player) {
+               d1 = 0;
+           }
+           if(mp[j][3-j] != 'T' && mp[j][3-j] != player) {
+               d2 = 0;
+           }
+           if(mp[i][j] != 'T' && mp[i][j] != player) {
+               r = 0;
+           }
+           if(mp[j][i] != 'T' && mp[j][i] != player) {
+               c = 0;
+           }
+       }
+       if(r || c || d1 || d2) {
+           return 1;
+       }
+   }
+   return 0;
+}
+
+int main() {
+    scanf("%d", &t);
+    for(ti = 1; ti <= t; ti++) {
+        printf("Case #%d: ", ti);
+        for(row = 0; row < 4; row++) {
+            scanf("%s", mp[row]);
+        }
+
+        if(win('X')) {
+            printf("X won\n");
+            continue;
+        }
+        if(win('O')) {
+            printf("O won\n");
+            continue;
+        }
+
+        int i, j;
+        int filled = 1;
+        for(i = 0; i < 4 && filled; i++) {
+            for(j = 0; j < 4 && filled; j++) {
+                if(mp[i][j] == '.') {
+                      filled = 0;
+                }
+            }
+        }
+        if(!filled) {
+            printf("Game has not completed\n");
+            continue;
+        }
+
+        printf("Draw\n");
+
+    }
+    return 48-48;
+}

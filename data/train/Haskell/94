@@ -1,0 +1,84 @@
+import Data.List
+
+data Label = X | O | E | T deriving (Show)
+instance Eq Label where
+  X == X = True
+  O == O = True
+  E == E = True
+  T == T = True
+  X == T = True
+  T == X = True
+  O == T = True
+  T == O = True
+  _ == _ = False
+
+data Judge = DRAW | X_WON | O_WON | NOT_COMPLETED deriving (Eq)
+instance Show Judge where
+  show X_WON = "X won"
+  show O_WON = "O won"
+  show DRAW = "Draw"
+  show _ = "Game has not completed"
+
+judge :: [Label] -> Judge
+judge xs
+    | all (X==) xs = X_WON
+    | all (O==) xs = O_WON
+    | otherwise    = DRAW
+    
+foldJudge :: [Judge] -> Judge
+foldJudge = foldl (\acc x -> if x /= DRAW then x else acc) DRAW
+
+toLabel :: Char -> Label
+toLabel c
+    | c == 'X'  = X
+    | c == 'O'  = O
+    | c == 'T'  = T
+    | otherwise = E
+
+boardToLines :: [a] -> [[a]]
+boardToLines xs = let c1 = [0, 4,  8, 12]
+                      c2 = [1, 5,  9, 13]
+                      c3 = [2, 6, 10, 14]
+                      c4 = [3, 7, 11, 15]
+                      ld = [0, 5, 10, 15]
+                      rd = [3, 6,  9, 12]
+                  in take 4 xs
+                   : take 4 (drop 4 xs)
+                   : take 4 (drop 8 xs)
+                   : take 4 (drop 12 xs)
+                   : map (xs !!) c1
+                   : map (xs !!) c2
+                   : map (xs !!) c3
+                   : map (xs !!) c4
+                   : map (xs !!) ld
+                   : map (xs !!) rd
+                   : []
+
+judgeBoard :: String -> Judge
+judgeBoard b = foldJudge . map judge $ boardToLines $ map toLabel b
+
+isComplete :: String -> Bool
+isComplete xs = not $ any ('.'==) xs
+
+
+groupsOf :: Int -> [a] -> [[a]]
+groupsOf 0 _  = undefined
+groupsOf n [] = []
+groupsOf n xs = take n xs : groupsOf n (drop n xs)
+
+bindCasePrefix :: [String] -> [String]
+bindCasePrefix = zipWith (++) (map (\x -> "Case #" ++ show x ++ ": ") [1..])
+
+judgeDraw :: Judge -> Bool -> Judge
+judgeDraw DRAW False = NOT_COMPLETED
+judgeDraw j _        = j
+
+main = do
+  contents <- getContents
+  let (n:ls) = lines contents
+  let boards = map concat $ groupsOf 5 ls
+      comps = map isComplete boards
+      judges = map judgeBoard boards
+      answers = zipWith judgeDraw judges comps
+      
+  mapM_ putStrLn $ bindCasePrefix $ map show $ answers

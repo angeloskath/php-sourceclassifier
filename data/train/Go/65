@@ -1,0 +1,180 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"tic"
+)
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
+
+func scanTable() [][]byte {
+	ret := make([][]byte, tic.TABLE_SIZE)
+	for i, _ := range ret {
+		var line string
+		fmt.Scanln(&line)
+		ret[i] = []byte(line)
+	}
+	return ret
+}
+
+func scanInput() [][][]byte {
+	var tableNum int
+	fmt.Scanln(&tableNum)
+	ret := make([][][]byte, 0, tableNum)
+	for i := 0; i < tableNum; i++ {
+		ret = append(ret, scanTable())
+		fmt.Scanln()
+	}
+	return ret
+}
+
+func main() {
+	log.Println("Hello, world!!")
+	tables := scanInput()
+	var (
+		firstStart chan bool = make(chan bool, 1)
+		start      chan bool = firstStart
+		finish     chan bool
+	)
+	for i, table := range tables {
+		finish = make(chan bool, 1)
+		go func(start <-chan bool, finish chan<- bool, i int, table [][]byte) {
+			<-start
+			var resultStr string
+			switch tic.ChkTable(table) {
+			case tic.RESULT_UNKNOWN:
+				resultStr = "Game has not completed"
+			case tic.RESULT_DRAW:
+				resultStr = "Draw"
+			case tic.RESULT_O_WIN:
+				resultStr = "O won"
+			case tic.RESULT_X_WIN:
+				resultStr = "X won"
+			}
+			fmt.Printf("Case #%d: %s\n", i, resultStr)
+			finish <- true
+			close(finish)
+		}(start, finish, i+1, table)
+		start = finish
+	}
+	firstStart <- true
+	close(firstStart)
+	<-finish
+	log.Println("Goodbye, world!!")
+}
+package tic
+
+import (
+	"fmt"
+	"log"
+)
+
+const (
+	TABLE_SIZE = 4
+)
+
+const (
+	RESULT_UNKNOWN Result = iota
+	RESULT_DRAW
+	RESULT_O_WIN
+	RESULT_X_WIN
+)
+
+type Result int
+
+func chkLine(line []byte) Result {
+	var ret Result = RESULT_UNKNOWN
+	for _, c := range line {
+		switch c {
+		case '.':
+			return RESULT_UNKNOWN
+		case 'T':
+			continue
+		case 'O':
+			if RESULT_X_WIN == ret {
+				ret = RESULT_DRAW
+			} else if RESULT_UNKNOWN == ret {
+				ret = RESULT_O_WIN
+			}
+		case 'X':
+			if RESULT_O_WIN == ret {
+				ret = RESULT_DRAW
+			} else if RESULT_UNKNOWN == ret {
+				ret = RESULT_X_WIN
+			}
+		default:
+			panic(fmt.Sprintf("Unknown symbol '%c'", c))
+		}
+	}
+	return ret
+}
+
+func genLines(table [][]byte) chan []byte {
+	const NUM_CASE = TABLE_SIZE + TABLE_SIZE + 2
+	out := make(chan []byte)
+	go func() {
+		var (
+			cols  = [TABLE_SIZE][TABLE_SIZE]byte{}
+			diags = [2][TABLE_SIZE]byte{}
+		)
+		for ri := 0; ri < TABLE_SIZE; ri++ {
+			out <- table[ri]
+			for ci := 0; ci < TABLE_SIZE; ci++ {
+				cols[ci][ri] = table[ri][ci]
+			}
+			diags[0][ri] = table[ri][ri]
+			diags[1][ri] = table[ri][TABLE_SIZE-1-ri]
+		}
+		for i, _ := range cols {
+			out <- cols[i][:]
+		}
+		for i, _ := range diags {
+			out <- diags[i][:]
+		}
+		close(out)
+	}()
+	return out
+}
+
+func chkTableSizeFatal(table [][]byte) {
+	const ERR_MSG = "Invalid table size"
+	if TABLE_SIZE != len(table) {
+		panic(ERR_MSG)
+	}
+	for _, row := range table {
+		if TABLE_SIZE != len(row) {
+			panic(ERR_MSG)
+		}
+	}
+}
+
+func DumpTable(table [][]byte) {
+	log.Println("<table>")
+	for _, line := range table {
+		log.Println(fmt.Sprintf("\"%s\"", string(line)))
+	}
+	log.Println("</table>")
+}
+
+func ChkTable(table [][]byte) Result {
+	chkTableSizeFatal(table)
+	var inDraw = true
+	for line := range genLines(table) {
+		switch lineResult := chkLine(line); lineResult {
+		case RESULT_O_WIN, RESULT_X_WIN:
+			return lineResult
+		case RESULT_DRAW:
+			continue
+		default:
+			inDraw = false
+		}
+	}
+	if inDraw {
+		return RESULT_DRAW
+	}
+	return RESULT_UNKNOWN
+}

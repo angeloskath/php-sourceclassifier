@@ -1,0 +1,189 @@
+var FILEIN  = 'test.in';
+var FILEOUT = 'JMcCourt.out';
+
+var fs = require('fs');
+
+var textToArray = function(str){
+	var arrayOut = [];
+
+	arrayTmp = str.split("\n");
+
+	var inputLength = parseInt(arrayTmp[0],10);
+	var i;
+	for(i = 1; i < arrayTmp.length-1; i++){
+		arrayOut[i-1] = arrayTmp[i];
+	}
+
+	return arrayOut;
+};
+
+function writeOutput(data){
+	var outputStr = "";
+	var i;
+
+	for(i = 0; i < data.length; i++){
+		outputStr += "Case #"+(i+1)+": "+data[i]+"\n";
+	}
+
+
+	fs = require('fs');
+	fs.writeFile(FILEOUT, outputStr, function (err) {
+	  if (err) return console.log(err);
+	  console.log("Write to " + FILEOUT);
+	});
+}
+
+fs.readFile(FILEIN, 'utf8', function (err,data) {
+  if (err) {
+  	console.log(err);
+  }
+
+
+  solveProblem(textToArray(data));
+});
+
+function checkRow(game,rowIndex){
+	var i;
+
+	var xWining = true;
+	var oWining = true;
+
+	for(i = 0; i < 4; i++){
+		var character = game[rowIndex][i];
+
+		if(character != "X" && character != "T"){xWining = false;}
+		if(character != "O" && character != "T"){oWining = false;}
+	}
+
+	if(xWining){return "X";}
+	if(oWining){return "O";}
+
+	return "T";
+}
+
+function checkCol(game,colIndex){
+	var i;
+
+	var xWining = true;
+	var oWining = true;
+
+	for(i = 0; i < 4; i++){
+		var character = game[i][colIndex];
+
+		if(character != "X" && character != "T"){xWining = false;}
+		if(character != "O" && character != "T"){oWining = false;}
+	}
+
+	if(xWining){return "X";}
+	if(oWining){return "O";}
+
+	return "T";
+}
+
+
+function checkDiag1(game){
+	var i;
+
+	var xWining = true;
+	var oWining = true;
+
+	for(i = 0; i < 4; i++){
+		var character = game[i][i];
+
+		if(character != "X" && character != "T"){xWining = false;}
+		if(character != "O" && character != "T"){oWining = false;}
+	}
+
+	if(xWining){return "X";}
+	if(oWining){return "O";}
+
+	return "T";
+}
+
+
+
+function checkDiag2(game){
+	var i;
+
+	var xWining = true;
+	var oWining = true;
+
+	for(i = 0; i < 4; i++){
+		var character = game[3-i][i];
+
+		if(character != "X" && character != "T"){xWining = false;}
+		if(character != "O" && character != "T"){oWining = false;}
+	}
+
+	if(xWining){return "X";}
+	if(oWining){return "O";}
+
+	return "T";
+}
+
+function checkCompleted(game){
+	var i = 0;
+	var j = 0;
+
+	var completed = true;
+	for(i = 0; i < 4; i++){
+		for(j = 0; j < 4; j++){
+			if(game[i][j] == "."){return false;}
+		}
+	}
+
+	return completed;
+}
+
+function solveProblem(inputArray){
+
+	var numRows = 4;
+	var numCols = 4;
+
+	var numGames = 1+inputArray.length / (numRows+1) | 0;
+	var outputArray = [];
+	var i;
+	var games = [];
+	for(i = 0; i < numGames; i++){
+		var index = (numRows+1)*i;
+		games[i] = [inputArray[index+0],inputArray[index+1],inputArray[index+2],inputArray[index+3]];
+	}
+	
+	console.log(games,numGames);
+	console.log(checkCompleted(games[0]))
+
+	for(i = 0; i < numGames; i++){
+		var j;
+		var result;
+		var game = games[i];
+		var completed = false;
+		for(j = 0; j < 4; j++){
+			result = checkRow(game,j);
+			if(result == "X"){outputArray[i] = "X won"; completed = true;}
+			if(result == "O"){outputArray[i] = "O won"; completed = true;}
+			
+			result = checkCol(game,j);
+			if(result == "X"){outputArray[i] = "X won"; completed = true;}
+			if(result == "O"){outputArray[i] = "O won"; completed = true;}
+		}
+
+		result = checkDiag1(game);
+		if(result == "X"){outputArray[i] = "X won"; completed = true;}
+		if(result == "O"){outputArray[i] = "O won"; completed = true;}
+
+		result = checkDiag2(game);
+		if(result == "X"){outputArray[i] = "X won"; completed = true;}
+		if(result == "O"){outputArray[i] = "O won"; completed = true;}
+
+		if(!completed){
+			if(checkCompleted(game)){
+				outputArray[i] = "Draw";
+			}else{
+				outputArray[i] = "Game has not completed";
+			}
+		}
+	}
+
+	console.log(outputArray);
+	writeOutput(outputArray);
+}

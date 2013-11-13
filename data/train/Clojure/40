@@ -1,0 +1,135 @@
+(ns a)
+
+(import '(java.util Scanner))
+(import '(java.io FileReader))
+
+
+
+(def *infile* "..\\codejam\\A-small.in")
+
+(def *ofile* "..\\codejam\\A-small.out")
+
+;(def *infile* "..\\codejam\\A-large.in")
+
+;(def *ofile* "..\\codejam\\A-large.out")
+
+
+(System/getProperty "user.dir")
+
+(defn dyna2[f n m]
+  (do 
+    (doseq [[p q]  (sort-by #(apply + %) (for [i (range (inc n)) j (range (inc m))]
+      [i j]))] 
+      (f p q))
+  
+    (f n m)))
+
+
+(defmacro rlp 
+  ([s]
+  `(vec (for [i# (range (.nextInt ~'sc))]
+             ~s)))
+  ([n s]
+  `(vec (for [i# (range ~n)]
+             ~s))))
+
+
+
+(defmacro rdi 
+  ([] `(.nextInt ~'sc))
+  ([n s]
+    `(let [~n (.nextInt ~'sc)]
+       ~s)))
+
+(defmacro rdd 
+  ([] `(.nextDouble ~'sc))
+  ([n s]
+    `(let [~n (.nextDouble ~'sc)]
+       ~s)))
+  
+
+(defmacro rds 
+  ([] `(.next ~'sc))
+  ([n s]
+   `(let [~n (.next ~'sc)]
+       ~s)))
+
+
+(defmacro rdlempty 
+  ([] `(.nextLine ~'sc))
+    ([n s]
+    `(let [~n (.nextLine ~'sc)]
+       ~s)))
+
+(defmacro rdl 
+  ([] `(let [n# (.nextLine ~'sc)]
+           (if (= n# "") (.nextLine ~'sc) n#)))
+    ([n s]
+    `(let [n# (.nextLine ~'sc)
+           ~n (if (= n# "") (.nextLine ~'sc) n#)]
+       ~s)))
+            
+
+(defmacro ofile[fname s]
+  `(with-open [f# (FileReader. ~fname)]
+              (let  [~'sc (Scanner. f#)]
+                      ~s)))
+
+
+
+
+(defn in[]
+  (ofile  *infile*
+(rlp [(rdl) (rdl) (rdl) (rdl)])
+))
+
+(defn out[s]
+  (spit *ofile*
+        (apply str (map-indexed #(str "Case #" (inc %1) ": " %2 "\r\n") s))))
+
+ 
+(defn transpose [m]
+  (map #(apply str %) (apply mapv vector m)))
+
+(defn diags[m]
+   [(apply str (for [i (range 4)] (get-in m [i i])))
+            (apply str (for [i (range 4)] (get-in m [(- 3 i) i])))])
+(defn p1[m]
+  (some #(every? #{\X \T} %) m))
+
+(defn p2[m]
+  (some #(every? #{\O \T} %) m))
+
+(defn full[m]
+  (every? #(every? #{\O \X \T} %) m))
+
+
+(defn parse1[s]
+  s)
+
+
+
+(defn solve1[c]
+
+ (let [c1 (into (into c (transpose c)) (diags c))]
+  (if (p1 c1)
+  (if (p2 c1)
+    "Draw" 
+    "X won")
+  (if (p2 c1)
+    "O won" 
+    "Game has not completed")
+  
+  )))
+
+(defn go[]
+  (out (map solve1 (map parse1 (in)))))
+
+		
+(in)
+(solve1 (parse1 (second (in))))
+;(go)
+(transpose ["ab" "cd"])
+(diags (first (in)))
+(p2 (first (in)))
+(p1 ["XOXT" "XXOO" "OXOX" "XXOO" "XXOX" "OXXX" "XOOO" "TOXO" "XXOO" "XXOT"])

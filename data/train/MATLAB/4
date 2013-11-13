@@ -1,0 +1,39 @@
+clear all; clc;
+
+board_size = 4;
+infile = fopen('in.in', 'r');
+outfile = fopen('out', 'w');
+
+num_input = fgets(infile);
+num_input = str2num(num_input);
+
+for ii = 1:num_input
+	board = [];
+	for jj = 1:board_size
+		board = [board; fgets(infile)];
+	end
+	board = board(:, 1:4);
+	boardO = board == 'O' | board == 'T';
+	boardX = board == 'X' | board == 'T';
+	fprintf(outfile, 'Case #%d: ', ii);
+	if sum(all(boardO == 1)) + ...
+		sum(all(boardO == 1, 2)) + ...
+		sum(all(diag(boardO) == 1)) + ...
+		sum(all(diag(fliplr(boardO)) == 1))
+		fprintf(outfile, 'O won', ii);
+	elseif sum(all(boardX == 1)) + ...
+		sum(all(boardX == 1, 2)) + ...
+		sum(all(diag(boardX) == 1)) + ...
+		sum(all(diag(fliplr(boardX)) == 1))
+		fprintf(outfile, 'X won', ii);
+	elseif all(all(board ~= '.')) == 0
+		fprintf(outfile, 'Game has not completed');
+	else
+		fprintf(outfile, 'Draw');
+	end
+	fprintf(outfile, '\n');
+
+	fgets(infile); % empty line
+end
+
+fclose(infile);

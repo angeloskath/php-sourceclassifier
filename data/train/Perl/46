@@ -1,0 +1,47 @@
+use strict;
+use warnings;
+
+# tic-tac-tomek: 4x4 grid; T for either player, O and X players, "." is empty
+
+sub won {
+    my ($b, $player) = @_;
+
+    my @rows = @$b;
+    my @cols = map { my $i = $_; join '' => map { substr $_ => $i, 1} @$b }
+        (0 .. $#$b);
+    my $diag1 = join '' => map { substr $b->[$_] => $_, 1 } (0 .. $#$b);
+    my $diag2 = join '' => map { substr $b->[3 - $_] => $_, 1} (0 .. $#$b);
+
+    for (@rows, @cols, $diag1, $diag2) {
+        return 1 if /^[T$player]*$/;
+    }
+
+    return 0;
+}
+
+sub full {
+    my ($board) = @_;
+    return scalar ! grep { /[.]/ } @$board;
+}
+
+sub board_result {
+    my $board = [ @_[0 .. 3] ];
+    return won($board, 'X') ? 'X won' :
+           won($board, 'O') ? 'O won' :
+           full($board) ? 'Draw' :
+           'Game has not completed';
+}
+
+sub case {
+    my ($case) = @_;
+
+    my @in = map { scalar <> } (0 .. 4);
+    chomp @in;
+
+    my $result = board_result(@in);
+
+    print "Case #$case: $result\n";
+}
+
+my $t = scalar <>;
+case $_ for 1 .. $t;

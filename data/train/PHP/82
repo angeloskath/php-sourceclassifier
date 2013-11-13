@@ -1,0 +1,83 @@
+<?php
+$f = fopen('a.in', 'r');
+$n = intval(fgets($f));
+
+$oIP = array("OOOO","OOOT","OOTO","OTOO","TOOO");
+$xIP = array("XXXX","XXXT","XXTX","XTXX","TXXX");
+$res = "";
+for($i=0;$i<$n;$i++) {
+	$oRes = false;
+	$xRes = false;
+	$arr = array();
+
+	for($j=0;$j<4;$j++) {
+		$line = (fgets($f));
+		$breaks = array("\r\n", "\n", "\r");
+	    $line = str_replace($breaks, "", $line);
+		if(in_array($line,$oIP)) {
+			$oRes = true;
+		}
+		if((in_array($line,$xIP)) || in_array($line,$xIP)) {
+			$xRes = true;
+		}
+	
+		$arr[] = str_split($line);
+	}
+	$diag1 = "";
+	$diag2 = "";
+	for($p=0;$p<4;$p++) {
+		$ip1 = "";
+		$not_complete = false;
+		for($q=0;$q<4;$q++) {
+			if($arr[$p][$q] == ".")
+				$not_complete = true;
+			$ip1 .= $arr[$q][$p];
+			if($p == $q) {
+				$diag1 .= $arr[$q][$p];
+			}
+			if($p+$q == 3) {
+				$diag2 .= $arr[$p][$q];
+			}
+		}
+		if(!$oRes) {
+			if((in_array($ip1,$oIP)) || in_array($ip1,$oIP)) {
+				$oRes = true;
+			}
+		}
+		if(!$xRes) {
+			if((in_array($ip1,$xIP)) || in_array($ip1,$xIP)) {
+				$xRes = true;
+			}
+		}
+
+		if(!$oRes) {
+			if((in_array($diag1,$oIP)) || in_array($diag1,$oIP) || (in_array($diag2,$oIP)) || in_array($diag2,$oIP)) {
+				$oRes = true;
+			}
+		}
+		
+		if(!$xRes) {
+			if((in_array($diag1,$xIP)) || in_array($diag1,$xIP) || (in_array($diag2,$xIP)) || in_array($diag2,$xIP)) {
+				$xRes = true;
+			}
+		}
+	}
+	if($oRes) {
+		$res .= 'Case #'.($i+1).': O won'; 
+	}
+	else if($xRes) {
+		$res .= 'Case #'.($i+1).': X won'; 
+	}
+	else if(!$xRes && !$oRes && $not_complete) {
+		$res .= 'Case #'.($i+1).': Game has not completed'; 
+	}
+	else {
+		$res .= 'Case #'.($i+1).': Draw'; 
+	}
+	$res .= "\n";
+	fgets($f);
+}
+
+$fp2 = fopen('a.op','w');
+fwrite($fp2,$res);
+?>

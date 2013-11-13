@@ -1,0 +1,30 @@
+import Data.Char
+import Data.List
+import Text.Printf
+import Control.Monad
+
+diag :: [[a]] -> [a]
+diag xs = zipWith (!!) xs [0..]
+
+won :: (a -> Bool) -> [[a]] -> Bool
+won p xs = any (all p) xs
+        || any (all p) (transpose xs)
+        || all p (diag xs)
+        || all p (diag (reverse xs))
+
+solve :: [[Char]] -> String
+solve xs
+  | won (\x -> x == 'T' || x == 'O') xs = "O won"
+  | won (\x -> x == 'T' || x == 'X') xs = "X won"
+  | any (== '.') (concat xs) = "Game has not completed"
+  | otherwise = "Draw"
+
+main = do
+    n <- readLn
+    mapM_ acase [1..n::Int]
+
+acase i = do
+    xs <- replicateM 4 getLine
+    blank <- getLine
+    printf "Case #%d: %s\n" i (solve xs)
+

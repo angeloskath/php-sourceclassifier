@@ -1,0 +1,70 @@
+function [] = tictactoe()
+    fid = fopen('IP.txt');
+    fidOut = fopen('output.txt','w');
+    
+    N = fscanf(fid,'%d\n');
+
+
+    for n = 1:N
+        board = getBoard(fid);
+        outcome = determineCase(board);
+        fprintf(fidOut,'Case #%d: %s\n',n,outcome);
+    end
+
+
+
+fclose(fid);
+fclose(fidOut);
+end
+
+function board = getBoard(fid)
+
+    board = reshape(fscanf(fid,'%c%c%c%c\n',16),4,4);
+
+end
+
+function outcome = determineCase(board)
+
+    
+    outcome = determineIfWinner(board);
+    if ~isempty(outcome);
+        return;
+    end
+
+    outcome = determineIfWinner(board');    
+    if ~isempty(outcome)
+        return; 
+    end
+    
+    outcome = determineIfWinner([board([1 6 11 16]); board([4 7 10 13])]);
+    if ~isempty(outcome)
+        return;
+    end
+
+    if ~isempty(strfind(board(:)','.'))
+        outcome='Game has not completed';
+    else
+        outcome='Draw';
+    end
+
+
+% 'X won'
+% 'Draw'
+% 'Game has not completed'
+% 'O won'
+end
+
+function outcome = determineIfWinner(board)
+    outcome = [];
+
+   for n = 1:size(board,1)
+       
+       if (regexp(board(n,:),'[XT]{4}')==1)
+           outcome = 'X won';
+           break;
+       elseif regexp(board(n,:),'[OT]{4}')==1
+           outcome = 'O won';
+            break;
+       end
+   end
+end

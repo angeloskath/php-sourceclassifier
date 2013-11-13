@@ -1,0 +1,61 @@
+package main
+import ("fmt")
+func main () {
+    var T int
+    var dum rune
+    fmt.Scanf("%d", &T)
+    for ti := 1; ti <= T; ti++ {
+        L := make([][]rune, 4)
+        game_is_over := true
+        for i := 0; i < 4; i++ {
+            L[i] = make([]rune, 4)
+            for j := 0; j < 4; j++ {
+                fmt.Scanf("%c", &L[i][j])
+                if L[i][j] == '.' { game_is_over = false }
+            }
+            fmt.Scanf("%c", &dum)
+        }
+        switch (true) {
+        case is_win_x(L): fmt.Printf("Case #%d: X won\n", ti);
+        case is_win_o(L): fmt.Printf("Case #%d: O won\n", ti);
+        case game_is_over:  fmt.Printf("Case #%d: Draw\n", ti);
+        default: fmt.Printf("Case #%d: Game has not completed\n", ti);
+        }
+        fmt.Scanf("%c", &dum)
+    }
+}
+func is_win_x (L [][]rune) bool {
+    return is_win(L, 'X', 'T')
+}
+func is_win_o (L [][]rune) bool {
+    return is_win(L, 'O', 'T')
+}
+func is_win (L [][]rune, c, w rune) bool {
+    for i := 0; i < 4; i++ {
+        if (L[i][0] == c || L[i][0] == w) &&
+           (L[i][1] == c || L[i][1] == w) &&
+           (L[i][2] == c || L[i][2] == w) &&
+           (L[i][3] == c || L[i][3] == w) {
+            return true
+        }
+        if (L[0][i] == c || L[0][i] == w) &&
+           (L[1][i] == c || L[1][i] == w) &&
+           (L[2][i] == c || L[2][i] == w) &&
+           (L[3][i] == c || L[3][i] == w) {
+           return true
+        }
+    }
+    if (L[0][0] == c || L[0][0] == w) &&
+       (L[1][1] == c || L[1][1] == w) &&
+       (L[2][2] == c || L[2][2] == w) &&
+       (L[3][3] == c || L[3][3] == w) {
+        return true
+    }
+    if (L[0][3] == c || L[0][3] == w) &&
+       (L[1][2] == c || L[1][2] == w) &&
+       (L[2][1] == c || L[2][1] == w) &&
+       (L[3][0] == c || L[3][0] == w) {
+        return true
+    }
+    return false
+}

@@ -1,0 +1,35 @@
+object TicTacToeTomek extends App {
+  import scala.io.Source
+  val src = Source.fromFile("A-large.in")
+  val lines = src.getLines
+  val qty = lines.next.toInt
+  for (i <- 1 to qty) {
+    var o = false
+    var x = false
+    var u = false
+    val b = Array.ofDim[Char](4, 4)
+    for (j <- 0 to 3) {
+      val l = lines.next
+      if (l.matches("[OT][OT][OT][OT]")) o = true
+      if (l.matches("[XT][XT][XT][XT]")) x = true
+      if (l.matches(".*\\..*")) u = true
+      b(j) = l.toCharArray()
+    }
+    for (j <- 0 to 3) {
+      if ((b(0)(j) + "" + b(1)(j) + "" + b(2)(j) + "" + b(3)(j)).matches("[OT][OT][OT][OT]")) o = true
+      if ((b(0)(j) + "" + b(1)(j) + "" + b(2)(j) + "" + b(3)(j)).matches("[XT][XT][XT][XT]")) x = true
+    }
+    if ((b(0)(0) + "" + b(1)(1) + "" + b(2)(2) + "" + b(3)(3)).matches("[OT][OT][OT][OT]")) o = true
+    if ((b(0)(0) + "" + b(1)(1) + "" + b(2)(2) + "" + b(3)(3)).matches("[XT][XT][XT][XT]")) x = true
+    if ((b(0)(3) + "" + b(1)(2) + "" + b(2)(1) + "" + b(3)(0)).matches("[OT][OT][OT][OT]")) o = true
+    if ((b(0)(3) + "" + b(1)(2) + "" + b(2)(1) + "" + b(3)(0)).matches("[XT][XT][XT][XT]")) x = true
+    val res = if (o) "O won" else if (x) "X won" else if (u) "Game has not completed" else "Draw"
+    println("Case #" + i + ": " + res)
+    if (lines.hasNext) lines.next
+  }
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
+}
+

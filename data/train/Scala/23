@@ -1,0 +1,60 @@
+import collection.mutable
+import java.io.File
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: Kevin
+ * Date: 4/12/13
+ * Time: 5:34 PM
+ */
+object TicTacToe extends App {
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
+
+  def check(grid:Array[Char], player:Char, start:Int, step:Int) = {
+    (0 to 3).map(i => {
+      val c = grid(start + i * step)
+      c == player || c == 'T'
+    }).reduce(_&&_)
+  }
+
+  def isWon(grid:Array[Char], player:Char) = {
+    List(
+      (0.to(12, 4)).map((_, 1)),
+      (0 to 3).map((_, 4)),
+      List((0, 5), (3, 3))
+    ).flatten.map(x => check(grid, player, x._1, x._2)).reduce(_||_)
+  }
+
+  val output = new mutable.Queue[String]
+  val lines = io.Source.fromFile("A-large.in").getLines().toArray.tail
+  val grids = lines.grouped(5).toArray
+  for (i <- 0 until grids.length) {
+    var resultTxt = "Case #" + (i + 1) + ": "
+    val grid = grids(i).slice(0, 4).flatten
+    val result = Map('X' -> Nil, 'O' -> Nil).transform((p, r) => isWon(grid, p))
+    val hasWinner = (for ((p, r) <- result) yield {
+      if (r) {
+        resultTxt += (p + " won")
+        true
+      }
+      else
+        false
+    }).reduce(_||_)
+    if (!hasWinner) {
+      if (grid.contains('.')) {
+        resultTxt += ("Game has not completed")
+      }
+      else {
+        resultTxt += ("Draw")
+      }
+    }
+    output += resultTxt
+  }
+
+  printToFile(new File("output.txt"))(p => {
+    output.foreach(p.println)
+  })
+}

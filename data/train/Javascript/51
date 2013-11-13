@@ -1,0 +1,115 @@
+var fs  = require("fs");
+
+fs.readFile('./A-Large.in', function(err,data) {
+    input(data.toString());
+});
+
+function input(data) {
+    var input = data.split('\n');
+    var max_cases = input[0];
+    var board = []; //Temporary gameboard for each case
+    var winner;
+    var out;
+    
+    //delete output file if it already exists
+    var output = fs.createWriteStream('./A-Large.out');
+    
+    //Loop through each case
+    for (var this_case=0;this_case<max_cases;this_case++) {
+        for (var y=0;y<4;y++) {
+            board[y] = [];
+            for (var x=0;x<4;x++) {
+                board[y][x] = input[this_case*5+y+1][x]; 
+            }
+        }
+    
+        winner = solve(board);
+        out = 'Case #' + (this_case+1) + ': ';
+    
+        //String for each possible outcome
+        if (winner === 'X') { 
+            out = out + 'X won';
+        } else if (winner === 'O') {
+            out = out + 'O won';
+        } else if (winner === 'DRAW') {
+            out = out + 'Draw';    
+        } else {
+            out = out + 'Game has not completed';
+        }
+    
+        console.log(out);
+        output.write(out + '\n');
+    }
+
+    output.end();
+}
+
+function solve(board) {
+    var sol = []; //[y][x]
+    sol[0] = [0][1,2,3,4];
+    var first = '';
+    
+    //Check for constant y solution
+    for (var y=0;y<4;y++) {
+        first = board[y][0];
+        if (!(first==='X'||first==='O'||first==='T')) {
+            continue;
+        }
+        for (var x=0;x<4;x++) {
+            if ((first === 'T') && (board[y][x] !== '.')) {first = board[y][x];}
+            if ((board[y][x] === first) || (board[y][x] === 'T')) {
+                if (x===3) {return first;}
+                else {continue;}
+            } else {break;}
+        }
+    }
+    
+    //Check for constant x solution
+    for (x=0;x<4;x++) {
+        first = board[0][x];
+        if (!(first==='X'||first==='O'||first==='T')) {
+            continue;
+        }
+        for (y=1;y<4;y++) {
+            if ((first === 'T') && (board[y][x] !== '.')) {first = board[y][x];}
+            if ((board[y][x] === first) || (board[y][x] === 'T')) {
+                if (y===3) {return first;}
+                else {continue;}
+            } else {break;}
+        }
+    }    
+   
+    //Check for diagonal solution - 2 cases
+    first = board[0][0]; 
+    if ((first === 'X') || (first === 'O') || (first === 'T')) {
+        for (var i=0;i<4;i++) {
+            if ((first === 'T') && (board[i][i] !== '.')) {first = board[i][i];}
+            if ((board[i][i] === first) || (board[i][i] === 'T')) {
+                if (i===3) {return first;}
+                else {continue;}
+            } else {break;}
+        }
+    }
+    
+    first = board[0][3]; 
+    if ((first === 'X') || (first === 'O') || (first === 'T')) {
+        for (var i=0;i<4;i++) {
+            if ((first === 'T') && (board[i][3-i] !== '.')) {first = board[i][3-i];}
+            if ((board[i][3-i] === first) || (board[i][3-i] === 'T')) {
+                if (i===3) {return first;}
+                else {continue;}
+            } else {break;}
+        }
+    }
+    
+    //Check if any moves remaining
+    for (x=0;x<4;x++) {
+        for(y=0;y<4;y++) {
+            if (board[y][x] === '.') {
+                return 'in_progress'
+            }
+        }
+    }
+
+   return 'DRAW';
+}

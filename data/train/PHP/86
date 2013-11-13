@@ -1,0 +1,205 @@
+<?
+	error_reporting(E_ALL);
+	ini_set("display_errors", 1);
+	$filename = "A-small-attempt2.in";
+	$slovename= "A.out";
+	
+	$lines = file($filename);
+	$countline = 0;
+	$case_num = 0;
+	$current='';
+	foreach ($lines as $line_num => $line) {
+	
+	    $line = str_replace("\n","", $line);
+	    $line = str_replace("\r","", $line);
+	    //echo "Line #<b>{$line_num}</b> : " . htmlspecialchars($line) . "<br />\n";
+		if($line_num==0){
+			$case_total = $line;
+			continue;
+			
+		}
+		if(!empty($line)){
+			
+			$ttt_matrix[] = $line;
+			
+		}else{
+			$case_num++;
+			$current .= "Case #".$case_num.': '.slove($ttt_matrix)."\n";	
+			$ttt_matrix=null;
+			
+			
+		}
+		//$current .= "Case #".$line_num.': '.slove($line)."\n";	
+		
+		
+		
+	}
+
+	echo $current;     
+    //$current = "aaaa";
+    file_put_contents($slovename, $current);
+
+
+
+
+	function slove($input){
+	
+	
+		for ($k=0;$k<4;$k++){
+			if($input[$k]=="....")
+				$empty_flag++;
+		 	
+		 		
+		}
+		if($empty_flag>=4)
+		return "Game has not completed";
+	
+	
+	
+		//echo $input[0][0];
+		for($i=0;$i<4;$i++){
+			
+			//驗證直行
+			for($j=0;$j<4;$j++){
+				
+				if($ver_mark!='' && ($ver_mark!=$input[$i][$j] && $input[$i][$j]!="T"))
+					break;
+			
+				if($input[$i][$j]=="O" ){
+					$ver_mark="O";
+					
+				}else if($input[$i][$j]=="X" ){
+					$ver_mark="X";
+					
+				} else if($input[$i][$j]==".")
+					break;
+			
+			
+				if($j==3)
+					return $ver_mark." won";
+				
+				
+			}
+			
+			$ver_mark='';
+			//驗證橫列
+			for($j=0;$j<4;$j++){
+				
+				if($ver_mark!='' && ($ver_mark!=$input[$j][$i] && $input[$j][$i]!="T" ))
+					break;
+			
+				if($input[$j][$i]=="O" ){
+					$ver_mark="O";
+					
+				}else if($input[$j][$i]=="X" ){
+					$ver_mark="X";
+					
+				} else if($input[$i][$j]==".")
+					break;
+				
+				
+				if($j==3)
+					return $ver_mark." won";
+			
+				
+			}
+			
+			
+			$ver_mark='';
+					
+					
+					
+					
+						
+			
+			
+						
+			
+		}
+		
+		
+		
+		
+		
+		for($i=0;$i<4;$i++){
+			
+			
+			if($ver_mark!='' && ($ver_mark!=$input[$i][$i] && $input[$i][$i]!="T"))
+					break;
+					
+					
+			
+				if($input[$i][$i]=="O" ){
+					$ver_mark="O";
+					
+				}else if($input[$i][$j]=="X" ){
+					$ver_mark="X";
+					
+				}else if($input[$i][$j]==".")
+					break;
+			
+			
+				if($i==3)
+					return $ver_mark." won";
+		}
+		
+		
+		$ver_mark='';
+		
+		for($i=0;$i<4;$i++){
+			
+			
+			if($ver_mark!='' && ($ver_mark!=$input[$i][3-$i] && $input[$i][3-$i]!="T"))
+					break;
+			
+				if($input[$i][3-$i]=="O" ){
+					$ver_mark="O";
+					
+				}else if($input[$i][3-$j]=="X" ){
+					$ver_mark="X";
+					
+				} else if($input[$i][$j]==".")
+					break;
+			
+			
+				if($i==3)
+					return $ver_mark." won";
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		for ($k=0;$k<4;$k++){
+			
+		 	if(strpos($input[$k], ".")!==false)
+		 		return "Game has not completed";
+		}
+		return "Draw";
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		//return $timer;
+		
+		
+		
+		
+	
+	// var_dump($step);
+	 
+	}
+
+?>
+            
+            

@@ -1,0 +1,26 @@
+<?php
+$file = file('A-small-attempt0.in');
+$n = array_shift($file);
+function chkWinner($p, &$winner, $line){
+	if(substr_count($line, $p) + substr_count($line, 'T')===4)
+		$winner = $p;
+}
+$out = '';
+for($i=0; $i<$n; $i++){
+	$grid = array();
+	$winner = $incomplete = false;
+	while($line = $grid[] = trim(array_shift($file)))
+		if(strpos($line,'.')!==false)
+			$incomplete = true;
+	foreach(array('O','X') as $p){
+		for($j=0; $j<4; $j++){
+			chkWinner($p, &$winner, $grid[$j]);
+			chkWinner($p, &$winner, $grid[0][$j].$grid[1][$j].$grid[2][$j].$grid[3][$j]);
+		}
+		chkWinner($p, &$winner, $grid[0][0].$grid[1][1].$grid[2][2].$grid[3][3]);
+		chkWinner($p, &$winner, $grid[0][3].$grid[1][2].$grid[2][1].$grid[3][0]);
+	}
+	$out .= 'Case #'.($i+1).': '.($winner ? $winner.' won' : ($incomplete ? 'Game has not completed' : 'Draw')).PHP_EOL;
+}
+file_put_contents('A-small-attempt0.out', $out);
+?>

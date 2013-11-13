@@ -1,0 +1,59 @@
+import scala.io.Source
+
+object ProblemA {
+  val input = Source.fromFile("C:\\Users\\xto\\Downloads\\A-large.in").getLines()
+//  val input = Source.fromFile("src/test.dat").getLines()
+
+  def hasSymbolWon(symbol: Char)(xs: List[String]): Boolean = {
+    def isValidSymbol(c: Char) = c == 'T' || c == symbol
+    def wonOnRow(idx: Int) = xs(idx).toCharArray.forall(isValidSymbol(_))
+    def wonOnCol(idx: Int) =
+      isValidSymbol(xs(0).charAt(idx)) &&
+      isValidSymbol(xs(1).charAt(idx)) &&
+      isValidSymbol(xs(2).charAt(idx)) &&
+      isValidSymbol(xs(3).charAt(idx))
+    def wonOnDiag1: Boolean =
+      isValidSymbol(xs(0).charAt(0)) &&
+      isValidSymbol(xs(1).charAt(1)) &&
+      isValidSymbol(xs(2).charAt(2)) &&
+      isValidSymbol(xs(3).charAt(3))
+    def wonOnDiag2: Boolean =
+      isValidSymbol(xs(0).charAt(3)) &&
+      isValidSymbol(xs(1).charAt(2)) &&
+      isValidSymbol(xs(2).charAt(1)) &&
+      isValidSymbol(xs(3).charAt(0))
+
+    for (i <- 0 until 4 if wonOnRow(i)) return true
+    for (i <- 0 until 4 if wonOnCol(i)) return true
+
+    wonOnDiag1 || wonOnDiag2
+  }
+
+  def hasOWon = hasSymbolWon('O') _
+  def hasXWon = hasSymbolWon('X') _
+
+  def hasCompleted(xs: List[String]) =
+    !xs.map(s => s.contains('.'))
+       .forall(_ == false)
+
+  def solve() = {
+    val board = input.take(4).toList
+    input.next
+
+    if (hasXWon(board)) "X won"
+    else if (hasOWon(board)) "O won"
+    else if (hasCompleted(board)) "Game has not completed"
+    else "Draw"
+  }
+
+  def main(args: Array[String]) {
+    val t = input.next().toInt
+
+
+    for (i <- 0 until t) {
+      println("Case #" + (i+1) + ": " + solve())
+    }
+
+  }
+}
+

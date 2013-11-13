@@ -1,0 +1,57 @@
+var whitespace = [' ','\n','\r','\t']
+
+var FOR = function(s, e, c) { for (var i=s; i<e; i++) { b = c(i); if (b) break; } }
+var Input = function() {
+  this.data = require('fs').readFileSync('/dev/stdin').toString('utf8')
+  this.pos = 0
+}
+
+Input.prototype.read = function() {
+  var s = ''
+  while (whitespace.indexOf(this.data.charAt(this.pos)) >= 0) this.pos++
+  while (whitespace.indexOf(this.data.charAt(this.pos)) < 0) s += this.data.charAt(this.pos++)
+  return s
+}
+
+Input.prototype.readInt = function() { return parseInt(this.read()) }
+
+var input = new Input()
+var T = input.readInt();
+
+var check = function(board, p) {
+  var win = false;
+  var re = new RegExp('('+p+'|T){4}')
+  FOR(0, 4, function(i) {
+    if (board[i].match(re)) return win = true
+    var tr = ''
+    FOR(0, 4, function(j) { tr+= board[j].charAt(i) })
+    if (tr.match(re)) return win = true
+
+  })
+  if (!win) {
+    var d = ''
+    FOR(0, 4, function(i) { d+= board[i].charAt(i) })
+    if (d.match(re)) return win = true
+  }
+  if (!win) {
+    var d = ''
+    FOR(0, 4, function(i) { d+= board[i].charAt(3-i) })
+    if (d.match(re)) return win = true
+  }
+  return win ? 1 : 0
+}
+
+FOR(1, T+1, function(t) {
+  var board = []
+  FOR(0, 4, function() { board.push(input.read()) })
+  var r = ''
+  switch (check(board, 'X') - check(board, 'O')) {
+    case  0:
+      r = (board.join('').indexOf('.') < 0) ?
+        'Draw' : 'Game has not completed'
+      break
+    case -1: r = 'O won'; break
+    case  1: r = 'X won'; break
+  }
+  console.log('Case #'+t+': '+r)
+});

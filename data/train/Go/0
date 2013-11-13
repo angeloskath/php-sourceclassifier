@@ -1,0 +1,107 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+)
+
+var dataset = "A-large"
+
+func won(board []string, player byte) bool {
+	for i := 0; i < len(board); i++ {
+		// Rows
+		won := true
+		for j := 0; j < len(board); j++ {
+			if board[i][j] != player && board[i][j] != 'T' {
+				won = false
+			}
+		}
+		if won {
+			return true
+		}
+		// Colums
+		won = true
+		for j := 0; j < len(board); j++ {
+			if board[j][i] != player && board[j][i] != 'T' {
+				won = false
+			}
+		}
+		if won {
+			return true
+		}
+	}
+	// Diagonals
+	won := true
+	for i := 0; i < len(board); i++ {
+		if board[i][i] != player && board[i][i] != 'T' {
+			won = false
+		}
+	}
+	if won {
+		return true
+	}
+	won = true
+	for i := 0; i < len(board); i++ {
+		if board[3-i][i] != player && board[3-i][i] != 'T' {
+			won = false
+		}
+	}
+	return won
+}
+
+// Read a single test specific input, solve, report
+func solve(in *bufio.Reader, out io.Writer) {
+	board := make([]string, 4)
+	for i := 0; i < len(board); i++ {
+		board[i], _ = in.ReadString('\n')
+		strings.TrimSpace(board[i])
+	}
+	in.ReadString('\n')
+
+	// Check winners
+	if won(board, 'X') {
+		fmt.Fprintf(out, "X won\n")
+		return
+	} else if won(board, 'O') {
+		fmt.Fprintf(out, "O won\n")
+		return
+	}
+	// If there's any dot, terminate
+	for i := 0; i < len(board); i++ {
+		if strings.Contains(board[i], ".") {
+			fmt.Fprintf(out, "Game has not completed\n")
+			return
+		}
+	}
+	// Otherwise, draw
+	fmt.Fprintf(out, "Draw\n")
+}
+
+// Opens the input, assembles a (file + stdout) writer and calls solve for each
+// input segment.
+func main() {
+	// Create the input and output streams
+	inf, err := os.Open(dataset + ".in")
+	if err != nil {
+		panic(err)
+	}
+	in := bufio.NewReader(inf)
+
+	outf, err := os.Create(dataset + ".out")
+	if err != nil {
+		panic(err)
+	}
+	defer outf.Close()
+	out := io.MultiWriter(outf, os.Stdout)
+
+	// Read the tests, solve for each and output
+	tests := 0
+	fmt.Fscanf(in, "%d\n", &tests)
+	for t := 1; t <= tests; t++ {
+		fmt.Fprintf(out, "Case #%d: ", t)
+		solve(in, out)
+	}
+}

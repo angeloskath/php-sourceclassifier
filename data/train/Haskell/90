@@ -1,0 +1,64 @@
+module Main where
+
+import GoogleCodeJam
+
+import Control.Applicative
+import Control.Arrow
+import Control.Monad
+
+import Prelude hiding (all, any, replicate, foldr, elem, zipWith, head, tail)
+import Data.Vector hiding ((++))
+
+import Text.Parsec hiding ((<|>))
+import Text.Parsec.Char
+import Text.Parsec.Combinator
+
+main :: IO ()
+main = parseAndSolve parseCases solve
+
+parseCases :: Parsec String u [Board] 
+parseCases = do
+  numCases <- readNatural <* newline
+  count numCases parseCase <* eof
+
+parseCase :: Parsec String u Board
+parseCase = fromList <$> count 4 parseRow  <* newline
+
+parseRow :: Parsec String u Row
+parseRow = fromList <$> count 4 parseSymbol <* newline
+
+parseSymbol :: Parsec String u Symbol
+parseSymbol = lookup <$> oneOf "XOT."
+  where lookup 'X' = Right X
+        lookup 'O' = Right O
+        lookup 'T' = Left T
+        lookup '.' = Left Blank
+
+solve :: Board -> Status
+solve board = maybe (if full then Draw else Incomplete) Won (rows <|> cols <|> diags)
+  where full :: Bool
+        full = all (not . elem (Left Blank)) board
+        lookup :: Vector Int -> Row
+        lookup = zipWith (!) board
+        first :: Vector Row -> Maybe Player
+        first = foldr (<|>) Nothing . fmap check
+        check :: Row -> Maybe Player
+        check sv = case head sv of 
+                    s@(Right p) | (\s' -> s'==s || s' == Left T) `all` tail sv -> Just p
+                    _           -> Nothing
+        rows, cols, diags :: Maybe Player
+        rows  = first board
+        cols  = first . fmap lookup . generate 4 $ replicate 4
+        diags = first . fmap (lookup . fromList) $ fromList [ [0,1,2,3], [3,2,1,0] ]
+
+type Board  = Vector Row
+type Row    = Vector Symbol
+data Status = Won Player | Draw | Incomplete
+data Player = X | O deriving (Eq, Show)
+data Tile   = Blank | T deriving Eq
+type Symbol = Either Tile Player
+
+instance Show Status where
+  show Draw       = "Draw"
+  show Incomplete = "Game has not completed"
+  show (Won p)    = show p ++ " won"

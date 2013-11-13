@@ -1,0 +1,76 @@
+<?php
+
+ini_set( 'memory_limit', '5000M' );
+
+$text = file_get_contents( dirname( __FILE__ ) . '/test.txt' );
+
+function splitit( $arr ) {
+	return preg_split( '#\s+#', $arr );
+}
+
+set_time_limit( 180 );
+
+
+function doit( $array ) {
+
+	static $xWins = array( 'XXXX',
+	                       'TXXX',
+	                       'XTXX',
+	                       'XXTX',
+	                       'XXXT' );
+	static $oWins = array( 'OOOO',
+	                       'TOOO',
+	                       'OTOO',
+	                       'OOTO',
+	                       'OOOT', );
+
+
+	$stringVs = array();
+	for ( $i = 0; $i < 4; ++$i ) {
+		$s = '';
+		for ( $j = 0; $j < 4; ++$j ) {
+			$s .= $array[$j][$i];
+		}
+		$stringVs[] = $s;
+	}
+	$stringVs[] = $array[0][0] . $array[1][1] . $array[2][2] . $array[3][3];
+	$stringVs[] = $array[3][0] . $array[2][1] . $array[1][2] . $array[0][3];
+
+	$string = implode( '|', $array ) . '|' . implode( '|', $stringVs );
+
+	foreach ( $xWins as $variant ) {
+		if ( strpos( $string, $variant ) !== false ) {
+			return 'X won';
+		}
+	}
+
+	foreach ( $oWins as $variant ) {
+		if ( strpos( $string, $variant ) !== false ) {
+			return 'O won';
+		}
+	}
+	if (strpos($string, '.')!==false) {
+		return 'Game has not completed';
+	}
+	return 'Draw';
+}
+
+
+$lines    = preg_split( '#\r?\n#', trim( $text ) );
+$testsNum = (int)array_shift( $lines );
+
+$t = microtime( true );
+
+$ret = array();
+for ( $i = 0; $i < $testsNum; ++$i ) {
+	$array = array();
+	for ( $j = 0; $j < 4; ++$j ) {
+		$array[] = array_shift( $lines );
+	}
+	$ret[] = sprintf( "Case #%d: %s\n", $i + 1, doit( $array ) );
+	array_shift( $lines );
+}
+
+file_put_contents( dirname( __FILE__ ) . '/ret.txt', implode( "", $ret ) );
+
+echo sprintf( '%f', microtime( true ) - $t );

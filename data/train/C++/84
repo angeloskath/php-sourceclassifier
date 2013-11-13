@@ -1,0 +1,83 @@
+#include <stdio.h>
+
+#include "tic_tac_toe_tomek.h"
+
+int main() {
+	if (!solve_tic_tac_toe_tomek("tic.in", "tic.out")) printf("Cannot solve tic_tac_toe_tomek\n");
+}
+#include <stdio.h>
+
+char data[4][8];
+
+bool winning(char player) {
+	for (int i=0; i<4; i++) {
+		int total = 0;
+		for (int j=0; j<4; j++)
+			if (data[i][j] == 'T' || data[i][j] == player)
+				total++;
+		if (total == 4)
+			return true;
+	}
+
+	for (int i=0; i<4; i++) {
+		int total = 0;
+		for (int j=0; j<4; j++)
+			if (data[j][i] == 'T' || data[j][i] == player)
+				total++;
+		if (total == 4)
+			return true;
+	}
+
+	int total = 0;
+	for (int i=0; i<4; i++)
+		if (data[i][i] == 'T' || data[i][i] == player)
+			total++;
+	if (total == 4)
+		return true;
+
+	total = 0;
+	for (int i=0; i<4; i++)
+		if (data[i][3-i] == 'T' || data[i][3-i] == player)
+			total++;
+	if (total == 4)
+		return true;
+
+	return false;
+}
+
+bool boardFull() {
+	for (int i=0; i<4; i++)
+		for (int j=0; j<4; j++)
+			if (data[i][j] == '.')
+				return false;
+	return true;
+}
+
+bool solve_tic_tac_toe_tomek(const char *inFilename, const char *outFileName) {
+	FILE *fin = fopen(inFilename, "r");
+	FILE *fout = fopen(outFileName, "w");
+	if (!fin || !fout)
+		return false;
+
+	int tests;
+	fscanf(fin, "%d\n", &tests);
+	for (int i=0; i<tests; i++) {
+		for (int j=0; j<4; j++)
+			fscanf(fin, "%s\n", data[j]);
+		fscanf(fin, "\n");
+
+		if (winning('X'))
+			fprintf(fout, "Case #%d: X won\n", i+1);
+		else if (winning('O'))
+			fprintf(fout, "Case #%d: O won\n", i+1);
+		else if (boardFull())
+			fprintf(fout, "Case #%d: Draw\n", i+1);
+		else
+			fprintf(fout, "Case #%d: Game has not completed\n", i+1);
+	}
+
+	fclose(fin);
+	fclose(fout);
+
+	return true;
+}

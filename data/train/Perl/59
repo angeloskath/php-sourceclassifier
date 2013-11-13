@@ -1,0 +1,42 @@
+#!perl -w
+use strict;
+
+chomp(my $T = <>);
+
+my $regexp = qr/^
+	(?:
+		# Horizontal
+		(?:....)*
+		([OX])\1{3}
+	|
+		# Vertical
+		.*([OX])...\2...\2...\2
+	|
+		# Diagonal 1
+		([OX])....\3....\3....\3
+	|
+		# Diagonal 2
+		...([OX])..\4..\4..\4
+	)
+/x;
+
+for my $case (1..$T) {
+	my $str; chomp($str .= <>), for 1..5;
+  printf "Case #%d: %s\n", $case, getWinner($str);
+}
+
+sub getWinner {
+	local($_) = @_;
+
+	for my $wildcard ('O','X') {
+		(my $str = $_) =~ s/T/$wildcard/;
+
+		if (my ($winner) = grep { $_ } $str =~ $regexp) {
+			return "$winner won";
+		}
+	}
+
+	return /\./ ? "Game has not completed" : "Draw";
+}
+
+1;

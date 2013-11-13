@@ -1,0 +1,79 @@
+<?php
+$timer = microtime(true);
+
+$inLines = file(getcwd() ."/" . $argv[1]);
+$outFile = fopen(getcwd() ."/" .  $argv[2], 'w');
+
+$matrices = array();
+$test = 1;
+for($i=1;$i<count($inLines);$i+=5)
+{
+	$matrices[$test] = array(str_split(trim($inLines[$i])),str_split(trim($inLines[$i+1])),str_split(trim($inLines[$i+2])),str_split(trim($inLines[$i+3])));
+	$test++;
+}
+print_r($matrices);
+$win = true;
+foreach($matrices as $test => $tab)
+{
+	for($i=1;$i<=2;$i++)
+	{
+		if($i == 1) $sym = 'X';
+		else $sym = 'O';
+		for($j=0;$j<=3;$j++)
+		{
+			$ligne = $tab[$j];
+			$win = true;
+			foreach($ligne as $id => $caractere)
+			{
+				if($caractere != 'T' && $caractere != $sym) { $win = false; break; } 
+			}
+			if($win) break;
+		}
+		if($win) break;
+		
+		for($b=0;$b<=3;$b++)
+		{
+			$win = true;
+			for($a=0;$a<=3;$a++)
+			{
+				if($tab[$a][$b] != 'T' && $tab[$a][$b] != $sym) { $win = false; break; } 
+			}
+			if($win) break;
+		}
+		if($win) break;
+		
+		$win = true;
+		for($a=0;$a<=3;$a++)
+		{
+			if($tab[$a][$a] != 'T' && $tab[$a][$a] != $sym) { $win = false; break; } 
+		}
+		if($win) break;
+		
+		$win = true;
+		for($a=0;$a<=3;$a++)
+		{
+			if($tab[$a][(3-$a)] != 'T' && $tab[$a][(3-$a)] != $sym) { $win = false; break; } 
+		}
+		if($win) break;
+		
+	}
+	if($win) fputs($outFile,"Case #" .$test. ": " .$sym. " won\n");
+	else
+	{
+		$found = false;
+		foreach($tab as $id => $a)
+		{
+			foreach($a as $idd => $b)
+			{
+				if($b == '.') { $found = true; break; }
+			}
+			if($found) break;
+		}
+		if($found) fputs($outFile,"Case #" .$test. ": Game has not completed\n");
+		else fputs($outFile,"Case #" .$test. ": Draw\n");
+	}
+}
+
+$timeElapsed = (microtime(true) - $timer);
+print("\nTime taken: " . $timeElapsed . " seconds");
+?>

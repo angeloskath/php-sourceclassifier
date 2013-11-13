@@ -1,0 +1,34 @@
+function a(filename)
+
+in = fopen(filename, 'r');
+out = fopen(strcat(filename,'.sol'), 'w');
+
+rev = logical([0 0 0 1; 0 0 1 0; 0 1 0 0; 1 0 0 0]);
+
+T = fscanf(in, ' %d', 1);
+fgetl(in);
+for t = 1:T
+    mat = zeros(4);
+    for j = 1:4
+        str = fgetl(in);
+        mat(j, strfind(str, 'X')) = 2;
+        mat(j, strfind(str, 'O')) = 3;
+        mat(j, strfind(str, 'T')) = 6;
+    end
+    fgetl(in);
+    
+    tmp = [prod(mat),prod(mat,2)',prod(diag(mat)),prod(mat(rev))];
+    tmp2 = tmp(tmp > 0);
+    if any(mod(tmp2, 16) == 0)
+        fprintf(out, 'Case #%d: X won\n', t);
+    elseif any(mod(tmp2, 81) == 0)
+        fprintf(out, 'Case #%d: O won\n', t);
+    elseif any(tmp == 0)
+        fprintf(out, 'Case #%d: Game has not completed\n', t);
+    else
+        fprintf(out, 'Case #%d: Draw\n', t);
+    end
+end
+
+fclose(in);
+fclose(out);

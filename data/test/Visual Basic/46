@@ -1,0 +1,159 @@
+﻿Imports System.IO
+Imports System.Math
+Module Module1
+
+
+
+    Sub R1A(ByVal InFile As String, ByVal OutFile As String)
+
+        Dim inf As StreamReader = File.OpenText(InFile)
+        Dim outf As StreamWriter = File.CreateText(OutFile)
+
+        
+
+        Dim numC As Integer = CInt(inf.ReadLine)
+
+        Dim bLine As String
+
+        Dim C As Integer
+
+        Dim I As Integer, J As Integer
+
+        Dim B(3, 3) As Integer
+
+        Dim gStatus As String
+
+        Dim sqFilled As Integer
+
+        For C = 1 To numC
+
+            sqFilled = 0
+            For I = 0 To 3
+                bLine = inf.ReadLine
+                For J = 0 To 3
+                    Select bLine.Substring(J, 1)
+                        Case "X"
+                            B(I, J) = 1
+                            sqFilled += 1
+                        Case "O"
+                            B(I, J) = -1
+                            sqFilled += 1
+                        Case "T"
+                            B(I, J) = 0
+                            sqFilled += 1
+                        Case Else
+                            B(I, J) = 1000
+                    End Select
+                Next J
+            Next I
+
+            ' Handle Space
+
+            bLine = inf.ReadLine
+
+            ' Test Rows
+
+            gStatus = ""
+
+            For I = 0 To 3
+                Select Case B(I, 0) + B(I, 1) + B(I, 2) + B(I, 3)
+                    Case 3, 4
+                        gStatus = "X won"
+                    Case -3, -4
+                        gStatus = "O won"
+                End Select
+                Select Case B(0, I) + B(1, I) + B(2, I) + B(3, I)
+                    Case 3, 4
+                        gStatus = "X won"
+                    Case -3, -4
+                        gStatus = "O won"
+                End Select
+            Next
+
+            Select Case B(0, 0) + B(1, 1) + B(2, 2) + B(3, 3)
+                Case 3, 4
+                    gStatus = "X won"
+                Case -3, -4
+                    gStatus = "O won"
+            End Select
+
+            Select Case B(0, 3) + B(1, 2) + B(2, 1) + B(3, 0)
+                Case 3, 4
+                    gStatus = "X won"
+                Case -3, -4
+                    gStatus = "O won"
+            End Select
+
+            If gStatus = "" Then
+                If sqFilled = 16 Then
+                    gStatus = "Draw"
+                Else
+                    gStatus = "Game has not completed"
+                End If
+            End If
+
+            outf.WriteLine("Case #" & CStr(C) & ": " & gStatus)
+
+
+
+
+        Next C
+
+
+        inf.Close()
+        outf.Close()
+
+
+    End Sub
+    Sub Main()
+
+        Dim InFile As String, OutFile As String
+
+        InFile = "C:\Documents and Settings\dreyer\Desktop\A-large.in"
+        OutFile = "C:\Documents and Settings\dreyer\Desktop\A-large.out"
+
+        R1A(InFile, OutFile)
+
+    End Sub
+
+    Function numDerangements(ByVal n As Integer) As Long
+
+        If n = 0 Then
+            Return 1
+        ElseIf n = 1 Then
+            Return 0
+        Else
+            Return (n - 1) * (numDerangements(n - 1) + numDerangements(n - 2))
+        End If
+
+    End Function
+
+    Public Function comb(ByVal N As Integer, ByVal K As Integer) As Long
+        If Min(N, K) < 0 Or K > N Then
+            Return 0
+        ElseIf K = 0 Then
+            Return 1
+        Else
+            Return (N - K + 1) / K * comb(N, K - 1)
+        End If
+    End Function
+
+    Public Function Factorial(ByVal n As Integer) As Long
+        Dim I As Integer, Count As Long
+        If n = 0 Then
+            Return 1
+        Else
+            Count = 1
+            For I = 1 To n
+                Count *= I
+            Next I
+            Return Count
+        End If
+    End Function
+
+
+
+   
+End Module
+
+

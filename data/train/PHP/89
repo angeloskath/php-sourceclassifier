@@ -1,0 +1,138 @@
+<?php
+ob_start();
+
+$fileName = "files/A-small-attempt3.in";
+
+$file = fopen($fileName, "r");
+$content = fread($file, filesize($fileName)-2);
+fclose($file);
+
+
+$gameboards = substr($content, strpos($content, "\n") + 1);
+$games = explode("\n\n",$gameboards);
+
+
+
+$x = 0;
+$t = 0;
+$o = 0;
+$p = 0;
+
+
+function resetXTO() {
+	global $x, $o, $t, $p;
+	$x = 0;
+	$t = 0;
+	$o = 0;
+}
+
+
+function checkVertical($array) {
+	global $board, $x, $o, $t, $p;
+	resetXTO();
+	$str = "";
+	$count = 0;
+	
+	foreach($array as $key) {
+		$count++;
+		if($last != $board[$key]) {
+			if($board[$key] == "T") {
+				$x++;
+				$t++;
+				$o++;
+			} else {
+				resetXTO();
+			}
+			
+		}
+		$last = $board[$key];
+		$str .= $last;
+		
+		if($board[$key] == "X")  {
+			$x++;
+		}
+		
+		if($board[$key] == "O")  {
+			$o++;
+		} 
+
+		if($board[$key] == ".")  {
+			$p++;
+		}
+		
+		
+		if($x == 4) {
+			return 1;
+		}  else 
+		
+		if($o == 4) {
+			return 2;
+		} 
+		
+		
+		
+	}
+}
+
+
+
+
+foreach($games as $first) {
+	//print_r($first);
+	$case++;
+	
+	$first = str_replace("\n", "", $first);
+	$board = str_split($first);
+	
+	$winner0 = checkVertical(array(0,1,2,3));
+	$winner1 = checkVertical(array(4,5,6,7));
+	$winner2 = checkVertical(array(8,9,10,11));
+	$winner3 = checkVertical(array(12,13,14,15));
+           
+	$winner4 = checkVertical(array(0,4,8,12));
+	$winner5 = checkVertical(array(1,5,9,13));
+	$winner6 = checkVertical(array(2,6,10,14));
+	$winner7 = checkVertical(array(3,7,11,15));
+           
+	$winner8 = checkVertical(array(0,5,10,15));
+	$winner9 = checkVertical(array(3,6,9,12));
+
+	$isWinner = false;
+	
+	echo "Case #".$case .": ";
+	for($i=0; $i<=9; $i++) {
+	
+		$res = "winner".$i;
+	
+		if(${$res} == 1) {
+			echo "X won";
+			$isWinner = true;
+			break;
+		} else if(${$res} == 2) {
+			echo "O won";
+			$isWinner = true;
+			break;
+		}
+		
+	} 
+	if(!$isWinner) {
+		
+		if($p == 0) {
+			echo "Draw";
+		} else {
+			echo "Game has not completed";
+		}
+		
+	}
+	$p = 0;
+	echo "\r\n";
+}
+
+$flush = ob_get_flush();
+$file = fopen("files/out2.out", "w+");
+fwrite($file, $flush);
+fclose($file);
+
+
+
+?>

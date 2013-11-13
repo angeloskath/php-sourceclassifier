@@ -1,0 +1,35 @@
+
+(defn line-won? [line actor]
+  (every? true? (map #(or (= \T %) (= actor %)) line)))
+
+(defn board-t [board]
+  (for [i (range 4)]
+    (mapv #(get % i) board)))
+
+(defn board-x [board]
+  (list (for [i (range 4)]
+          (get-in board [i i]))
+        (for [i (range 4)]
+          (get-in board [i (- 3 i)]))))
+
+(defn board-won? [board actor]
+  (let [h-won (some true? (map #(line-won? % actor) board))
+        l-won (some true? (map #(line-won? % actor) (board-t board)))
+        x-won (some true? (map #(line-won? % actor) (board-x board)))
+        ]
+    (or h-won l-won x-won)))
+
+(defn judge [board]
+  (cond (board-won? board \X) "X won"
+        (board-won? board \O) "O won"
+        (some #(= \. %) (flatten board)) "Game has not completed"
+        :else "Draw"))
+
+(let [flag "large"
+      infile (format "./1.1.%s.in" flag)
+      [n & content] (clojure.string/split-lines (slurp infile))
+      cases (map #(mapv vec %) (partition 4 (remove clojure.string/blank? content)))
+      result (map judge cases)
+      r-str (for [i (range (count result))] (format "Case #%d: %s" (inc i) (nth result i)))
+      outfile (format "./1.1.%s.out" flag)]
+  (spit outfile (clojure.string/join "\n" r-str)))

@@ -1,0 +1,73 @@
+f = File.open('A-large.in')
+
+o = File.new('A-large.out', 'w')
+
+cases = f.readline.to_i
+
+def eval_winner(row)
+  #p row.inspect
+  message = nil
+  message = "X won" if row.all?{ |r| r == "X" }
+  message = "X won" if row.count{ |r| r == "X" } == 3 && row.any?{ |r| r == "T" }
+  message = "O won" if row.all?{ |r| r == "O" }
+  message = "O won" if row.count{ |r| r == "O" } == 3 && row.any?{ |r| r == "T" }
+  message || false
+end
+
+cases.times do |i|
+
+  #puts "Case \##{i + 1}\n"
+  grid = []
+  draw = true
+
+  4.times do |t|
+    grid[t] = f.readline.chomp.split(//)
+    draw = false if grid[t].any?{ |c| c == "." }
+  end
+  f.readline
+
+  #grid.each{ |row| p row.inspect }
+  #p "---------------"
+
+  game_over = false
+  # Check horizontal
+  grid.each do |row|
+    winner = eval_winner(row)
+    o.syswrite "Case \##{i + 1}: #{winner}\n" if winner
+    game_over = true if winner
+  end
+  next if game_over
+
+  # Check vertical
+  verticals = []
+  grid.each_with_index do |row, y|
+    row.each_with_index do |char, x|
+      verticals[x] ||= []
+      verticals[x][y] = char
+    end
+  end
+
+  verticals.each do |row|
+    winner = eval_winner(row)
+    o.syswrite "Case \##{i + 1}: #{winner}\n" if winner
+    game_over = true if winner
+  end
+  next if game_over
+
+  # Check diagonal
+  winner = eval_winner([grid[0][0], grid[1][1], grid[2][2], grid[3][3]])
+  o.syswrite "Case \##{i + 1}: #{winner}\n" if winner
+  next if winner
+
+  winner = eval_winner([grid[0][3], grid[1][2], grid[2][1], grid[3][0]])
+  o.syswrite "Case \##{i + 1}: #{winner}\n" if winner
+  next if winner
+
+  if draw
+    message = "Draw"
+    o.syswrite "Case \##{i + 1}: #{message}\n"
+  else
+    message = "Game has not completed"
+    o.syswrite "Case \##{i + 1}: #{message}\n"
+  end
+end

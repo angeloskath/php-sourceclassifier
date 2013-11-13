@@ -1,0 +1,50 @@
+(ns codejam.tictactoetomek
+  (require [clojure.java.io :as io]))
+
+(defn columns [board]
+  (for [i (range 4)]
+    (vec (map #(get % i) board))))
+
+(defn diag [board]
+  [(for [i (range 4)]
+     (get-in board [i i]))
+   (for [i (range 4)]
+     (get-in board [i (- 3 i)]))])
+
+(defn check-four [s]
+  (first
+    (for [row s 
+          :let [row-set (disj (set row) \T)] 
+          :when (and (= (count row-set) 1)
+                     (not= \. (first row-set)))]
+      (do
+        (first row-set)))))
+
+(defn tie [board]
+  (if (every? (fn [row] (not-any? #{\.} row)) board)
+    \T
+    nil))
+
+(defn winner [board]
+  (or
+   (check-four board)
+   (-> board columns check-four)
+   (-> board diag check-four)
+   (tie board)))
+
+(defn process [file]
+  (let [output-file (.replaceAll file "\\.in" ".out")]
+    (with-open [output-writer (io/writer output-file)]
+      (binding [*out* output-writer]
+        (doseq [[idx w]
+                (map-indexed (fn [idx board] [idx (winner board)])
+                             (->> (-> file io/reader line-seq)
+                                  (drop 1)
+                                  (partition 5)
+                                  (map #(vec (take 4 %)))))]
+          (println (str "Case #" (inc idx) ": "
+                        (case w
+                          \X "X won"
+                          \O "O won"
+                          \T "Draw"
+                          nil "Game has not completed"))))))))

@@ -1,0 +1,44 @@
+#!/usr/bin/env runghc
+
+import Control.Monad (replicateM)
+import Data.List (transpose)
+
+data Result = Winner Char | Draw | NotCompleted deriving (Show)
+
+solve test =    
+    case rows_winner test of
+        Just x -> x:" won"
+        Nothing -> case rows_winner (transpose test) of
+            Just x -> x:" won"
+            Nothing -> case diag_winner test of
+                Just x -> x:" won"
+                Nothing -> if has_dots test then "Game has not completed" else "Draw"
+    where
+        has_dots test = '.' `elem` (concat test)
+        rows_winner [] = Nothing
+        rows_winner (x:xs) =
+            case has_row_winner x of
+                True -> Just (x !! 0)
+                False -> rows_winner xs
+            where
+                has_row_winner row = (
+                    (filter (\x -> x /= 'T' && x /= 'X' ) row == [])
+                    || (filter (\x -> x /= 'T' && x /= 'O' ) row == []))
+        diag_winner test =
+            case rows_winner [(map (\ x -> (test !! x) !! x) [0..3])] of
+                Just x -> Just x
+                Nothing -> rows_winner [(map (\ x -> (test !! x) !! (3-x)) [0..3])]
+
+read_test = do
+    test <- replicateM 4 getLine
+    getLine
+    return test
+
+main = do
+    t <- getLine
+    tests <- replicateM (read t) read_test
+    (putStr . unlines . pretify) (map solve tests)
+
+pretify = (map pret) . (zip [1..])
+    where pret (i, s) = "Case #" ++ (show i) ++ ": " ++ s
+

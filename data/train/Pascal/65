@@ -1,0 +1,138 @@
+var t,i,j,k,initial:longint;
+    str:string;
+    blank,b:boolean;
+    a:array [0..5,0..5] of integer;
+begin
+  assign(input,'go.in');
+  reset(input);
+  assign(output,'go.out');
+  rewrite(output);
+  readln(t);
+  for i:=1 to t do
+    begin
+      if i<>1 then writeln;
+      blank:=false;
+      for j:=1 to 4 do
+        begin
+          readln(str);
+          for k:=1 to 4 do
+            begin
+              case str[k] of
+                'X':a[j,k]:=1;
+                'O':a[j,k]:=2;
+                'T':a[j,k]:=-1;
+                '.':begin a[j,k]:=0; blank:=true; end;
+              end;
+            end;
+        end;
+      for j:=1 to 4 do
+        begin
+          if a[j,1]<>0 then
+            begin
+              if a[j,1]<>-1 then
+                begin
+                  initial:=a[j,1];
+                  b:=true;
+                  for k:=2 to 4 do
+                    begin
+                      if (a[j,k]<>initial) and (a[j,k]<>-1) then begin b:=false; break; end;
+                    end;
+                end
+                             else
+                begin
+                  initial:=a[j,2];
+                  b:=true;
+                  for k:=3 to 4 do
+                    begin
+                      if (a[j,k]<> initial) and (a[j,k]<>-1) then begin b:=false; break; end;
+                    end;
+                end;
+              if b then
+                     if initial=1 then begin write('Case #',i,': X won'); break; end
+                                  else begin write('Case #',i,': O won'); break; end;
+            end;
+        end;
+      if not b then
+        begin
+          for j:=1 to 4 do
+            begin
+              if a[1,j]<>0 then
+                begin
+                  if a[1,j]<>-1 then
+                    begin
+                      initial:=a[1,j];
+                      b:=true;
+                      for k:=2 to 4 do
+                        if (a[k,j]<>initial) and (a[k,j]<>-1) then begin b:=false; break; end;
+                    end
+                                 else
+                    begin
+                      initial:=a[2,j];
+                      b:=true;
+                      for k:=3 to 4 do
+                        if (a[k,j]<> initial) and (a[k,j]<>-1) then begin b:=false; break; end;
+                    end;
+                  if b then
+                         if initial=1 then begin write('Case #',i,': X won'); break; end
+                                      else begin write('Case #',i,': O won'); break; end;
+                end;
+            end;
+        end;
+      if not b then
+        begin
+          if a[1,1]<>0 then
+            begin
+              b:=true;
+              if a[1,1]<>-1 then
+                begin
+                  initial:=a[1,1];
+                  b:=true;
+                  for j:=2 to 4 do
+                    if (a[j,j]<>initial) and (a[j,j]<>-1) then begin b:=false; break; end;
+                end
+                            else
+                begin
+                  initial:=a[2,2];
+                  b:=true;
+                  for j:=3 to 4 do
+                    if (a[j,j]<>initial) and (a[j,j]<>-1) then begin b:=false; break; end;
+                end;
+              if b then
+                     if initial=1 then begin write('Case #',i,': X won'); end
+                                  else begin write('Case #',i,': O won'); end;
+            end;
+        end;
+      if not b then
+        begin
+          if a[1,4]<>0 then
+            begin
+              b:=true;
+              if a[1,4]<>-1 then
+                begin
+                  initial:=a[1,4];
+                  b:=true;
+                  for j:=2 to 4 do
+                    if (a[j,5-j]<>initial) and (a[j,5-j]<>-1) then begin b:=false; break; end;
+                end
+                            else
+                begin
+                  initial:=a[2,3];
+                  b:=true;
+                  for j:=3 to 4 do
+                    if (a[j,5-j]<>initial) and (a[j,5-j]<>-1) then begin b:=false; break; end;
+                end;
+              if b then
+                     if initial=1 then begin write('Case #',i,': X won'); end
+                                  else begin write('Case #',i,': O won'); end;
+            end;
+        end;
+      if not b then
+        begin
+          if blank then write('Case #',i,': Game has not completed')
+                   else write('Case #',i,': Draw');
+        end;
+      readln(str);
+    end;
+  close(input);
+  close(output);
+end.

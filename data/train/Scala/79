@@ -1,0 +1,82 @@
+package quali2013
+
+object qa extends App {
+
+ 
+
+    val data = io.Source.fromFile("/Users/jamesbunch4/Documents/workspace/GoogleCodeJam/A-large.in.txt")
+
+    val lines = data.getLines.toList
+    val numberOfCases = lines.head.toInt
+    val caseEntries = lines.tail
+
+    def getBoard(stream: List[String]) = {
+      stream.take(4)
+    }
+
+    var str = caseEntries
+
+    import java.io.PrintWriter
+    import java.io.File
+    val pw = new PrintWriter(new File("/Users/jamesbunch4/Documents/workspace/GoogleCodeJam/A-large.out.txt"))
+    for (i <- 1.to(numberOfCases)) {
+      val board = getBoard(str)
+      val result = checkBoard(board)
+      str = str.drop(5)
+
+      pw.println("Case #" + i + ": " + result)
+    }
+    pw.close
+
+    def checkBoard(board: List[String]): String = {
+
+      val hwinner = checkHorizontals(board)
+      val vwinner = checkVerticals(board)
+      val dwinner = checkDiagonals(board)
+      val winner = hwinner + vwinner + dwinner
+      val spacesFree = board.exists(str => str.contains("."))
+
+      winner match {
+        case xstr if (xstr.contains("X")) => "X won"
+        case ostr if (ostr.contains("O")) => "O won"
+        case _ => if (spacesFree) "Game has not completed" else "Draw"
+      }
+    }
+
+    def checkHorizontals(board: List[String]): String = {
+      val xcounts = board.map(row => (row.count(_ == 'X') + row.count(_ == 'T')))
+      val ocounts = board.map(row => (row.count(_ == 'O') + row.count(_ == 'T')))
+      if (xcounts.contains(4)) "X"
+      else if (ocounts.contains(4)) "O"
+      else ""
+    }
+
+    def checkVerticals(board: List[String]): String = {
+
+      for (i <- 0.to(3)) {
+        val col = board.map(str => str(i))
+        val xcount = col.count(c => c == 'X' || c == 'T')
+        val ocount = col.count(c => c == 'O' || c == 'T')
+
+        //println(xcount)
+        //println(ocount)
+        if (xcount == 4) return "X"
+        else if (ocount == 4) return "O"
+      }
+      ""
+    }
+
+    def checkDiagonals(board: List[String]): String = {
+
+      val d1 = List(board(0)(0), board(1)(1), board(2)(2), board(3)(3))
+      val d2 = List(board(0)(3), board(1)(2), board(2)(1), board(3)(0))
+
+      val xcounts = d1.count(c => c == 'X' || c == 'T').max(d2.count(c => c == 'X' || c == 'T'))
+      val ocounts = d1.count(c => c == 'O' || c == 'T').max(d2.count(c => c == 'O' || c == 'T'))
+      if (xcounts == 4) return "X"
+      else if (ocounts == 4) return "O"
+      ""
+    }
+  
+
+}

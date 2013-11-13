@@ -1,0 +1,71 @@
+var t,i,j,s:integer;
+    a:array[1..4,1..4] of char;
+    x:string;
+    jl:char;
+    pd,pk,pz:boolean;
+begin
+assign(input,'input.in');assign(output,'output.out');
+reset(input);rewrite(output);
+readln(t);
+for s:=1 to t do
+begin
+pz:=true;
+for i:=1 to 4 do
+  readln(a[i,1],a[i,2],a[i,3],a[i,4]);
+ for i:=1 to 4 do
+ begin
+ pd:=true;
+ jl:='T';
+   for j:=1 to 4 do
+   begin
+    if (a[i,j]<>'T')and (jl='T')then jl:=a[i,j];
+    if (a[i,j]<>'T')and (a[i,j]<>jl) then pd:=false;
+    if (a[i,j]='.')then pd:=false;
+  end;
+  if pd then  begin writeln('Case #',s,': ',jl,' won');pz:=false;end;
+  end;
+ for j:=1 to 4 do
+ begin
+ pd:=true;
+ jl:='T';
+   for i:=1 to 4 do
+   begin
+    if (a[i,j]<>'T')and (jl='T')then jl:=a[i,j];
+    if (a[i,j]<>'T')and (a[i,j]<>jl) then pd:=false;
+    if (a[i,j]='.')then pd:=false;
+  end;
+  if pd then  begin writeln('Case #',s,': ',jl,' won');pz:=false;end;
+  end;
+  jl:='T';
+  for i:=1 to 4 do
+   begin
+ pd:=true;
+    if (a[i,i]<>'T')and (jl='T')then jl:=a[i,i];
+    if (a[i,i]<>'T')and (a[i,i]<>jl) then pd:=false;
+    if (a[i,i]='.')then pd:=false;
+  end;
+    if pd then  begin writeln('Case #',s,': ',jl,' won');pz:=false;end;
+  jl:='T';
+   for i:=1 to 4 do
+   begin
+ pd:=true;
+    if (a[i,4-i+1]<>'T')and (jl='T')then jl:=a[i,4-i+1];
+    if (a[i,4-i+1]<>'T')and (a[i,4-i+1]<>jl) then pd:=false;
+    if (a[i,5-i]='.')then pd:=false;
+  end;
+  if pd then  begin writeln('Case #',s,': ',jl,' won');pz:=false;end;
+  if pz then
+  begin
+  pk:=false;
+   for i:=1 to 4 do
+   begin
+    for j:=1 to 4 do
+     if a[i,j]='.' then begin pk:=true;writeln( 'Case #',s,': Game has not completed');
+     break; end;
+     if pk then break;
+     end;
+      if pk=false then writeln('Case #',s,': Draw');
+    end;
+    if s<>t then readln(x);
+    end;
+  end.

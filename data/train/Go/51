@@ -1,0 +1,120 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+//{{{ ContestIO
+type ContestIO struct {
+	file *os.File
+	pos  int64
+}
+
+func (cio *ContestIO)create() {
+	cio.file = os.Stdin
+	cio.pos = 0
+}
+
+func (cio *ContestIO)exit() {
+	cio.file.Close()
+}
+
+func (cio *ContestIO) next() string {
+	var x string = ""
+	b := make([]byte, 1)
+	for {
+		_, e1 := cio.file.ReadAt(b, cio.pos)
+		cio.pos++
+		if 0 == len(b) && e1 != nil { break }
+		c := string(b)
+		if c == " " || c == "\n" { break }
+		x += c
+	}
+	return x
+}
+
+func (cio *ContestIO) nextInt() int {
+	i, _ := strconv.Atoi(cio.next())
+	return i
+}
+
+func (cio *ContestIO) nextInt64() int64 {
+	i, _ := strconv.ParseInt(cio.next(), 10, 64)
+	return i
+}
+
+
+func (cio *ContestIO) writeCase(X int, Y interface{}) {
+	form := ""
+	switch Y.(type) {
+	case string:
+		form = "Case #%d: %s\n"
+	case int:
+		form = "Case #%d: %d\n"
+	case int64:
+		form = "Case #%d: %d\n"
+	case float32:
+		form = "Case #%f: %d\n"
+	default:
+		form = "Case #%d: %t\n"
+	}
+	fmt.Printf(form, X, Y)
+}
+
+//}}}
+func isWon(tar string, line string) bool {
+	for i:=0; i<len(line); i+=4 {
+		x:=line[i:i+4]
+		x=strings.Replace(x, "T", "", len(x))
+		x=strings.Replace(x, tar, "", len(x))
+		if len(x)==0 { return true }
+	}
+	return false
+}
+
+func solve(board string) string {
+	ans := ""
+	if isWon("X", board) {
+		ans = "X won"
+	} else if isWon("O", board) {
+		ans = "O won"
+	} else {
+		if !strings.Contains(board, ".") {
+			ans = "Draw"
+		} else {
+			ans = "Game has not completed"
+		}
+	}
+	return ans
+}
+
+func main() {
+	cio := new(ContestIO)
+	cio.create()
+
+	defer cio.exit()
+	T := cio.nextInt()
+	for i := 1; i <= T; i++ {
+		str := ""
+		for j := 0; j < 4; j++ {
+			str += cio.next()
+		}
+		x:=str
+		for j := 0; j < 4; j++ {
+			for k := j; k < 16; k+=4 {
+				str += x[k:k+1]
+			}
+		}
+		for j := 0; j < 16; j+=5 {
+			str += str[j:j+1]
+		}
+		for j := 3; j < 15; j+=3 {
+			str += str[j:j+1]
+		}
+		cio.writeCase(i, solve(str))
+		cio.next()
+	}
+}

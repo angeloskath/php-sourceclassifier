@@ -1,0 +1,41 @@
+import Control.Applicative
+import Control.Monad
+import Data.List
+import System.Environment
+import System.IO
+
+winner (x,o) 'X' = (x,False)
+winner (x,o) 'O' = (False,o)
+winner (x,o) 'T' = (x,o)
+winner (x,o) '.' = (False,False)
+winnerRow = foldl winner (True,True)
+
+solve board
+  | xwin = "X won"
+  | owin = "O won"
+  | not completed = "Game has not completed"
+  | otherwise = "Draw"
+  where rows = board ++ (transpose board) ++ [diag board] ++ [diag $ reverse board]
+        diag board = [ row!!i | (row,i) <- zip board [0..] ]
+        completed = '.' `notElem` (concat board)
+        (xwin,owin) = let (xs,os) = unzip $ map winnerRow rows in (or xs,or os)
+
+solver :: IO String -> IO String
+solver nextLine
+  = do board <- replicateM 4 nextLine
+       nextLine
+       return $ solve board
+
+run :: (IO String -> IO String) -> String -> IO ()
+run solver name
+  = do hIn <- openFile nameIn ReadMode
+       hOut <- openFile nameOut WriteMode
+       let nextLine = hGetLine hIn
+       let writeLine line = hPutStrLn hOut line >> putStrLn line
+       n <- read <$> nextLine :: IO Int
+       forM_ [1..n] $ \i -> showResult i <$> solver nextLine >>= writeLine
+  where nameIn = name ++ ".in"
+        nameOut = name ++ ".out"
+        showResult i result = "Case #" ++ (show i) ++ ": " ++ result
+
+main = head <$> getArgs >>= run solver

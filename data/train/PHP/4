@@ -1,0 +1,164 @@
+<?php
+$in = fopen("/Users/Squash/Downloads/A-large.in", "r");
+$out = fopen("/Users/Squash/Downloads/task1.out", "w");
+
+$t = (int)fgets($in);
+
+for ($case = 1; $case <= $t; $case++) {
+    $board = array();
+
+    for ($j = 0; $j<=3; $j++) {
+        $board[$j] = fgets($in);
+    }
+
+    $result = null;
+    for ($row = 0; $row <=3; $row++) {
+        if (!$result) {
+            $winner = winnerInRow($row);
+            if ($winner)
+                $result = $winner;
+        }
+    }
+
+    for ($col = 0; $col <=3; $col++) {
+        if (!$result) {
+            $winner = winnerInColumn($col);
+            if ($winner)
+                $result = $winner;
+        }
+    }
+
+    if (!$result) {
+        $winner = winnerInDiagonal1();
+        if ($winner)
+            $result = $winner;
+    }
+
+    if (!$result) {
+        $winner = winnerInDiagonal2();
+        if ($winner)
+            $result = $winner;
+    }
+
+    if (!$result) {
+        for ($i = 0; $i <= 3; $i++) {
+            for ($j = 0; $j <= 3; $j++) {
+                if ($board[$i]{$j} == ".") {
+                    $result = "Game has not completed";
+                    break;
+                }
+            }
+
+            if ($result)
+                break;
+        }
+    }
+
+    if (!$result) {
+        $result = "Draw";
+    }
+
+    fwrite($out, "Case #$case: ".$result."\n");
+
+    fgets($in);
+}
+
+function winnerInRow($row) {
+    global $board;
+
+    $countX = 0;
+    $countO = 0;
+
+    for ($i=0; $i<=3; $i++) {
+        if ($board[$row]{$i} == "X" || $board[$row]{$i} == "T") {
+            $countX++;
+        }
+
+        if ($board[$row]{$i} == "O" || $board[$row]{$i} == "T") {
+            $countO++;
+        }
+    }
+
+    if ($countX == 4)
+        return "X won";
+
+    if ($countO == 4)
+        return "O won";
+
+    return false;
+}
+
+function winnerInColumn($column) {
+    global $board;
+
+    $countX = 0;
+    $countO = 0;
+
+    for ($i=0; $i<=3; $i++) {
+        if ($board[$i]{$column} == "X" || $board[$i]{$column} == "T") {
+            $countX++;
+        }
+
+        if ($board[$i]{$column} == "O" || $board[$i]{$column} == "T") {
+            $countO++;
+        }
+    }
+
+    if ($countX == 4)
+        return "X won";
+
+    if ($countO == 4)
+        return "O won";
+
+    return false;
+}
+
+function winnerInDiagonal1() {
+    global $board;
+
+    $countX = 0;
+    $countO = 0;
+
+    for ($i=0; $i<=3; $i++) {
+        if ($board[$i]{$i} == "X" || $board[$i]{$i} == "T") {
+            $countX++;
+        }
+
+        if ($board[$i]{$i} == "O" || $board[$i]{$i} == "T") {
+            $countO++;
+        }
+    }
+
+    if ($countX == 4)
+        return "X won";
+
+    if ($countO == 4)
+        return "O won";
+
+    return false;
+}
+
+function winnerInDiagonal2() {
+    global $board;
+
+    $countX = 0;
+    $countO = 0;
+
+    for ($i=0; $i<=3; $i++) {
+        if ($board[$i]{3-$i} == "X" || $board[$i]{3-$i} == "T") {
+            $countX++;
+        }
+
+        if ($board[$i]{3-$i} == "O" || $board[$i]{3-$i} == "T") {
+            $countO++;
+        }
+    }
+
+    if ($countX == 4)
+        return "X won";
+
+    if ($countO == 4)
+        return "O won";
+
+    return false;
+}

@@ -1,0 +1,56 @@
+module Main where
+
+import Data.List (transpose)
+import Control.Monad (forM_)
+import System.Environment (getArgs)
+
+grouped :: Int -> [a] -> [[a]]
+grouped _ [] = []
+grouped n xs = prefix : grouped n suffix
+  where (prefix, suffix) = splitAt n xs
+
+data Result = XWon | OWon | Draw | Incomplete
+     deriving (Eq)
+
+instance Show Result where
+  show r = case r of 
+    XWon -> "X won"
+    OWon -> "O won"
+    Draw -> "Draw"
+    Incomplete -> "Game has not completed"
+
+evaluate :: [[Char]] -> Result
+evaluate board = combineResults $ map computeResult (rows ++ columns ++ diagonals)
+  where rows = board
+        columns = transpose board
+        forwardDiagonal = map (uncurry (!!)) $ zip board [0..]
+        reverseDiagonal = map (uncurry (!!)) $ zip (reverse board) [0..]
+        diagonals = [forwardDiagonal, reverseDiagonal]
+        computeResult line =
+          if all (`elem` "XT") line
+              then XWon 
+          else if all (`elem` "OT") line
+              then OWon
+          else if any ('.' ==) line
+              then Incomplete
+          else Draw
+        combineResults results =
+          if XWon `elem` results
+              then XWon
+          else if OWon `elem` results
+              then OWon
+          else if Incomplete `elem` results
+              then Incomplete
+          else Draw
+
+main :: IO ()
+main = do
+  [input, output] <- getArgs
+  text <- readFile input
+  let (countText : tests) = lines text
+      count = read countText :: Int
+      games = map (take 4) $ grouped 5 tests
+      results = map evaluate games
+      reportLine (idx, result) = "Case #" ++ show idx ++ ": " ++ show result
+      report = unlines . map reportLine $ zip [1..] results -- unlines $ map reportLine $ zip [0..] results
+  writeFile output report

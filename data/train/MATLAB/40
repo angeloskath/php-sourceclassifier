@@ -1,0 +1,80 @@
+%%% Google Code Jam 2013
+%%% Qualification Round
+%%% Problem A - Tic-Tac-Toe-Tomek
+%%% Solution by Dr.J. (Joaquín Morís)
+%%% Programmed in Octave 3.2.4
+
+%% Clear everything from memory
+
+clear all;
+clc;
+%%%
+
+%%Parameters
+Parameters.ValidX = ['X';'T'];
+Parameters.ValidO = ['O';'T'];
+Parameters.EmptySpot = ['.'];
+Parameters.VerticalSpaces = 4;
+Parameters.HorizontalSpaces = 4;
+Parameters.DiagonalLR = [1,2,3,4;1,2,3,4];
+Parameters.DiagonalRL = [1,2,3,4;4,3,2,1];
+
+
+%%%
+InputFile = 'A-small-attempt1.in';
+
+%%Read file header
+CurrentFile = fopen(InputFile);
+NumberOfCases = str2num(fgetl(CurrentFile));
+
+OutputFile = strrep(InputFile,'.in','.out');
+
+OutputFileHandler = fopen(OutputFile,'w+');
+
+%%% Process each case
+for CurrentCase = 1:NumberOfCases
+    GameBoard = char(ones(Parameters.HorizontalSpaces,Parameters.VerticalSpaces));
+    for CurrentLineIndex = 1:4
+      CurrentLine = fgetl(CurrentFile);
+      GameBoard(CurrentLineIndex,:) = CurrentLine;
+    end;
+    %The blank line that separates boards is read and therefore removed
+    CurrentLine = fgetl(CurrentFile);
+    
+    %%Is there any point available in the Game Board?
+    if max(ismember(GameBoard,Parameters.EmptySpot)) == 1
+        GameResult = ': Game has not completed';
+    else
+        GameResult = ': Draw';
+    end;    
+    
+    %What happened to player X?
+    %Columns or rows
+    XResult = ismember(GameBoard,Parameters.ValidX);
+    XMaxValue = max(max(sum(XResult)));
+    XMaxValue = max(XMaxValue,max(sum(XResult')'));
+    XMaxValue = max(XMaxValue,max(sum(diag(XResult))));
+    XMaxValue = max(XMaxValue,max(sum(diag(rot90(XResult)))));
+    
+    %What happened to player O?
+    %Columns or rows
+    OResult = ismember(GameBoard,Parameters.ValidO);
+    OMaxValue = max(max(sum(OResult)));
+    OMaxValue = max(OMaxValue,max(sum(OResult')'));
+    OMaxValue = max(OMaxValue,max(sum(diag(OResult))));
+    OMaxValue = max(OMaxValue,max(sum(diag(rot90(OResult)))));
+    
+    if XMaxValue == 4
+        GameResult = ': X won';
+    elseif OMaxValue == 4
+        GameResult = ': O won';
+    end;
+
+    fprintf (strcat('Case #', num2str (CurrentCase), GameResult,'\n'));
+	fprintf (OutputFileHandler,strcat('Case #', num2str (CurrentCase), GameResult,'\n'));
+
+
+end;
+
+fclose(CurrentFile);
+fclose(OutputFileHandler);

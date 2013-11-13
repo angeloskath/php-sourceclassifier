@@ -1,0 +1,46 @@
+#!/usr/bin/ruby
+
+T = gets.to_i
+
+sets = []
+(0...4).each{|i|
+	sets << (0...4).collect{|j|
+		[i, j]
+	}
+	sets << (0...4).collect{|j|
+		[j, i]
+	}
+}
+sets << (0...4).collect{|i|
+	[i, i]
+}
+sets << (0...4).collect{|i|
+	[i, 3 - i]
+}
+
+def check(table, sets, player)
+	sets.any?{|set|
+		set.all?{|i, j|
+			table[i][j] == player || table[i][j] == "T"
+		}
+	}
+end
+
+
+(1..T).each{|x|
+	table = (0...4).collect{
+		gets.strip.split(//)
+	}
+	gets
+	puts "Case \##{x}: " +
+	if check(table, sets, "X")
+		"X won"
+	elsif check(table, sets, "O")
+		"O won"
+	elsif table.all?{|line| line.all?{|s| s != "."}}
+		"Draw"
+	else
+		"Game has not completed"
+	end
+}
+

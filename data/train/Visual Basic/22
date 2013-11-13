@@ -1,0 +1,140 @@
+﻿Imports System.IO
+
+Public Class Form1
+
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Dim rfile As String = "A-large.in"
+        Dim Reader As StreamReader
+        Dim wfile As String = "A-large.out"
+        Dim Writer As StreamWriter
+        Dim TestCase As Integer
+        Dim TCi, i, j As Integer
+        Dim Table(4, 4) As Char
+        Dim stmp() As Char
+        Dim blank As Boolean
+
+        Try
+
+
+            Reader = My.Computer.FileSystem.OpenTextFileReader("D:\CodeJam\Qr\A\" & rfile, System.Text.Encoding.ASCII)
+            Writer = My.Computer.FileSystem.OpenTextFileWriter("D:\CodeJam\Qr\A\" & wfile, False, System.Text.Encoding.ASCII)
+
+
+            TestCase = Reader.ReadLine()
+            For TCi = 1 To TestCase
+
+                For i = 1 To 4
+                    stmp = Reader.ReadLine().ToCharArray
+                    For j = 1 To 4
+                        Table(i, j) = stmp(j - 1)
+                    Next j
+                Next i
+                ' End part of Read data
+
+                'part of processing begin
+
+                If IsWin(Table, "X"c) Then 'x xon
+                    Writer.WriteLine("Case #" & TCi & ": X won")
+
+                ElseIf IsWin(Table, "O"c) Then 'o won
+                    Writer.WriteLine("Case #" & TCi & ": O won")
+
+                Else  'not complete
+                    blank = False
+                    For i = 1 To 4
+                        For j = 1 To 4
+                            If Table(i, j) = "."c Then
+                                blank = True
+                                Exit For
+                            End If
+                        Next j
+                        If blank Then
+                            Exit For
+                        End If
+                    Next i
+
+                    If blank Then
+                        Writer.WriteLine("Case #" & TCi & ": Game has not completed")
+                    Else
+                        Writer.WriteLine("Case #" & TCi & ": Draw")
+                    End If
+                End If
+
+                If Not Reader.EndOfStream Then
+                    Reader.ReadLine()
+                End If
+            Next TCi
+
+            Reader.Close()
+            Writer.Close()
+
+
+        Catch ex As Exception
+            MsgBox("Error! " & ex.Message)
+        End Try
+
+        MsgBox("Complete!!")
+        End
+
+    End Sub
+
+    'check if someone win
+    Function IsWin(ByRef Table(,) As Char, player As Char) As Boolean
+
+        Dim i, j As Integer
+        Dim win As Boolean
+
+        '\
+        win = True
+        For i = 1 To 4
+            If Not (Table(i, i) = player Or Table(i, i) = "T"c) Then
+                win = False
+            End If
+        Next i
+        If win Then
+            Return True
+        End If
+
+        '/
+        win = True
+        For i = 1 To 4
+            If Not (Table(i, 5 - i) = player Or Table(i, 5 - i) = "T"c) Then
+                win = False
+            End If
+        Next i
+        If win Then
+            Return True
+        End If
+
+        '-
+        For i = 1 To 4
+            win = True
+            For j = 1 To 4
+                If Not (Table(i, j) = player Or Table(i, j) = "T"c) Then
+                    win = False
+                End If
+            Next j
+            If win Then
+                Return True
+            End If
+        Next i
+
+        '|
+        For j = 1 To 4
+            win = True
+            For i = 1 To 4
+                If Not (Table(i, j) = player Or Table(i, j) = "T"c) Then
+                    win = False
+                End If
+            Next i
+            If win Then
+                Return True
+            End If
+        Next j
+
+        Return False
+    End Function
+
+
+End Class

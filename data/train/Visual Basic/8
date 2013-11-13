@@ -1,0 +1,185 @@
+﻿Imports System.IO
+Imports System.Text
+
+Public Class Form1
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim counter, IP As Integer
+    Dim FirstLine As Boolean
+    Dim cece As String
+    Dim cntr, cntr2, Result As Integer
+    Dim Tic(3) As String
+    Dim State As String
+    Dim Owins, XWins, Draw, Notcomplete As Boolean
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+    Private Sub btnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCalculate.Click
+        FirstLine = True
+        IP = 0
+        cece = ""
+        counter = 0
+        txtOutput.Text = ""
+
+        If chkStream.Checked Then
+            Dim Open As New OpenFileDialog
+            If Open.ShowDialog = DialogResult.OK Then
+                Dim StrReader As StreamReader = My.Computer.FileSystem.OpenTextFileReader(Open.FileName)
+                txtInput.Text = "from : " & Open.SafeFileName & vbCrLf
+
+                Do While StrReader.Peek <> -1
+                    Action(StrReader.ReadLine)
+                Loop
+
+                Dim Save As New SaveFileDialog
+                Save.DefaultExt = "in"
+                Save.Filter = "IN files (.in)|*.in*"
+                If Save.ShowDialog = DialogResult.OK Then
+                    Dim StrWriter As StreamWriter = My.Computer.FileSystem.OpenTextFileWriter(Save.FileName, False, Encoding.ASCII)
+                    Dim fi As FileInfo = New FileInfo(Save.FileName)
+                    txtInput.Text &= "to : " & fi.Name
+                    StrWriter.Write(cece)
+                    StrWriter.Close()
+                    txtOutput.Text = cece
+                End If
+            End If
+        Else
+            For Each line In txtInput.Lines
+                Action(line)
+            Next
+            txtOutput.Text = cece
+        End If
+    End Sub
+
+    Sub Action(ByVal line As String)
+        If String.IsNullOrWhiteSpace(line) Then Exit Sub
+
+        If FirstLine Then
+            FirstLine = False
+        Else
+            cntr += 1
+            Tic(cntr - 1) = line
+
+
+            If cntr = 4 Then
+                Magic()
+                IP += 1
+                cece &= "Case #" & IP & ": " & State & vbCrLf
+
+                State = ""
+                cntr = 0
+            End If
+
+        End If
+    End Sub
+
+
+    Sub Magic()
+        If CheckO() Then
+            If CheckX() Then
+                EmptyOrDraw()
+            End If
+        End If
+    End Sub
+
+    Function CheckO() As Boolean
+        For i = 0 To 3
+            For j = 0 To 3
+                If Tic(i).Substring(j, 1) = "O" Or Tic(i).Substring(j, 1) = "T" Then
+                    If j = 3 Then State = "O won" : Return False : Exit Function
+                Else
+                    Exit For
+                End If
+            Next
+        Next
+
+        ''''''''''''''''''''''''
+        Dim k As Integer = 0
+        Do While k < 4
+            For i = 0 To 3
+                If Tic(i).Substring(k, 1) = "O" Or Tic(i).Substring(k, 1) = "T" Then
+                    If i = 3 Then State = "O won" : Return False : Exit Function
+                Else
+                    Exit For
+                End If
+            Next
+
+            k += 1
+        Loop
+        ''''''''''''''''''''''''
+
+        For i = 0 To 3
+            If Tic(i).Substring(i, 1) = "O" Or Tic(i).Substring(i, 1) = "T" Then
+                If i = 3 Then State = "O won" : Return False : Exit Function
+            Else : Exit For
+            End If
+        Next
+
+        For i = 0 To 3
+            If Tic(i).Substring((3 - i), 1) = "O" Or Tic(i).Substring((3 - i), 1) = "T" Then
+                If i = 3 Then State = "O won" : Return False : Exit Function
+            Else : Exit For
+            End If
+        Next
+
+        Return True
+
+
+    End Function
+
+    Function CheckX() As Boolean
+        For i = 0 To 3
+            For j = 0 To 3
+                If Tic(i).Substring(j, 1) = "X" Or Tic(i).Substring(j, 1) = "T" Then
+                    If j = 3 Then State = "X won" : Return False : Exit Function
+                Else
+                    Exit For
+                End If
+            Next
+        Next
+
+
+        ''''''''''''''''''''''''
+        Dim k As Integer = 0
+        Do While k < 4
+            For i = 0 To 3
+                If Tic(i).Substring(k, 1) = "X" Or Tic(i).Substring(k, 1) = "T" Then
+                    If i = 3 Then State = "X won" : Return False : Exit Function
+                Else
+                    Exit For
+                End If
+            Next
+
+            k += 1
+        Loop
+        ''''''''''''''''''''''''
+
+        For i = 0 To 3
+            If Tic(i).Substring(i, 1) = "X" Or Tic(i).Substring(i, 1) = "T" Then
+                If i = 3 Then State = "X won" : Return False : Exit Function
+            Else : Exit For
+            End If
+        Next
+
+        For i = 0 To 3
+            If Tic(i).Substring((3 - i), 1) = "X" Or Tic(i).Substring((3 - i), 1) = "T" Then
+                If i = 3 Then State = "X won" : Return False : Exit Function
+            Else : Exit For
+            End If
+        Next
+
+        Return True
+    End Function
+
+    Sub EmptyOrDraw()
+        For i = 0 To 3
+            For j = 0 To 3
+                If Tic(i).Substring(j, 1) = "." Then
+                    State = "Game has not completed"
+                    Exit Sub
+                End If
+            Next
+        Next
+
+        State = "Draw"
+    End Sub
+End Class

@@ -1,0 +1,66 @@
+
+
+import Data.List as List
+import Data.String
+import Control.Monad
+import Control.Applicative
+
+
+run:: Int -> Int -> IO ()
+check_board:: Int -> String -> String
+
+-- Start from x, check x, x+y, x+2y, x+3y, and repeat on x + z
+-- Case 0 means X wins
+-- Case 1 means O wins
+-- Case 2 means unfinished
+-- Case 3 means Draw
+
+--
+--  State machine
+--   four extended languages:
+--    (X|T)+
+--    (O|T)+
+--    ?*.?*
+--    other
+--
+check_line s | accept0 s = 0
+             | accept1 s = 1
+             | accept2 s = 2
+             | otherwise = 3
+   where accept0 s = length s == (length . takeWhile (\x -> x == 'T' || x == 'X')) s
+         accept1 s = length s == (length . takeWhile (\x -> x == 'T' || x == 'O')) s
+         accept2 s = length s /= (length . takeWhile (\x -> x /= '.')) s
+
+check_generic:: [Char] -> Int -> Int -> Int
+check_generic board y x = check_line curline
+  where curline = [board !! (x + i * y) | i <- [0..3]]
+
+check_row board =
+        (List.minimum . map (\x -> check_generic board 1 x)) [0,4,8,12]
+
+check_column board =
+        (List.minimum . map (\x -> check_generic board 4 x)) [0,1,2,3]
+
+check_diag1 board = check_generic board 5 0
+check_diag2 board = check_generic board 3 3
+
+format_result n r =
+  map (\x -> prefix ++ x) ["X won", "O won", "Game has not completed", "Draw"] !! r
+  where prefix = "Case #" ++ show n ++ ": "
+
+check_board n board = format_result n r
+  where r = (List.minimum . map (\f -> f board)) [check_column, check_row, check_diag1, check_diag2]
+
+run now total = do
+  status <- check_board now <$> join <$> replicateM 4 getLine
+  putStrLn status
+  if now < total
+    then do useless <- getLine
+            run (now + 1) total
+    else return ()
+
+main = do
+        t <- fmap (read::String -> Int) getLine
+        run 1 t
+
+

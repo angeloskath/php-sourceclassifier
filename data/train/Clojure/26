@@ -1,0 +1,22 @@
+(ns codejam.qual.tic-tac-toe-tomek)
+
+(defn row-check [row]
+  (let [r (remove #(= \T %) row)] (cond
+    (every? #(= \O %) r) \O
+    (every? #(= \X %) r) \X
+    :default "draw"
+    )))
+
+(defn solve [board]
+  (let [result (flatten (conj 
+                 (map #(row-check %) board) 
+                 (apply #(map (fn [x] (row-check x)) %&) board)
+                 (row-check (apply #(vector (%1 0) (%2 1) (%3 2) (%4 3)) board))  
+                 (row-check (apply #(vector (%1 3) (%2 2) (%3 1) (%4 0)) board))  
+                 ))]
+    (cond 
+      (some #(= \X %) result) (println "X won")
+      (some #(= \O %) result) (println "O won")
+      (some #(= \. %) (flatten board)) (println "incomplete")
+      :default (println "draw"))))
+

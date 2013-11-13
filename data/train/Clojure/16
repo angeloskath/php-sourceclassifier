@@ -1,0 +1,54 @@
+(ns tttt.core)
+
+(defn parse-case [rows]
+  (let [charmap (apply merge-with clojure.set/union 
+                       (for [i (range 4)
+                             j (range 4)]
+                         {(get-in rows [i j]) #{[i j]}}))]
+    (dissoc charmap \.)))
+
+(defn parse-cases [[ncases-line & cases-lines]]
+  (let [ncases (read-string ncases-line)
+        cases  (partition 5 5 "" cases-lines)]
+    (mapv (comp parse-case vec) cases)))
+
+(defn line-from [start [dr dc]]
+  (set (take 4 (iterate (fn [[r c]] [(+ r dr) (+ c dc)]) start))))
+(defn col [c] (line-from [0 c] [1 0]))
+(defn row [r] (line-from [r 0] [0 1]))
+
+(def winner-sets
+  (concat
+    (for [r (range 4)] (row r))
+    (for [c (range 4)] (col c))
+    [(line-from [0 0] [ 1 1])
+     (line-from [3 0] [-1 1])]))
+
+(defn winner? [cells]
+  (some #(clojure.set/superset? cells %) winner-sets))
+
+(defn complete-board? [board]
+  (= 16 (apply + (map count (vals board)))))
+
+(defn result [board]
+  (letfn [(player-won? [player]
+            (winner?
+              (clojure.set/union (board player) 
+                                 (board \T))))]
+    (cond 
+      (player-won? \X)        "X won"
+      (player-won? \O)        "O won"
+      (complete-board? board) "Draw"
+      :else                   "Game has not completed")))
+
+(defn solve-cases [infile outfile]
+  (let [lines  (clojure.string/split-lines (slurp infile))
+        boards (parse-cases lines)]
+    (with-open [w (clojure.java.io/writer outfile)]
+      (doseq [[index board] (map vector (range) boards)]
+        ;(.write w (str board))
+        (.write w (format "Case #%d: %s\n" 
+                          (inc index) 
+                          (result board)))))))
+
+(solve-cases "big.txt" "out-sample.txt")

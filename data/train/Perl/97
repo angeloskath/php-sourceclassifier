@@ -1,0 +1,164 @@
+open(FH,"c:\\Dev\\tictactoe.in");
+my $no_test = <FH>;
+chomp($no_test);
+
+for my $test(1..$no_test) {
+	print "Case #".$test.": ";
+	my $arr = readInput();
+	processInput($arr);
+}
+
+sub readInput() {
+	my @arr;
+	for(1..4) {
+		my $line = <FH>;
+		chomp($line);
+		push @arr,[split(//,$line)];
+	}
+	<FH>;
+	return \@arr;
+}
+
+sub processInput() {
+	my $arr = shift;
+	my $val;
+	for my $index (0..3) {
+		$val = rowCheck($arr,$index);
+		if(defined $val) {
+			print $val." won\n";
+			return;
+		}
+		$val = colCheck($arr,$index);
+		if(defined $val) {
+			print $val." won\n";
+			return;
+		}
+	}
+	$val = diagonalCheck($arr);
+	if(defined $val) {
+		print $val." won\n";
+		return;
+	}
+	
+	$val = isComplete($arr);
+	if(defined $val && $val ==1) {
+		print "Draw\n";
+	} else {
+		print "Game has not completed\n";
+	}
+	return;
+}
+
+sub rowCheck() {
+	my $arr = shift;
+	my $index = shift;
+	my $o_c = 0;
+	my $x_c = 0;
+	my $t_c = 0;
+	for $colIndex(0..3) {
+		my $val = $arr->[$index]->[$colIndex];
+		if($val eq 'X') {
+			$x_c++;
+		} elsif($val eq 'O') {
+			$o_c++;
+		} elsif($val eq 'T') {
+			$t_c++;
+		}
+	}
+	if(($x_c + $t_c) == 4) {
+		return 'X'
+	}
+	elsif(($o_c + $t_c) == 4) {
+		return 'O'
+	}
+	else {
+		return undef;
+	}
+	return;
+}
+
+sub colCheck() {
+	my $arr = shift;
+	my $index = shift;
+	my $o_c = 0;
+	my $x_c = 0;
+	my $t_c = 0;
+	for $colIndex(0..3) {
+		my $val = $arr->[$colIndex]->[$index];
+		if($val eq 'X') {
+			$x_c++;
+		} elsif($val eq 'O') {
+			$o_c++;
+		} elsif($val eq 'T') {
+			$t_c++;
+		}
+	}
+	if(($x_c + $t_c) == 4) {
+		return 'X'
+	}
+	elsif(($o_c + $t_c) == 4) {
+		return 'O'
+	}
+	else {
+		return undef;
+	}
+	return;
+}
+
+sub diagonalCheck() {
+	my $arr = shift;
+	my $o_c = 0;
+	my $x_c = 0;
+	my $t_c = 0;
+	for my $v(0..3) {
+		my $val = $arr->[$v]->[$v];
+		if($val eq 'X') {
+			$x_c++;
+		} elsif($val eq 'O') {
+			$o_c++;
+		} elsif($val eq 'T') {
+			$t_c++;
+		}
+				
+	}
+	if(($x_c + $t_c) == 4) {
+		return 'X'
+	}
+	elsif(($o_c + $t_c) == 4) {
+		return 'O'
+	}
+	$o_c = 0;
+	$x_c = 0;
+	$t_c = 0;
+	for my $v(0..3) {
+		my $val = $arr->[$v]->[3-$v];
+		if($val eq 'X') {
+			$x_c++;
+		} elsif($val eq 'O') {
+			$o_c++;
+		} elsif($val eq 'T') {
+			$t_c++;
+		}
+				
+	}
+	if(($x_c + $t_c) == 4) {
+		return 'X'
+	}
+	elsif(($o_c + $t_c) == 4) {
+		return 'O'
+	}
+	return undef;
+}
+
+sub isComplete() {
+	my $arr = shift;
+	my $dot_c = 0;
+	for my $r(0..3) {
+		for my $c(0..3) {
+			if($arr->[$r]->[$c] eq '.') {
+				return 0;
+			}
+		}
+	}
+	return 1;
+}

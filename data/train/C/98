@@ -1,0 +1,79 @@
+#include <stdio.h>
+
+int main()
+{
+	int i,j,k,m,n,N;
+	int x,y,z,d;
+	int win;
+	char s[100];
+	int a[4][4];
+	
+	fscanf(stdin, "%d", &N);
+	for(n=0;n<N;n++)
+	{
+		fgets(s, 100, stdin);
+		
+		for(i=0;i<4;i++)
+		{
+			fgets(s, 100, stdin);
+			for(j=0;j<4;j++)
+			{
+				a[i][j] = s[j];
+			}
+		}
+
+		win=0; d=0;
+		for(i=0;i<4;i++)
+		{
+			x=0; y=0; z=0; 
+			for(j=0;j<4;j++) 
+			{
+				if(a[i][j]=='X') x++;
+				if(a[i][j]=='O') y++;
+				if(a[i][j]=='T') z++;
+				if(a[i][j]=='.') d++;
+			}
+			if(x+z==4) win='X';
+			if(y+z==4) win='O';
+		}
+
+		for(i=0;i<4;i++)
+		{
+			x=0; y=0; z=0;
+			for(j=0;j<4;j++) 
+			{
+				if(a[j][i]=='X') x++;
+				if(a[j][i]=='O') y++;
+				if(a[j][i]=='T') z++;
+			}
+			if(x+z==4) win='X';
+			if(y+z==4) win='O';
+		}
+
+		x=0; y=0; z=0;
+		for(i=0;i<4;i++)
+		{
+			if(a[i][i]=='X') x++;
+			if(a[i][i]=='O') y++;
+			if(a[i][i]=='T') z++;
+		}		
+		if(x+z==4) win='X';
+		if(y+z==4) win='O';
+
+		x=0; y=0; z=0;
+		for(i=0;i<4;i++)
+		{
+			if(a[i][3-i]=='X') x++;
+			if(a[i][3-i]=='O') y++;
+			if(a[i][3-i]=='T') z++;
+		}		
+		if(x+z==4) win='X';
+		if(y+z==4) win='O';
+		
+		if(win>0) printf("Case #%d: %c won\n", n+1, win);
+		if((win==0) & d>0) printf("Case #%d: Game has not completed\n", n+1);
+		if((win==0) & d==0) printf("Case #%d: Draw\n", n+1);
+		
+	}
+	return 0;
+}

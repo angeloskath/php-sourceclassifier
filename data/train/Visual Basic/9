@@ -1,0 +1,95 @@
+﻿Public Class TicTacTomek
+
+    Public Sub New(ByVal lines As Integer, ByVal input As String)
+        Dim myWatch As New Stopwatch
+
+        myWatch.Start()
+
+        Dim boardCollection As New Queue
+        Dim finalOutput As String = ""
+
+        input = input.Replace(vbCrLf, "")
+
+        For caseCounter As Integer = 0 To lines - 1
+            Dim charStore As Char()
+
+            charStore = input.Substring(caseCounter * 16, 16)
+
+            boardCollection.Enqueue(charStore)
+        Next
+
+        Dim boardCounter As Integer = 0
+        For Each item In boardCollection
+            finalOutput += "Case #" & boardCounter + 1 & ": "
+            Select Case testCase(item)
+                Case 0
+                    finalOutput += "Game has not completed"
+                Case 1
+                    finalOutput += "Draw"
+                Case 2
+                    finalOutput += "X won"
+                Case 3
+                    finalOutput += "O won"
+            End Select
+            If boardCounter < lines - 1 Then
+                finalOutput += vbCrLf
+            End If
+
+            boardCounter += 1
+        Next
+
+        myWatch.Stop()
+        Dim writeResult As New writeFile(finalOutput, "TicTacTomek", "output.txt")
+        MessageBox.Show("Operation completed in " & myWatch.ElapsedMilliseconds.ToString)
+    End Sub
+
+    Private Function testCase(ByVal gameBoard As String)
+        Dim gameCondition As Integer = 0    '0 = not completed, 1 = draw, 2 = X win, 3 = Y win
+
+        'rows
+        Dim win1 As String = "1111????????????"
+        Dim win2 As String = "????1111????????"
+        Dim win3 As String = "????????1111????"
+        Dim win4 As String = "????????????1111"
+
+        'cols
+        Dim win5 As String = "1???1???1???1???"
+        Dim win6 As String = "?1???1???1???1??"
+        Dim win7 As String = "??1???1???1???1?"
+        Dim win8 As String = "???1???1???1???1"
+
+        'cross
+        Dim win9 As String = "1????1????1????1"
+        Dim win10 As String = "???1??1??1??1???"
+
+        Dim winCondition As String() = {win1, win2, win3, win4, win5, win6, win7, win8, win9, win10}
+
+
+
+        Dim checkX As String = gameBoard.Replace("X", "1")
+        checkX = checkX.Replace("T", "1")
+
+        For Each xTestCase In winCondition
+            If checkX Like xTestCase Then
+                Return 2
+            End If
+        Next
+
+        Dim checkY As String = gameBoard.Replace("O", "1")
+        checkY = checkY.Replace("T", "1")
+
+        For Each yTestCase In winCondition
+            If checkY Like yTestCase Then
+                Return 3
+            End If
+        Next
+
+        If Not (gameBoard.Contains(".")) Then
+            Return 1
+        End If
+
+        Return 0
+
+    End Function
+End Class
+

@@ -1,0 +1,117 @@
+var t,ti,i,j:longint;
+    a:array [0..100,0..100] of char;
+    fl,fl1:boolean;
+begin
+    assign(input,'input.txt');
+    reset(input);
+    assign(output,'output.txt');
+    rewrite(output);
+    read(t);
+    for ti:=1 to t do begin
+        readln;
+        fl:=false;
+        for i:=1 to 4 do begin
+            for j:=1 to 4 do begin
+                read(a[i,j]);
+                if a[i,j]='.' then
+                    fl:=true;
+            end;
+        	readln;
+        end;
+
+        {for i:=1 to 4 do begin
+            for j:=1 to 4 do begin
+                write(ord(a[i,j]),' ');
+                if a[i,j]='.' then
+                    fl:=true;
+            end;
+        	writeln;
+        end; }
+
+        fl1:=false;
+        for i:=1 to 4 do
+            if ((a[i,1]='X') or (a[i,1]='T'))
+            and ((a[i,2]='X') or (a[i,2]='T'))
+            and ((a[i,3]='X') or (a[i,3]='T'))
+            and ((a[i,4]='X') or (a[i,4]='T')) then begin
+                writeln('Case #',ti,': X won');
+                fl1:=true;
+                break;
+            end;
+        if fl1 then continue;
+
+
+        for i:=1 to 4 do
+            if ((a[1,i]='X') or (a[1,i]='T'))
+            and ((a[2,i]='X') or (a[2,i]='T'))
+            and ((a[3,i]='X') or (a[3,i]='T'))
+            and ((a[4,i]='X') or (a[4,i]='T')) then begin
+                writeln('Case #',ti,': X won');
+                fl1:=true;
+                break;
+            end;
+        if fl1 then continue;
+
+         for i:=1 to 4 do
+            if ((a[i,1]='O') or (a[i,1]='T'))
+            and ((a[i,2]='O') or (a[i,2]='T'))
+            and ((a[i,3]='O') or (a[i,3]='T'))
+            and ((a[i,4]='O') or (a[i,4]='T')) then begin
+                writeln('Case #',ti,': O won');
+                fl1:=true;
+                break;
+            end;
+
+        if fl1 then continue;
+        for i:=1 to 4 do
+            if ((a[1,i]='O') or (a[1,i]='T'))
+            and ((a[2,i]='O') or (a[2,i]='T'))
+            and ((a[3,i]='O') or (a[3,i]='T'))
+            and ((a[4,i]='O') or (a[4,i]='T')) then begin
+                writeln('Case #',ti,': O won');
+                fl1:=true;
+                break;
+            end;
+
+        if fl1 then continue;
+
+        if ((a[1,1]='X') or (a[1,1]='T'))
+            and ((a[2,2]='X') or (a[2,2]='T'))
+            and ((a[3,3]='X') or (a[3,3]='T'))
+            and ((a[4,4]='X') or (a[4,4]='T')) then begin
+                writeln('Case #',ti,': X won');
+                continue;
+            end;
+
+        if ((a[1,1]='O') or (a[1,1]='T'))
+            and ((a[2,2]='O') or (a[2,2]='T'))
+            and ((a[3,3]='O') or (a[3,3]='T'))
+            and ((a[4,4]='O') or (a[4,4]='T')) then begin
+                writeln('Case #',ti,': O won');
+                continue;
+            end;
+
+        if ((a[1,4]='X') or (a[1,4]='T'))
+            and ((a[2,3]='X') or (a[2,3]='T'))
+            and ((a[3,2]='X') or (a[3,2]='T'))
+            and ((a[4,1]='X') or (a[4,1]='T')) then begin
+                writeln('Case #',ti,': X won');
+                continue;
+            end;
+
+        if ((a[1,4]='O') or (a[1,4]='T'))
+            and ((a[2,3]='O') or (a[2,3]='T'))
+            and ((a[3,2]='O') or (a[3,2]='T'))
+            and ((a[4,1]='O') or (a[4,1]='T')) then begin
+                writeln('Case #',ti,': O won');
+                continue;
+            end;
+
+        if fl then
+            writeln('Case #',ti,': Game has not completed')
+
+     else
+        writeln('Case #',ti,': Draw');
+
+    end;
+end.

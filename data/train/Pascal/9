@@ -1,0 +1,106 @@
+program A;
+
+{$APPTYPE CONSOLE}
+
+var
+  n, i, j, t: longint;
+  c: array[1..4, 1..4] of char;
+  full_field: boolean;
+  winner: char;
+
+procedure check_row(i: longint);
+var
+  j: longint;
+  o, x, t: longint;
+
+begin
+  o := 0;
+  x := 0;
+  t := 0;
+  for j := 1 to 4 do begin
+    if (c[i, j] = 'O') then inc(o);
+    if (c[i, j] = 'X') then inc(x);
+    if (c[i, j] = 'T') then inc(t);
+  end;
+  if (x + t = 4) then winner := 'X';
+  if (o + t = 4) then winner := 'O';
+end;
+
+procedure check_column(i: longint);
+var
+  j: longint;
+  o, x, t: longint;
+
+begin
+  o := 0;
+  x := 0;
+  t := 0;
+  for j := 1 to 4 do begin
+    if (c[j, i] = 'O') then inc(o);
+    if (c[j, i] = 'X') then inc(x);
+    if (c[j, i] = 'T') then inc(t);
+  end;
+  if (x + t = 4) then winner := 'X';
+  if (o + t = 4) then winner := 'O';
+end;
+
+procedure check_diagonals();
+var
+  j: longint;
+  o, x, t: longint;
+
+begin
+  o := 0;
+  x := 0;
+  t := 0;
+  for j := 1 to 4 do begin
+    if (c[j, j] = 'O') then inc(o);
+    if (c[j, j] = 'X') then inc(x);
+    if (c[j, j] = 'T') then inc(t);
+  end;
+  if (x + t = 4) then winner := 'X';
+  if (o + t = 4) then winner := 'O';
+  o := 0;
+  x := 0;
+  t := 0;
+  for j := 1 to 4 do begin
+    if (c[5 - j, j] = 'O') then inc(o);
+    if (c[5 - j, j] = 'X') then inc(x);
+    if (c[5 - j, j] = 'T') then inc(t);
+  end;
+  if (x + t = 4) then winner := 'X';
+  if (o + t = 4) then winner := 'O';
+end;
+
+begin
+  reset(input, 'A-Large.in');
+  rewrite(output, 'A-large-output.txt');
+  readln(n);           
+  for t := 1 to n do begin
+    full_field := true;
+    for i := 1 to 4 do begin
+      for j := 1 to 4 do begin
+        read(c[i, j]);
+        full_field := full_field and (c[i, j] <> '.');
+      end;
+      readln;
+    end;
+    readln;
+    winner := '.';
+    for i := 1 to 4 do begin
+      check_row(i);
+      check_column(i);
+    end;
+    check_diagonals();
+    write('Case #', t, ': ');
+    if (winner = '.') then begin
+      if full_field then begin
+        writeln('Draw');
+      end else begin
+        writeln('Game has not completed');
+      end;
+    end else begin
+      writeln(winner, ' won');
+    end;
+  end;
+end.

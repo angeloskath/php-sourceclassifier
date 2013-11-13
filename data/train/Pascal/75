@@ -1,0 +1,82 @@
+var
+	c,tc,i,j : integer;
+	o,x,full : boolean;
+    a : array [0..5,0..5] of char;
+function check(x : char) : boolean;
+var	t,i,j,count : integer;
+begin
+	check := false;
+	for i := 1 to 4 do begin
+		count := 0; t := 0;
+		for j := 1 to 4 do begin
+			if (a[i][j]=x) then inc(count)
+			else if (a[i][j]='T') then inc(t);
+		end;
+		if (count=4) then check := true
+		else if (count=3) and (t=1) then check := true;
+		if (check) then break;
+	end;
+	if (check=false) then begin
+		for j := 1 to 4 do begin
+			count := 0; t := 0;
+			for i := 1 to 4 do begin
+				if (a[i][j]=x) then inc(count)
+				else if (a[i][j]='T') then inc(t);
+			end;
+			if (count=4) then check := true
+			else if (count=3) and (t=1) then check := true;
+			if (check) then break;
+		end;
+	end;
+	if (check=false) then begin
+		count := 0; t := 0;
+		if (a[1][1]=x) then inc(count); 
+		if (a[2][2]=x) then inc(count);
+		if (a[3][3]=x) then inc(count);
+		if (a[4][4]=x) then inc(count);
+		if (a[1][1]='T') then inc(t); 
+		if (a[2][2]='T') then inc(t);
+		if (a[3][3]='T') then inc(t);
+		if (a[4][4]='T') then inc(t);
+		if (count=4) then check := true
+		else if (count=3) and (t=1) then check := true;
+	end;
+	if (check=false) then begin
+		count := 0; t := 0;
+		if (a[1][4]=x) then inc(count); 
+		if (a[2][3]=x) then inc(count);
+		if (a[3][2]=x) then inc(count);
+		if (a[4][1]=x) then inc(count);
+		if (a[1][4]='T') then inc(t); 
+		if (a[2][3]='T') then inc(t);
+		if (a[3][2]='T') then inc(t);
+		if (a[4][1]='T') then inc(t);
+		if (count=4) then check := true
+		else if (count=3) and (t=1) then check := true;
+	end;
+end;
+begin
+	readln(tc); c := 0;
+	while (tc>0) do begin
+		full := true; o := false; x := false;
+		for i := 1 to 4 do begin
+			for j := 1 to 4 do begin
+				read(a[i][j]);
+				if (a[i][j]='.') then full := false;
+			end;
+			readln;
+		end;
+		inc(c);
+		write('Case #',c,': ');
+		x := check('X');
+		if (x) then writeln('X won')
+		else begin
+			o := check('O');
+			if (o) then writeln('O won')
+			else if (full) then writeln('Draw')
+			else writeln('Game has not completed');
+		end;
+		dec(tc);
+		readln;
+	end;
+end.

@@ -1,0 +1,73 @@
+var fs = require('fs');
+var util = require('util');
+
+function check(m, c) {
+	var found;
+	for(var i=0;i<4;i++) {
+		found = true;
+		for(var j=0;j<4;j++) {
+			if (m[i][j]!=c && m[i][j]!='T') {
+				found = false;
+				break;
+			}
+		}
+		if (found) return true;
+	}
+	for(var i=0;i<4;i++) {
+		found = true;
+		for(var j=0;j<4;j++) {
+			if (m[j][i]!=c && m[j][i]!='T') {
+				found = false;
+				break;
+			}
+		}
+		if (found) return true;
+	}
+	
+	found=true;
+	for(var i=0;i<4;i++) {
+		if (m[i][i]!=c && m[i][i]!='T') {
+			found=false;
+			break;
+		}
+	}
+	if (found) return true;
+	
+	found=true;
+	for(var i=0;i<4;i++) {
+		if (m[i][3-i]!=c && m[i][3-i]!='T') {
+			found=false;
+			break;
+		}
+	}
+	if (found) return true;
+	
+	return false;
+}
+
+fs.readFile('A-large.in', 'utf-8', function(err, data) {
+	var lines = data.split('\n');
+	var n = parseInt(lines[0]);
+	for(var tt=1;tt<=n;tt++)
+	{
+		var outstr = 'Case #' + tt + ': ';
+		var d = [];
+		var lb = tt*5-4;
+		for(var i=0;i<4;i++)
+			d[i] = lines[lb+i];
+		if(check(d, 'X')) outstr += 'X won';
+		else if (check(d, 'O')) outstr += 'O won';
+		else {
+			var draw = true;
+			for(var i=0;i<16;i++) {
+				if (d[Math.floor(i/4)][i%4]=='.') {
+					draw = false;
+					break;
+				}
+			}
+			if (draw) outstr += 'Draw';
+			else outstr += 'Game has not completed';
+		}
+		console.log(outstr);
+	}
+});

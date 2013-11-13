@@ -1,0 +1,40 @@
+$n = <> ;
+chomp $n ;
+sub checkwin {
+   my ($i, $inc) = @_ ;
+   my $tw = undef ;
+   for (my $j=0; $j<4; $j++, $i += $inc) {
+      return ++$dotseen if ($b[$i] eq '.') ;
+      next if $b[$i] eq 'T' ;
+      if (defined($tw)) {
+         return 0 if $b[$i] ne $tw ;
+      } else {
+         $tw = $b[$i] ;
+      }
+   }
+   $win = $tw ;
+}
+for ($kase=1; $kase <= $n; $kase++) {
+   $b = '' ;
+   for ($i=0; $i<4; $i++) {
+      $b .= substr(<>, 0, 4) ;
+   }
+   @b = split '', $b ;
+   $win = '' ;
+   $dotseen = 0 ;
+   for ($i=0; $i<4; $i++) {
+      checkwin($i, 4) ;
+      checkwin($i*4, 1) ;
+   }
+   checkwin(0, 5) ;
+   checkwin(3, 3) ;
+   scalar <> ;
+   print "Case #$kase: " ;
+   if ($win ne '') {
+      print "$win won\n" ;
+   } elsif ($dotseen) {
+      print "Game has not completed\n" ;
+   } else {
+      print "Draw\n" ;
+   }
+}

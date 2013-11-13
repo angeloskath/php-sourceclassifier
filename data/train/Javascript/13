@@ -1,0 +1,130 @@
+var numTestCases, input, cases;
+var  fs = require('fs');
+var  filepath = process.argv[2];
+
+if ( !filepath ) {
+  throw 'You must provide a file path';
+}
+
+input = fs.readFileSync( filepath, 'utf8' ).split('\n');
+numTestCases = parseInt( input.shift(), 10 );
+cases=[];
+
+
+while ( input.length ) {
+    cases.push( input.splice(0, 4) );
+    input.shift();
+}
+
+function verifDiagonal(t){
+    var p="", np="";
+    var numX=0, numO=0, numT=0;
+    for(var k=0; k<4;k++){
+        p=p.concat(t[k][k]);
+        np=np.concat(t[k][3-k]);   
+    }
+    
+    numX=(p.match(/X/g)||[]).length;
+    numO=(p.match(/O/g)||[]).length;
+    numT=(p.match(/T/g)||[]).length;
+
+    if(numX==4 || (numX==3 && numT==1))
+        return "X won";
+    else if(numO==4 || (numO==3 && numT==1))
+        return "O won";
+        
+    numX=(np.match(/X/g)||[]).length;
+    numO=(np.match(/O/g)||[]).length;
+    numT=(np.match(/T/g)||[]).length;
+    
+    if(numX==4 || (numX==3 && numT==1))
+        return "X won";
+    else if(numO==4 || (numO==3 && numT==1))
+        return "O won";
+    else
+        return "NO";
+}
+
+function verifCollum(t){
+    var p;
+    var numX=0, numO=0, numT=0;
+    for(var k=0; k<4;k++)
+    {
+        p='';
+        for(var h=0;h<4;h++)
+        {
+            p=p.concat(t[h][k]);
+        }
+        if(p.indexOf('.')==-1)
+        {
+            numX=(p.match(/X/g)||[]).length;
+            numO=(p.match(/O/g)||[]).length;
+            numT=(p.match(/T/g)||[]).length;
+            
+            if(numX==4 || (numX==3 && numT==1))
+                return "X won";
+            else if(numO==4 || (numO==3 && numT==1))
+                return "O won";
+        }
+    }
+    return "NO"
+  }
+
+function verifRow(t){
+    var p;
+    var exist=false;
+    var result="NO";
+    var numX=0, numO=0, numT=0;
+    for(var k=0; k<4;k++)
+    {
+        p="";
+        for(var h=0;h<4;h++)
+        {
+            p=p.concat(t[k][h]);
+        }
+        if(p.indexOf('.')==-1)
+        {
+            numX=(p.match(/X/g)||[]).length;
+            numO=(p.match(/O/g)||[]).length;
+            numT=(p.match(/T/g)||[]).length;
+           
+            if(numX==4 || (numX==3 && numT==1)){
+                return "X won";
+            }
+            else if(numO==4 || (numO==3 && numT==1))
+                return "O won";
+        }else
+            exist=true;
+    }
+    if(exist==true)
+        return "Game has not completed";
+    else 
+        return "Draw";
+}
+
+
+function getResults( t ) 
+{
+    
+    var result="Draw";
+    var res=[];
+    var vDiag = verifDiagonal(t);
+    if(vDiag!="NO")
+        result=vDiag;
+    else{
+        var vCollum = verifCollum(t);
+        if(vCollum!="NO")
+            result=vCollum;
+        else{
+            var vR = verifRow(t);
+            result=vR;
+        }
+            
+    }
+        
+    return result;
+}
+
+for ( i = 0; i < numTestCases; ++i ) {
+  console.log( 'Case #' + (i + 1) + ': ' + getResults( cases[i]));
+}

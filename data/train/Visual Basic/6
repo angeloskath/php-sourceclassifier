@@ -1,0 +1,178 @@
+﻿Imports System.IO
+
+Module tic_tok
+
+    Sub Main()
+        Dim input As String = ""
+
+        Console.Write("input file name : ")
+        Dim location As String = "2.in" ' Console.ReadLine
+
+        Using reader As StreamReader = New StreamReader(location)
+
+            Dim line As String
+
+            ' Read first line.
+            line = reader.ReadLine
+
+            ' Loop over each line in file, While list is Not Nothing.
+            Do While (Not line Is Nothing)
+                line = reader.ReadLine
+                input &= line
+                If line = "" Then
+                    input &= "|"
+                End If
+
+
+            Loop
+        End Using
+        input = input.Remove(input.Length - 1)
+        For Each game In input.Split("|")
+            c1(game)
+        Next
+        Console.ReadLine()
+
+    End Sub
+
+    Dim caseN As Integer = 0
+    Sub c1(game As String)
+
+        caseN += 1
+
+        Dim rowRes As String = rowTest(game)
+        If rowRes <> "n" Then
+            outpot(caseN, rowRes)
+            Exit Sub
+        End If
+
+        Dim CluRes As String = CluTest(game)
+        If CluRes <> "n" Then
+            outpot(caseN, CluRes)
+            Exit Sub
+        End If
+
+        Dim diaRes As String = diaTest(game)
+        If diaRes <> "n" Then
+            outpot(caseN, diaRes)
+            Exit Sub
+        End If
+
+        For i = 0 To 15
+            If game(i) = "." Then
+                outpot(caseN, "Game has not completed")
+                Exit Sub
+            End If
+        Next
+        outpot(caseN, "Draw")
+
+
+    End Sub
+
+    Function rowTest(game As String) As String
+        For i = 0 To 13
+            If i = 0 Or i = 4 Or i = 8 Or i = 12 Then
+                If game(i) <> "." Then
+                    If game(i) = "T" Then
+                        If game(i + 1) = "." Then Exit For
+                        If game(i + 1) = game(i + 2) And game(i + 1) = game(i + 3) Then
+                            Return game(i + 1) & " won"
+                            Exit Function
+                        End If
+                    End If
+                    If (game(i) = game(i + 1) Or "T" = game(i + 1)) And (game(i) = game(i + 2) Or game(i + 2) = "T") And (game(i) = game(i + 3) Or game(i + 3) = "T") Then
+                        Return game(i) & " won"
+                        Exit Function
+                    End If
+                End If
+            End If
+        Next
+        Return "n"
+    End Function
+
+    Function CluTest(game As String) As String
+        For i = 0 To 16
+            If i = 0 Or i = 1 Or i = 2 Or i = 3 Then
+                If game(i) <> "." Then
+                    If game(i) <> "." Then
+                        If game(i) = "T" Then
+                            If game(i + 1) = "." Then Exit For
+                            If game(i + 4) = game(i + 8) And game(i + 4) = game(i + 12) Then
+                                Return game(i) & " won"
+                                Exit Function
+                            End If
+                        End If
+                        If (game(i) = game(i + 4) Or "T" = game(i + 4)) And (game(i) = game(i + 8) Or game(i + 8) = "T") And (game(i) = game(i + 12) Or game(i + 12) = "T") Then
+                            Return game(i) & " won"
+                            Exit Function
+                        End If
+                    End If
+                End If
+            End If
+        Next
+        Return "n"
+    End Function
+
+    Function diaTest(game As String) As String
+        Dim i As Integer = 0
+        If game(i) <> "." Then
+
+            If game(i) = "T" Then
+                If game(i + 5) = "." Then
+                    Return "n"
+                    Exit Function
+                End If
+
+                If game(i + 5) = game(i + 10) And game(i + 5) = game(i + 15) Then
+                    Return game(i) & " won"
+                    Exit Function
+                End If
+            End If
+
+            If (game(i) = game(i + 5) Or "T" = game(i + 5)) And (game(i) = game(i + 10) Or game(i + 10) = "T") And (game(i) = game(i + 15) Or game(i + 15) = "T") Then
+                Return game(i) & " won"
+                Exit Function
+            End If
+
+        End If
+
+        i = 3
+        If game(i) <> "." Then
+            If game(i) = "T" Then
+                If game(i + 3) = "." Then
+                    Return "n"
+                    Exit Function
+                End If
+
+                If game(i + 3) = game(i + 6) And game(i + 3) = game(i + 9) Then
+                    Return game(i + 3) & " won"
+                    Exit Function
+                End If
+            End If
+
+            If (game(i) = game(i + 3) Or "T" = game(i + 3)) And (game(i) = game(i + 6) Or game(i + 6) = "T") And (game(i) = game(i + 9) Or game(i + 9) = "T") Then
+                Return game(i) & " won"
+                Exit Function
+            End If
+
+        End If
+
+
+        Return "n"
+    End Function
+
+    Sub outpot(No As Integer, result As String)
+
+        Dim location As String = "ot.txt"
+
+        Try
+
+            Using writer As StreamWriter = New StreamWriter(location, True, System.Text.ASCIIEncoding.ASCII)
+                writer.WriteLine("Case #" & No & ": " & result)
+            End Using
+
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+End Module

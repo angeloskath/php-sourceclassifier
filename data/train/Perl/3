@@ -1,0 +1,141 @@
+#!/home/bruno/perl5/perlbrew/perls/perl-5.16.3/bin/perl
+
+use 5.016;
+use strict;
+use warnings;
+
+my $t = <>;
+chomp $t;
+
+for( my $c = 1; $c <= $t; $c++ ){
+
+	my $m;
+	foreach my $q (0..3) {
+		$q = <>;
+		chomp $q;
+		push @$m, [split '', $q];
+	}
+
+	my $r = 'Game has not completed';
+
+	my $tot = check_diags($m);
+
+	foreach my $q (0..3) {
+		$tot += check_line($m, $q) + check_column($m, $q);
+	}
+
+	if( $tot == 0 ) {
+		if( count_dots($m) == 0 ) {
+			$r = 'Draw';
+		}
+	}
+	elsif( $tot > 0 ) {
+		$r = 'X won';
+	}
+	else {
+		$r = 'O won';
+	}
+
+	say 'Case #' . $c . ': ' . $r;
+
+	<>;
+}
+
+exit;
+
+sub count_dots {
+	my $m = shift;
+	my $dots = 0;
+
+	foreach my $l (0..3) {
+		foreach my $c (0..3) {
+			$dots++ if $m->[$l][$c] eq '.';
+		}
+	}
+
+	return $dots;
+}
+
+sub check_line {
+	my $m = shift;
+	my $l = shift;
+
+	if( ($m->[$l][0] eq 'X' || $m->[$l][0] eq 'T') &&
+		($m->[$l][1] eq 'X' || $m->[$l][1] eq 'T') &&
+		($m->[$l][2] eq 'X' || $m->[$l][2] eq 'T') &&
+		($m->[$l][3] eq 'X' || $m->[$l][3] eq 'T')) {
+
+		return 1;
+	}
+
+	if( ($m->[$l][0] eq 'O' || $m->[$l][0] eq 'T') &&
+		($m->[$l][1] eq 'O' || $m->[$l][1] eq 'T') &&
+		($m->[$l][2] eq 'O' || $m->[$l][2] eq 'T') &&
+		($m->[$l][3] eq 'O' || $m->[$l][3] eq 'T')) {
+
+		return -1;
+	}
+
+	return 0;
+}
+
+sub check_column {
+	my $m = shift;
+	my $c = shift;
+
+	if( ($m->[0][$c] eq 'X' || $m->[0][$c] eq 'T') &&
+		($m->[1][$c] eq 'X' || $m->[1][$c] eq 'T') &&
+		($m->[2][$c] eq 'X' || $m->[2][$c] eq 'T') &&
+		($m->[3][$c] eq 'X' || $m->[3][$c] eq 'T')) {
+
+		return 1;
+	}
+
+	if( ($m->[0][$c] eq 'O' || $m->[0][$c] eq 'T') &&
+		($m->[1][$c] eq 'O' || $m->[1][$c] eq 'T') &&
+		($m->[2][$c] eq 'O' || $m->[2][$c] eq 'T') &&
+		($m->[3][$c] eq 'O' || $m->[3][$c] eq 'T')) {
+
+		return -1;
+	}
+
+	return 0;	
+}
+
+sub check_diags {
+	my $m = shift;
+
+	if( ($m->[0][0] eq 'X' || $m->[0][0] eq 'T') &&
+		($m->[1][1] eq 'X' || $m->[1][1] eq 'T') &&
+		($m->[2][2] eq 'X' || $m->[2][2] eq 'T') &&
+		($m->[3][3] eq 'X' || $m->[3][3] eq 'T')) {
+
+		return 1;
+	}
+
+	if( ($m->[0][3] eq 'X' || $m->[0][3] eq 'T') &&
+		($m->[1][2] eq 'X' || $m->[1][2] eq 'T') &&
+		($m->[2][1] eq 'X' || $m->[2][1] eq 'T') &&
+		($m->[3][0] eq 'X' || $m->[3][0] eq 'T')) {
+
+		return 1;
+	}
+
+	if( ($m->[0][0] eq 'O' || $m->[0][0] eq 'T') &&
+		($m->[1][1] eq 'O' || $m->[1][1] eq 'T') &&
+		($m->[2][2] eq 'O' || $m->[2][2] eq 'T') &&
+		($m->[3][3] eq 'O' || $m->[3][3] eq 'T')) {
+
+		return -1;
+	}
+
+	if( ($m->[0][3] eq 'O' || $m->[0][3] eq 'T') &&
+		($m->[1][2] eq 'O' || $m->[1][2] eq 'T') &&
+		($m->[2][1] eq 'O' || $m->[2][1] eq 'T') &&
+		($m->[3][0] eq 'O' || $m->[3][0] eq 'T')) {
+
+		return -1;
+	}
+
+	return 0;
+}

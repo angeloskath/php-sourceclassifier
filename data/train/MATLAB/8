@@ -1,0 +1,79 @@
+function statuses = solve1(ifname, ofname)
+
+%fname = 'test1.txt'
+
+fidi = fopen(ifname, 'r');
+fido = fopen(ofname, 'w');
+
+N = str2num(fgetl(fidi));
+
+for iter = 1:N
+    
+    A = zeros(4);
+    for r = 1:4
+        tmp = fgetl(fidi);
+        
+        for c = 1:4
+            
+            switch tmp(c)
+                case 'X'
+                    A(r,c) = -1;
+                case 'O'
+                    A(r,c) = 1;
+                case 'T'
+                    A(r,c) = nan;
+                case '.'
+                    A(r,c) = 0;
+                otherwise
+                    error('Unexpected character');
+                    
+            end % switch
+            
+        end % for r
+        
+    end %for l
+    
+    % determine status
+    
+    BO = A;
+    BO(isnan(BO))=1;
+    BX = -A;
+    BX(isnan(BX))=1;
+    if number1haswon(BO)        
+        fprintf('Case #%i: O won\n', iter)
+        fprintf(fido, 'Case #%i: O won\n', iter)
+    elseif number1haswon(BX)
+        fprintf('Case #%i: X won\n', iter)
+        fprintf(fido, 'Case #%i: X won\n', iter)
+    elseif any(A(:)==0)
+        fprintf('Case #%i: Game has not completed\n', iter)
+        fprintf(fido, 'Case #%i: Game has not completed\n', iter)
+    else
+        fprintf('Case #%i: Draw\n', iter)
+        fprintf(fido, 'Case #%i: Draw\n', iter)
+    end
+        
+    
+    % discard empty line
+    if iter < N
+        tmp = fgetl(fidi);
+    end
+    
+end %iter
+
+fclose(fidi);
+fclose(fido);
+
+
+end %fun
+
+function s = number1haswon(A)
+  %determine
+  
+  B = A
+  s = any(all(A==1,1));
+  s = s | any(all(A==1,2));
+  s = s | all(diag(A)==1);
+  s = s | all(diag(fliplr(A))==1);
+
+end

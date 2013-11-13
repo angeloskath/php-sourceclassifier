@@ -1,0 +1,122 @@
+#!/usr/bin/perl -w
+
+open FILE, "<A-large.in" or die $!;
+@lines = <FILE>;
+close FILE or die $!;
+
+
+$k = shift(@lines);
+unshift(@lines, "dummy");
+
+
+$count=1;
+while ($count<=$k) {
+		
+		$solved = 0;
+		
+		shift(@lines);
+		@first_v=();
+		@second_v=();
+		@third_v=();
+		@forth_v=();
+		@diag_a =();
+		@diag_b =();
+		@all_data = ();
+		
+		
+		$first_h = shift(@lines);
+		$second_h = shift(@lines);
+		$third_h = shift(@lines);
+		$forth_h = shift(@lines);
+
+		@first_h = split("",$first_h);
+		@second_h = split("",$second_h);
+		@third_h = split("",$third_h);
+		@forth_h = split("",$forth_h);
+		
+		
+		push(@first_v, ($first_h[0], $second_h[0], $third_h[0], $forth_h[0])  );
+		push(@second_v, ($first_h[1], $second_h[1], $third_h[1], $forth_h[1])  );
+		push(@third_v, ($first_h[2], $second_h[2], $third_h[2], $forth_h[2]) );
+		push(@forth_v, ($first_h[3], $second_h[3], $third_h[3], $forth_h[3]) );		
+	
+		push(@diag_a, ($first_h[0], $second_h[1], $third_h[2], $forth_h[3]) );
+		push(@diag_b, ($first_h[3], $second_h[2], $third_h[1], $forth_h[0]) );
+		
+		push(@all_data, (@first_h, @second_h, @third_h, @forth_h) );
+		
+		
+		
+		@all_rows_cols = (
+				[@first_h],
+				[@second_h],
+				[@third_h],
+				[@forth_h],
+				[@first_v],
+				[@second_v],
+				[@third_v],
+				[@forth_v],
+				[@diag_a],
+				[@diag_b],
+		);
+		
+		
+	## X WINS ##	
+	$counter=0;
+	for($aa = 0; $aa < 10; $aa++) {
+			$counter=0;
+			for ($bb = 0; $bb < 4; $bb++) {
+					if ($all_rows_cols[$aa]->[$bb] eq "X" or $all_rows_cols[$aa]->[$bb] eq "T") {$counter++;}
+			}
+			if ($counter==4) {
+					push(@results, "X won");
+					$solved = 1;
+					last;
+			}
+	}
+	
+	if ($solved == 1) {$count++; next;}
+
+
+
+	## O WINS ##	
+	$counter=0;
+	for($aa = 0; $aa < 10; $aa++) {
+			$counter=0;
+			for ($bb = 0; $bb < 4; $bb++) {
+					if ($all_rows_cols[$aa]->[$bb] eq "O" or $all_rows_cols[$aa]->[$bb] eq "T") {$counter++; }
+			}
+			if ($counter==4) {
+					push(@results, "O won");
+					$solved = 1;
+					last;
+			}
+	}
+	
+	
+		if ($solved == 1) {$count++; next;}
+	
+	
+	##UNFINISHED GAME##
+		foreach (@all_data) {
+				if ($_ eq ".") {
+				push(@results, "Game has not completed");
+				$solved = 1;
+				last;
+				}
+		}
+	
+	if ($solved == 0) {push(@results, "Draw");}
+		
+		
+		$count++;
+}
+
+
+	
+	
+		
+$num=1;
+open FILE, ">output-big.out" or die $!;
+foreach (@results) {print  FILE "Case #$num: $_\n"; $num++;}
+close FILE or die $!;

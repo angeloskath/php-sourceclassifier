@@ -1,0 +1,137 @@
+require 'pp'
+class Board
+  X_WON = "X won"
+  O_WON = "O won"
+  NOT_COMPLETE = "Game has not completed"
+  DRAW = "Draw"
+
+  ANSWER = { :x => X_WON,
+             :o => O_WON,
+             true => DRAW,
+             false => NOT_COMPLETE
+           }.freeze
+
+  attr_accessor :array
+
+  def initialize(array)
+    @array = array
+  end
+
+  def solve
+    p check_row
+    p check_col
+    p check_skew
+    p filled?
+    ANSWER[check_row || check_col || check_skew || filled?]
+  end
+
+  def check_row
+    (0..3).lazy.map{|i| check_row_num(i) }.find{|x| x }
+  end
+
+  def check_col
+    (0..3).lazy.map{|i| check_col_num(i) }.find{|x| x }
+  end
+
+  def check_skew
+    check_left_skew || check_right_skew
+  end
+
+  def check_row_num(i)
+    return :x if x_won? @array[i]
+    return :o if o_won? @array[i]
+    false
+  end
+
+  def check_col_num(i)
+    return :x if x_won? @array.map{|x| x[i] }
+    return :o if o_won? @array.map{|x| x[i] }
+    false
+  end
+
+  def check_left_skew
+    return :x if x_won? (0..3).map{|i| @array[i][i] }
+    return :o if o_won? (0..3).map{|i| @array[i][i] }
+  end
+
+  def check_right_skew
+    return :x if x_won? (0..3).map{|i| @array[i][3-i] }
+    return :o if o_won? (0..3).map{|i| @array[i][3-i] }
+  end
+
+  def x_won?(a)
+    a.all?{|e| x? e } || a.count{|e| t? e } == 1 && a.count{|e| x? e } == 3
+  end
+
+  def o_won?(a)
+    a.all?{|e| o? e } || a.count{|e| t? e } == 1 && a.count{|e| o? e } == 3
+  end
+
+  def t?(i)
+    i == "T"
+  end
+
+  def x?(i)
+    i == "X"
+  end
+
+  def o?(i)
+    i == "O"
+  end
+
+  def filled?
+    @array.all?{|a| a.all?{|x| x != "."}}
+  end
+end
+
+
+#utils
+
+def default_output
+  "#{File.basename(ARGV[0], ".rb")}-out-#{Time.now.to_s.gsub(/ /, "_")}"
+end
+
+def solve(board)
+end
+
+@input = ARGV[0] || raise
+@output = ARGV[1] || default_output
+@q = []
+@ans = []
+
+puts "###########read now"
+puts
+File.open(@input) do |f|
+  f.gets
+  while l1 = f.gets
+    l2 = f.gets
+    l3 = f.gets
+    l4 = f.gets
+    @q << Board.new([l1, l2, l3, l4].map{|l| l.chomp.split(//)})
+    f.gets
+  end
+end
+
+puts
+puts "###########solve now"
+puts
+@q.each_with_index do |q, i|
+  ans = q.solve
+  puts "Case ##{i+1}: #{ans}"
+  @ans << ans
+end
+
+puts
+puts "##########write now"
+puts
+File.open(@output, 'w') do |f|
+  @ans.each_with_index do |ans, i|
+    f.puts "Case ##{i+1}: #{ans}"
+  end
+end
+
+puts
+puts "finish!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+puts
+
+

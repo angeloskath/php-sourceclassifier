@@ -1,0 +1,85 @@
+import scala.collection.mutable.ArrayBuffer
+
+object GCJTicTac extends App {
+  def solve(prob:Array[Char]):Char = {
+    def jrow(a:Int):Boolean = {
+      (prob(a) != '.' && prob(a)==prob(a+1) && prob(a+2)==prob(a+3) && prob(a)==prob(a+2))
+    }
+    def jcol(a:Int):Boolean = {
+      (prob(a) != '.' && prob(a)==prob(a+4) && prob(a+8)==prob(a+12) && prob(a)==prob(a+8))
+    }
+    def j0diag:Boolean = {
+      (prob(0) != '.' && prob(0)==prob(5) && prob(10)==prob(15) && prob(0)==prob(10))
+    }
+    def j3diag:Boolean = {
+      (prob(3) != '.' && prob(3)==prob(6) && prob(9)==prob(12) && prob(3)==prob(9))
+    }
+
+    var winner:Char = '.';
+    def setWinner(a:Char) {
+      winner = winner match {
+        case '.' => a
+        case c if c != a => 'D'
+        case z => z
+      }
+    }
+
+    if (jrow(0)) { setWinner(prob(0)) }
+    if (jrow(4)) { setWinner(prob(4)) }
+    if (jrow(8)) { setWinner(prob(8)) }
+    if (jrow(12)) { setWinner(prob(12)) }
+//    println(winner)
+    if (jcol(0)) { setWinner(prob(0)) }
+    if (jcol(1)) { setWinner(prob(1)) }
+    if (jcol(2)) { setWinner(prob(2)) }
+    if (jcol(3)) { setWinner(prob(3)) }
+//    println(winner)
+    if (j0diag) { setWinner(prob(0)) }
+    if (j3diag) { setWinner(prob(3)) }
+    winner
+  }
+
+  val problems:Int = readLine().toInt
+
+
+  for (p <- 1 to problems) {
+    val probBuf = new ArrayBuffer[Char]()
+    for (a <- 1 to 4) {
+      probBuf ++= readLine().toCharArray()
+    }
+    readLine()
+
+    val prob = probBuf.toArray
+    val tpos = prob.indexOf('T')
+    val notCompleted = prob.indexOf('.') != -1
+
+    val win = if (tpos != -1) {
+      prob(tpos) = 'O'
+      solve(prob) match {
+        case 'D' => 'D'
+        case firstResult => {
+          prob(tpos) = 'X'
+          solve(prob) match {
+            case 'D' => 'D'
+            case '.' => firstResult
+            case second if second != firstResult => if (firstResult=='.') second else 'D'
+            case same => same
+          }
+        }
+      }
+    } else {
+      solve(prob)
+    }
+
+    println("Case #%d: %s" format(p,
+      win match {
+        case 'O' => "O won"
+        case 'X' => "X won"
+        case '.' => if (notCompleted) "Game has not completed" else "Draw"
+        case 'D' => "Draw"
+        case _ => error("hoge")
+      }
+      ))
+
+  }
+}

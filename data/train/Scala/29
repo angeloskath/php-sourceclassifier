@@ -1,0 +1,125 @@
+package tictactoetomek
+
+object Main {
+  
+  val X = 'X'
+  val O = 'O'
+  val B = '.'
+  val T = 'T'
+
+  def main(args: Array[String]): Unit = {
+    val lines = io.Source.fromFile(args(0), "utf8").getLines
+    val n = lines.next.toInt
+    
+    val outS1 = "Case #"
+    val outS2 = ": "
+    val outW = " won"
+    val outD = "Draw"
+    val outN = "Game has not completed" 
+    
+    for(i <- 1 to n) {
+      val outS = outS1 + i + outS2
+      
+      val l1 = lines.next
+      val l2 = lines.next
+      val l3 = lines.next
+      val l4 = lines.next
+      lines.next
+      
+      // T -> O
+      var ll1 = l1.replace(T, O)
+      var ll2 = l2.replace(T, O)
+      var ll3 = l3.replace(T, O)
+      var ll4 = l4.replace(T, O)
+      
+      var x = lineTest(ll1, ll2, ll3, ll4)
+      
+      var c1 = "" + ll1(0) + ll2(0) + ll3(0) + ll4(0)
+      var c2 = "" + ll1(1) + ll2(1) + ll3(1) + ll4(1)
+      var c3 = "" + ll1(2) + ll2(2) + ll3(2) + ll4(2)
+      var c4 = "" + ll1(3) + ll2(3) + ll3(3) + ll4(3)
+      
+      if (x == B) {
+        x = lineTest(c1, c2, c3, c4)
+      }
+      
+      var d1 = "" + ll1(0) + ll2(1) + ll3(2) + ll4(3)
+      
+      if (x == B) {
+        x = lineTestSL(d1)
+      }
+      
+      var d2 = "" + ll1(3) + ll2(2) + ll3(1) + ll4(0)
+      
+      if (x == B) {
+        x = lineTestSL(d2)
+      }
+      
+      // T -> X
+      ll1 = l1.replace(T, X)
+      ll2 = l2.replace(T, X)
+      ll3 = l3.replace(T, X)
+      ll4 = l4.replace(T, X)
+      
+      if (x == B) {
+        x = lineTest(ll1, ll2, ll3, ll4)
+      }
+      
+      c1 = "" + ll1(0) + ll2(0) + ll3(0) + ll4(0)
+      c2 = "" + ll1(1) + ll2(1) + ll3(1) + ll4(1)
+      c3 = "" + ll1(2) + ll2(2) + ll3(2) + ll4(2)
+      c4 = "" + ll1(3) + ll2(3) + ll3(3) + ll4(3)
+      
+      if (x == B) {
+        x = lineTest(c1, c2, c3, c4)
+      }
+      
+      d1 = "" + ll1(0) + ll2(1) + ll3(2) + ll4(3)
+      
+      if (x == B) {
+        x = lineTestSL(d1)
+      }
+      
+      d2 = "" + ll1(3) + ll2(2) + ll3(1) + ll4(0)
+      
+      if (x == B) {
+        x = lineTestSL(d2)
+      }
+      
+      if (x != B) {
+        println(outS + x + outW)
+      } else if (l1.contains(B) || l2.contains(B) || l3.contains(B) || l4.contains(B)) {
+        println(outS + outN)
+      } else {
+        println(outS + outD)
+      }
+    }
+  }
+  
+  def lineTestSL(l: String) = {
+    if (l(0) == l(1) && l(1) == l(2) && l(2) == l(3)) {
+      l(0)
+    } else {
+      B
+    }
+  }
+  
+  def lineTest(l1: String, l2: String, l3: String, l4: String) = {
+    var x = lineTestSL(l1)
+    
+    if (x == B) {
+      x = lineTestSL(l2)
+    }
+    
+    if (x == B) {
+      x = lineTestSL(l3)
+    }
+    
+    if (x == B) {
+      x = lineTestSL(l4)
+    }
+    
+    x
+  }
+
+}

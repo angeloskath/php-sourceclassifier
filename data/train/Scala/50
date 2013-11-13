@@ -1,0 +1,61 @@
+package qualification.a
+
+object A {
+
+  import scala.io._
+  import java.util.concurrent._
+  
+  type Prob = List[List[Char]]
+  
+  def readProblem(s: Iterator[String]): Prob = {
+     s.take(4).map(_.toList).toList
+  }
+
+  def wins(prob: Iterable[Char], player: Char) = {
+    prob.forall(c => c == player || c == 'T')
+  }
+  
+  def playerWins(problem: Prob, player: Char):Boolean = {
+    val lineWins = problem.find(
+        line => wins(line, player)
+    ).isDefined
+    if(lineWins) return true;
+    
+    def colWins(col: Int) = {
+      val column = 0.until(4).map(i =>  problem(i)(col) )
+      wins(column, player)
+    }
+    val cs = 0.until(4).find(colWins(_)).isDefined
+    if(cs) return true;
+    val mainDiag = 0.until(4).map(i => problem(i)(i))
+    val otherDiag = 0.until(4).map(i => problem(i)(3 - i))
+    return wins(mainDiag, player) || wins(otherDiag, player)
+  }
+  
+  def boardIncomplete(problem: Prob) = {
+    problem.find(_.contains('.')).isDefined
+  }
+  
+  def solveProblem(p: Prob) = {
+      if(playerWins(p, 'X')) {
+         "X won"
+      } else if(playerWins(p, 'O')) {
+         "O won"
+      } else if(boardIncomplete(p)) {
+         "Game has not completed"
+      } else {
+         "Draw"
+      }
+  }
+  
+  def main(args: Array[String]): Unit = {
+    val s = Source.fromFile(new java.io.File("input.txt"))
+    val trimmed = s.getLines().map(_.trim()).filter(_.size > 0)
+    val n = trimmed.next.toInt
+    1.to(n).foreach{ c => 
+      val p = readProblem(trimmed)
+      println("Case #" + c + ": " + solveProblem(p))
+    }
+  }
+  
+}

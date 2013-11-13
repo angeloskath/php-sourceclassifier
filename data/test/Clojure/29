@@ -1,0 +1,107 @@
+(ns codejam.core
+  (:require [clojure.java.io :as io]))
+
+(defn load-input
+  "Loads test cases from a file.
+
+  First line of the file is # of test cases.
+  Test cases follow.
+  If provided, fn is called with the first line of the test case.
+    It returns the number of lines in the test case
+  Otherwise, it is just a number giving the length of a test case.
+
+  Returns a seq of test cases (which are seqs of lines)"
+  [filename fn-or-length skip]
+
+  (with-open [input (io/reader filename)]
+    (let [lines (doall (line-seq input))
+          N     (Integer/parseInt (first lines))] ; first line is number of test cases
+      (loop [cur   (second lines)
+             after (next lines)
+             cases (vec (repeat N nil))
+             i     0]
+        (let [n           (if (fn? fn-or-length)
+                            (fn-or-length cur)
+                            fn-or-length)
+              these-lines (take n after)
+              other-lines (drop (+ n skip) after)
+              cases       (assoc cases i these-lines)
+              next-i      (inc i)]
+          (if (< next-i N)
+            (recur (first other-lines)
+                   other-lines
+                   cases
+                   next-i)
+            cases))))))
+
+(defn run-cases [filename cases f]
+  (with-open [output (io/writer filename)]
+    (dorun
+      (for [i (range (count cases))]
+        (.write output (str "Case #" (inc i) ": " (f (nth cases i)) "\n"))))
+    (.write output "\n")))
+
+(ns codejam.2013.qual
+  (:require [codejam.core :as core]))
+
+;; PROBLEM A
+(defn tic-tac-toe-tomek
+  "Solves one test case of the Tic-Tac-Toe-Tomek problem.
+
+  Input: case (seq of 4 seqs of 4 chars each, which are the rows)
+  Output: status message about game state"
+  [board]
+
+  ; sanity checks
+  (assert (= 4 (count board))
+          "Wrong number of rows")
+  (assert (every? (fn [row] (= 4 (count row)))
+                  board)
+          "One of the rows is the wrong length")
+  (assert (every? (fn [row] (every? (fn [c] (contains? #{\T \X \O \.} c))
+                                    row))
+                  board)
+          "Disallowed character")
+
+  ; win conditions
+  (letfn [(won? [player]
+            (let [good #{player \T}]
+              (or ;entire row
+                  (some (fn [row] (every?  (fn [c] (contains? good c))
+                                          row))
+                        board)
+                  ; entire column
+                  (some
+                    (fn [col] (every? (fn [c] (contains? good c))
+                                      (map #(nth % col) board)))
+                    (range (count board)))
+                  ; downward diagonal
+                  (every? (fn [c] (contains? good c))
+                          (map #(nth (nth board %) %)
+                               (range (count board))))
+                  ; upward diagonal
+                  (every? (fn [c] (contains? good c))
+                          (map #(nth (nth board (- (dec (count board)) %)) %)
+                               (range (count board)))))))
+
+          (full? []
+            (every? (fn [row] (every? (fn [c] (not= \. c))
+                                      row))
+                    board))]
+    (cond
+      (won? \X) "X won"
+      (won? \O) "O won"
+      (full?)   "Draw"
+      :else     "Game has not completed")))
+
+
+(defn -main [i]
+  (case (Integer/parseInt i)
+    0 (core/run-cases "resources/2013/qual/A-small-attempt0.out"
+                      (core/load-input "resources/2013/qual/A-small-attempt0.in" 4 1)
+                      tic-tac-toe-tomek)
+    1 (core/run-cases "resources/2013/qual/A-large.out"
+                      (core/load-input "resources/2013/qual/A-large.in" 4 1)
+                      tic-tac-toe-tomek)
+    "invalid index")
+  (println "Done!"))

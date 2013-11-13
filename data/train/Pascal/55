@@ -1,0 +1,141 @@
+var
+  o,t,i,j,k:Longint;
+  a:array [0..4,0..4] of char;
+  f,ow,fw,xw,ew:boolean;
+
+function cmp(p,q:char):boolean;
+begin
+  if (p='.') or (q='.') then
+    exit(false);
+  if (p='T') or (q='T') then
+    exit(true);
+  if p=q then
+    exit(true)
+  else
+    exit(false);
+end;
+
+begin
+  assign(input,'input.txt');
+  assign(output,'output.txt');
+  reset(input);
+  rewrite(output);
+  readln(T);
+  for o:=1 to t do
+    begin
+      write('Case #',o,': ');
+      for i:=1 to 4 do
+        begin
+          for j:=1 to 4 do
+            read(a[i,j]);
+          readln;
+        end;
+      xw:=false;
+      ow:=false;
+      ew:=true;
+      for i:=1 to 4 do
+        for j:= 1 to 4 do
+          if a[i,j]='.' then
+            ew:=false;
+      for i:=1 to 4 do
+        begin
+          f:=true;
+          for j:=1 to 3 do
+            for k:=j+1 to 4 do
+            if not cmp(a[i,j],a[i,k]) then
+              f:=false;
+          if f then
+            if a[i,1]<>'T' then
+              begin
+                if a[i,1]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end
+            else
+              begin
+                if a[i,2]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end;
+        end;
+      for j:=1 to 4 do
+        begin
+          f:=true;
+          for i:=1 to 3 do
+            for k:=i+1 to 4 do
+            if not cmp(a[i,j],a[k,j]) then
+              f:=false;
+          if f then
+            if a[1,j]<>'T' then
+              begin
+                if a[1,j]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end
+            else
+              begin
+                if a[2,j]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end;
+        end;
+      f:=true;
+      for i:=1 to 3 do
+        for j:=i+1 to 4 do
+        if not cmp(a[i,i],a[j,j]) then
+          f:=false;
+      if f then
+            if a[1,1]<>'T' then
+              begin
+                if a[1,1]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end
+            else
+              begin
+                if a[2,2]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end;
+      f:=true;
+      for i:=1 to 3 do
+        for j:=i+1 to 4 do
+        if not cmp(a[i,5-i],a[j,5-j]) then
+          f:=false;
+      if f then
+            if a[1,4]<>'T' then
+              begin
+                if a[1,4]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end
+            else
+              begin
+                if a[2,3]='X' then
+                  xw:=true
+                else
+                  ow:=true;
+              end;
+
+      if ow=true then
+        writeln('O won')
+      else
+        if xw then
+          writeln('X won')
+        else
+          if not ew then
+            writeln('Game has not completed')
+          else
+            writeln('Draw');
+      readln;
+    end;
+  close(Input);
+  close(output);
+end.

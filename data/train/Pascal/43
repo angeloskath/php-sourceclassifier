@@ -1,0 +1,118 @@
+program tictactoetomek;
+
+var
+   T,q,i,j,ti,tj:longint;
+   b:array[1..5] of string;
+   decided:boolean;
+   
+procedure whowon;  {check whether there is a row/column/diag in which only X,O elements present}
+begin
+     if (not decided) then
+     begin
+     
+     for i:=1 to 4 do
+     begin
+          if ((b[i,1]=b[i,2]) and (b[i,2]=b[i,3]) and (b[i,3]=b[i,4]) and (b[i,1]<>'.')) then
+          begin
+               writeln('Case #',q,': ',b[i,1],' won');
+               decided:=true;
+               exit;
+          end;
+    
+          if ((b[1,i]=b[2,i]) and (b[2,i]=b[3,i]) and (b[3,i]=b[4,i]) and (b[1,i]<>'.')) then
+          begin
+               writeln('Case #',q,': ',b[1,i],' won');
+               decided:=true;
+               exit;
+          end;
+     end;
+     if ((b[1,1]=b[2,2]) and (b[2,2]=b[3,3]) and (b[3,3]=b[4,4]) and (b[1,1]<>'.')) then
+     begin
+          writeln('Case #',q,': ',b[1,1],' won');
+          decided:=true;
+          exit;
+     end;
+     if ((b[4,1]=b[3,2]) and (b[3,2]=b[2,3]) and (b[2,3]=b[1,4]) and (b[1,4]<>'.')) then
+     begin
+          writeln('Case #',q,': ',b[4,1],' won');
+          decided:=true;
+          exit;
+     end;
+     
+     end;
+end;
+     
+begin
+     readln(T);
+     for q:=1 to T do
+     begin
+          ti:=5;
+          tj:=5;
+          for i:=1 to 4 do
+          begin
+               readln(b[i]);
+               if (b[i]='') then readln(b[i]);
+               {writeln(length(b[i]));}
+               for j:=1 to 4 do
+               begin
+                    if (b[i,j]='T') then
+                    begin
+                         ti:=i;
+                         tj:=j;
+                    end;
+               end;
+               {for j:=1 to 4 do
+               begin
+                    read(b[i,j]);
+                    if ((b[i,j]<>'X') and (b[i,j]<>'O') and (b[i,j]<>'.') and (b[i,j]<>'T')) then
+                    begin
+                         read(b[i,j]);
+                    end;
+                    if (b[i,j]='T') then
+                    begin
+                         ti:=i;
+                         tj:=j;
+                    end;
+               end;}
+          end;
+          
+          {for i:=1 to 4 do
+          begin
+               for j:=1 to 4 do
+               begin
+                    write(b[i,j]);
+               end;
+               writeln;
+          end;
+          writeln(ti,tj);}
+          
+          decided:=false;
+          
+          b[ti,tj]:='X';
+          
+          whowon;
+          
+          b[ti,tj]:='O';
+          
+          whowon;
+          
+          
+          for i:=1 to 4 do
+          begin
+               for j:=1 to 4 do
+               begin
+                    if ((b[i,j]='.') and (not decided))then
+                    begin
+                         
+                         writeln('Case #',q,': Game has not completed');
+                         decided:=true;
+                    end;
+               end;
+          end;
+          if (not decided) then
+          begin
+               writeln('Case #',q,': Draw');
+          end;
+     end;
+end.
+                    

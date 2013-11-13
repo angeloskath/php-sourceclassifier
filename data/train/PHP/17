@@ -1,0 +1,70 @@
+<?php
+$in = fopen("A-large.in","r");
+$out = fopen("output","w");
+fgets($in);
+$n = 1;
+$r = "";
+while(!feof($in))
+{
+	$case = "";
+	$r = "";
+	for ($i = 0;$i < 4;$i++)
+	{
+		$line = str_replace(array("\n","\r"),"",fgets($in));
+		$chk = check($line);
+		if ($chk != null)
+		{
+			$r = $chk;
+		}
+		$case .= $line;
+	}
+	if(strlen($case) != 0)
+	{
+		for ($i = 0;$i < 4;$i++)
+		{
+			$chk = check($case[$i].$case[$i+4].$case[$i+8].$case[$i+12]);
+			if ($chk != null)
+			{
+				$r = $chk;
+			}
+		}
+		$chk = check($case[0].$case[5].$case[10].$case[15]);
+		if ($chk != null)
+		{
+			$r = $chk;
+		}
+		$chk = check($case[3].$case[6].$case[9].$case[12]);
+		if ($chk != null)
+		{
+			$r = $chk;
+		}
+		if ($r == "")
+		{
+			if (substr_count($case,".") == 0)
+			{
+				$r = "Draw";
+			}
+			else
+			{
+				$r = "Game has not completed";
+			}
+		}
+		fwrite($out,"Case #".$n.": ".$r."\n");
+	}
+	fgets($in);
+	$n++;
+}
+
+function check($s)
+{
+	if (substr_count($s,"X") + substr_count($s,"T") == 4)
+	{
+		return "X won";
+	}
+	if (substr_count($s,"O") + substr_count($s,"T") == 4)
+	{
+		return "O won";
+	}
+	return null;
+}
+?>

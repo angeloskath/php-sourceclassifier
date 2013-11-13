@@ -1,0 +1,72 @@
+<?php
+function solve($map) {
+  for ($j=0; $j<4; ++$j) {
+    $O = 0;
+    $X = 0;
+    for ($k=0; $k<4; ++$k) {
+      if ($map[$j][$k] == 'X' || $map[$j][$k] == 'T')
+        ++$X;
+      if ($map[$j][$k] == 'O' || $map[$j][$k] == 'T')
+        ++$O;
+    }
+    if ($X == 4)
+      return "X won";
+    if ($O == 4)
+      return "O won";
+  }
+  for ($j=0; $j<4; ++$j) {
+    $O = 0;
+    $X = 0;
+    for ($k=0; $k<4; ++$k) {
+      if ($map[$k][$j] == 'X' || $map[$k][$j] == 'T')
+        ++$X;
+      if ($map[$k][$j] == 'O' || $map[$k][$j] == 'T')
+        ++$O;
+    }
+    if ($X == 4)
+      return "X won";
+    if ($O == 4)
+      return "O won";
+  }
+  $O = 0;
+  $X = 0;
+  for ($j=0; $j<4; ++$j) {
+    if ($map[$j][$j] == 'X' || $map[$j][$j] == 'T')
+      ++$X;
+    if ($map[$j][$j] == 'O' || $map[$j][$j] == 'T')
+      ++$O;
+  }
+  if ($X == 4)
+    return "X won";
+  if ($O == 4)
+    return "O won";
+  $O = 0;
+  $X = 0;
+  for ($j=0; $j<4; ++$j) {
+    if ($map[$j][3-$j] == 'X' || $map[$j][3-$j] == 'T')
+      ++$X;
+    if ($map[$j][3-$j] == 'O' || $map[$j][3-$j] == 'T')
+      ++$O;
+  }
+  if ($X == 4)
+    return "X won";
+  if ($O == 4)
+    return "O won";
+  for ($j=0; $j<4; ++$j)
+    if (strpos($map[$j], '.') !== FALSE)
+      return "Game has not completed";
+  return "Draw";
+}
+
+$f = fopen('php://stdin', 'r');
+
+$T = fgets($f);
+
+for ($i=1; $i<=$T; ++$i) {
+  $map = array();
+  for ($j=0; $j<4; ++$j)
+    array_push($map, fgets($f));
+  fgets($f);
+  printf("Case #%d: %s\n", $i, solve($map));
+}
+?>

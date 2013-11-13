@@ -1,0 +1,63 @@
+n = STDIN.gets.to_i
+
+def read_data
+  v=[]
+  4.times{v<<STDIN.gets.strip.split('').map.to_a;}
+  STDIN.gets
+  v
+end
+
+# r: "O" or "X"
+def score(r, y, x, dy, dx)
+  c=0
+  4.times do |i|
+    if $v[y+dy*i][x+dx*i] == r || $v[y+dy*i][x+dx*i] == "T"
+      c+=1
+    else
+      break
+    end
+  end
+  c
+end
+
+def check(r)
+  4.times do |j|
+    c = score(r,0,j,1,0) # tate
+    return true if c==4
+  end
+  
+  4.times do |j|
+    c = score(r,j,0,0,1) # yoko
+    return true if c==4
+  end
+  
+  c = score(r,0,0,1,1) # naname
+  return true if c==4
+  c = score(r,0,3,1,-1) # naname
+  return true if c==4
+  
+  return false
+end
+
+n.times do |i|
+  $v = read_data
+  
+  winO = check("O")
+  winX = check("X")
+  
+  if winO && winX
+    puts"arieneeee"
+  elsif winO
+    puts"Case ##{i+1}: O won"
+  elsif winX
+    puts"Case ##{i+1}: X won"
+  else
+    c=0
+    $v.map{|t|t.map{|s|c+=1 if s=="."}}
+    if c>0
+      puts"Case ##{i+1}: Game has not completed"    
+    else
+      puts"Case ##{i+1}: Draw"
+    end
+  end
+end

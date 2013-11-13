@@ -1,0 +1,29 @@
+import Control.Monad
+import Data.List
+import Control.Monad.Instances
+import Text.Printf
+
+main = do
+   t <- fmap read getLine :: IO Int
+   forM_ [1..t] $ \cn -> do
+      board <- fmap (map (take 4).init) (replicateM 5 getLine)
+      printf "Case #%d: %s\n" cn (solve board)
+
+solve :: [String] -> String
+solve board | row 'X' board || col 'X' board || diag 'X' board = "X won"
+            | row 'O' board || col 'O' board || diag 'O' board = "O won"
+            | or (map (elem '.') board) = "Game has not completed"
+            | otherwise = "Draw"
+
+
+one :: Char -> String -> Bool
+one c xs = and $ map (liftM2 (||) (==c) (=='T')) xs
+
+row :: Char -> [String] -> Bool
+row c board = or (map (one c) board)
+
+col :: Char -> [String] -> Bool
+col c board = row c (transpose board)
+
+diag :: Char -> [String] -> Bool
+diag c board = one c (zipWith (!!) board [0,1,2,3]) || one c (zipWith (!!) board [3,2,1,0])

@@ -1,0 +1,36 @@
+n = ARGF.gets.to_i
+1.upto(n) do |i|
+  print "Case ##{i}: "
+  a = 1.upto(4).map { ARGF.readline.strip }
+  b = 0.upto(3).map { |i| a[0][i] + a[1][i] + a[2][i] + a[3][i] }
+  c0 = a[0][0] + a[1][1] + a[2][2] + a[3][3], a[0][3] + a[1][2] + a[2][1] + a[3][0]
+
+  a += b
+  a += c0
+
+  ARGF.readline unless ARGF.eof?
+  res = false
+  is_complete = true
+  a.each do |ra|
+    if ra =~ /[XT]{4}/ then
+      puts "X won"
+      res = true
+      break
+    elsif ra =~ /[OT]{4}/ then
+      puts "O won"
+      res = true
+      break
+    elsif ra =~ /\./ then
+      is_complete = false
+    end
+  end
+
+  if res then
+    next
+  elsif is_complete
+    puts "Draw"
+  elsif not is_complete
+    puts "Game has not completed"
+  end
+
+end

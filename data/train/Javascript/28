@@ -1,0 +1,62 @@
+var codejam = require("./silib/codejam");
+
+codejam("a:s[4]", function(a){
+	var d1x, d2x, d1o, d2o, hasDot;
+	d1x = d2x = d1o = d2o =0;
+	for(var i=0; i<4; i++){
+		var cx, co, rx, ro;
+		cx = co = rx = ro = 0;
+		for(var j=0; j<4; j++){
+			if(a[i][j] == '.') hasDot = true;
+			if(a[i][j] == 'X')
+				rx++;
+			else if(a[i][j] == 'O')
+				ro++;
+			else if(a[i][j] == 'T')
+				rx++, ro++;
+			
+			if(a[j][i] == 'X')
+				cx++;
+			else if(a[j][i] == 'O')
+				co++;
+			else if(a[j][i] == 'T')
+				cx++, co++;
+			
+			if(i == j){
+				if(a[i][j] == 'X')
+					d1x++;
+				else if(a[i][j] == 'O')
+					d1o++;
+				else if(a[i][j] == 'T')
+					d1x++, d1o++;
+			}else if(i+j == 3){
+				if(a[i][j] == 'X')
+					d2x++;
+				else if(a[i][j] == 'O')
+					d2o++;
+				else if(a[i][j] == 'T')
+					d2x++, d2o++;
+
+			}
+			
+		}
+		if(rx == 4 || cx == 4 ){
+			return this.print("X won");
+		}else if(ro == 4 || co == 4 ){
+			return this.print("O won");
+		}
+	}
+	this.debug([d1x, d2x, d1o, d2o]);
+	this.debug(a);
+	if(d1x == 4 || d2x == 4 ){
+		return this.print("X won");
+	}else if(d1o == 4 || d2o == 4 ){
+		return this.print("O won");
+	}
+	
+	if(hasDot){
+		return this.print("Game has not completed");
+	}else{
+		return this.print("Draw");
+	}
+}, null, false);

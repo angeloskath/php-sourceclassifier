@@ -1,0 +1,127 @@
+var sys = require("sys"),  
+    http = require("http"),  
+    url = require("url"),  
+    path = require("path"),  
+    fs = require("fs");
+    
+var flr = require("./fileLineReader.js");
+
+var winner = function(player, rows) {
+	var sum;
+	
+	// check horizontal
+	for (k=0;k<4;k++) {
+		sum = 0;
+		for (l=0;l<4;l++) {
+			if (rows[k].charAt(l) == player || rows[k].charAt(l) == 'T') {
+				sum += 1;
+			}
+		}
+		if (sum == 4) return true;
+	}
+	
+	// check vertical
+	for (k=0;k<4;k++) {
+		sum = 0;
+		for (l=0;l<4;l++) {
+			if (rows[l].charAt(k) == player || rows[l].charAt(k) == 'T') {
+				sum += 1;
+			}
+		}
+		if (sum == 4) return true;
+	}
+	
+	// check first diagonal
+	sum = 0;
+	for (k=0;k<4;k++) {
+		if (rows[k].charAt(k) == player || rows[k].charAt(k) == 'T') {
+			sum += 1;
+		}
+		if (sum == 4) return true;
+	}
+	
+	// check second diagonal
+	sum = 0;
+	for (k=0;k<4;k++) {
+		if (rows[k].charAt(3-k) == player || rows[k].charAt(3-k) == 'T') {
+			sum += 1;
+		}
+		if (sum == 4) return true;
+	}
+	
+	return false;
+}
+
+var draw = function(rows) {
+	if (rows.join().indexOf('.') == -1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+  
+http.createServer(function(request, response) {  
+    var uri = url.parse(request.url).pathname;  
+    var filename = path.join(process.cwd(), uri);  
+    
+    path.exists(filename, function(exists) {  
+        if(!exists) {  
+            response.writeHeader(404, {"Content-Type": "text/plain"});  
+            response.write("404 Not Found\n");  
+            response.end();  
+            return;  
+        }  
+  
+        fs.readFile(filename, "binary", function(err, file) {  
+            if(err) {  
+                response.writeHeader(500, {"Content-Type": "text/plain"});  
+                response.write(err + "\n");  
+                response.end();  
+                return;  
+            }  
+  			
+  			var In = new flr.FileLineReader(filename, 819200);
+            var Out = new Buffer(81920);
+            
+            response.writeHeader(200);  
+            
+            /* Problem logic goes here */
+            var N = Number(In.nextLine());
+            var rows;
+            
+            
+            
+            for(i=0;i<N;i++) {
+            	
+            	rows = [];
+            	result = '';
+            	// Read the rows
+            	for (j=0;j<4;j++) {
+            		rows[j] = In.nextLine();
+            	}
+            	
+            	blank = In.nextLine();
+            	
+            	if(winner('X', rows)) {
+            		result = "X won";
+            	} else {
+	            	if(winner('O', rows)) {
+	            		result = "O won";
+	            	} else {
+		            	if(draw(rows)) result = "Draw";
+	            	}
+	            }
+            	if (result == '') result = 'Game has not completed';
+            	
+            	response.write("Case #"+(i+1)+": "+result);
+            	response.write("\n");
+            }
+			
+            /* End problem logic */
+
+            response.end();  
+        });  
+    });  
+}).listen(8080);  
+  
+sys.puts("Server running at http://localhost:8080/"); 

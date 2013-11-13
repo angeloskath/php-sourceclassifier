@@ -1,0 +1,235 @@
+VERSION 5.00
+Begin VB.Form Form1 
+   Caption         =   "Form1"
+   ClientHeight    =   3195
+   ClientLeft      =   60
+   ClientTop       =   345
+   ClientWidth     =   9990
+   LinkTopic       =   "Form1"
+   ScaleHeight     =   3195
+   ScaleWidth      =   9990
+   StartUpPosition =   3  'Windows Default
+   Begin VB.TextBox Text2 
+      Height          =   2055
+      Left            =   4380
+      MultiLine       =   -1  'True
+      ScrollBars      =   2  'Vertical
+      TabIndex        =   2
+      Top             =   180
+      Width           =   3735
+   End
+   Begin VB.CommandButton Command1 
+      Caption         =   "Read text from file"
+      Height          =   495
+      Left            =   1440
+      TabIndex        =   1
+      Top             =   2520
+      Width           =   1695
+   End
+   Begin VB.TextBox Text1 
+      Height          =   2055
+      Left            =   360
+      MultiLine       =   -1  'True
+      ScrollBars      =   2  'Vertical
+      TabIndex        =   0
+      Top             =   240
+      Width           =   3735
+   End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Dim test As String
+Dim inp As String
+Dim block(1 To 1001) As String
+Dim i As Integer
+Dim nl As String
+Dim rslt(1 To 4) As String
+Dim mline(1 To 16) As String
+Dim wt As String
+Dim j As Integer
+Dim cnt As Integer
+Dim dots As Integer
+Dim faltu As String
+
+
+
+
+Private Sub Command1_Click()
+    rslt(1) = ": X won"
+    rslt(2) = ": O won"
+    rslt(3) = ": Game has not completed"
+    rslt(4) = ": Draw"
+    cnt = 0
+    dots = 0
+    'On Error GoTo FileError
+    Open "c:\A-small-attempt2.in" For Input As #1
+    Do While Not EOF(1)
+    Line Input #1, nl
+    inp = inp & nl
+    Loop
+    Text1.Text = inp
+    
+    
+    'block
+    test = 10
+    For i = 1 To test
+    block(i) = Mid(inp, 3 + (i - 1) * 16, 16)
+    Next
+    
+    
+    For j = 1 To test
+    
+    'replace T
+    vt = Replace$(block(j), "T", "O")
+    
+    'character
+    For i = 1 To 16
+    mline(i) = Mid$(vt, i, 1)
+    Next
+    
+    'result 0 won
+    If mline(1) = "O" And mline(2) = "O" And mline(3) = "O" And mline(4) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(5) = "O" And mline(6) = "O" And mline(7) = "O" And mline(8) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(9) = "O" And mline(10) = "O" And mline(11) = "O" And mline(12) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(13) = "O" And mline(14) = "O" And mline(15) = "O" And mline(16) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+        
+    ElseIf mline(1) = "O" And mline(5) = "O" And mline(9) = "O" And mline(13) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(2) = "O" And mline(6) = "O" And mline(10) = "O" And mline(14) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(3) = "O" And mline(7) = "O" And mline(11) = "O" And mline(15) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(4) = "O" And mline(8) = "O" And mline(12) = "O" And mline(16) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    
+    ElseIf mline(1) = "O" And mline(6) = "O" And mline(11) = "O" And mline(16) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    ElseIf mline(4) = "O" And mline(7) = "O" And mline(10) = "O" And mline(13) = "O" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(2) & vbNewLine
+    cnt = 1
+    End If
+    
+    
+        'replace T
+    vt = Replace$(block(j), "T", "X")
+    
+    'character
+    For i = 1 To 16
+    mline(i) = Mid$(vt, i, 1)
+    Next
+    
+    'result X won
+        If mline(1) = "X" And mline(2) = "X" And mline(3) = "X" And mline(4) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(5) = "X" And mline(6) = "X" And mline(7) = "X" And mline(8) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(9) = "X" And mline(10) = "X" And mline(11) = "X" And mline(12) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(13) = "X" And mline(14) = "X" And mline(15) = "X" And mline(16) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+        
+    ElseIf mline(1) = "X" And mline(5) = "X" And mline(9) = "X" And mline(13) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(2) = "X" And mline(6) = "X" And mline(10) = "X" And mline(14) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(3) = "X" And mline(7) = "X" And mline(11) = "X" And mline(15) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(4) = "X" And mline(8) = "X" And mline(12) = "X" And mline(16) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    
+    ElseIf mline(1) = "X" And mline(6) = "X" And mline(11) = "X" And mline(16) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    ElseIf mline(4) = "X" And mline(7) = "X" And mline(10) = "X" And mline(13) = "X" Then
+    Text2.Text = Text2.Text & "Case #" & j & rslt(1) & vbNewLine
+    cnt = 1
+    End If
+    
+    'result not complete
+    For i = 1 To 16
+    If mline(i) = "." Then
+    dots = dots + 1
+    End If
+    Next
+    
+    If cnt = 0 And dots > 0 Then
+      Text2.Text = Text2.Text & "Case #" & j & rslt(3) & vbNewLine
+      cnt = 1
+      End If
+    
+    'draw
+    If cnt = 0 Then
+      Text2.Text = Text2.Text & "Case #" & j & rslt(4) & vbNewLine
+      cnt = 1
+      End If
+    
+    dots = 0
+    cnt = 0
+    Next
+    'write output
+    Open "c:\solution.txt" For Output As #2
+    Print #2, Text2.Text
+    Close #2
+End Sub
+
+Type=Exe
+Form=fileread.frm
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\Windows\SysWOW64\stdole2.tlb#OLE Automation
+IconForm="Form1"
+Startup="Form1"
+Command32=""
+Name="Project1"
+HelpContextID="0"
+CompatibleMode="0"
+MajorVer=1
+MinorVer=0
+RevisionVer=0
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionCompanyName="SteveCo"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+Form1 = 22, 22, 601, 604, Z, 610, 103, 1015, 449, C
+hello
+[SCC]
+SCC=This is a source code control file
+[FILEREAD.VBP]
+SCC_Project_Name=this project is not under source code control
+SCC_Aux_Path=<This is an empty string for the mssccprj.scc file>

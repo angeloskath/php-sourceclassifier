@@ -1,0 +1,120 @@
+function [ output_args ] = TicTacToe( input_args )
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+
+abre = fopen('A-large.in');
+ncases=fscanf(abre,'%d');
+allData=zeros(4,4);
+a=fscanf(abre,'%c');
+pos=1;
+status=zeros(ncases,1);
+for i=1:ncases
+    for j=1:4
+        for k=1:4
+            notFound=1;
+            while notFound
+                notFound=0;
+                comp=a(1,pos)
+                if comp=='.'
+                    allData(j,k)=0;
+                else
+                    if comp=='T'
+                        allData(j,k)=1;
+                    else
+                        if comp=='O'
+                            allData(j,k)=3;
+                        else
+                             if comp=='X'
+                                allData(j,k)=2;
+                             else
+                                 notFound=1;
+                             end
+                        end
+                    end
+                end
+                pos=pos+1;
+            end
+  
+        end
+    end
+    %checa qual o status
+    onGoing=0;
+    for j=1:4
+        produto=prod(allData(:,j));
+       if produto==27 || produto==81
+           status(i)=1;
+       else
+           if produto==8 || produto==16
+                status(i)=2;
+           else
+               if produto==0
+                  onGoing=1;
+               end
+           end
+       end
+        produto=prod(allData(j,:));
+       if produto==27 || produto==81
+           status(i)=1;
+       else
+           if produto==8 || produto==16
+                status(i)=2;
+           else
+               if produto==0
+                  onGoing=1;
+               end
+           end
+       end
+    end
+    produto=allData(1,1)*allData(2,2)*allData(3,3)*allData(4,4);
+     if produto==27 || produto==81
+           status(i)=1;
+       else
+           if produto==8 || produto==16
+                status(i)=2;
+           else
+               if produto==0
+                  onGoing=1;
+               end
+           end
+     end
+       produto=allData(1,4)*allData(2,3)*allData(3,2)*allData(4,1);
+     if produto==27 || produto==81
+           status(i)=1;
+       else
+           if produto==8 || produto==16
+                status(i)=2;
+           else
+               if produto==0
+                  onGoing=1;
+               end
+           end
+     end
+    if status(i)==0 && onGoing==1
+        status(i)=3;
+    end
+    
+end
+fclose(abre);
+%create output
+fileID = fopen('outputLarge.in','wt');
+for caso=1:ncases
+    if status(caso)==0
+        fprintf(fileID,'Case #%d: Draw',caso);
+    else
+        if status(caso)==1
+            fprintf(fileID,'Case #%d: O won',caso);
+        else
+            if status(caso)==2
+                fprintf(fileID,'Case #%d: X won',caso);
+            else
+                fprintf(fileID,'Case #%d: Game has not completed',caso);
+            end
+        end
+    end
+    if caso~-ncases
+        fprintf(fileID,'\n');
+    end
+end
+fclose(fileID);
+end
+

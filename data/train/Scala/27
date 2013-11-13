@@ -1,0 +1,61 @@
+package exercise1
+
+import io.Source
+import java.io.{PrintStream, BufferedReader}
+import collection.mutable.ArrayBuffer
+
+object Exercise1 {
+
+  def main(args: Array[String]) {
+
+    System.setOut(new PrintStream("output.out"))
+    val reader = Source.fromFile("input.in").bufferedReader()
+    val testCases = 1 to reader.readLine().toInt
+    testCases.foreach(testCase => {
+      val res = solveTestCase(reader)
+      println("Case #%d: %s".format(testCase, res))
+    })
+  }
+
+  def solveTestCase(reader: BufferedReader): String = {
+    val completed = true
+    val map = (0 until 4).map(i => reader.readLine().toCharArray).toArray
+    reader.readLine()
+    var Result = "Draw"
+
+    def getWinner(arr: Array[Char]): Option[String] = {
+      if (arr.forall(c => c == 'T' || c == 'X')) {
+        Option("X won")
+      } else {
+        if (arr.forall(c => c == 'T' || c == 'O')) {
+          Option("O won")
+        } else {
+          None
+        }
+      }
+    }
+
+    val diagonal1 = ArrayBuffer[Char]()
+    val diagonal2 = ArrayBuffer[Char]()
+    val rowsAndColumns = (0 until 4).map(i => {
+      diagonal1 += map(i)(i)
+      diagonal2 += map(i)(3 - i)
+      val column = map.map(row => row(i))
+      Array(map(i), column)
+    }).flatten
+
+    val diagonals = Array(diagonal1.toArray, diagonal2.toArray)
+    val maybeWinner = (rowsAndColumns ++ diagonals).map(seq => getWinner(seq)).filter(winner => winner != None)
+    if (maybeWinner.size > 0) {
+      maybeWinner.head.get
+    } else {
+      if (map.exists(row => row.exists(c => c == '.'))) {
+        "Game has not completed"
+      } else {
+        "Draw"
+      }
+    }
+  }
+
+
+}

@@ -1,0 +1,62 @@
+fidi=fopen('A-large.in','r');
+fido=fopen('A-large.out','w');
+
+T = str2num(fgetl(fidi));
+
+XPRED = [unique(perms('XXXT'), 'rows'); 'XXXX'];
+YPRED = [unique(perms('OOOT'), 'rows'); 'OOOO'];
+EMPTY = '....';
+
+for r = 1:T
+	board = [fgetl(fidi); fgetl(fidi); fgetl(fidi); fgetl(fidi)];
+
+	xrow = 0; xcol = 0; yrow = 0; ycol = 0; empty = 0;
+
+	for i = 1:4
+		xrow = size(strmatch(board(i,:), XPRED, 'exact'), 1);
+		xcol = size(strmatch(board(:,i), XPRED, 'exact'), 1);
+
+		if ((xrow > 0) || (xcol > 0)), break; end
+
+		yrow = size(strmatch(board(i,:), YPRED, 'exact'), 1);
+		ycol = size(strmatch(board(:,i), YPRED, 'exact'), 1);
+
+		if ((yrow > 0) || (ycol > 0)), break; end
+
+		empty = empty + sum(ismember(EMPTY, board(i,:)));
+	end
+
+	
+
+	xdiag = size(strmatch(board(1:size(board,1)+1:end), XPRED, 'exact'), 1);
+	ydiag = size(strmatch(board(1:size(board,1)+1:end), YPRED, 'exact'), 1);
+
+	board = flipud(board);
+	ydiagr = size(strmatch(board(1:size(board,1)+1:end), YPRED, 'exact'), 1);
+	xdiagr = size(strmatch(board(1:size(board,1)+1:end), XPRED, 'exact'), 1);
+
+	if ((xrow > 0) || (xcol > 0) || (xdiag > 0)  || (xdiagr > 0))
+		fprintf(fido,'Case #%i: X won\n', r);
+	elseif ((yrow > 0) || (ycol > 0) || (ydiag > 0) || (ydiagr > 0))
+		fprintf(fido,'Case #%i: O won\n', r);
+	elseif (empty == 0)
+		fprintf(fido,'Case #%i: Draw\n', r);
+	else
+		fprintf(fido,'Case #%i: Game has not completed\n', r);
+	end
+
+	fgetl(fidi);
+end
+
+fclose(fidi); 
+fclose(fido);
+
+
+
+
+
+
+
+
+
+

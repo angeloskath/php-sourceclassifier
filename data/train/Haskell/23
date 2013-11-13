@@ -1,0 +1,152 @@
+module P2013QA.Problem where
+
+import Text.ParserCombinators.Parsec
+import Utils
+
+import Data.Array.IArray
+import qualified Data.Map as Map
+import Data.Maybe
+
+inputParser :: Parser InputType
+problemSolver :: InputType -> OutputType
+outputWriter :: OutputType -> String
+
+
+type InputType = [Case]
+type OutputType = [String]
+
+type Case = Array (Int,Int) Char
+
+inputParser = do
+        ncase <- pLine pInt;
+        pNLines ncase (do
+                rows <- pNLines 4 pString ;
+                skipMany $ char '\n'
+                return $ listArray ((0,0),(3,3)) $ concat rows)
+         
+problemSolver = map solve
+
+outputWriter = caseWriter id
+
+wonComb :: Char -> Array (Int,Int) Char -> [(Int,Int)] -> Bool
+wonComb ch arr = all (\i -> arr ! i == 'T' || arr ! i == ch)
+
+hasWon :: Char -> Array (Int,Int) Char -> Bool
+hasWon ch arr = any (wonComb ch arr) combList
+
+solve :: Case -> String
+solve c
+        | hasWon 'X' c = "X won"
+        | hasWon 'O' c = "O won"
+        | notFull c = "Game has not completed"
+        | otherwise = "Draw"
+
+notFull :: Case -> Bool
+notFull = elem '.' . elems
+
+combLine :: [[(Int,Int)]]
+combLine = [ [(0,i),(1,i),(2,i),(3,i)] | i <- [0..3] ]
+
+combCol :: [[(Int,Int)]]
+combCol = [ [(i,0),(i,1),(i,2),(i,3)] | i <- [0..3] ]
+
+combDiag :: [[(Int,Int)]]
+combDiag = [ [(0,3),(1,2),(2,1),(3,0)] , [(0,0),(1,1),(2,2),(3,3)] ]
+
+combList :: [[(Int,Int)]]
+combList = combLine ++ combCol ++ combDiag
+module Utils where
+
+import Text.ParserCombinators.Parsec
+import Data.Array.IArray
+
+pInteger :: Parser Integer
+pInteger = do
+                ds <- many1 digit ;
+                return (read ds)
+        <?> "integer"
+              
+pInt :: Parser Int
+pInt = do
+                ds <- many1 digit ;
+                return (read ds)
+        <?> "int"
+        
+pWord :: Parser String
+pWord = many1 letter
+        <?> "word"
+              
+pString :: Parser String
+pString = many1 (noneOf "\n")
+        <?> "string"  
+
+pLine :: Parser a -> Parser a
+pLine p = do
+                line <- p ;
+                _ <- many (char '\n') ;
+                return line ;
+        <?> "line"
+
+pNLines :: Int -> Parser a -> Parser [a]
+pNLines n p = count n (pLine p)
+        <?> "n lines"
+        
+pList :: String -> Parser a -> Parser [a]
+pList sep p = many (do
+                result <- p ;
+                skipMany (oneOf sep) ;
+                return result)
+        <?> "space list"
+        
+pPair :: String -> Parser a -> Parser b -> Parser (a,b)
+pPair sep pa pb = do
+                first <- pa ;
+                skipMany (oneOf sep) ;
+                second <- pb ;
+                return (first, second)
+        <?> "pair"
+        
+pTriplet :: String -> Parser a -> Parser b -> Parser c -> Parser (a,b,c)
+pTriplet sep pa pb pc = do
+                (a, (b, c)) <- pPair sep pa (pPair sep pb pc) ;
+                return (a,b,c)
+        <?> "triplet"
+        
+caseWriter :: (a -> String) -> [a] -> String
+caseWriter shower l = concatMap (\x -> "Case #" ++ show (fst x) ++ ": " ++ shower (snd x) ++ "\n") $ zip [(1 :: Integer)..] l
+
+showMap :: Array (Int,Int) String -> String
+showMap bmap = concat [ '\n' : concat [ bmap ! (j,i) ++ " " | i <- [0..(snd $ snd $ bounds bmap)] ] | j <- [0..(fst $ snd $ bounds bmap)] ] 
+
+countBool :: [Bool] -> Int
+countBool = foldr (\x -> if x then (+1) else (+0)) 0
+module Main where
+
+import Text.ParserCombinators.Parsec
+import Control.Monad
+
+import               P2013QA.Problem
+problemInput =  "src/P2013QA/A-large.in"
+problemOutput = "src/P2013QA/output.txt"
+verbose = True
+
+problemInput :: String
+problemOutput :: String
+verbose :: Bool
+
+main::IO()
+main = do
+        putStr "### Parsing input...\n"
+        file <- readFile problemInput
+        case parse inputParser "" file of
+                Left err        -> do
+                                        putStr "### Parse error at " ;
+                                        print err
+                Right input     -> do
+                                        when verbose $ print input
+                                        putStr "### Solving...\n"
+                                        when verbose $ print output
+                                        putStr "### Solved.\n"
+                                        writeFile problemOutput woutput
+                                   where output = problemSolver input
+                                         woutput = outputWriter output

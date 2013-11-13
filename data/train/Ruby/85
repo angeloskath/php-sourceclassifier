@@ -1,0 +1,49 @@
+
+w = File.open('A-large.out', 'w')
+
+File.open('A-large.in', 'r') do |read|  
+	N =  read.gets.to_i
+	1.upto N do |i|
+		board = []
+		board << read.gets.chomp.split("").map{|c| c.ord}
+		board << read.gets.chomp.split("").map{|c| c.ord}
+		board << read.gets.chomp.split("").map{|c| c.ord}
+		board << read.gets.chomp.split("").map{|c| c.ord}
+		read.gets
+
+		if board.select{|r| [348, 352].index(r.inject{|sum,x| sum + x })}.first
+			w.puts "Case ##{i}: X won"
+		elsif board.select{|r| [316, 321].index(r.inject{|sum,x| sum + x })}.first
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board.map{|r| r[0]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board.map{|r| r[0]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board.map{|r| r[1]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board.map{|r| r[1]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board.map{|r| r[2]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board.map{|r| r[2]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board.map{|r| r[3]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board.map{|r| r[3]}.inject{|sum,x| sum + x })
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board[0][0]+board[1][1]+board[2][2]+board[3][3])
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board[0][0]+board[1][1]+board[2][2]+board[3][3])
+			w.puts "Case ##{i}: O won"
+		elsif [348, 352].index(board[0][3]+board[1][2]+board[2][1]+board[3][0])
+			w.puts "Case ##{i}: X won"
+		elsif [316, 321].index(board[0][3]+board[1][2]+board[2][1]+board[3][0])
+			w.puts "Case ##{i}: O won"
+		elsif board.select{|r| r.index(46)}.first
+			w.puts "Case ##{i}: Game has not completed"
+		else
+			w.puts "Case ##{i}: Draw"
+		end
+	end
+end  
+w.close

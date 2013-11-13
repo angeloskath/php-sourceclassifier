@@ -1,0 +1,52 @@
+object TicTacToe {
+  object Piece {
+    val pieces = List(X, O, T, `.`).map(p => (p.symbol, p)).toMap
+    def unapply(s: Char) = pieces.get(s) 
+  }
+  sealed trait Piece {
+    def symbol: Char = toString.charAt(0)
+  }
+  case object X extends Piece
+  case object O extends Piece
+  case object T extends Piece
+  case object `.` extends Piece
+
+  sealed trait Status
+  case class Won(player: Piece) extends Status
+  case object Draw extends Status
+  case object InProgress extends Status
+
+  type Board = Seq[Piece]
+  type Row = Seq[Piece]
+
+  def main(args: Array[String]) {
+    val input = io.Source.fromFile("src/main/resources/A-large.in")
+    val lines = input.getLines.toStream
+    val n = lines.head.toInt
+    lines.tail.grouped(5).take(n).map(_.mkString).map(parse).map(play).zipWithIndex.map {
+      case (s, i) => "Case #" + (i+1)  + ": " + (s match {
+          case Won(p) => p + " won"
+          case Draw => "Draw"
+          case InProgress => "Game has not completed"
+      })
+    }.foreach(println)
+  }
+
+  def parse(s: String): Board = s.flatMap(Piece.unapply) 
+
+  def play(board: Board): Status = {
+    List(checkVertical _, checkHorizontal _, checkDiagonal _).foldRight(None: Option[Status]) {
+       case (check, status) => status.orElse(check(board))
+    }.getOrElse(defaultGame(board))
+  }
+
+  def checkVertical(board: Board) = board.grouped(4).map(isWin).flatten.toList.headOption
+  def checkHorizontal(board: Board) = checkVertical(board.grouped(4).toList.transpose.flatten)
+  def checkDiagonal(board: Board) = checkVertical(List(board(0), board(5), board(10), board(15))).orElse(checkVertical(List(board(3), board(6), board(9), board(12))))
+
+  def defaultGame(board: Board) = if (!board.contains(`.`)) Draw else InProgress 
+  def isWin(row: Row): Option[Status] = (row.toSet - T).toList match {
+    case List(p) if p != `.` => Some(Won(p))
+    case _ => None
+  }
+}

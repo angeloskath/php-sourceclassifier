@@ -1,0 +1,65 @@
+package codejam
+
+import scala.io.Source
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: a203673
+ * Date: 13/04/13
+ * Time: 12:38
+ */
+object TicTacToe extends App {
+
+  sealed trait Player {
+    def name: String
+    def eqOrT(other: Player) = equals(other) || equals(T)
+  }
+  case object X extends Player {val name = "X"}
+  case object O extends Player {val name = "O"}
+  case object T extends Player {val name = "T"}
+
+  type Board = IndexedSeq[IndexedSeq[Option[Player]]]
+
+  object BoardParser {
+    def parse (levelVector: Traversable[String]): Board = {
+      val t = for (line <- levelVector) yield
+        for (c <- line) yield c match {
+          case 'X' => Some(X)
+          case 'O' => Some(O)
+          case 'T' => Some(T)
+          case '.' => None
+        }
+      t.toIndexedSeq
+    }
+  }
+
+  //def cols(b: Board) = b(0).indices map { c => b(_)(c) }
+  def diags(b: Board) = Seq(
+    b.indices.map {x:Int => b(x)(x)},
+    b.indices.map {x:Int => b(x)(b.size-x-1)} )
+
+  def red(p1 : Option[Player], p2 : Option[Player]) = (p1,p2) match {
+    case (Some(p), Some(T)) => Some(p)
+    case (Some(T), Some(p)) => Some(p)
+    case (Some(p), Some(q)) if (p == q) => Some(p)
+    case _=> None
+  }
+
+  def hasWinner(elems : Traversable[Option[Player]]) = elems.foldLeft(Some(T): Option[Player])(red)
+
+  def winner(board: Board) = Seq( board, board.transpose, diags(board)).view.flatten.flatMap(hasWinner).headOption
+
+  def isCompleted(board: Board) = board.flatten.forall(_.isDefined)
+
+  for {
+    (boardStr,idx) <- Source.stdin.getLines().drop(1).grouped(5).zipWithIndex
+    i = idx +1
+    board = BoardParser.parse(boardStr.take(4))
+  } winner(board) match {
+    case Some(p) => println(s"Case #$i: ${p.name} won")
+    case None if(isCompleted(board)) => println(s"Case #$i: Draw")
+    case _ => println(s"Case #$i: Game has not completed")
+  }
+
+
+}

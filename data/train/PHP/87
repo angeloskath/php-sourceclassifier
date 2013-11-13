@@ -1,0 +1,104 @@
+<?php
+
+namespace Google\CodeJam;
+
+class TTTTSolver
+{
+    public function solve()
+    {
+        $fInput = fopen("A-small-attempt0.in", "r");
+        $fOutput = fopen("output.txt", "w");
+
+        $caseCount = intval(fgets($fInput));
+
+        for ($i = 0; $i < $caseCount; ++$i) {
+
+            $scores = array_fill_keys($this->getPlayers(), 0);
+
+            $board = '';
+
+            while ($line = trim(fgets($fInput))) {
+                if (strlen($line) === 0) {
+                    break;
+                }
+                $board .= $line;
+            }
+
+            foreach ($this->getPlayers() as $player) {
+                foreach ($this->getWinningConditions() as $playerCond) {
+
+                    $playerCond = str_replace('?', $player, $playerCond);
+
+                    // Check the row
+                    if (in_array(strpos($board, $playerCond), array(0, 4, 8, 12), true)) {
+                        $scores[$player]++;
+                    }
+
+                    // check the columns
+                    for ($c = 0; $c < 4; ++$c) {
+                        $columnStr = $board[$c] . $board[$c + 4] . $board[$c + 8] . $board[$c + 12];
+                        if ($columnStr === $playerCond) {
+                            $scores[$player]++;
+                        }
+                    }
+
+                    // check diagonals
+                    $diag1 = $board[0] . $board[5] . $board[10] . $board[15];
+                    if ($diag1 === $playerCond) {
+                        $scores[$player]++;
+                    }
+
+                    $diag2 = $board[3] . $board[6] . $board[9] . $board[12];
+                    if ($diag2 === $playerCond) {
+                        $scores[$player]++;
+                    }
+                }
+            }
+
+            $outStr = 'Case #' . ($i+1) . ': ';
+
+            $playerWon = false;
+
+            // Check if a player has won
+            foreach ($this->getPlayers() as $player) {
+                if ($scores[$player] !== 0) {
+                    $playerWon = true;
+                    $outStr .= "$player won";
+                    break;
+                }
+            }
+
+            if (!$playerWon && substr_count($board, '.') === 0) {
+                $outStr .= "Draw";
+            } else if (!$playerWon && substr_count($board, '.') !== 0) {
+                $outStr .= "Game has not completed";
+            }
+
+            $outStr .= PHP_EOL;
+
+            fwrite($fOutput, $outStr);
+        }
+
+        fclose($fOutput);
+        fclose($fInput);
+    }
+
+    protected function getPlayers()
+    {
+        return ['X', 'O'];
+    }
+
+    protected function getWinningConditions()
+    {
+        return [
+            '????',
+            'T???',
+            '?T??',
+            '??T?',
+            '???T',
+        ];
+    }
+}
+
+$solver = new TTTTSolver();
+$solver->solve();

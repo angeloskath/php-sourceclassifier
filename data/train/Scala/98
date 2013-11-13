@@ -1,0 +1,46 @@
+package a
+
+import scala.io.Source
+import java.io.PrintWriter
+import java.io.File
+
+object TicTacToc extends App {
+  val lns = Source.fromFile("src/a/A-small-attempt1.in").getLines
+  val out = new PrintWriter(new File("src/a/A-small-solve.out"))
+
+  def checkX(game: List[String]): Boolean = {
+    val cols = game.transpose map (_.mkString)
+    val daig = (for (i <- 0 until 4; j <- 0 until 4 if i == j) yield game(i)(j)).mkString
+    val idaig = (for (i <- 0 until 4; j <- 0 until 4 if i + j == 3) yield game(i)(j)).mkString
+    game.exists(row => row == "XXXX" || row == "XXXT" || row == "TXXX") ||
+      cols.exists(row => row == "XXXX" || row == "XXXT" || row == "TXXX") ||
+      (daig == "XXXX" || daig == "TXXX" || daig == "XXXT") ||
+      (idaig == "XXXX" || idaig == "TXXX" || idaig == "XXXT")
+  }
+  def checkO(game: List[String]): Boolean = {
+    val cols = game.transpose map (_.mkString)
+    val daig = (for (i <- 0 until 4; j <- 0 until 4 if i == j) yield game(i)(j)).mkString
+    val idaig = (for (i <- 0 until 4; j <- 0 until 4 if i + j == 3) yield game(i)(j)).mkString
+    game.exists(row => row == "OOOO" || row == "OOOT" || row == "TOOO") ||
+      cols.exists(row => row == "OOOO" || row == "OOOT" || row == "TOOO") ||
+      (daig == "OOOO" || daig == "OOOT" || daig == "TOOO") ||
+      (idaig == "OOOO" || idaig == "OOOT" || idaig == "TOOO")
+  }
+
+  val t = lns.next.toInt
+  for (i <- 1 to t) {
+    val game = (lns.take(4).toList)
+    if (!lns.isEmpty) lns.next
+    if (checkO(game))
+      out.println("Case #" + i + ": O won")
+    else if (checkX(game))
+      out.println("Case #" + i + ": X won")
+    else if (game.exists(_.contains(".")))
+      out.println("Case #" + i + ": Game has not completed")
+    else if (!game.exists(_.contains(".")))
+      out.println("Case #" + i + ": Draw")
+
+  }
+  out.close
+
+}

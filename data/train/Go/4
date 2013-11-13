@@ -1,0 +1,167 @@
+// compiled using go version devel +d58997478ec6 (a.k.a. go1.1beta2)
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+)
+
+type Token int
+
+const (
+	Empty Token = iota
+	X
+	O
+	T
+)
+
+type Score int
+
+const (
+	NotCompleted Score = iota
+	XWon
+	OWon
+	Draw
+)
+
+func (s Score) String() string {
+	switch s {
+	case XWon:
+		return "X won"
+	case OWon:
+		return "O won"
+	case Draw:
+		return "Draw"
+	default:
+		return "Game has not completed"
+	}
+}
+
+func GetToken(x byte) Token {
+	switch x {
+	case 'X':
+		return X
+	case 'O':
+		return O
+	case 'T':
+		return T
+	default:
+		return Empty
+	}
+}
+
+func (t Token) String() string {
+	switch t {
+	case X:
+		return "X"
+	case O:
+		return "O"
+	case T:
+		return "T"
+	default:
+		return "."
+	}
+}
+
+type Field [4][4]Token
+
+func scoreline(a, b, c, d Token) Token {
+	switch {
+	case a == b && b == c && c == d:
+		return a
+	case a == T && b == c && c == d:
+		return b
+	case b == T && a == c && c == d:
+		return a
+	case c == T && a == b && b == d:
+		return a
+	case d == T && a == b && b == c:
+		return a
+	default:
+		return Empty
+	}
+}
+
+// Returns Empty for no score,
+func (f Field) Score() Score {
+	for x := range f {
+		s := scoreline(f[x][0], f[x][1], f[x][2], f[x][3])
+		switch s {
+		case X:
+			return XWon
+		case O:
+			return OWon
+		}
+		s = scoreline(f[0][x], f[1][x], f[2][x], f[3][x])
+		switch s {
+		case X:
+			return XWon
+		case O:
+			return OWon
+		}
+	}
+	s := scoreline(f[0][0], f[1][1], f[2][2], f[3][3])
+	switch s {
+	case X:
+		return XWon
+	case O:
+		return OWon
+	}
+	s = scoreline(f[0][3], f[1][2], f[2][1], f[3][0])
+	switch s {
+	case X:
+		return XWon
+	case O:
+		return OWon
+	}
+
+	for _, line := range f {
+		for _, x := range line {
+			if x == Empty{
+				return NotCompleted
+			}
+		}
+	}
+
+	return Draw
+}
+
+func main() {
+	in := bufio.NewScanner(os.Stdin)
+	if !in.Scan() {
+		log.Fatal("Couldn't scan from standard input!")
+	}
+	c, err := strconv.ParseUint(in.Text(), 10, 0)
+	if err != nil {
+		log.Fatal("Couldn't read first line as integer: ", err)
+	}
+
+	cases := int(c)
+
+	for caseNo := 1; caseNo <= cases; caseNo += 1 {
+		field := Field{}
+		for line := range field {
+			in.Scan()
+			if err = in.Err(); err != nil {
+				log.Fatal("Error while scanning input: ", err)
+			}
+
+			it := in.Text()
+			if len(it) < 4 {
+				log.Fatal("Input too short.")
+			}
+			field[line] = [4]Token{
+				GetToken(it[0]),
+				GetToken(it[1]),
+				GetToken(it[2]),
+				GetToken(it[3]),
+			}
+		}
+		in.Scan() // discard empty line
+
+		fmt.Printf("Case #%d: %s\n", caseNo, field.Score())
+	}
+}

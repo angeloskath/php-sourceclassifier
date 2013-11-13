@@ -1,0 +1,78 @@
+//https://code.google.com/codejam/contest/2270488/dashboard
+package main
+
+import (
+    "fmt"
+)
+
+var x = byte('X')
+var t = byte('T')
+var o = byte('O')
+
+func solve(test int, board [4]string){
+    if won(board, x){
+        fmt.Printf("Case #%d: X won\n", test)
+    } else if won(board, o){
+        fmt.Printf("Case #%d: O won\n", test)
+    } else if draw(board){
+        fmt.Printf("Case #%d: Draw\n", test)
+    } else {
+        fmt.Printf("Case #%d: Game has not completed\n", test)
+    }
+}
+
+func won(board [4]string, player byte) bool{
+    posDiagonal := true
+    negDiagonal := true
+    for i := 0; i < 4; i++{
+        horizontal := true
+        vertical := true
+        for j := 0; j < 4; j++{
+            if board[i][j] != player && board[i][j] != t{
+                horizontal = false
+            }
+            if board[j][i] != player && board[j][i] != t{
+                vertical = false
+            }
+        }
+        if horizontal || vertical {
+            return true
+        }
+        if board[i][i] != player && board[i][i] != t{
+            posDiagonal = false
+        }
+        if board[i][3-i] != player && board[i][3-i] != t{
+            negDiagonal = false
+        }
+    }
+    if posDiagonal || negDiagonal {
+        return true
+    }
+    return false
+}
+
+func draw(board [4]string) bool{
+    for _, row := range board {
+        for _, cell := range row {
+            if cell == '.'{
+                return false
+            }
+        }
+    }
+    return true
+}
+
+func main(){
+    var t int
+    fmt.Scan(&t)
+    for test := 1; test <= t; test++{
+        var board [4]string
+        for i := 0; i < 4; i++{
+            fmt.Scan(&board[i])
+        }
+        solve(test, board)
+    }
+}
+
+
+

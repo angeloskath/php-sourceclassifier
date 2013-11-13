@@ -1,0 +1,148 @@
+use warnings;
+use strict;
+use Data::Dumper;
+
+my $filename = shift;
+
+my $fh;
+
+open ($fh, $filename) or die "Unmable to open file: $filename\n";
+
+my $testcases = <$fh>;
+chomp($testcases);
+
+
+
+foreach my $case (1..$testcases) {
+	print "Case #$case: ";
+
+	my @grid;
+
+	my $winstate = "Draw";
+
+	#Read in grid
+	for(1..4) {
+		my @line = split //, <$fh>;
+		pop @line;
+#		print "------\n";
+#		print join '-',@line;
+#		print "------\n";
+		push @grid,[@line];
+	}
+	#read newline
+	<$fh>;
+
+#	print Dumper(\@grid);
+
+	#check for row wins
+	#######################################
+	for my $row (0..3) {
+		#turn row into string
+		my $line;
+		for my $col (0..3) {
+			$line .= $grid[$row][$col];
+		}
+
+		my $xline = $line;
+		$xline =~ s/T/X/;
+		my $oline = $line;
+		$oline =~ s/T/O/;
+
+		if ($line =~ /\./) {
+			$winstate = 'Game has not completed';
+			next;
+		}
+
+		if ($xline =~ /XXXX/) {
+			$winstate = 'X won';
+			last;
+		}
+		if ($oline =~ /OOOO/) {
+			$winstate = 'O won';
+			last;
+		}
+	}
+
+	if ($winstate =~ /won/) {
+		print $winstate . "\n";
+		next;
+	}
+
+
+
+	#check for row wins
+	#######################################
+	for my $col (0..3) {
+		#turn column into string
+		my $line;
+		for my $row (0..3) {
+			$line .= $grid[$row][$col];
+		}
+
+		my $xline = $line;
+		$xline =~ s/T/X/;
+		my $oline = $line;
+		$oline =~ s/T/O/;
+
+		if ($line =~ /\./) {
+			$winstate = 'Game has not completed';
+			next;
+		}
+
+		if ($xline =~ /XXXX/) {
+			$winstate = 'X won';
+			last;
+		}
+		if ($oline =~ /OOOO/) {
+			$winstate = 'O won';
+			last;
+		}
+	}
+
+	if ($winstate =~ /won/) {
+		print $winstate . "\n";
+		next;
+	}
+
+	#check for diagonal wins
+	#######################################
+	for (0..1) {
+		#turn diagonal into string
+		my $line;
+
+		if($_ == 0) {
+			$line = $grid[0][0] . $grid[1][1] . $grid[2][2] . $grid[3][3];
+		}
+		else {
+			$line = $grid[0][3] . $grid[1][2] . $grid[2][1] . $grid[3][0];
+		}
+
+		my $xline = $line;
+		$xline =~ s/T/X/;
+		my $oline = $line;
+		$oline =~ s/T/O/;
+
+		if ($line =~ /\./) {
+			$winstate = 'Game has not completed';
+			next;
+		}
+
+		if ($xline =~ /XXXX/) {
+			$winstate = 'X won';
+			last;
+		}
+		if ($oline =~ /OOOO/) {
+			$winstate = 'O won';
+			last;
+		}
+	}
+
+	if ($winstate =~ /won/) {
+		print $winstate . "\n";
+		next;
+	}
+
+	#check columns
+	print $winstate . "\n";
+
+}

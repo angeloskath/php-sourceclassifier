@@ -1,0 +1,73 @@
+﻿using System;
+using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace GoogleCodeJam {
+	class TTTTomek {
+		static void Main(string[] args) {
+			StreamReader inputFile = new StreamReader("input.txt", Encoding.ASCII);
+			StreamWriter outputFile = new StreamWriter("output.txt", false, Encoding.ASCII);
+			string line = inputFile.ReadLine();
+			uint caseCount = uint.Parse(line);
+			for(uint caseNumber = 1; caseNumber <= caseCount; ++caseNumber) {
+				var result = ResolveCase(inputFile);
+				inputFile.ReadLine();
+				outputFile.WriteLine(string.Format("Case #{0}: {1}", caseNumber, result));
+			}
+			inputFile.Close();
+			outputFile.Close();
+		}
+
+		struct Straight {
+			public int Os, Xs, Ts;
+
+			public void AddValue(char v) {
+				switch(v) {
+					case 'O':
+						Os++;
+						break;
+					case 'T':
+						Ts++;
+						break;
+					case 'X':
+						Xs++;
+						break;
+				}
+			}
+		}
+
+		static string ResolveCase(StreamReader input) {
+			string[] lines = { input.ReadLine(), input.ReadLine(), input.ReadLine(), input.ReadLine() };
+			var straights = new Straight[10];
+			bool hasEmptyCells = false;
+
+			for(int i = 0; i < 4; ++i) {
+				for(int j = 0; j < 4; ++j) {
+					char v = lines[i][j];
+					if(v == '.') {
+						hasEmptyCells = true;
+					} else {
+						straights[i].AddValue(v);
+						straights[j + 4].AddValue(v);
+						if(i == j) straights[8].AddValue(v);
+						if(i + j == 3) straights[9].AddValue(v);
+					}
+				}
+			}
+
+			foreach(var st in straights) {
+				if(st.Ts == 1 && st.Os == 3 || st.Os == 4) {
+					return "O won";
+				}
+				if(st.Ts == 1 && st.Xs == 3 || st.Xs == 4) {
+					return "X won";
+				}
+			}
+
+			return hasEmptyCells ? "Game has not completed" : "Draw";
+		}
+	}
+}

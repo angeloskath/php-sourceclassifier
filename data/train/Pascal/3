@@ -1,0 +1,74 @@
+Program TicTacToe;
+var
+Map : array [1..4,1..4] of char;
+i,j,k,T : integer;
+CountDot, CountX, CountO, CountT: integer;
+IsXWin, IsOWin : boolean;
+begin
+readln(T);
+for i := 1 to T do
+  begin
+    CountDot := 0;
+    IsXWin := false;
+    IsOWin := false;
+     for j := 1 to 4 do
+       for k := 1 to 4 do
+         begin
+           read(Map[j,k]);
+           if (Map[j,k] = '.') then inc(CountDot);
+           if k = 4 then readln;
+         end;
+     //* Process *//
+     //Diagonals
+     CountX := 0; CountO := 0; CountT := 0;
+     for j := 1 to 4 do
+       if (Map[j,j] = 'X') then  inc(CountX)
+        else if (Map[j,j] = 'O') then inc(CountO)
+         else if (Map[j,j] = 'T') then inc(CountT);
+     if (CountX = 4) or ( (CountX = 3) and (CountT = 1) ) then IsXWin := true;
+     if (CountO = 4) or ( (CountO = 3) and (CountT = 1) ) then IsOWin := true;
+
+     CountX := 0; CountO := 0; CountT := 0;
+     for j := 1 to 4 do
+       if (Map[j,5-j] = 'X') then  inc(CountX)
+        else if (Map[j,5-j] = 'O') then inc(CountO)
+         else if (Map[j,5-j] = 'T') then inc(CountT);
+     if (CountX = 4) or ( (CountX = 3) and (CountT = 1) ) then IsXWin := true;
+     if (CountO = 4) or ( (CountO = 3) and (CountT = 1) ) then IsOWin := true;
+
+     //Horizontal
+      for j := 1 to 4 do
+       begin
+        CountX := 0; CountO := 0; CountT := 0;
+         for k := 1 to 4 do
+           begin
+               if (Map[j,k] = 'X') then inc(CountX)
+                 else if (Map[j,k] = 'O') then inc(CountO)
+                   else if (Map[j,k] = 'T') then inc(CountT);
+           end;
+        if (CountX = 4) or ( (CountX = 3) and (CountT = 1) ) then IsXWin := true;
+        if (CountO = 4) or ( (CountO = 3) and (CountT = 1) ) then IsOWin := true;
+       end;
+     //Vertical
+      for j := 1 to 4 do
+       begin
+        CountX := 0; CountO := 0; CountT := 0;
+         for k := 1 to 4 do
+           begin
+               if (Map[k,j] = 'X') then inc(CountX)
+                 else if (Map[k,j] = 'O') then inc(CountO)
+                   else if (Map[k,j] = 'T') then inc(CountT);
+           end;
+        if (CountX = 4) or ( (CountX = 3) and (CountT = 1) ) then IsXWin := true;
+        if (CountO = 4) or ( (CountO = 3) and (CountT = 1) ) then IsOWin := true;
+       end;
+
+     //* Print Output *//
+     write('Case #', i, ': ');
+     if IsXWin then writeln('X won')
+      else if IsOWin then writeln('O won')
+       else if CountDot = 0 then writeln('Draw')
+         else writeln('Game has not completed');
+  end;
+end.
+//Created by freedomofkeima

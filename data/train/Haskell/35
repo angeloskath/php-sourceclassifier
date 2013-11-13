@@ -1,0 +1,97 @@
+module Main (main) where
+
+import Data.Functor
+import Data.List
+import Control.Applicative
+import Control.Monad
+
+seq2 :: Monad m => (m a, m b) -> m (a, b)
+seq2 pair = (fst pair) >>= \x -> (snd pair) >>= \y -> return (x, y)
+
+seq3 :: Monad m => (m a, m b, m c) -> m (a, b, c)
+seq3 (a, b, c) = a >>= \x -> b >>= \y -> c >>= \z -> return (x, y, z)
+
+-- read a line as an Int
+readIntLine :: IO Int
+readIntLine = read <$> getLine
+
+getNLines :: Int -> IO [String]
+getNLines = sequence . (flip take $ repeat getLine)
+
+skipLine :: a -> IO a
+skipLine withWhat = getLine >> return withWhat
+
+-- inputLines :: (Int, Int) -> IO ([String], [String])
+-- inputLines = seq2 . join (***) getNLines
+
+caseInput :: IO [String]
+caseInput = getNLines 4 >>= skipLine
+
+data Player = X | O
+data GameState = XWon | OWon | Draw | Commencing
+
+gameStateOutput :: GameState -> String
+gameStateOutput XWon = "X won"
+gameStateOutput OWon = "O won"
+gameStateOutput Draw = "Draw"
+gameStateOutput Commencing = "Game has not completed"
+
+caseOutput :: GameState -> IO ()
+caseOutput = putStr . gameStateOutput
+
+step :: Char -> Int
+step 'X' = 1
+step 'O' = -1
+step _ = 0
+
+{-- pets :: Int -> Maybe Char
+pets 1 = Just 'X'
+pets -1 = Just 'O'
+pets _ = Nothing--}
+
+thePlayer :: Int -> Maybe Player
+thePlayer 1 = Just X
+thePlayer 0 = Just O
+thePlayer _ = Nothing
+
+playerThe :: Player -> Char
+playerThe X = 'X'
+playerThe O = 'O'
+
+whoseMove :: [String] -> Maybe Player
+whoseMove = thePlayer . (foldl' (\count c -> count + (step c)) 0) . join
+
+diagonals :: [String] -> [String]
+diagonals board = (\(a, b) -> [a, b]) (unzip (map (\(l, (i, j)) -> (l !! i, l !! j)) $ zip board (zip [0..3] [3,2,1,0])))
+
+rows :: [String] -> [String]
+rows board = board ++ (transpose board) ++ (diagonals board)
+
+hasWon :: Player -> Maybe ([String] -> Maybe Player)
+hasWon p = Just (\board -> let c = playerThe p in if any (all (\cc -> cc == c || cc == 'T')) (rows board) then Just p else Nothing)
+
+playerWon :: [String] -> Either [String] Player
+playerWon board = case ((whoseMove board) >>= hasWon) >>= (\f -> f board) of
+	Nothing -> Left board
+	Just p -> Right p
+
+won :: Player -> GameState
+won X = XWon
+won o = OWon
+
+-- (playerWon board) >>= won :: Either [String] GameState
+
+gameState :: Either [String] GameState -> GameState
+gameState (Right s) = s
+gameState (Left board) = if any (== '.') (join board) then Commencing else Draw
+
+runCase :: IO ()
+runCase = caseInput >>= {-- (\x -> putStrLn (show $ rows x) >> return x) >>= --} (\x -> return . gameStateOutput $ gameState (playerWon x >>= return . won)) >>= putStrLn
+
+-- call out the test output prefix and call the test case
+callOutCase :: Int -> IO ()
+callOutCase i = (>> runCase) $ putStr $ "Case #" ++ (show i) ++ ": "
+
+-- run all the test cases numbered with n and call out the test output prefix
+main = (\n -> [1..n]) <$> readIntLine >>= ( sequence . map callOutCase ) 
+

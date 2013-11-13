@@ -1,0 +1,41 @@
+module Main where
+
+import Data.List
+
+clump :: [a] -> [[a]]
+clump [] = []
+clump (a:b:c:d:e:xs) = [a, b, c, d] : clump xs
+
+parse :: String -> [[[Char]]]
+parse = clump . tail . lines
+
+solve1 :: [[Char]] -> String
+solve1 xss = let rs = rows xss in
+    if won_by rs 'X' then
+        "X won"
+    else if won_by rs 'O' then
+        "O won"
+    else if unfinished xss then
+        "Game has not completed"
+    else "Draw"
+
+rows :: [[a]] -> [[a]]
+rows xss = concat [xss, transpose xss, [diagonal xss], [antidiagonal xss]]
+
+diagonal :: [[a]] -> [a]
+diagonal [] = []
+diagonal (xs:xss) = head xs : diagonal (map tail xss)
+
+antidiagonal :: [[a]] -> [a]
+antidiagonal xss = [(xss !! 3) !! 0, (xss !! 2) !! 1, (xss !! 1) !! 2, (xss !! 0) !! 3]
+
+unfinished :: [[Char]] -> Bool
+unfinished = any (== '.') . concat
+
+won_by :: [[Char]] -> Char -> Bool
+won_by rs x = any (all (`elem` [x, 'T'])) rs
+
+unparse :: [String] -> String
+unparse = unlines . zipWith (\c a -> "Case #" ++ show c ++ ": " ++ a) [1..]
+
+main = interact (unparse . map solve1 . parse)

@@ -1,0 +1,201 @@
+package main
+
+// Problem
+//
+// Tic-Tac-Toe-Tomek is a game played on a 4 x 4 square board. The board starts
+// empty, except that a single 'T' symbol may appear in one of the 16 squares.
+// There are two players: X and O. They take turns to make moves, with X
+// starting. In each move a player puts her symbol in one of the empty squares.
+// Player X's symbol is 'X', and player O's symbol is 'O'.
+//
+// After a player's move, if there is a row, column or a diagonal containing 4
+// of that player's symbols, or containing 3 of her symbols and the 'T' symbol,
+// she wins and the game ends. Otherwise the game continues with the other
+// player's move. If all of the fields are filled with symbols and nobody won,
+// the game ends in a draw. See the sample input for examples of various
+// winning positions.
+//
+// Given an 4 x 4 board description containing 'X', 'O', 'T' and '.' characters
+// (where '.' represents an empty square), describing the current state of a
+// game, determine the status of the Tic-Tac-Toe-Tomek game going on. The
+// statuses to choose from are:
+//
+// "X won" (the game is over, and X won) "O won" (the game is over, and O won)
+// "Draw" (the game is over, and it ended in a draw) "Game has not completed"
+// (the game is not over yet)
+//
+// Input
+//
+// The first line of the input gives the number of test cases, T. T test cases
+// follow. Each test case consists of 4 lines with 4 characters each, with each
+// character being 'X', 'O', '.' or 'T' (quotes for clarity only). Each test
+// case is followed by an empty line.
+//
+// Output
+//
+// For each test case, output one line containing "Case #x: y", where x is the
+// case number (starting from 1) and y is one of the statuses given above. Make
+// sure to get the statuses exactly right. When you run your code on the sample
+// input, it should create the sample output exactly, including the "Case #1:
+// ", the capital letter "O" rather than the number "0", and so on.
+//
+// Limits
+//
+// The game board provided will represent a valid state that was reached
+// through play of the game Tic-Tac-Toe-Tomek as described above.
+
+import (
+	"bufio"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+)
+
+// squares
+var (
+	squareX     byte = 'X'
+	squareO     byte = 'O'
+	squareT     byte = 'T'
+	squareEmpty byte = '.'
+)
+
+// games statues
+var (
+	xWon []byte = []byte("X won")
+	oWon []byte = []byte("O won")
+	draw []byte = []byte("Draw")
+	notCompleted []byte = []byte("Game has not completed")
+)
+
+func cases(reader io.Reader, writer io.Writer) error {
+	input := bufio.NewReader(reader)
+	output := bufio.NewWriter(writer)
+
+	line, prefix, err := input.ReadLine()
+	if err != nil {
+		return err
+	}
+	if prefix {
+		return errors.New("unexpected prefix")
+	}
+
+	size, err := strconv.Atoi(string(line))
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < size; i++ {
+		fmt.Fprintf(output, "Case #%d: ", i+1)
+		findAndWriteGameStatus(input, output)
+		output.Write([]byte("\n"))
+
+		// read empty line
+		if i+1 < size {
+			_, _, err := input.ReadLine()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return output.Flush()
+}
+
+type Game [4][4]byte
+var diagonal [2][][]int = [2][][]int {
+	{{0, 0}, {1, 1}, {2, 2}, {3, 3}},
+	{{0, 3}, {1, 2}, {2, 1}, {3, 0}},
+}
+
+func findAndWriteGameStatus(input *bufio.Reader, output *bufio.Writer) error {
+	var xWinning, oWinning bool
+	var finished bool
+	var game [2]Game
+	completed := true
+
+	for i := 0; i < 4; i++ {
+		line, _, err := input.ReadLine()
+		if err != nil {
+			return err
+		}
+
+		for j, x := range line {
+			if j >= 4 {
+				return errors.New("too long line")
+			}
+			game[0][i][j] = x
+			game[1][j][i] = x
+		}
+	}
+
+	// find winner vertical and horizontal
+	for _, g := range game {
+		for _, row := range g {
+			oWinning, xWinning = true, true
+			for _, x := range row {
+				switch x {
+				case squareT:
+					break
+				case squareO:
+					xWinning = false
+				case squareX:
+					oWinning = false
+				default:
+					xWinning = false
+					oWinning = false
+					completed = false
+				}
+			}
+			if oWinning || xWinning {
+				finished = true
+				goto Finished
+			}
+		}
+	}
+
+	// scan diagonal
+	if !finished {
+		for _, d := range diagonal {
+			oWinning, xWinning = true, true
+			for _, p := range d {
+				x := game[0][p[0]][p[1]]
+				switch x {
+				case squareT:
+					break
+				case squareO:
+					xWinning = false
+				case squareX:
+					oWinning = false
+				default:
+					xWinning = false
+					oWinning = false
+				}
+			}
+			if oWinning || xWinning {
+				finished = true
+				goto Finished
+			}
+		}
+	}
+
+Finished:
+	if oWinning {
+		output.Write(oWon)
+	} else if xWinning {
+		output.Write(xWon)
+	} else if !completed {
+		output.Write(notCompleted)
+	} else {
+		output.Write(draw)
+	}
+
+	return nil
+}
+
+func main() {
+	err := cases(os.Stdin, os.Stdout)
+	if err != nil {
+		panic(err.Error())
+	}
+}

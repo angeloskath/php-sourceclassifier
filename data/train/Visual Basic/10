@@ -1,0 +1,117 @@
+﻿Module Module1
+
+    Sub Main()
+        Dim input As String = My.Computer.Clipboard.GetText()
+        Dim out As String = ""
+        Dim lines As List(Of String) = input.Split(vbLf).ToList()
+        Dim num As Integer = lines(0)
+        lines.RemoveAt(0)
+
+        For a As Integer = 1 To num
+            Dim dat As New List(Of List(Of Char))
+            For b As Integer = 0 To 3
+                Dim ln As String = lines(0)
+                dat.Add(ln.Substring(0).ToCharArray.ToList())
+                lines.RemoveAt(0)
+            Next
+            Dim winner As Char = "."
+            Dim full As Boolean = True
+            For b As Integer = 0 To 3
+                Dim xVal As Char = dat(b)(0)
+                Dim yVal As Char = dat(0)(b)
+                For c As Integer = 0 To 3
+                    If xVal <> dat(b)(c) And Not dat(b)(c) = "T" Then
+                        xVal = "."
+                    End If
+                    If yVal <> dat(c)(b) And Not dat(c)(b) = "T" Then
+                        yVal = "."
+                    End If
+                    If dat(b)(c) = "." Then
+                        full = False
+                    End If
+                Next
+                If xVal <> "." Then
+                    winner = xVal
+                End If
+                If yVal <> "." Then
+                    winner = yVal
+                End If
+            Next
+            For b As Integer = 3 To 0 Step -1
+                Dim xVal As Char = dat(b)(3)
+                Dim yVal As Char = dat(3)(b)
+                For c As Integer = 3 To 0 Step -1
+                    If xVal <> dat(b)(c) And Not dat(b)(c) = "T" Then
+                        xVal = "."
+                    End If
+                    If yVal <> dat(c)(b) And Not dat(b)(c) = "T" Then
+                        yVal = "."
+                    End If
+                    If dat(b)(c) = "." Then
+                        full = False
+                    End If
+                Next
+                If xVal <> "." Then
+                    winner = xVal
+                End If
+                If yVal <> "." Then
+                    winner = yVal
+                End If
+            Next
+
+
+
+            Dim ul As Char = dat(0)(0)
+            Dim bl As Char = dat(3)(0)
+            Dim ur As Char = dat(0)(3)
+            Dim br As Char = dat(3)(3)
+
+            For b As Integer = 0 To 3
+                If ul <> dat(b)(b) And Not dat(b)(b) = "T" Then
+                    ul = "."
+                End If
+                If br <> dat(b)(b) And Not dat(b)(b) = "T" Then
+                    br = "."
+                End If
+                If ur <> dat(3 - b)(b) And Not dat(3 - b)(b) = "T" Then
+                    ur = "."
+                End If
+                If bl <> dat(3 - b)(b) And Not dat(3 - b)(b) = "T" Then
+                    bl = "."
+                End If
+            Next
+            If ul <> "." Then
+                winner = ul
+            End If
+            If bl <> "." Then
+                winner = bl
+            End If
+            If ur <> "." Then
+                winner = ur
+            End If
+            If br <> "." Then
+                winner = br
+            End If
+
+
+            If winner <> "." Then
+                out &= "Case #" & a & ": " & winner & " won" & vbNewLine
+            Else
+                If full Then
+                    out &= "Case #" & a & ": Draw" & vbNewLine
+                Else
+                    out &= "Case #" & a & ": Game has not completed" & vbNewLine
+                End If
+            End If
+            Try
+                lines.RemoveAt(0)
+            Catch ex As Exception
+
+            End Try
+        Next
+        Console.WriteLine(out)
+        My.Computer.Clipboard.SetText(out)
+        Console.ReadKey()
+    End Sub
+
+End Module

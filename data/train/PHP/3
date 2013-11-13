@@ -1,0 +1,103 @@
+<?php
+
+header("Content-type: text/html; charset=utf-8"); 
+
+//define("INPUT_FILE", "A-small-attempt1.in");
+define("INPUT_FILE", "A-large.in");
+define("OUTPUT_FILE", "result.txt");
+
+
+function str2bin($str)
+{
+	return str_replace(array('.', 'T', 'O', 'X'), array('8', '4', '2', '1'), trim($str));
+}
+
+function testPattern($pattern, &$winner)
+{
+	switch ($pattern)
+	{
+		case 0b0001:
+		case 0b0101:
+			$winner="X";
+			return true;
+		case 0b0010:
+		case 0b0110:
+			$winner="O";
+			return true;
+
+	}
+	return false;
+
+}
+
+
+function result($square)
+{
+
+	$winner='';
+	$emptySquare=false;
+
+	//check row
+	for($y=0;$y<4;$y++)
+	{
+		$bin=(int)$square[$y][0] | (int)$square[$y][1] | (int)$square[$y][2] | (int)$square[$y][3];
+		//check for empty space
+		if($bin>=0b1000)
+			$emptySquare = true;
+		if(testPattern($bin, $winner))
+			return "$winner won";
+	}
+
+	//check column
+	for($x=0;$x<4;$x++)
+	{
+		$bin=(int)$square[0][$x] | (int)$square[1][$x] | (int)$square[2][$x] | (int)$square[3][$x];
+		
+		if(testPattern($bin, $winner))
+			return "$winner won";
+	}
+
+
+	//check diagonal
+	if(testPattern((int)$square[0][0] | (int)$square[1][1] | (int)$square[2][2] | (int)$square[3][3], $winner))
+		return "$winner won";
+	if(testPattern((int)$square[0][3] | (int)$square[1][2] | (int)$square[2][1] | (int)$square[3][0], $winner))
+		return "$winner won";
+
+
+	return ($emptySquare)? "Game has not completed" : "Draw";
+
+}
+
+
+
+
+$squares=array();
+$result="";
+
+
+
+$handle = @fopen(INPUT_FILE, "r");
+$numTestCases=fgets($handle);
+for($i=1;$i<=$numTestCases;$i++)
+{
+	
+	for($j=0;$j<4;$j++)
+		$squares[$j]=str_split(str2bin(fgets($handle)));
+
+	fgets($handle);
+	$result.="Case #$i: ".result($squares)."\n";
+}
+
+
+printf("<pre>%s</pre>", $result);
+
+
+$handle = @fopen(OUTPUT_FILE, 'w');
+if(fwrite($handle, $result) === FALSE) {
+	echo "fail";
+}
+fclose($handle);
+
+
+?>

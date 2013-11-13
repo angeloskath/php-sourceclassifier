@@ -1,0 +1,59 @@
+import qualified Data.Array as A
+import qualified Control.Monad as M
+import System.IO(isEOF)
+
+bWidth = 4
+bHeight = 4
+xIndex = [0..(bWidth-1)]
+yIndex = [0..(bHeight-1)]
+
+data Piece = X | O | T | Empty deriving (Show,Read,Eq)
+readPiece '.' = Empty
+readPiece x = read (x:[])
+
+data Result = WinX | WinO | Draw | NotYet deriving (Show)
+showResult WinX = "X won"
+showResult WinO = "O won"
+showResult Draw = "Draw"
+showResult NotYet = "Game has not completed"
+
+type Board = A.Array (Int,Int) Piece
+
+allIndex :: [[(Int,Int)]]
+allIndex = rows ++ cols ++ diags
+  where
+    rows = map (\x -> zip (repeat x) (yIndex)) xIndex
+    cols = map (\y -> zip (xIndex)(repeat y)) yIndex
+    diags = [ zip xIndex yIndex, zip xIndex (reverse yIndex) ]
+
+mapAllIndex :: Board -> [[Piece]]
+mapAllIndex board = map (map (\i -> board A.! i)) allIndex
+
+judgeWin :: Piece -> [Piece] -> Bool
+judgeWin p ps = all (\x -> x == p || x == T) ps
+
+judgeWinAll :: Piece -> [[Piece]] -> Bool
+judgeWinAll p ps = any (judgeWin p) ps
+
+judge board =
+  if judgeWinAll O b then WinO
+  else if judgeWinAll X b then WinX
+  else if any (== Empty) (A.elems board) then NotYet
+  else Draw
+  where
+    b = mapAllIndex board
+
+readBoard :: [String] -> Board
+readBoard ss = A.array ((0,0),(bWidth-1,bHeight-1)) xs
+  where
+    xs = [(p,readPiece s) | (s,p) <- zip (concat ss) [ (x,y) | x <- xIndex, y <- yIndex ] ]
+
+main = do
+  num <- (fmap read) getLine
+  M.mapM action [1..num]
+  where
+    action n = do
+      ss <- sequence (take 4 $ repeat getLine)
+      putStr $ "Case #" ++ (show n) ++ ": "
+      putStrLn $ showResult $ judge (readBoard ss)
+      isEOF >>= (flip M.unless) (getLine >> return ())

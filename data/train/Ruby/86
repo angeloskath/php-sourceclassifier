@@ -1,0 +1,79 @@
+require 'ostruct'
+
+def process_input_file(readable)
+  numberOfCases = readable.readline.strip.to_i
+  
+  for i in 1 .. numberOfCases
+    tp = parse_single_case(readable)
+    puts "Case ##{i}: #{process_single_case(tp)}"
+  end
+end
+
+
+
+def process_single_case(tp)
+  x_wins = Regexp.new(/[XT]{4}/)
+  o_wins = Regexp.new(/[OT]{4}/)
+
+  xwinstr = "X won"
+  owinstr = "O won"
+
+  tp.rows.each do |row|
+    if x_wins.match(row)
+      return xwinstr
+    elsif o_wins.match(row)
+      return owinstr
+    end
+  end
+
+  for col in 0 .. 3
+    col = tp.rows.map { |r| r[col] }
+    col = col.join('')
+    if x_wins.match(col)
+      return xwinstr
+    elsif o_wins.match(col)
+      return owinstr
+    end
+  end
+
+  diag1 = ""
+  diag2 = ""
+  for i in 0 .. 3
+    diag1 += tp.rows[i][i]
+    diag2 += tp.rows[i][3-i]
+  end
+
+  if x_wins.match(diag1) || x_wins.match(diag2)
+    return xwinstr
+  elsif o_wins.match(diag1) || o_wins.match(diag2)
+    return owinstr
+  end
+
+  if tp.rows.join('').include?('.')
+    return "Game has not completed"
+  else
+    return "Draw"
+  end
+
+end
+
+def parse_single_case(readable)
+  tp = OpenStruct.new
+  tp.rows = []
+  4.times { tp.rows.push readable.readline.chomp }
+  #tp.data = readable.readline.split.map(&:to_s)
+  begin
+    readable.readline # throw away the empty line
+  rescue EOFError
+  end
+
+  tp
+end
+
+
+
+if __FILE__ == $0
+  File.open(ARGV[0], 'r') { |f| 
+    process_input_file(f)
+  }
+end

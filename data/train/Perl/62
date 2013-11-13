@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+$\=$/;
+$count = <>;
+
+@a = <>;
+$case = 1;
+map { &lookfor } join("", split("\n", join('', @a))) =~ m/.{16}/g;
+
+sub lookfor {
+my $x =()= $_ =~ /X/g;
+my $o =()= $_ =~ /O/g;
+
+        if($_=~/\./) {
+            ($b, $who) = &existswon($_);
+            if($b) {print "Case #$case: $who won"}
+            else {print "Case #$case: Game has not completed"}
+        } else {
+            ($b, $who) = &existswon($_);
+            if($b) {print "Case #$case: $who won"}
+            else {print "Case #$case: Draw"}
+        }
+        $case++;
+    
+}
+
+sub existswon {
+    @a = map {$_} $_=~/./g;
+    $i = 0;
+    $s = "";
+    while($i<4) {
+        $s .= $a[$i] . $a[$i+4] . $a[$i+8] . $a[$i+12];
+        $i++;
+    }
+
+        $d1 = $a[0] . $a[5] . $a[10] . $a[15];
+        $d2 = $a[3] . $a[6] . $a[9] . $a[12];
+#        print $d1;
+        ($b, $w) = &l($d1); 
+        if ($b) {return ($b, $w);}
+        ($b, $w) = &l($d2); 
+        if ($b) {return ($b, $w);}
+        ($b, $w) = &l($_); 
+        if ($b) {return ($b, $w);}
+        ($b, $w) = &l($s); 
+        if ($b) {return ($b, $w);}
+        return (0, "fail");
+}
+
+sub l {
+    $a = shift;
+    map { 
+        $x =()= $_ =~/X/g;
+        $o =()= $_ =~/O/g;
+        if ($x > 2 || $o > 2) {
+            if ($_ =~ /T/) {
+                if($x == 3) {
+                    return (1, "X");    
+                } elsif ($o == 3) {
+                    return (1, "O");
+                }
+            }
+            
+            if ($x == 4) {return (1, "X");}
+            if ($o == 4) {return (1, "O");}
+        }
+    } $a =~ /.{4}/g;
+    return (0, "fail");
+}

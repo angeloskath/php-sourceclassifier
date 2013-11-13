@@ -1,0 +1,62 @@
+<?php
+/**
+ * Problem A. Tic-Tac-Toe-Tomek
+ * Data creazione: 13/04/2013 (Emanuele)
+ * Ultima modifica:
+ */
+
+$file_in = "A-large.in";
+$file_out = substr($file_in, 0, strrpos($file_in, ".")).".out";
+
+$fp = fopen(__DIR__."\\".$file_in, "r");
+$fo = fopen(__DIR__."\\".$file_out, "w");
+fscanf($fp, "%d", $T);
+
+for($tc = 1; $tc <= $T; $tc++) {
+	$s = array();
+	for($r = 0; $r < 4; $r++) {
+		$s[$r] = trim(fgets($fp));
+	}
+	fgets($fp);
+
+	fwrite($fo,  "Case #".$tc.": ".risolvi($s)."\n");
+}
+fclose($fo);
+fclose($fp);
+
+function risolvi($s) {
+	static $vince_x = "X won";
+	static $vince_o = "O won";
+
+	// Cerca vittoria orizzontale
+	for($r = 0; $r < 4; $r++) {
+		if (strpos($s[$r], ".") !== false) continue;
+		$chars = str_replace("T", "", $s[$r]);
+		if (str_replace("X", "", $chars) == "") return $vince_x;
+		if (str_replace("O", "", $chars) == "") return $vince_o;
+	}
+
+	// Cerca vittoria diagonale
+	$diag = array($s[0][0].$s[1][1].$s[2][2].$s[3][3], $s[3][0].$s[2][1].$s[1][2].$s[0][3]);
+	foreach($diag as $d) {
+		if (strpos($d, ".") !== false) continue;
+		$chars = str_replace("T", "", $d);
+		if (str_replace("X", "", $chars) == "") return $vince_x;
+		if (str_replace("O", "", $chars) == "") return $vince_o;
+	}
+
+	// Cerca vittoria verticale
+	$rot = array();
+	for($r = 0; $r < 4; $r++) {
+		for($c = 0; $c < 4; $c++) $rot[$c] .= $s[$r][$c];
+	}
+	for($c = 0; $c < 4; $c++) {
+		if (strpos($rot[$c], ".") !== false) continue;
+		$chars = str_replace("T", "", $rot[$c]);
+		if (str_replace("X", "", $chars) == "") return $vince_x;
+		if (str_replace("O", "", $chars) == "") return $vince_o;
+	}
+
+	// Nessuna vittoria, determina se pareggio o incompleta
+	return (strpos(join("", $s), ".") === false)? "Draw" : "Game has not completed";
+}

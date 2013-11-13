@@ -1,0 +1,109 @@
+{-# OPTIONS_GHC -O3 -Wall -fno-warn-type-defaults #-}
+
+module Main (main) where
+
+import Data.Array ((!), (//))
+import Data.Foldable (toList)
+import qualified Data.Array as Array
+import qualified Data.ByteString.Char8 as BS
+
+
+-- -------------------------------------------------------------------
+-- Board
+
+data Result
+    = XWon
+    | OWon
+    | Draw
+    | NotOver
+
+instance Show Result where
+    show XWon = "X won"
+    show OWon = "O won"
+    show Draw = "Draw"
+    show NotOver = "Game has not completed"
+
+bindResult :: Result -> Result -> Result
+bindResult XWon     _    = XWon
+bindResult OWon     _    = OWon
+bindResult Draw     r    = r
+bindResult NotOver  Draw = NotOver
+bindResult NotOver  r    = r
+
+xWinStates :: [String]
+xWinStates = ["XXXX", "XXXT", "XXTX", "XTXX", "TXXX"]
+{-# INLINE xWinStates #-}
+
+oWinStates :: [String]
+oWinStates = ["OOOO", "OOOT", "OOTO", "OTOO", "TOOO"]
+{-# INLINE oWinStates #-}
+
+computeResultOne :: String -> Result
+computeResultOne s =
+    if s `elem` xWinStates
+       then XWon
+       else
+            if s `elem` oWinStates
+               then OWon
+               else
+                    if '.' `elem` s
+                       then NotOver
+                       else Draw
+{-# INLINE computeResultOne #-}
+
+computeResult :: [String] -> Result
+computeResult ss =
+    foldr (\a b -> bindResult (computeResultOne a) b) Draw ss
+
+-- -------------------------------------------------------------------
+--
+type Board = Array.Array Int [Char]
+
+emptyBoard :: Board
+emptyBoard = Array.listArray (0, 9) $ repeat []
+{-# INLINE emptyBoard #-}
+
+readBoard :: Int -> [BS.ByteString] -> Board -> Board
+readBoard _ [] acc = acc
+readBoard i (l:ls) acc =
+    let new_acc = readLine (i, 0) (BS.unpack l) acc
+    in readBoard (i+1) ls new_acc
+
+readLine :: (Int, Int) -> [Char] -> Board -> Board
+readLine _ [] acc = acc
+readLine (i, j) (c:cs) acc =
+    let c_1 = acc ! i
+        c_2 = acc ! (j + 4)
+        c_3 = acc ! 8
+        c_4 = acc ! 9
+        new_acc_1 = acc // [(i, (c:c_1))]
+        new_acc_2 = new_acc_1 // [(j+4, (c:c_2))]
+        new_acc_3 = if i==j then new_acc_2 // [(8, (c:c_3))] else new_acc_2
+        new_acc_4 = if (i+j)==3 then new_acc_3 // [(9, (c:c_4))] else new_acc_3
+    in
+    readLine (i, j+1) cs new_acc_4
+
+
+-- -------------------------------------------------------------------
+--
+play :: [BS.ByteString] -> [Result] -> [Result]
+play [] acc = reverse acc
+play input acc =
+    let (input', rest) = splitAt 4 input
+        board = readBoard 0 input' emptyBoard
+        result = computeResult (toList board)
+    in
+    result `seq` play (tail rest) (result:acc)
+
+main :: IO ()
+main = do
+    _ <- BS.getLine
+    input <- BS.getContents
+    let results = play (BS.lines input) []
+    printResults 1 results
+
+printResults :: Int -> [Result] -> IO ()
+printResults _ [] = return ()
+printResults i (r:rs) = do
+    putStrLn ("Case #" ++ show i ++ ": " ++ show r)
+    printResults (i+1) rs

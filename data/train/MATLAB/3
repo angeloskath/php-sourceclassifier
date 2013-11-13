@@ -1,0 +1,89 @@
+function answer = ch2num(s)
+%UNTITLED2 Summary of this function goes here
+%   Detailed explanation goes here
+answer = zeros(1,size(s,2));
+for i = 1: size(s,2)
+    if s(i) == 'X'
+        answer(i) = 1;
+    elseif s(i) == 'O'
+        answer(i) = 5;
+    elseif s(i) == '.'
+        answer(i) = 0;
+    else 
+        answer(i) = 0.1;
+    end
+end
+        
+end
+
+ function template()
+%TEMPLATE Summary of this function goes here
+%   Detailed explanation goes here
+
+fid = -1;
+msg = '';
+while fid < 0 
+   disp(msg);
+   filename = input('Open file: ', 's');
+   [fid,msg] = fopen(filename);
+   [fid_o] = fopen('temp.out','w');
+end
+N = str2double(fgets(fid));
+% number of test cases
+for cs = 1 : N
+    M = zeros(4,4);
+    for m = 1:4
+        data = fgets(fid);
+        M(m,:) = ch2num(data(1,1:4));
+    end
+    empty = fgets(fid);
+    % fetch data as string
+    display(M)
+
+    for rs = 1:4
+        rsum = sum(M(rs,:));
+        csum = sum(M(:,rs));
+        di = M(1,1)+M(2,2)+M(3,3)+M(4,4);
+        bi = M(1,4)+M(2,3)+M(3,2)+M(4,1);
+    if bo(rsum,4) || bo(rsum,3.1) || bo(csum,4) ||bo(csum,3.1) || bo(di,4)|| bo(di,3.1) ||bo(bi,4)||bo(bi,3.1)
+        output = 'X won';
+        break;
+    elseif bo(rsum,20) || bo(rsum,15.1) ||bo(csum,20) ||bo(csum,15.1) ||bo(di,20)||bo(di,15.1)||bo(bi,20)||bo(bi,15.1)
+        output = 'O won';
+        break;
+    end
+    end
+    
+    if size(find(M),1)==16
+        output = 'Draw';
+        break
+    else
+        output = 'Game has not completed';
+        break;
+    end
+    
+        
+    fprintf(fid_o,['Case #',num2str(cs), ': ', output]);
+    fprintf(fid_o,'\n');
+    
+    
+end
+
+
+
+
+
+fclose(fid_o);
+fclose(fid);
+end
+
+function bo = bo(a,b)
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
+if abs(a-b)<0.001
+    bo = 1;
+else
+    bo = 0;
+
+end
+

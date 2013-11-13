@@ -1,0 +1,44 @@
+{-# LANGUAGE ParallelListComp #-}
+{-# LANGUAGE MultiWayIf #-}
+
+import qualified Data.List as L
+import Control.Monad
+import Control.Applicative
+import Data.Maybe
+
+isWinner :: String -> Maybe Char
+isWinner xs
+    | winList == "OT" || winList == "O" = Just 'O'
+    | winList == "TX" || winList == "X" = Just 'X'
+    | '.' `elem` winList = Just '.'
+    | otherwise = Nothing
+  where
+    winList = L.sort $ L.nub xs
+
+getDiagonal :: [[a]] -> [a]
+getDiagonal xss = [xs !! i | xs <- xss | i <- [0..]]
+
+processCase :: Int -> IO ()
+processCase n = do
+    lineA <- getLine
+    lineB <- getLine
+    lineC <- getLine
+    lineD <- getLine
+
+    let grid = [lineA, lineB, lineC, lineD]
+    let allLines = grid ++ L.transpose grid ++ [getDiagonal grid, getDiagonal (map reverse grid)]
+    let winners = map isWinner allLines
+
+    putStrLn $ "Case #" ++ show n ++ ": " ++ (
+        if | Just 'X' `elem` winners -> "X won"
+           | Just 'O' `elem` winners -> "O won"
+           | Just '.' `elem` winners -> "Game has not completed"
+           | otherwise -> "Draw"
+        )
+
+    void getLine
+
+main :: IO ()
+main = do
+    testCases <- readLn
+    forM_ [1..testCases] processCase

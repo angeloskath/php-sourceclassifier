@@ -1,0 +1,49 @@
+
+def printout(lines)
+	ofile=File.open("A-large.out","w")
+	1.upto(lines.length) do |n|
+		ofile.print("Case \##{n}: ",lines[n-1],"\n")
+	end
+end
+
+
+def getsol(mat)
+	guys=[]
+	0.upto(3) {|k| guys.push(mat[k].uniq.sort) }
+	0.upto(3) {|k|
+		t=[];  0.upto(3) {|i| t.push(mat[i][k]) }
+		guys.push(t.uniq.sort)
+	}
+	t=[];  for i in 0..3 do t.push(mat[i][i]) end
+	guys.push(t.uniq.sort)
+	t=[];  for i in 0..3 do t.push(mat[i][3-i]) end 
+	guys.push(t.uniq.sort)
+	guys.each do |g|
+		if g==["T", "X"] or  g==["X"] then return "X won"
+		elsif g==["O", "T"] or  g==["O"] then return "O won"
+		end
+	end
+	return "Draw" if not guys.flatten.uniq.include?(".")
+	return "Game has not completed"
+end
+
+	
+#
+lines=File.open("A-large.in").readlines
+#lines=File.open("RLW-B-small-practice.in").readlines
+ncases=lines.shift.to_i
+print "Ncases: ",ncases,"\n"
+outvec=[]
+1.upto(ncases) do |n|
+	mat=[]
+	0.upto(3) do |k|
+		itvals=lines.shift.chomp!.split('')
+		mat.push(itvals)
+		#print itvals,"\n"
+	end
+	dummy=lines.shift
+	outvec.push(getsol(mat))
+end	
+
+#print lines
+printout(outvec)

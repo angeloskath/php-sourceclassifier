@@ -1,0 +1,21 @@
+def solve
+  board = 5.times.reduce(""){|acc| acc + gets.chomp}
+
+  def winner(board, start, dx)
+    (start...16).step(dx).take(4).reduce("T") {|acc,x|
+      if acc == nil || board[x] == "." then nil
+      elsif acc == "T" then board[x]
+      elsif board[x] == "T" then acc
+      elsif board[x] != acc then nil
+      else acc end
+    }
+  end
+
+  lines = (0...16).step(4).zip([1]*4) + (0...4).zip([4]*4) + [[0,5],[3,3]]
+
+  lines.each {|s,dx| w = winner(board,s,dx); return "%s won" % w if w}
+  
+  board.index(".") ? "Game has not completed" : "Draw"
+end
+
+(1..gets.to_i).each {|c| puts "Case #%d: %s" % [c, solve]}

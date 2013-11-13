@@ -1,0 +1,178 @@
+Attribute VB_Name = "Module2"
+Sub Tic_Tac_Toe_Tomek()
+Application.ScreenUpdating = False
+
+Sheets("Output").Cells.ClearContents
+Sheets("Input").Activate
+
+'Number of cases
+Dim N As Integer
+N = Cells(1, 1)
+'Loop through cases
+Dim i As Integer
+For i = 1 To N
+    Dim s As String 'output string
+    s = "."
+    'Loop through rows
+    Dim rownum As Integer
+    For rownum = i * 5 - 3 To i * 5
+        Dim Count As Integer
+        Count = Evaluate("=COUNTIF(A" & rownum & ":D" & rownum & ",""X"")+COUNTIF(A" & rownum & ":D" & rownum & ",""T"")")
+        If Count = 4 Then
+            s = "Case #" & i & ": X won"
+        Else: Count = Evaluate("=COUNTIF(A" & rownum & ":D" & rownum & ",""O"")+COUNTIF(A" & rownum & ":D" & rownum & ",""T"")")
+            If Count = 4 Then
+                s = "Case #" & i & ": O won"
+            End If
+        End If
+    Next rownum
+    'Loop through columns
+    Dim colnum As Integer
+    For colnum = 1 To 4
+        Dim ColAddress As String
+        ColAddress = Range(Cells(i * 5 - 3, colnum).Address, Cells(i * 5, colnum).Address).Address
+        Dim Count2 As Integer
+        Count2 = Evaluate("=COUNTIF(" & ColAddress & ",""X"")+COUNTIF(" & ColAddress & ",""T"")")
+        Cells(i * 5, 5) = Count2
+        If Count2 = 4 Then
+            s = "Case #" & i & ": X won"
+        Else: Count2 = Evaluate("=COUNTIF(" & ColAddress & ",""O"")+COUNTIF(" & ColAddress & ",""T"")")
+            If Count2 = 4 Then
+                s = "Case #" & i & ": O won"
+            End If
+        End If
+    Next colnum
+    'Check Diagonals 1
+    Dim d1_symbol As String
+    If Cells(i * 5 - 3, 1) = "T" Then
+        d1_symbol = Cells(i * 5 - 2, 2)
+    Else
+        d1_symbol = Cells(i * 5 - 3, 1)
+    End If
+    Dim Count3 As Integer
+    Count3 = 0
+    Dim d1 As Integer
+    For d1 = 0 To 3
+        Dim Symbol As String
+        Symbol = Cells(i * 5 - d1, 4 - d1)
+        If Symbol = d1_symbol Or Symbol = "T" Then
+            Count3 = Count3 + 1
+            If Count3 = 4 And d1_symbol <> "." Then
+                s = "Case #" & i & ": " & d1_symbol & " won"
+            End If
+        End If
+    Next d1
+    'Check Diagonals 2
+    Dim d2_symbol As String
+    If Cells(i * 5 - 3, 4) = "T" Then
+        d2_symbol = Cells(i * 5 - 2, 3)
+    Else
+        d2_symbol = Cells(i * 5 - 3, 4)
+    End If
+    Dim Count4 As Integer
+    Count4 = 0
+    Dim d2 As Integer
+    For d2 = 0 To 3
+        Dim Symbol2 As String
+        Symbol2 = Cells(i * 5 - d2, 1 + d2)
+        If Symbol2 = d2_symbol Or Symbol2 = "T" Then
+            Count4 = Count4 + 1
+            If Count4 = 4 And d2_symbol <> "." Then
+                s = "Case #" & i & ": " & d2_symbol & " won"
+            End If
+        End If
+    Next d2
+    'Check if game is over
+    If s = "." Then
+        Dim GridAddress As String
+        GridAddress = Range(Cells(i * 5 - 3, 1).Address, Cells(i * 5, 4).Address).Address
+        Dim Count5 As Integer
+        Count5 = Evaluate("=COUNTIF(" & GridAddress & ",""."")")
+        If Count5 > 0 Then
+            s = "Case #" & i & ": Game has not completed"
+        Else
+            s = "Case #" & i & ": Draw"
+        End If
+    End If
+Sheets("Output").Cells(i, 1) = s
+Next i
+Sheets("Output").Select
+Application.ScreenUpdating = True
+End Sub
+
+Attribute VB_Name = "Module1"
+Sub Import_Delimited()
+Attribute Import_Delimited.VB_Description = "Macro recorded 4/13/2013 by jc"
+Attribute Import_Delimited.VB_ProcData.VB_Invoke_Func = " \n14"
+'
+' Import Macro
+' Macro recorded 4/13/2013 by jc
+'
+Sheets("Input").Select
+ActiveSheet.Cells.ClearContents
+    With ActiveSheet.QueryTables.Add(Connection:= _
+        "TEXT;C:\Documents and Settings\Administrator\Desktop\Input.txt", Destination _
+        :=Range("A1"))
+        .Name = "Input"
+        .FieldNames = True
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .TextFilePromptOnRefresh = False
+        .TextFilePlatform = 437
+        .TextFileStartRow = 1
+        .TextFileParseType = xlDelimited
+        .TextFileTextQualifier = xlTextQualifierDoubleQuote
+        .TextFileConsecutiveDelimiter = True
+        .TextFileTabDelimiter = False
+        .TextFileSemicolonDelimiter = False
+        .TextFileCommaDelimiter = False
+        .TextFileSpaceDelimiter = True
+        .TextFileColumnDataTypes = Array(1)
+        .TextFileTrailingMinusNumbers = True
+        .Refresh BackgroundQuery:=False
+    End With
+End Sub
+Sub Import_FixedWidth()
+Attribute Import_FixedWidth.VB_Description = "Macro recorded 4/13/2013 by jc"
+Attribute Import_FixedWidth.VB_ProcData.VB_Invoke_Func = " \n14"
+'
+Sheets("Input").Select
+ActiveSheet.Cells.ClearContents
+    With ActiveSheet.QueryTables.Add(Connection:= _
+        "TEXT;C:\Documents and Settings\Administrator\Desktop\Input.txt", Destination _
+        :=Range("A1"))
+        .Name = "Input_2"
+        .FieldNames = True
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .TextFilePromptOnRefresh = False
+        .TextFilePlatform = 437
+        .TextFileStartRow = 1
+        .TextFileParseType = xlFixedWidth
+        .TextFileTextQualifier = xlTextQualifierDoubleQuote
+        .TextFileConsecutiveDelimiter = False
+        .TextFileTabDelimiter = True
+        .TextFileSemicolonDelimiter = False
+        .TextFileCommaDelimiter = False
+        .TextFileSpaceDelimiter = False
+        .TextFileColumnDataTypes = Array(1, 1, 1, 1, 1)
+        .TextFileFixedColumnWidths = Array(1, 1, 1, 1)
+        .TextFileTrailingMinusNumbers = True
+        .Refresh BackgroundQuery:=False
+    End With
+    Range("G9").Select
+End Sub

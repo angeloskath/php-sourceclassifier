@@ -1,0 +1,61 @@
+package Qualification2013
+
+object TikTacToeTomek {
+
+    def main(args: Array[String]): Unit = {
+    	val nCases = readInt()
+    	for (nCase <- 1 to nCases) {
+    	    val field = Array.ofDim[Char](4, 4)
+    	    for (i <- 0 to 3) {
+    	        val line = readLine()
+    	        field(i) = line.toCharArray()
+    	    }
+    	    readLine()
+    	    def gameResult(): String = {
+    	        def testLine(n: Int, player: Char):Boolean = {
+    	            for (i <- 0 to 3) {
+    	                if (field(n)(i) != player && field(n)(i) != 'T')
+    	                    return false
+    	            }
+    	            return true
+    	        }
+    	        def testColumn(n: Int, player: Char): Boolean = {
+    	            for (i <- 0 to 3) {
+    	                if (field(i)(n) != player && field(i)(n) != 'T')
+    	                    return false
+    	            }
+    	            return true
+    	        }
+    	        def testDiags(player: Char) : Boolean = {
+    	            var fail = false
+    	            for (i <- 0 to 3) {
+    	                if (field(i)(i) != player && field(i)(i) != 'T')
+    	                    fail = true
+    	            }
+    	            if (!fail) return true
+    	            fail = false
+    	            for (i <- 0 to 3) {
+    	                if (field(i)(3 - i) != player && field(i)(3 - i) != 'T')
+    	                    fail = true
+    	            }
+    	            return !fail
+    	        }
+    	        for (player <- List('X', 'O')) {
+    	            for (ind <- 0 to 3) {
+    	                if (testLine(ind, player) || testColumn(ind, player))
+    	                    return player + " won"
+    	            }
+    	            if (testDiags(player))
+    	            	return player + " won"
+    	        }
+    	        for (i <- 0 to 3)
+    	            for (j <- 0 to 3)
+    	                if (field(i)(j) == '.')
+    	                    return "Game has not completed"
+    	        return "Draw"
+    	    }
+    	    printf("Case #%d: %s\n", nCase, gameResult)
+    	}
+    }
+
+}

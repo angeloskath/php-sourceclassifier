@@ -1,0 +1,101 @@
+use strict;
+
+my ($infilename, $outfilename) = @ARGV;
+our $notcompleted;
+
+open (INP, '<', $infilename) or die "Could not open file for reading. Please review the $infilename file";
+open (OUTP, '>', $outfilename) or die "Could not open file $outfilename for writing.";
+
+my @board;
+my $casenum = 1;
+my $linecount = 1;
+while (<INP>) {
+	my ($fileline) = $_;
+	$fileline =~ s/\s+//g;
+	chomp($fileline);
+	# skip the first number
+	if ($fileline =~ /^\d+$/) {
+		next;
+	}
+	my @linarray = split('', $fileline);
+
+	if ($linecount % 5 != 0) {
+		if (!$fileline) {
+			last;
+		}
+		$board[($linecount % 5) - 1] = \@linarray;
+	}
+	else {
+		my $outcome = GetGameOutcome(\@board, $casenum);
+		print OUTP $outcome . "\n";
+		@board = ();
+		$casenum++;
+		$notcompleted = 0;
+	}
+	$linecount++;
+}
+close (INP);
+close (OUTP);
+
+sub GetGameOutcome {
+	my ($boardref, $num) = @_;
+	my $casetext = "Case #$num:";
+	my $status = GetCompleteGame($boardref);
+
+	if ($status) {
+		return "$casetext $status";
+	}
+
+	return "$casetext Draw";
+}
+
+sub GetCompleteGame {
+	my ($boardref) = @_;
+	my ($line, my $linestatus);
+
+	# check for horizontal or vertical wins
+	foreach my $index (0..3) {
+		foreach my $orientation ('horizontal', 'vertical') {
+			$line = $orientation eq 'horizontal'
+				? join('',$board[$index][0], $board[$index][1], $board[$index][2], $board[$index][3])
+				: join('',$board[0][$index], $board[1][$index], $board[2][$index], $board[3][$index]);
+
+			$linestatus = CheckLine($line);
+			if ($linestatus) {
+				return $linestatus;
+			}
+		}
+	}
+	# check the 'X'
+	$line = join('',$board[0][0], $board[1][1], $board[2][2], $board[3][3]);
+	$linestatus = CheckLine($line);
+	if ($linestatus) {
+		return $linestatus;
+	}
+
+	$line = join('',$board[0][3], $board[1][2], $board[2][1], $board[3][0]);
+	$linestatus = CheckLine($line);
+	if ($linestatus) {
+		return $linestatus;
+	}
+
+	# game is a draw or not complete
+	return $notcompleted ? 'Game has not completed' : 0;
+}
+
+sub CheckLine {
+	my ($line) = @_;
+
+	if ($line =~ /\.+/) {
+		$notcompleted = 1;
+		#return 'Game has not completed';
+	}
+	elsif ($line =~ /^(O|T)+$/) {
+		return 'O won';
+	}
+	elsif ($line =~ /^(X|T)+$/) {
+		return 'X won';
+	}
+
+	return 0;
+}

@@ -1,0 +1,66 @@
+module Main where
+
+import Control.Monad
+import Control.Applicative
+import Data.List
+import Data.Maybe
+import Data.Monoid
+import Data.Foldable (foldMap)
+import Text.Printf
+
+import Debug.Trace
+
+
+data Status = NotFinished | Draw | XWon | OWon
+    deriving (Bounded, Enum, Ord, Eq)
+
+instance Show Status where
+    show XWon = "X won"
+    show OWon = "O won"
+    show Draw = "Draw"
+    show NotFinished = "Game has not completed"
+
+instance Monoid Status where
+    XWon `mappend` _ = XWon
+    OWon `mappend` _ = OWon
+    Draw `mappend` _ = Draw
+    NotFinished `mappend` x = x 
+    mempty = NotFinished
+
+
+main::IO ()
+main = mapM_ doCase =<< enumFromTo 1 <$> readLn
+
+doCase :: Int -> IO ()
+doCase caseNo = do
+    grid <- replicateM 4 getLine
+    _ <- getLine
+    printf "Case #%d: %s\n" caseNo (show $ solve grid)
+
+solve :: [String] -> Status
+solve rows  =
+    foldMap checkLine rows
+    <> foldMap checkLine (transpose rows)
+    <> (checkLine . diagonal $ rows)
+    <> (checkLine . diagonal . reverse $ rows)
+    <> checkDraw rows
+
+safeIndex :: [a] -> Int -> Maybe a
+safeIndex xs i = listToMaybe $ drop i xs
+
+diagonal :: [[a]] -> [a]
+diagonal xss = catMaybes $ zipWith safeIndex xss [0..]
+
+checkLine :: String -> Status
+checkLine line =
+    if all (\c -> c == 'X' || c == 'T') line
+    then XWon
+    else if all (\c -> c == 'O' || c == 'T') line
+    then OWon
+    else NotFinished
+
+checkDraw :: [String] -> Status
+checkDraw rows =
+    if all (all ('.' /=)) rows
+    then Draw
+    else NotFinished

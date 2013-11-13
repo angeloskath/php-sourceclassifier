@@ -1,0 +1,74 @@
+program ProblemA;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var
+posj,posk,i,j,k, flag, kol, n : longint;
+mas : array [1..4,1..4] of char;
+procedure poisk(x : char);
+var l, g: longint;
+begin
+  flag := 0;
+
+  for l := 1 to 4 do
+    if (mas[l,1] = x) and  (mas[l,2] = x) and(mas[l,3] = x) and
+      (mas[l,4] = x) then begin
+        writeln('Case #',i,': ',x,' won');
+        flag :=1;
+        exit;
+      end else
+    if (mas[1,l] = x) and  (mas[2,l] = x) and(mas[3,l] = x) and
+      (mas[4,l] = x) then begin
+        writeln('Case #',i,': ',x,' won');
+        flag := 1;
+        exit;
+      end else
+    if (mas[1,1] = x) and(mas[2,2] = x) and(mas[3,3] = x) and(mas[4,4] = x)
+    then begin
+      writeln('Case #',i,': ',x,' won');
+      flag := 1;
+      exit;
+    end else
+    if (mas[1,4] = x) and(mas[2,3] = x) and(mas[3,2] = x) and(mas[4,1] = x) then begin
+      writeln('Case #',i,': ',x,' won');
+      flag := 1;
+      exit;
+    end;
+end;
+begin
+   reset(input,'A.in');
+   rewrite(output,'A.out');
+   readln(n);
+   for i := 1 to n do begin
+      kol := 0;
+      posj := -1;
+      posk := -1;
+      for j := 1 to 4 do begin
+        for k := 1 to 4 do begin read(mas[j,k]);
+          if (mas[j,k] = '.') then  inc(kol);
+          if (mas[j,k] = 'T') then begin
+            posj := j;
+            posk := k;
+          end;
+        end;
+        readln;
+      end;
+      readln;
+       if (posj <> -1) then begin
+         mas[posj,posk] := 'O';
+         poisk('O');
+         if (flag = 0) then begin
+           mas[posj,posk] := 'X';
+           poisk('X');
+         end;
+       end else  begin
+           poisk('O');
+           if (flag = 0) then poisk('X');
+         end;
+        if flag = 0 then if kol = 0 then writeln('Case #',i,': Draw') else
+          writeln('Case #',i,': Game has not completed');
+   end;
+end.
+ 

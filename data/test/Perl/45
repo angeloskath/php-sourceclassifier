@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Slurp;
+use Data::Dumper;
+
+my $ST = {
+   'x' => "X won",
+   'o' =>  "O won",
+   'draw' => "Draw",
+   'incomplete' =>  "Game has not completed"
+};
+
+
+sub main{
+    my $in = read_file($ARGV[0]);
+
+    my @lines = split("\n", $in);
+
+    my $num = shift(@lines);
+
+    my $inputs = [];
+
+    for(my $i=0; $i < $num; $i++) {
+        my $ll = [];
+        for(my $j = 0; $j < 4; $j++) {
+            $ll->[$j] = to_arr(shift(@lines));
+        }
+        shift(@lines);
+        push @{$inputs}, $ll;
+    }
+
+
+    for(my $i = 0; $i < $num; $i++) {
+        my $ii = $i + 1;
+        my $res = solve_input($inputs->[$i]); 
+
+        output_i($ii, $res);
+    }
+
+}
+
+sub solve_input{
+    my $in = shift;
+
+    my $total_cnt = {'X' => 0, 'T' => 0, 'O' => 0, '.' => 0};        
+
+    for(my $i = 0; $i < 4; $i++) {
+       
+        my $line_cnt = {'X' => 0, 'T' => 0, 'O' => 0, '.' => 0};        
+        my $line_cnt2 = {'X' => 0, 'T' => 0, 'O' => 0, '.' => 0};        
+
+        for(my $j = 0; $j < 4; $j++) {
+            my $cell = $in->[$i]->[$j]; 
+            $line_cnt->{$cell} ++; 
+            $total_cnt->{$cell} ++; 
+            
+            
+            my $cell2 = $in->[$j]->[$i]; 
+            $line_cnt2->{$cell2} ++; 
+        }
+        foreach my $l (($line_cnt, $line_cnt2)) {
+            if (x_win($l)) {
+                return $ST->{'x'};
+            }
+            if (o_win($l)) {
+                return $ST->{'o'};
+            }
+        }
+        
+    }    
+
+        
+    my $diag_cnt = {'X' => 0, 'T' => 0, 'O' => 0, '.' => 0};        
+    my $diag_cnt2 = {'X' => 0, 'T' => 0, 'O' => 0, '.' => 0};        
+
+    for( my $i=0; $i < 4; $i++) {
+        my $cell = $in->[$i]->[$i]; 
+        $diag_cnt->{$cell} ++;
+        my $j = 3 - $i;
+        my $cell2 = $in->[$i]->[$j]; 
+        $diag_cnt2->{$cell2} ++;
+        
+        foreach my $l ($diag_cnt, $diag_cnt2) {
+            if (x_win($l)) {
+                return $ST->{'x'};
+            }
+            if (o_win($l)) {
+                return $ST->{'o'};
+            }
+        }
+    } 
+
+    if ($total_cnt->{'.'} == 0) {
+        return $ST->{'draw'};
+    } else {
+        return $ST->{'incomplete'};
+    }
+}
+
+sub x_win{
+    my $line = shift;
+
+    return p_win($line, 'X');
+}
+
+sub o_win{
+    my $line = shift;
+
+    return p_win($line, 'O');
+}
+
+sub p_win{
+    my $line = shift;
+    my $p = shift;
+
+
+    return ($line->{$p} == 4 || $line->{$p}== 3 && $line->{'T'} == 1);
+
+}
+
+sub to_arr{
+    my $s = shift;
+    return [split(//, $s)];
+}
+
+sub output_i{
+    my $i = shift;
+    my $res = shift;
+    
+    print "Case #$i: $res\n";
+}
+
+main();

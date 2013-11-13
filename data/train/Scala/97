@@ -1,0 +1,90 @@
+import scala.io._
+import java.lang.{ Long => JLong }
+
+object GoogleCodeJam {
+  
+  def Start(s:String) = 
+  {
+    val lines = Source.fromFile(s).getLines.toList;
+    run(0,lines.head.toInt,lines.tail) 
+  }
+
+  def ExecuteCase(board:Array[Array[Char]]):Unit ={
+    def XorT(c:Char):Boolean=
+      {c == 'X' || c == 'T'}
+    def OorT(c:Char):Boolean=
+      {c == 'O' || c == 'T'}
+    def Filled(c:Char):Boolean=
+      {c != '.'}
+    if( board.exists(b => b.forall(c => XorT(c)) ) ||
+        (0 to 3).exists( b => 
+          XorT(board(0)(b)) &&
+          XorT(board(1)(b)) &&
+          XorT(board(2)(b)) &&
+          XorT(board(3)(b)))
+       || ( XorT(board(0)(0)) &&
+          XorT(board(1)(1)) &&
+          XorT(board(2)(2)) &&
+          XorT(board(3)(3)))
+       || ( XorT(board(0)(3)) &&
+          XorT(board(1)(2)) &&
+          XorT(board(2)(1)) &&
+          XorT(board(3)(0))))
+      print("X won")
+    else if( board.exists(b => b.forall(c => OorT(c)) ) ||
+        (0 to 3).exists( b => 
+          OorT(board(b)(0)) &&
+          OorT(board(b)(1)) &&
+          OorT(board(b)(2)) &&
+          OorT(board(b)(3)))
+       || ( OorT(board(0)(0)) &&
+          OorT(board(1)(1)) &&
+          OorT(board(2)(2)) &&
+          OorT(board(3)(3)))
+       || ( OorT(board(0)(3)) &&
+          OorT(board(1)(2)) &&
+          OorT(board(2)(1)) &&
+          OorT(board(3)(0))))
+      print("O won")
+    else if (board.forall(b => b.forall(c => Filled(c))))
+      print("Draw")
+    else 
+      print("Game has not completed")
+
+    print("\n");()
+
+  }
+
+  def Case(l:List[String]):List[String] = {
+    // parse input list to case inputs
+    //val length = l.head.toInt; // get case length
+    //val SetFloat    = l.tail.head.split(" ").map( x => Integer.parseInt(x,10).toFloat ).toList; // split line floats
+    //val SetInt      = l.head.split(" ").map( x => java.lang.Long.parseLong(x,10) ).toList; // split line into Ints
+  
+    //val SetBigInt   = l.tail.head.split(" ").map( x => BigInt(Integer.parseInt(x,10)) ).toList; // split line into BigInts
+    val line1  = l.head.toArray
+    val line2  = l.tail.head.toArray
+    val line3  = l.tail.tail.head.toArray
+    val line4  = l.tail.tail.tail.head.toArray
+
+    ExecuteCase(Array(line1,line2,line3,line4))
+    if( l.tail.tail.tail.tail.length == 0 )
+      Nil
+    else
+      l.tail.tail.tail.tail.tail
+  }
+
+  def run(curCase:Int,caseCount:Int,l:List[String]):Unit =
+  { 
+
+    if(curCase < caseCount){
+      print("Case #" + ( curCase + 1 )+ ": ");
+      run(curCase+1,caseCount,Case(l))
+    }
+  }
+
+}
+
+object Main extends App {
+  GoogleCodeJam.Start(args(0))
+}

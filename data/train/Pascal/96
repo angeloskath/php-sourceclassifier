@@ -1,0 +1,195 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+type
+ tableau = array[1..4,1..4] of string;
+
+var
+ input,output:Textfile;
+ ligne: string;
+ board: tableau;
+ T,i,j,k: integer;
+
+
+procedure check(board: tableau);
+var x,y,ord: integer; won_X, won_O, completed: boolean;
+begin
+ won_X:= false;
+ won_O:= false;
+
+// Rows
+  for y:= 1 to 4 do
+   begin
+    x:=1;
+    if (board[x,y] = 'X') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y]= 'X') or (board[x+ord,y]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_X:= true;
+         end
+        else break;
+       end;
+     end
+    else if (board[x,y] = 'O') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y]= 'O') or (board[x+ord,y]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_O:= true;
+         end
+        else break;
+       end;
+     end;
+   end;
+
+
+// Columns
+  for x:= 1 to 4 do
+   begin
+    y:=1;
+    if (board[x,y] = 'X') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x,y+ord]= 'X') or (board[x,y+ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_X:= true;
+         end
+        else break;
+       end;
+     end
+    else if (board[x,y] = 'O') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x,y+ord]= 'O') or (board[x,y+ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_O:= true;
+         end
+        else break;
+       end;
+     end;
+   end;
+
+
+// Diagonale 1
+    x:=1;
+    y:=1;
+    if (board[x,y] = 'X') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y+ord]= 'X') or (board[x+ord,y+ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_X:= true;
+         end
+        else break;
+       end;
+     end
+    else if (board[x,y] = 'O') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y+ord]= 'O') or (board[x+ord,y+ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_O:= true;
+         end
+        else break;
+       end;
+     end;
+
+          
+// Diagonale 2
+    x:=1;
+    y:=4;
+    if (board[x,y] = 'X') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y-ord]= 'X') or (board[x+ord,y-ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_X:= true;
+         end
+        else break;
+       end;
+     end
+    else if (board[x,y] = 'O') or (board[x,y] = 'T') then
+     begin
+      ord:= 1;
+      while ord <= 3 do
+       begin
+        if (board[x+ord,y-ord]= 'O') or (board[x+ord,y-ord]= 'T') then
+         begin
+          ord:= ord+1;
+          if ord = 4 then won_O:= true;
+         end
+        else break;
+       end;
+     end;
+
+  completed:= true;
+  for x:= 1 to 4 do
+   for y:= 1 to 4 do
+    if board[x,y] = '.' then
+     begin
+      completed:= false;
+      break;
+     end;
+
+  if (won_X = true) and (won_O = false) then writeln(output, 'Case #'+inttostr(k)+': X won');
+  if (won_X = false) and (won_O = true) then writeln(output, 'Case #'+inttostr(k)+': O won');
+  if (won_X = false) and (won_O = false) then
+   begin
+    if completed then writeln(output, 'Case #'+inttostr(k)+': Draw')
+    else writeln(output, 'Case #'+inttostr(k)+': Game has not completed');
+   end;
+end;
+
+
+begin
+ assignfile(input,'input.txt');
+ assignfile(output,'output.txt');
+ reset(input);
+ rewrite(output);
+ readln(input,ligne);
+ T:= strtoint(ligne);
+ for k:= 1 to T do
+  begin
+   for j:= 1 to 4 do
+    begin
+     readln(input,ligne);
+     i:= 1;
+     while i <= length(ligne) do
+      begin
+       board[j,i]:= ligne[i];
+       i:= i+1;
+      end;
+    end;
+   readln(input,ligne);
+   check(board);
+  end;
+ closefile(input);
+ closefile(output);
+end.
+ 

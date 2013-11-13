@@ -1,0 +1,88 @@
+<?php
+
+
+/**
+ * Returns the winner if present, a dot if no winner in this combination
+ */
+function check($board, $r, $c, $ir, $ic) {
+	$was = array();
+	$boardsize = count($board);
+	//echo "\n";
+	for ($i = 0; $i < $boardsize; ++$i) {
+		$curr = $board[$r][$c];
+		//echo "$r $c $curr  ";
+		if ('.' == $curr) return '.';
+		if ('T' != $curr) {
+			$was[$curr] = true;
+		}
+		$r += $ir;
+		$c += $ic;
+	}
+	if (count($was) == 1) {
+		foreach ($was as $k => $v) {
+			return $k;
+		}
+	}
+	return '.';	
+}
+
+
+function singletask($board) {
+	//print_r($board);
+	$boardsize = count($board);
+	//check rows
+	for ($i = 0; $i < $boardsize; ++$i) {
+		$winner = check($board, $i, 0, 0, 1);
+		if ('.' != $winner) return "$winner won";
+	}
+
+	//check cols
+	for ($i = 0; $i < $boardsize; ++$i) {
+		$winner = check($board, 0, $i, 1, 0);
+		if ('.' != $winner) return "$winner won";
+	}
+
+	//check diag \
+	{
+		$winner = check($board, 0, 0, 1, 1);
+		if ('.' != $winner) return "$winner won";
+	}
+
+	//check diag /
+	{
+		$winner = check($board, $boardsize-1, 0, -1, 1);
+		if ('.' != $winner) return "$winner won";
+	}
+
+	//check if full
+	for ($r = 0; $r < $boardsize; ++$r) {
+		for ($c = 0; $c < $boardsize; ++$c) {
+			if ('.' == $board[$r][$c]) return "Game has not completed";
+		}
+	}
+
+	return "Draw";
+}
+
+
+function main() {
+	global $argv;
+
+	$task = file("taskA.".$argv[1].".in", FILE_IGNORE_NEW_LINES);
+	$out = fopen("taskA.".$argv[1].".out", "w") or die("can't open file");
+	$n = (int) $task[0];
+	for ($i = 0; $i < $n; ++$i)
+	{
+		$result = singletask(array($task[$i*5+1], $task[$i*5+2], $task[$i*5+3], $task[$i*5+4]));
+
+		$result = "Case #" . ($i+1) . ": " . $result . "\n";
+		echo $result;
+		fwrite($out, $result);
+
+	}
+
+}
+
+
+main();
+

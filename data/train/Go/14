@@ -1,0 +1,108 @@
+package main
+
+import (
+	"fmt"
+	//"bufio"
+	"os"
+)
+
+type Board []byte
+
+func parseBoard(in []byte) (Board, error) {
+	r := make([]byte, 0)
+	for _, b := range in {
+		switch b {
+		case '\n':
+			continue
+		}
+		r = append(r, b)
+	}
+	if len(r) != 16 {
+		return nil, fmt.Errorf("Bad input:", string(in))
+	}
+	return r, nil
+}
+
+func (b Board) String() string {
+	result := ""
+	for i := 0; i < 4; i++ {
+		result += fmt.Sprintln(string([]byte(b)[i*4 : (i+1)*4]))
+	}
+	return result
+}
+
+func (b Board) State() string {
+	incomplete := false
+	possibleWins := make([][]byte, 0)
+	tmp := make([]byte, 4)
+	tmp2 := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		possibleWins = append(possibleWins, b[i*4 : (i+1)*4][:])
+		for j := 0; j < 4; j++ {
+			tmp[j] = b[4*j+i]
+		}
+		//fmt.Println("for", i, string(b[i*4:(i+1)*4]))
+		//fmt.Println("tmp", i, string(tmp))
+		possibleWins = append(possibleWins, append([]byte{}, tmp...))
+	}
+	for i := 0; i < 4; i++ {
+		tmp[i] = b[4*i+i]
+		tmp2[i] = b[4*i+(3-i)]
+	}
+	//fmt.Println("xtmp", string(tmp))
+	//fmt.Println("xtmp", string(tmp2))
+	possibleWins = append(possibleWins, append([]byte{}, tmp...))
+	possibleWins = append(possibleWins, append([]byte{}, tmp2...))
+
+	for _, pw := range possibleWins {
+		present := make(map[byte]bool)
+		for _, c := range pw {
+			present[c] = true
+		}
+		//fmt.Println(string(pw), present)
+		if present['.'] {
+			incomplete = true
+		}
+		switch len(present) {
+		case 1:
+			if present['X'] {
+				return "X won"
+			}
+			if present['O'] {
+				return "O won"
+			}
+		case 2:
+			if present['T'] {
+				if present['X'] {
+					return "X won"
+				} else if present['O'] {
+					return "O won"
+				}
+			}
+		}
+	}
+	if incomplete {
+		return "Game has not completed"
+	} else {
+		return "Draw"
+	}
+}
+
+func main() {
+	N := 0
+	fmt.Scan(&N)
+
+	for i := 0; i < N; i++ {
+		boardBuf := make([]byte, 21)
+		os.Stdin.Read(boardBuf)
+
+		board, err := parseBoard(boardBuf)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Case #%d: ", i+1)
+		//fmt.Println()
+		//fmt.Println(board)
+		fmt.Println(board.State())
+	}
+}

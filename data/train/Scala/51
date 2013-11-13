@@ -1,0 +1,66 @@
+package com.sosnoski.codejam.tictac
+
+import scala.io.Source
+import scala.collection.mutable.HashMap
+import scala.annotation.tailrec
+import java.io.PrintWriter
+import java.io.File
+
+object Application {
+
+  def checkOver(cells: String) = {
+    def checkWon(start: Int, side: Char, offset: Int) = {
+      @tailrec
+      def checkWonr(next: Int, count: Int): Boolean =
+        if (count == 0) true
+        else {
+          val compare = cells(next)
+          if (compare == side || compare == 'T') checkWonr(next + offset, count - 1)
+          else false
+        }
+      checkWonr(start + offset, 3)
+    }
+    def checkRepeat(start: Int, nextCell: Int, nextTry: Int, count: Int): Option[String] = {
+      if (count > 0) {
+        val first = cells(start)
+        val second = cells(start + nextCell)
+        val side =
+          if (first == 'X' || first == 'O') first
+          else if (first == 'T' && (second == 'X' || second == 'O')) second
+          else ' '
+        if (side != ' ' && checkWon(start, side, nextCell)) Some("" + side)
+        else checkRepeat(start + nextTry, nextCell, nextTry, count - 1)
+      } else None
+    }
+    checkRepeat(0, 1, 4, 4) match {
+      case None ⇒ checkRepeat(0, 4, 1, 4) match {
+        case None ⇒ checkRepeat(0, 5, 1, 1) match {
+          case None ⇒ checkRepeat(3, 3, 1, 1)
+          case s => s
+        }
+        case s => s
+      }
+      case s => s
+    }
+  }
+
+  def printToFile(f: File)(op: PrintWriter ⇒ Unit) {
+    val p = new PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
+
+  def main(args: Array[String]) {
+    val ss = Source.fromFile(args(0)).getLines
+    val count = Integer.decode(ss.next.trim())
+    printToFile(new File(args(1)))(p ⇒ {
+      for (i ← 1 to count) {
+        val cells = ss.next + ss.next + ss.next + ss.next
+        p.println("Case #" + i + ": " + (checkOver(cells) match {
+          case Some(s) ⇒ s + " won"
+          case None ⇒ if (cells.indexOf('.') >= 0) "Game has not completed" else "Draw"
+        }))
+        ss.next
+      }
+    })
+  }
+}

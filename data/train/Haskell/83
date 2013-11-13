@@ -1,0 +1,50 @@
+module A where
+
+import Data.List
+import Data.Maybe
+import System.Environment
+
+type Board = [[Char]]
+
+parseInput :: [String] -> [Board]
+parseInput [] = []
+parseInput (_:bs) =
+  parseInput' bs
+  where parseInput' bs
+          | length bs >= 5 = let (b,r) = splitAt 5 bs
+                             in init b:parseInput' r
+          | otherwise = []
+
+type Winner = Maybe Char
+data GameState = Incomplete | Draw | Win Char
+
+solve :: Board -> GameState
+solve b =
+  let cols = foldr (zipWith (:)) (repeat []) b
+      diags = [ [(b !! 0 !! 0),(b !! 1 !! 1),(b !! 2 !! 2),(b !! 3 !! 3)]
+              , [(b !! 0 !! 3),(b !! 1 !! 2),(b !! 2 !! 1),(b !! 3 !! 0)]
+              ]
+  in maybe (checkDraw b) Win (listToMaybe . catMaybes . map findWinner $ b ++ cols ++ diags)
+  where
+    findWinner l = case sort (nub l) of
+                    ['T','X'] -> Just 'X'
+                    ['X'] -> Just 'X'
+                    ['O','T'] -> Just 'O'
+                    ['O'] -> Just 'O'
+                    _         -> Nothing
+    checkDraw b
+      | any (elem '.') b = Incomplete
+      | otherwise        = Draw
+
+formatOutput :: (Int, GameState) -> String
+formatOutput (i, gs) = "Case #" ++ (show (succ i)) ++ ": " ++ formatGS gs
+  where
+    formatGS Incomplete = "Game has not completed"
+    formatGS Draw = "Draw"
+    formatGS (Win c) = c:" won"
+
+main = do
+  [fname] <- getArgs
+  bs <- (parseInput . lines) `fmap` readFile fname
+  mapM_ putStrLn . map formatOutput . zip [0..] . map solve $ bs
+

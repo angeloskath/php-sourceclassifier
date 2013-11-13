@@ -1,0 +1,34 @@
+# ruby template.rb input.in > output.out
+
+def compara(a, b)
+  return '' if b== '.'
+  return a if a == b
+  return b if a == 'T'
+  return a if b == 'T'
+  ''
+end
+
+gets.to_i.times do |cur_case|
+  result = 'Draw'
+  status = ['T'] * 10
+  4.times do |y|
+    linea = gets.chomp
+    linea.split('').each_index do |x|
+      i=linea[x]
+      result = 'Game has not completed' if i == '.'
+      #puts "#{y}, #{x}: #{i}"
+      status[y] = compara(status[y], i)
+      status[x+4] = compara(status[x+4], i)
+      status[8] = compara(status[8], i) if x == y
+      status[9] = compara(status[9], i) if x + y == 3
+    end
+  end
+  linea = gets
+  status.each do |s|
+    result = "#{s} won" if s != ''
+  end
+  puts "Case ##{cur_case + 1}: #{result}"
+  #p status
+
+end
+

@@ -1,0 +1,42 @@
+
+
+t = gets.to_i
+
+inputs = (0...t).to_a.map do
+  r = (1..4).to_a().map do
+    gets.strip.split(//).map {|c| {"." => 0, 'T' => 10, 'X' => 100, 'O' => 1000}[c] }
+  end
+  gets
+  r
+end
+
+def res(data)
+  sum = 0
+  sum_rows = [0]*4
+  sum_columns = [0]*4
+  sum_diagonals = [0]*2
+    
+  data.each_with_index do |row, j|
+    row.each_with_index do |val, i|
+      sum += val
+      sum_rows[j] += val
+      sum_columns[i] += val
+      sum_diagonals[0] += val if i == j
+      sum_diagonals[1] += val if i + j == 3
+    end
+  end
+  
+  all = (sum_rows + sum_columns + sum_diagonals).uniq
+    
+  return "X won" if all.include?(400) || all.include?(310)
+  return "O won" if all.include?(4000) || all.include?(3010)
+  return "Draw" if sum == 7810 || sum == 8800
+  return "Game has not completed"
+end
+
+inputs.each_with_index do |data, i|
+  r = res data
+  puts "Case ##{i + 1}: #{r}"
+  $stderr.puts "Case ##{i + 1}: #{r}"
+end
+

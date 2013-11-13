@@ -1,0 +1,61 @@
+<?php 
+$start=microtime(1);
+
+$lines[]=[0,4,8,12];
+$lines[]=[1,5,9,13];
+$lines[]=[2,6,10,14];
+$lines[]=[3,7,11,15];
+
+$lines[]=[0,5,10,15];
+$lines[]=[3,6,9,12];
+
+$lines[]=[0,1,2,3];
+$lines[]=[4,5,6,7];
+$lines[]=[8,9,10,11];
+$lines[]=[12,13,14,15];
+
+
+$games=@file_get_contents('A-large.in') or die("ERROR: No file !\n");
+$games=explode("\n\n",$games);
+array_pop($games); //fix for input file ending in \n\n
+$no=preg_split('/(?<=\d)\n/',$games[0]);
+$games[0]=$no[1];
+$no=$no[0];
+
+if ($no!=count($games)) die ("ERROR: input $no games, got ".count($games)." !\n");
+
+$play=0;
+foreach($games as $game){
+	$play++;
+	$game=preg_replace('/\n/','',$game);
+	
+	$won=false;
+	$draw=0;
+	$out='Case #'.$play.': ';
+	foreach ($lines as $line) {
+		$card='';
+		foreach ($line as $mark) {
+			$card.=$game[$mark];
+		}
+		if (preg_match('/^[TX]{4}$/',$card)>0) {
+			$out.="X won\n";
+			$won=true;
+			break;
+		} elseif (preg_match('/^[TO]{4}$/',$card)>0) {
+			$out.="O won\n";
+			$won=true;
+			break;
+		} else {
+			if (strpos($card,'.')!==false) $draw=1;
+		}
+	}
+	
+	if (!$won) {
+		if ($draw==1) $out.="Game has not completed\n";
+		else $out.="Draw\n";
+	}
+	
+	print $out;
+}
+
+if ($no!=$play) print "\nFATAL ERROR: input $no games, processed $play !\n";

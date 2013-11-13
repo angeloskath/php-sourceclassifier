@@ -1,0 +1,58 @@
+import System.IO
+import Control.Applicative
+import Control.Monad
+import Data.List
+import Data.Maybe
+
+main = do
+  n <- read <$> getLine
+  forM_ [1..n] $ \i -> do
+    xss <- readCase
+    putStrLn $ "Case #" ++ show i ++ ": " ++ (show $ solve xss)
+
+data Result = X | O | Draw | Incomplete
+
+instance Show Result where
+  show X = "X won"
+  show O = "O won"
+  show Draw = "Draw"
+  show Incomplete = "Game has not completed"
+
+solve :: [String] -> Result
+solve xss =
+  let
+    brdX = map (replace' 'T' 'X') xss
+    brdO = map (replace' 'T' 'O') xss
+  in
+    if win 'X' brdX then X else
+      if win 'O' brdO then O else
+        if filled xss then Draw else Incomplete
+
+replace' :: (Eq a) => a -> a -> [a] -> [a]
+replace' a b xs = map f xs
+  where
+    f x | x == a = b
+        | otherwise = x
+
+win c brd =
+  any (\xs -> xs == replicate 4 c) brd || 
+  any (\xs -> xs == replicate 4 c) brdt ||
+  all (==c) (get2d [(0,0),(1,1),(2,2),(3,3)] brd) ||
+  all (==c) (get2d [(0,3),(1,2),(2,1),(3,0)] brd)
+  where
+    brdt = transpose brd
+
+get2d :: [(Int,Int)] -> [[a]] -> [a]
+get2d ps xss = map f ps
+  where
+    f (i,j) = xss !! i !! j 
+
+alleq :: Eq a => [a] -> Bool
+alleq [] = True
+alleq [x] = True
+alleq (x:y:xs) = (x == y) && alleq (y:xs)
+
+filled = not . any (\xs -> isJust (find (=='.') xs))
+
+readCase :: IO [String]
+readCase = take 4 <$> replicateM 5 getLine

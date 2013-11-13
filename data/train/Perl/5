@@ -1,0 +1,195 @@
+open(DATA,'<A-large.in');
+open(OUTPUT,'>A-large_out.txt');
+
+
+$lineNum =0;
+$caseNum =1;
+
+
+
+
+while(<DATA>){
+		chomp($line = $_);
+		
+		if($lineNum == 0){
+			$totalCases = $line;
+			print "\nTotal Cases: $totalCases ";
+			$gameRow =0;
+			@gameMatrix =();
+			
+			
+		} else {
+			$gameRow += 1;
+			if($gameRow > 0){
+				push @gameMatrix, [ split // ];
+			}
+			
+		if($gameRow == 4){
+			$wonHorizontal =0;
+			$wonVertical = 0;
+			$wonEqualDiagonal =0;
+			$wonUnequalDiagonal =0;
+			$winner = ();
+			$dotPresentFlag =0;
+			print "\nCase #$caseNum:";
+			
+			if (($gameMatrix[0][0] eq $gameMatrix[1][1]
+				&& $gameMatrix[1][1] eq $gameMatrix[2][2]
+				&& $gameMatrix[2][2] eq $gameMatrix[3][3] && $gameMatrix[0][0] ne ".")
+				||
+				($gameMatrix[0][0] eq "T"
+				&& $gameMatrix[1][1] eq $gameMatrix[2][2]
+				&& $gameMatrix[2][2] eq $gameMatrix[3][3] && $gameMatrix[3][3] ne ".")
+				||
+				($gameMatrix[0][0] eq $gameMatrix[2][2]
+				&& $gameMatrix[1][1] eq "T"
+				&& $gameMatrix[2][2] eq $gameMatrix[3][3] && $gameMatrix[0][0] ne ".")
+				||
+				($gameMatrix[0][0] eq $gameMatrix[1][1]
+				&& $gameMatrix[1][1] eq $gameMatrix[2][2]
+				&& $gameMatrix[3][3] eq "T" && $gameMatrix[0][0] ne ".")
+				||
+				($gameMatrix[0][0] eq $gameMatrix[1][1]
+				&& $gameMatrix[1][1] eq $gameMatrix[3][3]
+				&& $gameMatrix[2][2] eq "T" && $gameMatrix[0][0] ne "."))
+				{
+					$wonEqualDiagonal = 1;
+				}
+				
+			if ($wonEqualDiagonal ==0){	
+				if(($gameMatrix[0][3] eq $gameMatrix[1][2]
+					&& $gameMatrix[1][2] eq $gameMatrix[2][1]
+					&& $gameMatrix[2][1] eq $gameMatrix[3][0] && $gameMatrix[0][3] ne ".")
+					||
+					($gameMatrix[0][3] eq "T"
+					&& $gameMatrix[1][2] eq $gameMatrix[2][1]
+					&& $gameMatrix[2][1] eq $gameMatrix[3][0] && $gameMatrix[3][0] ne ".")
+					||
+					($gameMatrix[0][3] eq $gameMatrix[2][1]
+					&& $gameMatrix[1][2] eq "T"
+					&& $gameMatrix[2][1] eq $gameMatrix[3][0] && $gameMatrix[0][3] ne ".")
+					||
+					($gameMatrix[0][3] eq $gameMatrix[1][2]
+					&& $gameMatrix[1][2] eq $gameMatrix[3][0]
+					&& $gameMatrix[2][1] eq "T" && $gameMatrix[0][3] ne ".")
+					||
+					($gameMatrix[0][3] eq $gameMatrix[1][2]
+					&& $gameMatrix[1][2] eq $gameMatrix[2][1]
+					&& $gameMatrix[3][0] eq "T" && $gameMatrix[0][3] ne "."))
+					{
+						$wonUnequalDiagonal = 1;
+					}
+			}
+				
+			if ($wonEqualDiagonal ==1 || $wonUnequalDiagonal ==1){
+				if ($wonEqualDiagonal ==1){
+					for ($i=0; $i<4; $i++){
+						if($gameMatrix[$i][$i] ne "T"){
+							$winner = $gameMatrix[$i][$i];
+							last;
+						}
+					}
+				}
+				
+				if ($wonUnequalDiagonal ==1){
+					for ($i=0;$i<4;$i++){
+						if($gameMatrix[$i][3-$i] ne "T"){
+							$winner = $gameMatrix[$i][3-$i];
+							last;
+						}
+					}
+				}
+
+			}
+				
+			if ($wonEqualDiagonal == 0 && $wonUnequalDiagonal == 0){
+			foreach $i (0..@gameMatrix-1)	{
+				foreach $j (0..@{$gameMatrix[$i]}-2){
+					print "\nElement [$i][$j] = $gameMatrix[$i][$j]";
+					
+					
+					if ($gameMatrix[$i][$j] ne ".") {
+						#Check Horizontal
+						for($horizontal = 0;$horizontal <4;$horizontal++){
+							if($gameMatrix[$i][$j] eq $gameMatrix[$horizontal][$j]
+								||$gameMatrix[$horizontal][$j] eq "T"){
+								$wonHorizontal = 1;
+							} else{
+								$wonHorizontal = 0;
+								last;
+							}
+						}
+						
+						#Find the winner for horizontal
+						if($wonHorizontal == 1){
+							for ($m=0;$m<4;$m++){
+								if($gameMatrix[$m][$j] ne "T"){
+									$winner = $gameMatrix[$i][$j]
+								} else{
+									next;
+								}
+							}
+						}
+					
+					
+						#Check vertical if not horizontal
+						if ($wonHorizontal ==0){
+							for($vertical = 0;$vertical <4;$vertical++){
+								if($gameMatrix[$i][$j] eq $gameMatrix[$i][$vertical]
+									||$gameMatrix[$i][$vertical] eq "T"){
+									$wonVertical = 1;
+								} else{
+									$wonVertical = 0;
+									last;
+								}
+							}
+							#Find the winner for vertical
+							if($wonVertical == 1){
+								for ($m=0;$m<4;$m++){
+									if($gameMatrix[$i][$m] ne "T"){
+										$winner = $gameMatrix[$i][$j]
+									} else{
+										next;
+									}
+								}
+							}
+							
+						} #vertical check end
+					
+						
+					} else {	#end of . if clause			
+						$dotPresentFlag = 1;
+						next;					
+					}							
+				} # end of j loop
+				
+				#print "\n";
+			} #end of i loop
+			}#end of diagonal winner check if
+			
+			if($winner eq "X" or $winner eq "O"){
+				print OUTPUT "Case #$caseNum: $winner won\n";
+			} elsif ($dotPresentFlag == 1){
+				print OUTPUT "Case #$caseNum: Game has not completed\n";
+			}else {
+				print OUTPUT "Case #$caseNum: Draw\n";
+			}	
+			
+			
+			$gameRow = -1;
+			$caseNum += 1;
+			@gameMatrix =();
+			
+			#print "\n";
+		}
+			
+			
+		}
+
+$lineNum += 1;
+}
+
+close (DATA);
+close(OUTPUT);
+
+

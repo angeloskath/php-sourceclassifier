@@ -1,0 +1,34 @@
+{-# OPTIONS_GHC -O2 #-}
+
+import Control.Applicative
+import Data.List
+
+main :: IO ()
+main = do
+  _ <- getLine
+  boards <- words <$> getContents
+  putStr . unlines $ runGCJ boards
+  
+runGCJ :: [String] -> [String]
+runGCJ boards = go 1 boards
+   where
+     go _ [] = []
+     go i boards = res : go (i+1) rest
+      where
+        res = "Case #" ++ shows i ": " ++ solve board
+        (board, rest) = splitAt 4 boards
+
+isWinner :: Char -> [String] -> Bool
+isWinner player board = any f $ [row, column, diagonal] >>= ($ board)
+   where
+     f cs = all (\c -> c==player || c=='T') cs
+     row board = transpose board
+     column board = board
+     diagonal board = map (zipWith (!!) board) [[0..3],[3,2..0]]
+
+solve :: [String] -> String
+solve board
+  | isWinner 'X' board = "X won"
+  | isWinner 'O' board = "O won"
+  | any ('.'==) $ concat board = "Game has not completed"
+  | otherwise = "Draw"

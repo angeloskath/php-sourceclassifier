@@ -1,0 +1,65 @@
+// cscript //Nologo a.js < a.data > a.out
+
+var main = function() {
+  var T = parseInt(WScript.StdIn.ReadLine());
+  for (var i=0; i<T; i++) {
+    var grid = [];
+    var line;
+    for (var j=0; j<4; j++) {
+      line = WScript.StdIn.ReadLine()
+      grid.push(line.match(/(.)(.)(.)(.)/));
+    }
+
+    var game = [flattenColumns(grid), flattenRows(grid), flattenDiagonals(grid)]
+        .join(); 
+    var areMoves = /\./.test(game);
+
+    var result = 'Case #' + (i+1) + ': ';
+    if (/XXXX/.test(game.replace(/T/g,'X'))) {
+      result += 'X won';
+    } else if (/OOOO/.test(game.replace(/T/g,'O'))) {
+      result += 'O won';
+    } else if (areMoves) {
+      result += 'Game has not completed';
+    } else {
+      result += 'Draw';
+    }
+    WScript.Echo(result);
+    WScript.StdIn.ReadLine();
+  }
+};
+
+var flattenColumns = function(grid) {
+  var columns = [];
+  for (var col=1; col < 5; col++) {
+    var column = '';
+    for (var row=0; row < grid.length; row++) {
+      column += grid[row][col];
+    }
+    columns.push(column);
+  }
+  return columns.join();
+};
+
+var flattenDiagonals = function(grid) {
+  var diagonals = '';
+  for (var col=1, row=0; row < grid.length; col++, row++) {
+    diagonals += grid[row][col];
+  }
+  diagonals += ',';
+  for (var col=4, row=0; row < grid.length; col--, row++) {
+    diagonals += grid[row][col];
+  }
+  return diagonals;
+};
+
+var flattenRows = function(grid) {
+  var rows = [];
+  for (var row=0; row < grid.length; row++) {
+    rows.push(grid[row][0]);
+  }
+  return rows.join();
+};
+
+main();
+

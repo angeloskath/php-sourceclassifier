@@ -1,0 +1,39 @@
+import Control.Monad
+import Control.Applicative
+import Control.Arrow
+import Data.List
+
+
+main = do
+    n <- read <$> getLine
+    mapM_ process [1..n]
+
+process i = do
+    x <- replicateM 4 getLine
+    getLine
+    putStrLn $ "Case #"++show i++": "++ solve x
+
+
+solve :: [String] -> String
+solve board 
+    | xwon = "X won"
+    | owon = "O won"
+    | empty = "Game has not completed"
+    | otherwise = "Draw"
+    where
+        xwon = check 'X' board
+        owon = check 'O' board
+        empty = elem '.' (concat board)
+
+
+check :: Char -> [String] -> Bool
+check c board = any (win c) (board ++ board' ++board'')
+    where
+        cross1 = (head.) <$> take 4 (iterate (tail.) id)
+        cross2 = reverse cross1
+        board' = transpose board
+        board'' = [zipWith ($) cross1 board,zipWith ($) cross2 board]
+        
+
+win :: Char -> String -> Bool
+win c = filter (\x -> c == x || x == 'T') >>> length >>> (==4)

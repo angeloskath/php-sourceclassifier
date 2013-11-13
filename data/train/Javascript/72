@@ -1,0 +1,76 @@
+var fs  = require('fs')
+  , inp = fs.readFileSync('A-large.in', 'utf8');
+
+inp = inp.split('\n');
+var len = parseInt(inp[0], 10);
+var out = '';
+
+for (var i = 0; i < len; ++i) {
+  var maze = [];
+  maze.push(inp[1 + 5 * i]);
+  maze.push(inp[2 + 5 * i]);
+  maze.push(inp[3 + 5 * i]);
+  maze.push(inp[4 + 5 * i]);
+
+  out += 'Case #' + (i + 1) + ': ' + processInp(maze) + '\n';
+}
+
+fs.writeFileSync('output', out);
+
+function processInp(maze) {
+  if (checkWin(maze, 'X'))
+    return 'X won';
+  if (checkWin(maze, 'O'))
+    return 'O won';
+  if (hasPeriod(maze))
+    return 'Game has not completed';
+  return 'Draw';
+}
+
+function checkWin(maze, val) {
+  for (var i = 0; i < maze.length; ++i) {
+    var hasWon = true;
+    for (var j = 0; j < maze[i].length; ++j) {
+      if (maze[i][j] !== val && maze[i][j] !== 'T') {
+        hasWon = false;
+      }
+    }
+    if (hasWon) return true;
+  }
+
+  for (var i = 0; i < maze[0].length; ++i) {
+    var hasWon = true;
+    for (var j = 0; j < maze.length; ++j) {
+      if (maze[j][i] !== val && maze[j][i] !== 'T') {
+        hasWon = false;
+      }
+    }
+    if (hasWon) return true;
+  }
+
+  var hasWon = true;
+  for (var i = 0; i < maze.length; ++i) {
+    if (maze[i][i] !== val && maze[i][i] !== 'T') {
+      hasWon = false;
+    }
+  }
+  if (hasWon) return true;
+
+  var hasWon = true;
+  for (var i = 0; i < maze.length; ++i) {
+    if (maze[i][3 - i] !== val && maze[i][3-i] !== 'T') {
+      hasWon = false;
+    }
+  }
+  if (hasWon) return true;
+
+  return false;
+}
+
+function hasPeriod(maze) {
+  for (var i = 0; i < maze.length; ++i)
+    for (var j = 0; j < maze[i].length; ++j)
+      if (maze[i][j] === '.')
+        return true
+  return false;
+}

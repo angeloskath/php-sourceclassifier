@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+use strict;
+
+my $numCases = <STDIN>;
+chomp $numCases;
+
+for (my $case=1; $case<=$numCases; $case++) { my $has_dots = 0;  
+	my @game = ();
+	for (my $x=1; $x<=4; $x++) {
+		my $line = <STDIN>;
+		chomp($line);
+		if ($line =~ m/\./) {
+			$has_dots = 1;
+		}
+		my @line = split "", $line;
+		#print STDERR "@line\n";
+
+		$game[$x-1] = \@line;
+	}
+	my $line = <STDIN>; # blank line after game
+
+	print "Case #$case: " . result($has_dots, @game) . "\n";
+}
+
+
+# a game has been won if there are 4 X's or 4 O's in a row.
+# the T counts as wildcard.
+sub result {
+	my $has_dots = shift;
+	my @game = @_;
+
+	my $diag1 = "";
+	my $diag2 = "";
+
+	for (my $x = 0; $x<4; $x++) {
+		my $column = "";
+		my $row = "";
+		for (my $y = 0; $y<4; $y++) {
+			$column .= $game[$y][$x];
+			$row .= $game[$x][$y];
+		}
+
+		#print STDERR "column = $column\n";
+		#print STDERR "row = $row\n";
+
+		my $winner = is_win($column);
+		if ($winner eq "") {
+			$winner = is_win($row);
+		} 
+
+		$diag1 .= $game[$x][$x];
+		$diag2 .= $game[3-$x][$x];
+		if ($winner ne "") {
+			return "$winner won";
+		}
+	}
+
+	#print STDERR "diag1 = $diag1\n";
+	#print STDERR "diag2 = $diag2\n";
+
+	my $winner = is_win($diag1);
+	if ($winner eq "") {
+		$winner = is_win($diag2);
+	}
+	if ($winner ne "") {
+		return "$winner won";
+	} 
+
+	# else draw or game in progress
+	# if there are any dots then it's game in progress, otherwise it's draw
+	if ($has_dots) {
+		return "Game has not completed";
+	} else {
+		return "Draw";
+	}
+}
+
+sub is_win {
+	my $string = shift;
+
+	my $o_copy = $string;
+	$o_copy =~ s/T/O/;
+
+	my $x_copy = $string;
+	$x_copy =~ s/T/X/;
+
+	my $result = "";
+	if ($o_copy eq "OOOO") {
+		$result = "O";
+	} elsif ($x_copy eq "XXXX") {
+		$result = "X";
+	} 
+
+	return $result;
+}

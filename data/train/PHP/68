@@ -1,0 +1,186 @@
+<?php
+error_reporting(0);
+
+
+function getTicTacResuld($tictacArr){
+    
+    $Xwin = 0;
+    $Ywin = 0;
+    $matchOn = 0;
+    
+    //Row check
+    
+    foreach($tictacArr as $value){
+        $arrCheck = array_count_values($value);
+            
+        
+        if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+            $Xwin = 1;
+            break;
+        }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+            $Ywin = 1;
+            break;
+        }else if(isset($arrCheck['.']) && $arrCheck['.'] > 0){
+            $matchOn = 1;
+        }
+        unset($arrCheck);
+    }
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    }
+    // Diagonal check 
+    
+    $diagonalCheck1 = array($tictacArr['0']['0'] ,$tictacArr['1']['1'],$tictacArr['2']['2'] ,$tictacArr['3']['3']);
+    $arrCheck = array_count_values($diagonalCheck1);
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    }
+    
+    $diagonalCheck2 = array($tictacArr['0']['3'] ,$tictacArr['1']['2'],$tictacArr['2']['1'] ,$tictacArr['3']['0']);
+    
+    $arrCheck = array_count_values($diagonalCheck2);
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    }  
+    
+    $col0 = array($tictacArr['0']['0'] ,$tictacArr['1']['0'],$tictacArr['2']['0'] ,$tictacArr['3']['0']);
+    $arrCheck = array_count_values($col0);
+    
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    } 
+    $col1 = array($tictacArr['0']['1'] ,$tictacArr['1']['1'],$tictacArr['2']['1'] ,$tictacArr['3']['1']);
+    $arrCheck = array_count_values($col1);
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    } 
+    $col2 = array($tictacArr['0']['2'] ,$tictacArr['1']['2'],$tictacArr['2']['2'] ,$tictacArr['3']['2']);
+    $arrCheck = array_count_values($col2);
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1)  ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    } 
+    $col3 = array($tictacArr['0']['3'] ,$tictacArr['1']['3'],$tictacArr['2']['3'] ,$tictacArr['3']['3']);
+    $arrCheck = array_count_values($col3);
+     if($arrCheck['X'] == 4 || ($arrCheck['X'] == 3 && $arrCheck['T'] == 1) ){
+        $Xwin = 1;
+    }else if($arrCheck['O'] == 4 || ($arrCheck['O'] == 3 && $arrCheck['T'] == 1) ){
+        $Ywin = 1;
+    }else if(isset($arrCheck['.'])  && $arrCheck['.'] > 0){
+        $matchOn = 1;
+    }
+    unset($arrCheck);
+    
+    if($Xwin == 1){
+        return "X won";
+    }else if($Ywin == 1){
+        return "O won";
+    } 
+    
+    if($matchOn == 1){
+        return "Game has not completed";
+    }else{
+        return "Draw";
+    }
+
+}
+
+$file = fopen("C:\\wamp\\www\\codejam2013\\A-large.in", "r");
+
+if ($file) {
+    
+    $noTestCase = fgets($file, 4096);
+    $noTestCase = intval($noTestCase);
+    $i=1;
+    $data = '';
+    $dataArr = array();
+    $noTestCase = $noTestCase*4 + $noTestCase;
+   while($noTestCase>0){
+       
+       $noTestCase = $noTestCase-1;
+       $line = fgets($file, 4096);
+       $line = trim($line);
+       
+       if($line == "")
+           continue;
+       if($i % 4 == 1){
+           $dataArr[0] = str_split($line,1);
+       }else if($i % 4 == 2){
+           $dataArr[1] = str_split($line,1);
+       }else if($i % 4 == 3){
+           $dataArr[2] = str_split($line,1);
+       }else if($i % 4 == 0){
+           $dataArr[3] = str_split($line,1);
+           echo ($i/4);
+           
+           $data .= "Case #".($i/4).": ".getTicTacResuld($dataArr)."\n";
+           unset($dataArr);
+       }
+       
+       $i++;
+   } 
+    fclose($file);
+    
+//$myFile = "output.in";
+$myFile = "C:\\wamp\\www\\codejam2013\\tictactoeOutLarge.in";
+
+$fh = fopen($myFile, 'w');
+fwrite($fh, trim($data));
+fclose($fh);
+}

@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+test_cases = STDIN.readline.to_i
+table = Array.new(4)
+test_case = 1
+
+test_case.upto(test_cases) do |t_case|
+  0.upto(3) do |i|
+	table[i] = STDIN.readline.chomp.split(//)
+  end
+
+  won = nil
+  row = Array.new(4) { Hash.new { |h,k| h[k] = 0} }
+  col = Array.new(4) { Hash.new { |h,k| h[k] = 0} }
+  dia = Array.new(2) { Hash.new { |h,k| h[k] = 0} }
+  0.upto(3) do |i|
+	0.upto(3) do |j|
+	  case table[i][j]
+	  when "T"
+		col[i][:T] += 1
+		row[j][:T] += 1
+		dia[0][:T] += 1 if i == j
+		dia[1][:T] += 1 if i + j == 3
+	  when "O"
+		col[i][:O] += 1
+		row[j][:O] += 1
+		dia[0][:O] += 1 if i == j
+		dia[1][:O] += 1 if i + j == 3
+	  when "X"
+		col[i][:X] += 1
+		row[j][:X] += 1
+		dia[0][:X] += 1 if i == j
+		dia[1][:X] += 1 if i + j == 3
+	  when "."
+		col[i][:dot] += 1
+		row[j][:dot] =+ 1
+		dia[0][:dot] += 1 if i == j
+		dia[1][:dot] += 1 if i + j == 3
+	  end
+	end
+  end
+
+  draw_flag = true
+  0.upto(3) do |i|
+	if col[i][:O] + col[i][:T] == 4 or
+		row[i][:O] + row[i][:T] == 4
+	  won = "O won"
+	  break;
+	end
+
+	if col[i][:X] + col[i][:T] == 4 or
+		row[i][:X] + row[i][:T] == 4
+	  won = "X won"
+	  break;
+	end
+
+	if col[i][:X] + col[i][:T] + col[i][:dot] == 4 or
+		row[i][:X] + row[i][:T] + row[i][:dot] == 4 or
+		col[i][:O] + col[i][:T] + col[i][:dot] == 4 or
+		row[i][:O] + row[i][:T] + row[i][:dot] == 4
+	  draw_flag = false
+	end
+  end
+
+  0.upto(1) do |i|
+	if dia[i][:O] + dia[i][:T] == 4
+	  won = "O won"
+	end
+
+	if dia[i][:X] + dia[i][:T] == 4
+	  won = "X won"
+	end
+
+	if dia[i][:X] + dia[i][:T] + dia[i][:dot] == 4 or
+		dia[i][:O] + dia[i][:T] + dia[i][:dot] == 4
+	  draw_flag = false
+	end
+  end
+
+  if won == nil
+	if draw_flag
+	  won = "Draw"
+	else
+	  won = "Game has not completed"
+	end
+  end
+
+  print "Case ##{t_case}: #{won}\n"
+  STDIN.readline unless STDIN.eof?
+end

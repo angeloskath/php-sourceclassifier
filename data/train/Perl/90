@@ -1,0 +1,126 @@
+#!/usr/local/bin/perl
+
+
+open(IN,"A-large.in");
+@pgd = <IN>;
+close(IN);
+
+$l=0;
+$q='';
+@question=();
+foreach $p (@pgd){
+	$l++;
+
+	$p =~ s/\n//g;
+	$p =~ s/\r//g;
+
+	if($p eq ""){
+		push(@question,$q);
+		$q='';
+	}
+
+	if($l > 1){
+		$q.=$p;
+	}
+
+	$l++;
+}
+
+$ans=1;
+foreach (@question){
+	print ' Case #'.$ans.': ' . &check($_) . "\n";
+	$ans++;
+}
+
+
+
+#print 'case6 = ' . &check($case6) . "\n";
+
+
+sub check(){
+	$str = $_[0];
+
+	@data = split(//, $str);
+
+
+	for($x=0;$x<4;$x++){
+		$y = $x * 4;
+		$result = &check2("$data[$y],$data[$y+1],$data[$y+2],$data[$y+3]");
+
+		if($result eq 'xw'){
+			return "X won";
+			break;
+		}
+		elsif($result eq 'ow'){
+			return "O won";
+			break;
+		}
+	}
+
+	for($x=0;$x<4;$x++){
+		$y1 = $x + 4;
+		$y2 = $x + 8;
+		$y3 = $x + 12;
+
+		$result = &check2("$data[$x],$data[$y1],$data[$y2],$data[$y3]");
+
+		if($result eq 'xw'){
+			return "X won";
+			break;
+		}
+		elsif($result eq 'ow'){
+			return "O won";
+			break;
+		}
+	}
+
+	$result = &check2("$data[0],$data[5],$data[10],$data[15]");
+	if($result eq 'xw'){
+		return "X won";
+		break;
+	}
+	elsif($result eq 'ow'){
+		return "O won";
+		break;
+	}
+
+	$result = &check2("$data[3],$data[6],$data[9],$data[12]");
+	if($result eq 'xw'){
+		return "X won";
+		break;
+	}
+	elsif($result eq 'ow'){
+		return "O won";
+		break;
+	}
+
+	for($a=0;$a<16;$a++){
+		if( $data[$a] eq '.'){
+			return "Game has not completed";
+			break;
+		}
+	}
+
+	return "Draw";
+}
+
+
+
+sub check2(){
+	@input = split(/,/, $_[0]);
+
+	$cou_x = 0;
+	$cou_o = 0;
+	$cou_t = 0;
+	foreach $aa (@input){
+		if($aa eq 'X'){$cou_x++;}
+		elsif($aa eq 'O'){$cou_o++;}
+		elsif($aa eq 'T'){$cou_t++;}
+	}
+
+	if(($cou_x + $cou_t) == 4){return 'xw';}
+	elsif(($cou_o + $cou_t) == 4){return 'ow';}
+	else{return 'not';}
+}
+
+exit;

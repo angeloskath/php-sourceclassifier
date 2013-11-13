@@ -1,0 +1,151 @@
+
+
+var solveProblem = function(matrix){
+	var isLineWinningO = function(x){
+		var i=0;
+		while(i<4 && (matrix[x][i] === 'O' || matrix[x][i] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			return false;
+		}
+	};
+	var isLineWinningX = function(x){
+		var i=0;
+		while(i<4 && (matrix[x][i] === 'X' || matrix[x][i] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			return false;
+		}
+	};
+	var isColumnWinningO = function(x){
+		var i=0;
+		while(i<4 && (matrix[i][x] === 'O' || matrix[i][x] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			return false;
+		}
+	};
+	var isColumnWinningX = function(x){
+		var i=0;
+		while(i<4 && (matrix[i][x] === 'X' || matrix[i][x] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			return false;
+		}
+	};
+	var isDiagonalWinningO = function(){
+		var i=0;
+		while(i<4 && (matrix[i][i] === 'O' || matrix[i][i] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			i=0;
+			while(i<4 && (matrix[i][3-i] === 'O' || matrix[i][3-i] === 'T')){
+				i++;
+			}
+			if(i===4){
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+	var isDiagonalWinningX = function(){
+		var i=0;
+		while(i<4 && (matrix[i][i] === 'X' || matrix[i][i] === 'T')){
+			i++;
+		}
+		if(i===4){
+			return true;
+		} else {
+			i=0;
+			while(i<4 && (matrix[i][3-i] === 'X' || matrix[i][3-i] === 'T')){
+				i++;
+			}
+			if(i===4){
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+	var isThereMoveLeft = function(){
+		for(var i=0;i<4;i++){
+			for(var j=0;j<4;j++){
+				if(matrix[i][j] === '.'){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	//start of solution
+	if(isDiagonalWinningX()){
+		return 'X won';
+	}
+
+	if(isDiagonalWinningO()){
+		return 'O won';
+	}
+
+	for(var i=0;i<4;i++){
+		if(isColumnWinningX(i)){
+			return 'X won';
+		}
+		if(isColumnWinningO(i)){
+			return 'O won';
+		}
+		if(isLineWinningX(i)){
+			return 'X won';
+		}
+		if(isLineWinningO(i)){
+			return 'O won';
+		}
+	}
+
+	if(isThereMoveLeft()){
+		return 'Game has not completed';
+	} else {
+		return 'Draw';
+	}
+};
+
+/*MAIN*/
+var fs = require('fs');
+var argument = process.argv.splice(2);
+var input = fs.readFileSync("./"+argument,'utf8').split('\n');
+var output = "";
+var number = Number(input[0]);
+for(var c=1;c<=number;c++){
+	var matrix = [];
+	matrix.push([]);
+	matrix.push([]);
+	matrix.push([]);
+	matrix.push([]);
+	for(var line=5*(c-1)+1;line<5*c;line++){
+		matrix[line-(5*(c-1)+1)].push(input[line].charAt(0));
+		matrix[line-(5*(c-1)+1)].push(input[line].charAt(1));
+		matrix[line-(5*(c-1)+1)].push(input[line].charAt(2));
+		matrix[line-(5*(c-1)+1)].push(input[line].charAt(3));
+	}
+	output+="Case #"+c+": "+solveProblem(matrix)+"\n";
+}
+        
+
+console.log(output);
+fs.writeFileSync("./"+argument+".out",output);

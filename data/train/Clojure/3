@@ -1,0 +1,86 @@
+(ns code-jam.tic-tac-toe-tomek)
+
+(use 'clojure.java.io)
+
+(def test-board-1
+  [[\X \X \X \T]
+   [\. \. \. \.]
+   [\O \O \. \.]
+   [\. \. \. \.]])
+
+(def test-board-2
+  [[\X \O \X \T]
+   [\X \X \O \O]
+   [\O \X \O \X]
+   [\X \X \O \O]])
+
+(def test-board-3
+  [[\X \X \X \O]
+   [\. \. \O \.]
+   [\. \O \. \.]
+   [\T \. \. \.]])
+
+(defn extract-columns [board]
+  (map (fn [x] (map #(% x) board)) (range 4)))
+
+(defn extract-diagonals [board]
+  (letfn [(board-get
+            [row col]
+            ((board row) col))
+          (extract
+            [xs]
+            (map #(apply board-get %) xs))]
+    [(extract [[0 0] [1 1] [2 2] [3 3]])
+     (extract [[3 0] [2 1] [1 2] [0 3]])]))
+
+(defn test-winning-row [row]
+  (letfn [(find-winner
+            [config]
+            (let [winner (filter #(= (count %) 4)
+                                 (partition-by identity config))]
+              (if (empty? winner)
+                nil
+                (cond
+                  (= (first (first winner)) \X) \X
+                  (= (first (first winner)) \O) \O
+                  :default nil))))]
+    (or (find-winner (replace {\T \X} row))
+        (find-winner (replace {\T \O} row)))))
+
+(defn test-winning [board]
+  (some identity
+        (map test-winning-row
+             (concat board
+                     (extract-columns board)
+                     (extract-diagonals board)))))
+
+(defn board-full? [board]
+  (not-any? identity
+            (apply concat
+                   (map #(filter (fn [x] (= \. x)) %) board))))
+
+(defn show-winner [board]
+  (let [winner (test-winning board)]
+    (cond
+      (= winner \X) (print "X won")
+      (= winner \O) (print "O won")
+      (board-full? board) (print "Draw")
+      :default (print "Game has not completed"))))
+
+(with-open [in-file (reader "A-large.in")
+            out-file (writer "A-large.out")]
+  (let [in (line-seq in-file)
+        num-boards (java.lang.Integer/parseInt (first in))
+        result
+        (with-out-str
+          (loop [data (rest in)
+                 test-num 1]
+            (let [board-str (take 4 data)]
+              (when-not (> test-num num-boards)
+                (let [board (mapv #(into [] %) board-str)]
+                  (printf "Case #%d: " test-num)
+                  (show-winner board)
+                  (println)
+                  (recur (drop 5 data) (inc test-num)))))))]
+    (print result)
+    (.write out-file result)))

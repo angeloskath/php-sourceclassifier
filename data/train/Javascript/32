@@ -1,0 +1,124 @@
+var fs = require('fs');
+var assert = require("assert");
+
+// Este programa se ejecuta así:
+// node ARCHIVO NOMBRE-DEL-INPUT (sin el .in)
+
+// Guardo el 2do valor que pasé por comando:
+var fileName = process.argv[2];
+
+// Leo el input
+fs.readFile(fileName+'.in', 'utf-8', function (err, data) {
+	// Lo convierto en un array de lineas
+	var lines = data.split('\n');
+	// Le hago "shift" al array, que reduce el array sacándole el primer elemento y me lo devuelve
+	var total = parseInt(lines.shift(), 10);
+	var output = "";
+
+	// Típico bucle, recorro el *total* de casos
+	for (var i = 0; i < total; i++) {
+
+		var t = init(lines);
+
+		// Terminé de procesar un caso, escupo lo que GCJ quiere a una variable
+		output += "Case #"+(i+1)+": "+t+"\n";
+	}
+
+	// Grabo lo acomulado en la variable output
+	fs.writeFile(fileName+'.out', output, 'utf-8');
+	// console.log(output);
+
+
+	function init(lines) {
+		var tablero = [];
+		for (var i=0; i<4; i++) {
+			tablero.push(lines.shift());
+		}
+		lines.shift();
+		assert(tablero.length == 4, "tablero mal construído, tiene " + tablero.length + " líneas");
+		
+		return resolverJuego(tablero);
+	}
+});
+
+function resolverJuego(tablero) {
+	var gano = ganadorHorizontal(tablero) || ganadorVertical(tablero) || ganadorDiagonal(tablero);
+	var result = "";
+	if (!gano) {
+		if (quedanJugadas(tablero)) {
+			result = "Game has not completed";
+		} else {
+			result = "Draw";
+		}
+	} else {
+		result = gano + " won";
+	}
+	return result;
+}
+
+function ganadorVertical(tablero) {
+	var ganador = false;
+	return ganadorHorizontal(girarTablero(tablero));
+}
+
+function girarTablero(tablero) {
+	var nuevoTablero = ['', '', '', ''];
+	for (var i = 0; i<tablero.length; i++) {
+		for (var j = 0; j<tablero.length; j++) {
+			nuevoTablero[j] += tablero[i][j];
+		}
+	}
+	return nuevoTablero;
+}
+
+function ganadorHorizontal(tablero) {
+	var ganador;
+	for (var i = 0; i<tablero.length; i++) {
+		var linea = tablero[i];
+		// ganador = false hasta que encuentre uno o termine el bucle.
+		if (ganador = ganoLinea(linea)) {
+			break;
+		}
+	}
+	return ganador;
+}
+
+function ganoLinea(linea) {
+	// Si tengo T necesito 3 iguales para ganar, sino 4
+	var ganador;
+	var total = linea.indexOf('T') === -1 ? 4 : 3;
+
+	if (linea.indexOf('O') !== -1 && linea.match(/O/g).length == total) {
+		ganador = 'O';
+	} else if (linea.indexOf('X') !== -1 && linea.match(/X/g).length == total) {
+		ganador = 'X';
+	} else {
+		ganador = false;
+	}
+	return ganador;
+}
+
+function ganadorDiagonal(tablero) {
+	var diag1 = "";
+	var diag2 = "";
+	for (var i=0; i<tablero.length; i++) {
+		diag1 += tablero[i][i];
+		diag2 += tablero[i][3-i];
+	}
+
+	// console.log(diag1, diag2);
+	return ganoLinea(diag1) || ganoLinea(diag2);
+}
+
+function quedanJugadas(tablero) {
+	var casillasVacias = false;
+	tablero.forEach(function(linea) {
+		casillasVacias = casillasVacias || linea.indexOf(".") !== -1;
+	});
+	return casillasVacias;
+}
+
+// Función auxiliar para mapear los strings a enteros
+function intify(val) {
+	return parseInt(val, 10);
+}

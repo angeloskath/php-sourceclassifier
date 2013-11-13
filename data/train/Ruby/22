@@ -1,0 +1,62 @@
+stream = File.open("A-large.in")
+STDOUT.reopen("A-large.out")
+
+N = stream.gets.to_i
+
+N.times do |n|
+  board = []
+  4.times do
+    row = []
+    stream.gets.scan(/(.)(.)(.)(.)/) do |a,b,c,d|
+      row << a << b << c << d
+    end
+    board << row
+  end
+  stream.gets
+
+  print "Case ##{n+1}: "
+
+  xboard = board.map{|v| v.map{|w| w == "T" ? "X" : (w == "O" ? "." : w) }}
+  oboard = board.map{|v| v.map{|w| w == "T" ? "O" : (w == "X" ? "." : w) }}
+
+  # CHECK FOR ROWS:
+  if xboard.map{|v| v.reject{|w| w=="."}.length}.max == 4
+    puts "X won" # row of X's
+    next
+  end
+  if oboard.map{|v| v.reject{|w| w=="."}.length}.max == 4
+    puts "O won" # row of O's
+    next
+  end
+
+  # CHECK FOR COLUMNS:
+  if xboard.transpose.map{|v| v.reject{|w| w=="."}.length}.max == 4
+    puts "X won" # column of X's
+    next
+  end
+  if oboard.transpose.map{|v| v.reject{|w| w=="."}.length}.max == 4
+    puts "O won" # column of O's
+    next
+  end
+
+  # CHECK FOR DIAGONALS:
+  if xboard.each_with_index.map{|v,i| v[i] }.reject{|w| w=="."}.length == 4 ||
+      xboard.each_with_index.map{|v,i| v[3-i] }.reject{|w| w=="."}.length == 4
+    puts "X won" # diagonal of X's
+    next
+  end
+  if oboard.each_with_index.map{|v,i| v[i] }.reject{|w| w=="."}.length == 4 ||
+      oboard.each_with_index.map{|v,i| v[3-i] }.reject{|w| w=="."}.length == 4
+    puts "O won" # diagonal of X's
+    next
+  end
+
+  # Is it a draw?
+  if board.flatten.reject{|v| v=="."}.length == 16
+    puts "Draw"
+    next
+  end
+
+  puts "Game has not completed"
+
+end

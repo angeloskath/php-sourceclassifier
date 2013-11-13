@@ -1,0 +1,63 @@
+(require 'clojure.string)
+
+(defn row-occupied? [row player]
+  (= 4 (count (filter (fn [[row* _]] (= row* row)) player))))
+
+(defn column-occupied? [column player]
+  (= 4 (count (filter (fn [[_ column*]] (= column* column)) player))))
+
+(defn diagonal-occupied? [player]
+  (or (= 4 (count (filter (fn [[row column]] (= row column)) player)))
+      (= 4 (count (filter (fn [[row column]] (= (+ row column) 3)) player)))))
+
+(defn won? [player]
+  (or (row-occupied? 0 player)
+      (row-occupied? 1 player)
+      (row-occupied? 2 player)
+      (row-occupied? 3 player)
+      (column-occupied? 0 player)
+      (column-occupied? 1 player)
+      (column-occupied? 2 player)
+      (column-occupied? 3 player)
+      (diagonal-occupied? player)))
+
+(defn board-full? [x o]
+  (>= (+ (count x) (count o)) 16))
+
+(defn read-player-cells [testcase player-char]
+  (for [row (range 4)
+        column (range 4)
+        :let [cell (nth (nth testcase row) column)]
+        :when (= cell player-char)]
+    [row column]))
+
+(defn parse-testcase [testcase]
+  (let [t (read-player-cells testcase \T)]
+    [(concat t (read-player-cells testcase \X))
+     (concat t (read-player-cells testcase \O))]))
+
+(defn process-testcase [testcase]
+  (let [[x o] (parse-testcase testcase)
+        x-won (won? x)
+        o-won (won? o)]
+    (cond
+     (and x-won o-won) "Draw"
+     x-won "X won"
+     o-won "O won"
+     (board-full? x o) "Draw"
+     :else "Game has not completed")))
+
+(defn testcase-seq [reader]
+  (->> (line-seq reader)
+       (drop 1) ; Test case number
+       (partition 5)))
+
+(defn process-input [filename]
+  (with-open [reader (clojure.java.io/reader filename)]
+    (loop [idx 1, testcases (testcase-seq reader)]
+      (when (seq testcases)
+        (println (str "Case #" idx ":")
+                 (process-testcase (first testcases)))
+        (recur (inc idx) (next testcases))))))
+
+(process-input (first *command-line-args*))

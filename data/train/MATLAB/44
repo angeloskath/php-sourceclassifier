@@ -1,0 +1,48 @@
+function A
+    ifp = fopen('A-small-attempt0.in','r');
+    ofp = fopen('A-small-attempt0.out','w');
+    n = fscanf(ifp,'%d');
+    
+    for tt=1:n
+        fprintf(ofp, 'Case #%d: ', tt);
+        m = reshape(fscanf(ifp,'%s',4),[4,4])';
+        if check(m, 'X')
+            fprintf(ofp, 'X won\n');
+        elseif check(m, 'O')
+            fprintf(ofp, 'O won\n');
+        elseif sum(m(:)=='.')==0
+            fprintf(ofp, 'Draw\n');
+        else
+            fprintf(ofp, 'Game has not completed\n');
+        end
+    end
+    
+    fclose(ifp);
+    fclose(ofp);
+end
+
+function ret = checkline(m, c)
+    for i=1:4
+        if sum(m(i,:)==c)==4
+            ret = true;
+            return;
+        end
+    end
+    ret = false;
+end
+
+function ret = checkdiag(m, c)
+    ret = (sum(sum(m==eye(4)*c))==4);
+end
+
+function ret = check(m, c)
+    m(m(:,:)=='T') = c;
+    if checkline(m, c) || checkline(m', c)
+        ret = true;
+        return;
+    elseif checkdiag(m, c) || checkdiag(m(:,end:-1:1), c)
+        ret = true;
+        return;
+    end
+    ret = false;
+end

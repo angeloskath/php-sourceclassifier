@@ -1,0 +1,85 @@
+ Dim file_info As New FileInfo(TextBox2.Text.ToString)
+        Dim file_stream_log As FileStream
+        file_stream_log = file_info.Open(FileMode.Create, FileAccess.Write)
+
+        file_stream_log.Close()
+        Dim stream_writer As StreamWriter = file_info.AppendText
+        Dim arr1(3, 3) As Integer
+        Dim Sum1 As Integer
+        If File.Exists(TextBox1.Text) Then
+            Dim stream_reader As New StreamReader(TextBox1.Text)
+
+            Dim str1 As String
+            TestNumber = stream_reader.ReadLine()
+           
+            dt_data.Clear()
+            Dim tn As Integer
+            For tn = 1 To TestNumber
+                Dim scet As String = "Draw"
+                Dim i As Integer
+                For i = 0 To 3
+                    str1 = stream_reader.ReadLine
+                    Sum1 = 0
+
+                    For j = 0 To 3
+                        Select Case Mid(str1, j + 1, 1)
+                            Case "T"
+                                arr1(i, j) = 0
+                            Case "X"
+                                arr1(i, j) = 1
+                            Case "O"
+                                arr1(i, j) = -1
+                            Case "."
+                                arr1(i, j) = 9
+                        End Select
+                        Sum1 = Sum1 + arr1(i, j)
+
+
+                    Next
+                    If Sum1 > 2 And Sum1 < 5 Then scet = "X won"
+                    If Sum1 > -5 And Sum1 < -2 Then scet = "O won"
+                    If Sum1 > 5 And scet = "Draw" Then scet = "Game has not completed"
+
+                Next
+                If tn < TestNumber Then str1 = stream_reader.ReadLine
+
+                For j = 0 To 3
+                    Sum1 = 0
+                    For i = 0 To 3
+                        Sum1 = Sum1 + arr1(i, j)
+                    Next
+                    If Sum1 > 2 And Sum1 < 5 Then scet = "X won"
+                    If Sum1 > -5 And Sum1 < -2 Then scet = "O won"
+                    If Sum1 > 5 And scet = "Draw" Then scet = "Game has not completed"
+                Next
+
+                Sum1 = 0
+                For i = 0 To 3
+                    Sum1 = Sum1 + arr1(i, i)
+                Next
+                If Sum1 > 2 And Sum1 < 5 Then scet = "X won"
+                If Sum1 > -5 And Sum1 < -2 Then scet = "O won"
+                If Sum1 > 5 And scet = "Draw" Then scet = "Game has not completed"
+
+                Sum1 = 0
+                For i = 0 To 3
+                    Sum1 = Sum1 + arr1(i, 3 - i)
+                Next
+                If Sum1 > 2 And Sum1 < 5 Then scet = "X won"
+                If Sum1 > -5 And Sum1 < -2 Then scet = "O won"
+                If Sum1 > 5 And scet = "Draw" Then scet = "Game has not completed"
+               
+                stream_writer.WriteLine("Case #" & tn & ": " & scet)
+
+
+
+            Next
+            stream_writer.Flush()
+            stream_writer.Close()
+           
+            stream_reader.Close()
+        Else
+
+        End If
+        MsgBox("done")
+   

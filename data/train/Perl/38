@@ -1,0 +1,89 @@
+#!/usr/bin/env perl
+use v5.14;
+use warnings;
+use Data::Dump qw(dd);
+
+my $num_cases = <>;
+for my $case (1 .. $num_cases) {
+    my @board = read_board();
+    say "Case #$case: " . solve(@board);
+}
+
+sub solve {
+    my @board = @_;
+    return 'X won' if x_win('X', @board);
+    return 'O won' if x_win('O', @board);
+    return 'Game has not completed' unless finished(@board);
+    return 'Draw';
+}
+
+sub x_win {
+    my ($x, @board) = @_;
+    for my $row (@board) {
+        return 1 if join('', @$row) =~ /[${x}T]{4}/;
+    }
+    for my $j (0 .. 3) {
+        my $col = join '', map { $_->[$j] } @board;
+        return 1 if $col =~ /[${x}T]{4}/;
+    }
+    my $diag = join '', map { $board[$_][$_] } 0 .. 3;
+    return 1 if $diag =~ /[${x}T]{4}/;
+    $diag = join '', map { $board[$_][3 - $_] } 0 .. 3;
+    return 1 if $diag =~ /[${x}T]{4}/;
+}
+
+sub finished {
+    my @board = @_;
+    for my $row (@board) {
+        return 0 if join('', @$row) =~ /\./;
+    }
+    return 1;
+}
+
+sub read_board {
+    my @board;
+    for (1 .. 4) {
+        my $line = <>;
+        chomp $line;
+        push @board, [ split //, $line ];
+    }
+    <>;
+    return @board;
+}
+
+__DATA__
+7
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O
+
+OXXO
+XXO.
+.OO.
+O..X

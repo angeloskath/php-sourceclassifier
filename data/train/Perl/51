@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+
+sub solve {
+	my $tbl = [];
+	foreach my $a (0..3) {
+		chomp(my $line = <>);
+		push @$tbl, [];
+		for (my $i = 0; $i < length($line); $i++) {
+			push @{$tbl->[$a]}, substr($line, $i, 1);
+		}
+	}
+
+	my $empty = 0;
+
+	# v check
+	for (my $i = 0; $i < 4; $i++) {
+		my $winner = undef;
+		for (my $j = 0; $j < 4; $j++) {
+			my $A = $tbl->[$i]->[$j];
+			my $B = $tbl->[$i]->[0];
+
+			if ($A eq ".") {
+				$winner = undef;
+				$empty = 1;
+				last;
+			}
+			elsif ($A ne $B and ($A ne 'T' and $B ne 'T')) {
+				$winner = undef;
+				last;
+			}
+			else {
+				if ($A ne 'T' and defined $winner and $A ne $winner) {
+					$winner = undef;
+					last;
+				}
+				$winner = $A unless $A eq 'T';
+			}
+		}
+		if (defined $winner) {
+			return "$winner won";
+		}
+	}
+
+	# h check
+	for (my $i = 0; $i < 4; $i++) {
+		my $winner = undef;
+		for ($j = 0; $j < 4; $j++) {
+			my $A = $tbl->[$j]->[$i];
+			my $B = $tbl->[0]->[$i];
+
+			if ($A eq ".") {
+				$winner = undef;
+				$empty = 1;
+				last;
+			}
+			elsif ($A ne $B and ($A ne 'T' and $B ne 'T')) {
+				$winner = undef;
+				last;
+			}
+			else {
+				if ($A ne 'T' and defined $winner and $A ne $winner) {
+					$winner = undef;
+					last;
+				}
+				$winner = $A unless $A eq 'T';
+			}
+		}
+		if (defined $winner) {
+			return "$winner won";
+		}
+	}
+
+	my $winner = undef;
+	for ($i = 0; $i < 4; $i++) {
+		my $A = $tbl->[$i]->[$i];
+		my $B = $tbl->[0]->[0];
+
+		if ($A eq ".") {
+			$winner = undef;
+			$empty = 1;
+			last;
+		}
+		elsif ($A ne $B and ($A ne 'T' and $B ne 'T')) {
+			$winner = undef;
+			last;
+		}
+		else {
+				if ($A ne 'T' and defined $winner and $A ne $winner) {
+					$winner = undef;
+					last;
+				}
+			$winner = $A unless $A eq 'T';
+		}
+	}
+	if (defined $winner) {
+		return "$winner won";
+	}
+
+	$winner = undef;
+	for ($i = 0; $i < 4; $i++) {
+		my $A = $tbl->[$i]->[3 - $i];
+		my $B = $tbl->[0]->[3];
+
+		if ($A eq ".") {
+			$winner = undef;
+			$empty = 1;
+			last;
+		}
+		elsif ($A ne $B and ($A ne 'T' and $B ne 'T')) {
+			$winner = undef;
+			last;
+		}
+		else {
+				if ($A ne 'T' and defined $winner and $A ne $winner) {
+					$winner = undef;
+					last;
+				}
+			$winner = $A unless $A eq 'T';
+		}
+	}
+	if (defined $winner) {
+		return "$winner won";
+	}
+
+	if ($empty == 1) {
+		return "Game has not completed";
+	}
+
+	return "Draw";
+}
+
+chomp(my $T = <>);
+foreach my $t (1..$T) {
+	print "Case #$t: ".solve()."\n";
+	my $trash = <>;
+}

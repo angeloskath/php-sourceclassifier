@@ -1,0 +1,238 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+#constants
+my $lineLength = 4;
+my $XChar = "X";
+my $OChar = "O";
+my $blankChar = ".";
+my $wildChar = "T";
+my $XWonStatus = 0;
+my $OWonStatus = 1;
+my $drawStatus = 2;
+my $notFinishedStatus = 3;
+
+my $numCases = -1;
+my @status;
+my $numLines = 0;
+my @case;
+my $currentCase = -2;
+
+$status[0] = "X won";
+$status[1] = "O won";
+$status[2] = "Draw";
+$status[3] = "Game has not completed";
+
+while (my $line = <>) {
+   chomp $line;
+   if ($numCases == -1) {
+      # must be the first line, so this is the number of cases
+      $numCases = $line;
+      $currentCase = 0;
+   } elsif ($line !~ m/^$/) { # not a blank line
+      my @lineChars = split("", $line);
+      my $i = 0;
+      while ($i <= $#lineChars) {
+         $case[$numLines][$i] = $lineChars[$i];
+
+         $i++;
+      }
+
+      $numLines++;
+   } else {
+      my $statusVal = checkStatus(@case);
+
+      $currentCase++;
+      print "Case #$currentCase: $status[$statusVal]\n";
+
+      if ($currentCase >= $numCases) {
+         exit;
+      }
+
+      $numLines = 0;
+   }
+}
+
+sub checkStatus {
+   my @case = (@_);
+
+   my $statusVal = -1;
+
+   my $i = 0;
+   while ($i < $lineLength && $statusVal == -1) {
+      # Check current row
+      my $match = allMatchAcross($i, @case);
+      if ($match eq $XChar) {
+         $statusVal = $XWonStatus;
+      } elsif ($match eq $OChar) {
+         $statusVal = $OWonStatus;
+      }
+      # Check current Column
+      $match = allMatchDown($i, @case);
+      if ($match eq $XChar) {
+         $statusVal = $XWonStatus;
+      } elsif ($match eq $OChar) {
+         $statusVal = $OWonStatus;
+      }
+
+      $i++;
+   }
+
+   if ($statusVal == -1) {
+      # Check Diagonals
+      my $match = allMatchDiagonal(@case);
+      if ($match eq $XChar) {
+         $statusVal = $XWonStatus;
+      } elsif ($match eq $OChar) {
+         $statusVal = $OWonStatus
+      } else {
+         # Check if the game is finished or not
+         $statusVal = checkForBlanks(@case);
+      }
+   }
+
+   return $statusVal;
+}
+
+sub allMatchAcross {
+   my ($row, @case) = (@_);
+
+   my $match = "";
+
+   if ($case[$row][0] eq $wildChar) {
+      # Check next square
+      if ($case[$row][1] ne $blankChar) {
+         $match = $case[$row][1];
+      } else {
+         $match = $blankChar;
+      }
+   } elsif ($case[$row][0] eq $blankChar) {
+      $match = $blankChar;
+   } else {
+      $match = $case[$row][0];
+   }
+
+   my $j = 0;
+   while ($j < $lineLength && $match ne $blankChar) {
+      if ($match ne $case[$row][$j] && $case[$row][$j] ne $wildChar) {
+         $match = $blankChar;
+      }
+
+      $j++;
+   }
+
+   return $match;
+}
+
+sub allMatchDown {
+   my ($col, @case) = (@_);
+
+   my $match = "";
+
+   if ($case[0][$col] eq $wildChar) {
+      # Check next square
+      if ($case[1][$col] ne $blankChar) {
+         $match = $case[1][$col];
+      } else {
+         $match = $blankChar;
+      }
+   } elsif ($case[0][$col] eq $blankChar) {
+      $match = $blankChar;
+   } else {
+      $match = $case[0][$col];
+   }
+
+   my $i = 0;
+   while ($i < $lineLength && $match ne $blankChar) {
+      if ($match ne $case[$i][$col] && $case[$i][$col] ne $wildChar) {
+         $match = $blankChar;
+      }
+
+      $i++;
+   }
+
+   return $match;
+}
+
+sub allMatchDiagonal {
+   my @case = (@_);
+
+   my $diag1 = "";
+   my $diag2 = "";
+
+   if ($case[0][0] eq $wildChar) {
+      if ($case[1][1] ne $blankChar) {
+         $diag1 = $case[1][1];
+      } else {
+         $diag1 = $blankChar;
+      }
+   } elsif ($case[0][0] eq $blankChar) {
+      $diag1 = $blankChar;
+   } else {
+      $diag1 = $case[0][0];   
+   }
+
+   if ($case[0][3] eq $wildChar) {
+      if ($case[1][2] ne $blankChar) {
+         $diag2 = $case[1][2];
+      } else {
+         $diag2 = $blankChar;
+      }
+   } elsif ($case[0][3] eq $blankChar) {
+      $diag2 = $blankChar;
+   } else {
+      $diag2 = $case[0][3];
+   }
+
+   my $i = 0;
+   while ($i < $lineLength && !($diag1 eq $blankChar && $diag2 eq $blankChar)) {
+      if ($diag1 ne $blankChar) {
+         if ($diag1 ne $case[$i][$i] && $case[$i][$i] ne $wildChar) {
+            $diag1 = $blankChar;
+         }
+      }
+      if ($diag2 ne $blankChar) {
+         if ($diag2 ne $case[$i][3 - $i] && $case[$i][3 - $i] ne $wildChar) {
+            $diag2 = $blankChar;
+         }
+      }
+
+      $i++;
+   }
+
+   if ($diag1 ne $blankChar) {
+      return $diag1;
+   } elsif ($diag2 ne $blankChar) {
+      return $diag2;
+   } else {
+      return $blankChar;
+   }
+}
+
+sub checkForBlanks {
+   my @case = (@_);
+
+   my $foundBlank = 0;
+
+   my $i = 0;
+   while ($i < $lineLength && !$foundBlank) {
+      my $j = 0;
+      while ($j < $lineLength && !$foundBlank) {
+         if ($case[$i][$j] eq $blankChar) {
+            # Found a blank! Therefore not finished yet
+            $foundBlank = 1;
+         }
+
+         $j++;
+      }
+
+      $i++;
+   }
+
+   if ($foundBlank) {
+      return $notFinishedStatus;
+   }
+
+   return $drawStatus;
+}

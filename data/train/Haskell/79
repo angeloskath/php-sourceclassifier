@@ -1,0 +1,68 @@
+module Main where
+
+import Control.Monad (replicateM)
+import Data.List (transpose)
+import Data.Monoid ((<>), Monoid(..))
+
+main = do
+    n <- readLn
+    solveCases 1 n
+    
+solveCases :: Int -> Int -> IO ()
+solveCases i total
+    | i > total = return ()
+    | otherwise = do
+        board <- replicateM 4 getLine
+        let (d1, d2) = getDiags board
+            winner =
+                checkLines (getCols board) <> checkLines board <>
+                    getWinner d1 <>
+                    getWinner d2
+            result = case winner of
+                         X -> "X won"
+                         O -> "O won"
+                         NoOne -> if '.' `elem` concat board
+                             then "Game has not completed"
+                             else "Draw"
+        putStrLn $ "Case #" ++ show i ++ ": " ++ result
+        _ <- getLine
+        solveCases (i + 1) total
+
+getCols :: [String] -> [String]
+getCols = transpose
+
+getRows :: String -> String
+getRows = id
+
+getDiags :: [String] -> (String, String)
+getDiags board = go 0 ([], []) board
+  where
+    go :: Int -> (String, String) -> [String] -> (String, String)
+    go _ diags [] = diags
+    go n (d1, d2) (l:ls) = go (n+1) (l!!n:d1, l!!(3-n):d2) ls
+
+
+checkLines :: [String] -> Winner
+checkLines ls = mconcat $ map getWinner ls
+
+getWinner :: String -> Winner
+getWinner s
+    | all isX s = X
+    | all isO s = O
+    | otherwise = NoOne
+
+isX, isO :: Char -> Bool
+isX c = c == 'X' || c == 'T'
+isO c = c == 'O' || c == 'T'
+
+
+data GameState = XWins | OWins | Draw | Unfinished
+data Winner = NoOne | X | O
+
+instance Monoid Winner where
+    mempty = NoOne
+    NoOne `mappend` w = w
+    w `mappend` NoOne = w
+    X `mappend` X = X
+    O `mappend` O = O
+    _ `mappend` _ = error "Bad input"

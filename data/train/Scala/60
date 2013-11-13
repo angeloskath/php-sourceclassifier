@@ -1,0 +1,41 @@
+object A {
+  val winPatterns = List(
+    List(0, 1, 2, 3),
+    List(4, 5, 6, 7),
+    List(8, 9, 10, 11),
+    List(12, 13, 14, 15),
+    List(0, 4, 8, 12),
+    List(1, 5, 9, 13),
+    List(2, 6, 10, 14),
+    List(3, 7, 11, 15),
+    List(0, 5, 10, 15),
+    List(3, 6, 9, 12))
+  def xWins(s: String): Boolean = {
+    winPatterns.find(patt => {
+      patt.forall(i => s(i) == 'X' || s(i) == 'T')
+    }).isDefined
+  }
+
+  def oWins(s: String): Boolean = {
+    winPatterns.find(patt => {
+      patt.forall(i => s(i) == 'O' || s(i) == 'T')
+    }).isDefined
+  }
+
+  def main(args: Array[String]) {
+    val t = readLine.toInt
+    for (ti <- 1 to t) {
+      val sb = new StringBuilder
+      for (ri <- 1 to 4) {
+        sb.append(readLine)
+      }
+      readLine
+      val s = sb.toString
+      val res = if (xWins(s)) "X won"
+      else if (oWins(s)) "O won"
+      else if (s.contains('.')) "Game has not completed"
+      else "Draw"
+      println("Case #" + ti + ": " + res)
+    }
+  }
+}

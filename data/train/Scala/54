@@ -1,0 +1,68 @@
+package com.talpr.codejam.qual2013
+
+import scala.io.Source
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Spoonman
+ * Date: 4/13/13
+ * Time: 12:22 PM
+ * To change this template use File | Settings | File Templates.
+ */
+object TicTacToeTomek {
+  object Square {
+    def apply(c: Char): Square = c match {
+      case 'X' => X
+      case 'O' => O
+      case 'T' => Tomek
+      case _   => Empty
+    }
+  }
+  sealed trait Square { def isX = false; def isO = false }
+  case object X extends Square { override def isX = true }
+  case object O extends Square { override def isO = true }
+  case object Tomek extends Square { override def isX = true; override def isO = true }
+  case object Empty extends Square
+
+  sealed trait Result
+  case object XWon extends Result { override def toString = "X won" }
+  case object OWon extends Result { override def toString = "O won" }
+  case object Draw extends Result { override def toString = "Draw" }
+  case object InProgress extends Result { override def toString = "Game has not completed" }
+
+  object Board {
+    def apply(chars: String): Board = new Board(chars.toCharArray filterNot { _.isWhitespace } map { Square(_) } )
+  }
+  class Board(squares: Array[Square]) {
+    require(squares.length == 16, "Invalid board size: " + squares.length)
+
+    val lineIndices = Array(0, 5, 10, 15) +: Array(3, 6, 9, 12) +:
+      ((0 to 3) flatMap { i => Array(i, i+4, i+8, i+12) :: Array(i*4, i*4 + 1, i*4 + 2, i*4 + 3) :: Nil })
+    val lines = lineIndices map { l => l map squares }
+
+    lazy val xWon = lines exists { l => l forall { _.isX } }
+    lazy val oWon = lines exists { l => l forall { _.isO } }
+    lazy val inProgress = squares contains Empty
+
+    def check: Result = {
+      if (xWon)
+        XWon
+      else if (oWon)
+        OWon
+      else if (inProgress)
+        InProgress
+      else
+        Draw
+    }
+  }
+
+  def parseFile(fName: String) =
+    (Source.fromFile(fName).getLines() drop 1 grouped 5).toSeq map { strings => Board(strings.mkString) }
+
+  def main(args: Array[String]) {
+    val boards = parseFile("/Users/Spoonman/Downloads/A-large.in")
+    val results = boards map { _.check }
+    val resStrings = results.zipWithIndex map { case (r, i) => "Case #" + (i+1) + ": " + r }
+    resStrings foreach println
+  }
+}

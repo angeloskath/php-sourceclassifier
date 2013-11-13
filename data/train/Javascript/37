@@ -1,0 +1,102 @@
+fs = require('fs');
+
+function isWin(arr){
+	var start = arr[0], isFilled = true, result = false;
+	for (var i = 0; i < arr.length; i++) {
+		if(arr[i] == '.') { return { result : false , isFilled : false} }
+		if(start == arr[i] || arr[i] == 'T'){
+			//result = (result & true);
+		}
+		else{
+			//return {result : false, isFilled : true};
+			isFilled = isFilled & true;
+			start = false;
+		}
+
+	}
+
+	return {result : start, isFilled : isFilled};
+}
+
+fs.readFile('./small.in',function(err,data){
+	if(err) throw err;
+	var text = data.toString('utf8',0,data.length);
+
+	var lines = text.split("\n");
+
+	var lineCount = lines[0];
+	var index = 1;
+console.log(lineCount);
+	var output = "";
+	for (var i = 0; i < lineCount; i++) {
+
+		//Create Matrix
+		var matrix = [];
+		for (var j = 0; j < 4; j++) {
+			matrix.push(lines[index + j].split(''));
+		};
+
+		var result, isFilled = true, lineResult = {result : false};
+		// Check Horizontals and Verticals
+		for (var n = 0; n < matrix.length; n++) {
+
+			if(!lineResult.result)
+			{
+				lineResult = isWin(matrix[n]);
+				isFilled = (isFilled & lineResult.isFilled);
+			}
+console.log(isFilled);
+			if(!lineResult.result)
+			{
+				lineResult = isWin([ matrix[0][n] , matrix[1][n] , matrix[2][n] , matrix[3][n] ]);
+				isFilled = (isFilled & lineResult.isFilled);
+			}
+console.log(isFilled);
+		};
+
+		//Check Diagonals
+		if(!lineResult.result)
+		{
+			lineResult = isWin([matrix[0][0] , matrix[1][1] , matrix[2][2] , matrix[3][3]]);
+			isFilled = (isFilled & lineResult.isFilled);
+console.log(isFilled);
+		}
+
+		if(!lineResult.result)
+		{
+			lineResult = isWin([matrix[0][3] , matrix[1][2] , matrix[2][1] , matrix[3][0]]);
+			isFilled = (isFilled & lineResult.isFilled);
+console.log(isFilled);
+		}
+
+		index = index + 5;
+		console.log(matrix);
+		console.log(lineResult.result, isFilled);
+		console.log("--------------------------------");
+
+		var resultText;
+		if(lineResult.result)
+		{
+			resultText = lineResult.result + " won";
+		}
+		else
+		{
+			if(isFilled)
+			{
+				resultText = "Draw";
+			}
+			else
+			{
+				resultText = "Game has not completed";
+			}
+		}
+		if(output != ""){ output += "\n" }
+		output += "Case #"+ (i + 1) + ": " + resultText;
+	};
+
+	fs.writeFile('./output.txt',output, function(err){
+		if(err) throw err;
+		console.log("Result Saved!!!");
+	});
+
+});

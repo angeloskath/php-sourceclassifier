@@ -1,0 +1,60 @@
+<?php
+
+function getGameNumberString() {
+	global $gameNumber;
+	return 'Case #' . ($gameNumber + 1) . ': ';
+}
+
+function hasWinner($line) {
+	$winner = '';
+	$tCount = substr_count($line, 'T');
+	if ($tCount + substr_count($line, 'O') === 4) $winner = 'O';
+	if ($tCount + substr_count($line, 'X') === 4) $winner = 'X';
+	if ($winner) {
+		echo getGameNumberString() . $winner . " won\n";
+		return true;
+	}
+	return false;
+}
+
+$filename = 'A-large.in';
+$file = fopen($filename, 'r');
+
+$gamesNumber = fgets($file);
+$games = fread($file, filesize($filename));
+$gamesLines = array_values(
+	array_filter(explode("\n", $games), function($line) {
+		return strlen(trim($line));
+	})
+);
+
+for ($gameNumber = 0; $gameNumber < $gamesNumber; $gameNumber++) {
+	$lines = [];
+	$columns = ['', '', '', ''];
+	$diagonal1 = '';
+	$diagonal2 = '';
+	$diag1Cpt = 0;
+	$diag2Cpt = 3;
+	$isFullGame = true;
+	$hasFoundWinner = false;
+	for ($i = $gameNumber * 4; $i < ($gameNumber + 1) * 4; $i++) {
+		if ($hasFoundWinner = hasWinner($gamesLines[$i])) break;
+		if (substr_count($gamesLines[$i], '.') > 0) {
+			$isFullGame = false;
+		}
+		$diagonal1 .= $gamesLines[$i][$diag1Cpt++];
+		$diagonal2 .= $gamesLines[$i][$diag2Cpt--];
+		for ($j = 0; $j < 4; $j++) {
+			$columns[$j] .= $gamesLines[$i][$j];
+		}
+		foreach($columns as $column) {
+			if ($hasFoundWinner = hasWinner($column)) break;
+		}
+	}
+	if ($hasFoundWinner) continue;
+	if (hasWinner($diagonal1)) continue;
+	if (hasWinner($diagonal2)) continue;
+	echo getGameNumberString() . (!$isFullGame? "Game has not completed" : "Draw");
+	echo "\n";
+}
+?>

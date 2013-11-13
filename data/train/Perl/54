@@ -1,0 +1,109 @@
+#! /usr/bin/perl
+
+use v5.14;
+use strict;
+use warnings;
+
+use enum qw{None Incomplete OWin XWin Tie};
+my %result = (
+    None, "???",
+    Incomplete, "Game has not completed",
+    OWin, "O won",
+    XWin, "X won",
+    Tie, "Draw",
+);
+
+sub check_line {
+    my ($line) = @_;
+    print "Testing $line: " if $ENV{DEBUG};
+
+    for ($line) {
+        when (/^[XT]{4}$/) {
+            print "XWin\n" if $ENV{DEBUG};
+            return XWin;
+        }
+        when (/^[OT]{4}$/) {
+            print "OWin\n" if $ENV{DEBUG};
+            return OWin;
+        }
+        when (/^\./) {
+            print "Inc\n" if $ENV{DEBUG};
+            return Incomplete;
+        }
+    }
+    print "None\n" if $ENV{DEBUG};
+    return None;
+}
+
+sub check_col {
+    my ($colno, $map) = @_;
+    my $col = "";
+    for (1..4) {
+        $col .= $$map[$_-1][$colno];
+    }
+    return check_line($col);
+}
+
+sub check_diag {
+    my ($map) = @_;
+    my $diag = "";
+    # topleft - bottomright
+    for (1..4) {
+        $diag .= $$map[$_-1][$_-1];
+    }
+    my $status = check_line($diag);
+    return $status unless $status == None;
+    
+    # topright - bottomleft
+    $diag = "";
+    for (1..4) {
+        $diag .= $$map[$_-1][4-$_];
+    }
+    return check_line($diag);
+}
+
+sub check_map {
+    my ($map) = @_;
+    my $result = Tie;
+    my $status;
+
+    for (@$map) {
+        $status = check_line(join '', @$_);
+        if ($status == Incomplete) {
+            $result = Incomplete;
+        } elsif ($status != None) {
+            return $status;
+        }
+    }
+    for (1..4) {
+        $status = check_col($_-1, $map);
+        if ($status == Incomplete) {
+            $result = Incomplete;
+        } elsif ($status != None) {
+            return $status;
+        }
+    }
+    $status = check_diag($map);
+    return $result if $status == None;
+    return $status;
+}
+
+sub read_line {
+    my $line = scalar <>;
+    return () unless $line;
+    chomp $line;
+    return $line;
+}
+
+my $casecount = read_line;
+
+for my $case (1..$casecount) {
+    my $map = [];
+    for (1..4) {
+        push @$map, [split '', read_line];
+    }
+    die "Empty line expected" if read_line;
+
+    my $result = check_map($map);
+    print "Case #$case: $result{$result}\n";
+}

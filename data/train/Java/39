@@ -1,0 +1,96 @@
+import java.util.Scanner;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * Built using CHelper plug-in
+ * Actual solution is at the top
+ */
+public class Main {
+	public static void main(String[] args) {
+		InputStream inputStream;
+		try {
+			inputStream = new FileInputStream("tictactoe.in");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		OutputStream outputStream;
+		try {
+			outputStream = new FileOutputStream("tictactoe.out");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		Scanner in = new Scanner(inputStream);
+		PrintWriter out = new PrintWriter(outputStream);
+		TicTacToe solver = new TicTacToe();
+		int testCount = Integer.parseInt(in.next());
+		for (int i = 1; i <= testCount; i++)
+			solver.solve(i, in, out);
+		out.close();
+	}
+}
+
+class TicTacToe {
+    public void solve(int testNumber, Scanner in, PrintWriter out) {
+        out.print("Case #" + testNumber + ": ");
+
+        String[] b = new String[4];
+        in.nextLine();
+        for (int i = 0; i < 4; ++i) {
+            b[i] = in.nextLine();
+        }
+
+        if (check(b, 'X')) {
+            out.println("X won");
+        } else if (check(b, 'O')) {
+            out.println("O won");
+        } else {
+            boolean complete = true;
+            for (int i = 0; i < 4; ++i)
+                for (int j = 0; j < 4; ++j)
+                    if (b[i].charAt(j) == '.')
+                        complete = false;
+            if (!complete) {
+                out.println("Game has not completed");
+            } else {
+                out.println("Draw");
+            }
+        }
+    }
+
+    private boolean check(String[] b, char c) {
+        for (int i = 0; i < 4; ++i) {
+            boolean won = true;
+            for (int j = 0; j < 4; ++j)
+                if (!eq(b[i].charAt(j), c))
+                    won = false;
+            if (won) return true;
+            won = true;
+            for (int j = 0; j < 4; ++j)
+                if (!eq(b[j].charAt(i), c))
+                    won = false;
+            if (won) return true;
+        }
+        boolean won = true;
+        for (int i = 0; i < 4; ++i) {
+            if (!eq(b[i].charAt(i), c))
+                won = false;
+        }
+        if (won) return true;
+        won = true;
+        for (int i = 0; i < 4; ++i) {
+            if (!eq(b[i].charAt(3-i), c))
+                won = false;
+        }
+        return won;
+    }
+
+    private boolean eq(char a, char b) {
+        return a == b || a == 'T';
+    }
+}
+

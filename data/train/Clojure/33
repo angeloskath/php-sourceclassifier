@@ -1,0 +1,64 @@
+;; by Jason Wolfe
+
+; This code was developed for Clojure and clojure-contrib 1.2.0
+
+; To execute it, call (solve-file "<stem>"), where <stem> is the name of
+; the input file, minus ".in" extension.  Output will be written to
+; stdout, as well as the corresponding ".out" file.
+
+(ns codejam2013.a
+  (:require 
+   [clojure.java.io :as io])
+  (:import [java.util HashMap]))
+
+
+(defn completed? [input] (not-any? #{\.} (apply str input)))
+
+(defn win? 
+  ([input c [start dir]]
+     (every? (fn [o]
+               (#{c \T} (get-in input (map + start (map (partial * o) dir))))) 
+             (range 4))) 
+  ([input c]
+     (some #(win? input c %)
+           [[[0 0] [0 1]]
+            [[1 0] [0 1]]
+            [[2 0] [0 1]]
+            [[3 0] [0 1]]
+            [[0 0] [1 0]]
+            [[0 1] [1 0]]
+            [[0 2] [1 0]]
+            [[0 3] [1 0]]
+            [[0 0] [1 1]]
+            [[0 3] [1 -1]]])))
+
+(defn solve [input]
+  (cond (win? input \O) "O won"
+        (win? input \X) "X won"        
+        (completed? input) "Draw"
+        :else "Game has not completed"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Boilerplate IO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def fol "/Users/w01fe/Projects/codejam2013/data/")
+
+(defn extract-case [lines]
+  [(mapv vec (take 4 lines)) (drop 5 lines)])
+
+(defn read-in [x]
+  (loop [lines (next (line-seq (io/reader (str fol x)))) cases []]
+    (if-not (seq lines)
+      cases
+      (let [[c more] (extract-case lines)]
+        (recur more (conj cases c))))))
+
+(defn prn-out [f contents]
+  (print contents)
+  (spit (str fol f) contents))
+
+(defn solve-file [stem]
+  (prn-out (str stem ".out")
+    (apply str         
+      (for [[i inp] (map-indexed vector (read-in (str stem ".in")))]
+        (str "Case #" (inc i) ": " (solve inp) "\n")))))
+

@@ -1,0 +1,97 @@
+program tictactoe;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils;
+
+var
+ f,g:textfile;
+ s,r:string;
+ j,i,k,l:integer;
+ tab:array[1..4,1..4] of char;
+ fn:string;
+
+function Elemez:string;
+var
+ i,j:integer;
+ s,s2,s3,s4:integer;
+ er:string;
+ win,notcompl:boolean;
+begin
+ win:=false;
+ notcompl:=false;
+ er:='';
+ j:=1;
+ s3:=0;
+ s4:=0;
+ while (j <= 4) and (not win) do begin
+   s:=0;
+   s2:=0;
+   i:=1;
+   while (i <= 4) and (not win) do begin
+     s:=s+ord(tab[i,j]);
+     s2:=s2+ord(tab[j,i]);
+     if tab[i,j] = '.' then notcompl:=true;
+     if tab[j,i] = '.' then notcompl:=true;
+     inc(i);
+   end;
+   s3:=s3+ord(tab[j,j]);
+   s4:=s4+ord(tab[j,5-j]);
+   if (s = 352) or (s= 348) then begin er:='X won'; win:=true; end;
+   if (s = 316) or (s= 321) then begin er:='O won'; win:=true; end;
+   if (s2 = 352) or (s2= 348) then begin er:='X won'; win:=true; end;
+   if (s2 = 316) or (s2= 321) then begin er:='O won'; win:=true; end;
+   if (s3 = 352) or (s3= 348) then begin er:='X won'; win:=true; end;
+   if (s3 = 316) or (s3= 321) then begin er:='O won'; win:=true; end;
+   if (s4 = 352) or (s4= 348) then begin er:='X won'; win:=true; end;
+   if (s4 = 316) or (s4= 321) then begin er:='O won'; win:=true; end;
+   inc(j);
+ end;
+ if not win
+ then begin
+   if notcompl
+   then er:='Game has not completed'
+   else er:='Draw';
+ end;
+
+ result:=er;
+end;
+
+begin
+  try
+    fn:='A-small-attempt0';
+    assignfile(f,fn+'.in');
+    assignfile(g,fn+'.out');
+    reset(f);
+    rewrite(g);
+    readln(f,s);
+    j:=strtoint(s);
+    i:=1;
+    while i <= j do begin
+      r:='Case #'+inttostr(i)+': ';
+      for l:=1 to 4 do begin
+        readln(f,s);
+        for k:=1 to 4 do begin
+          tab[l,k]:=s[k];
+        end;
+      end;
+      r:=r+Elemez;
+      readln(f,s);
+      writeln(r);
+      writeln(g,r);
+      inc(i);
+    end;
+
+    closefile(f);
+    closefile(g);
+    readln;
+
+    { TODO -oUser -cConsole Main : Insert code here }
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+end.

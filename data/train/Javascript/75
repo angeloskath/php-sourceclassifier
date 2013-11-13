@@ -1,0 +1,96 @@
+var fs = require("fs");
+fs.readFile(__dirname + '/A-large.in', function read(err, data) {
+  if (err) { throw err; }
+  processFile(data.toString())
+});
+
+var output = '';
+var processFile = function(data){
+  var input = data.split('\n');
+  var numCases = parseInt(input.shift());
+  var xrow1, yrow1, xrow2, yrow2, xrow3, yrow3, xrow4, yrow4;
+  var xcol1, ycol1, xcol2, ycol2, xcol3, ycol3, xcol4, ycol4;
+  var xdiagDown, ydiagDown, xdiagUp, ydiagUp, complete;
+  for(var i = 0; i < numCases; i++) {
+
+      complete = true;
+      xrow1=0, yrow1=0, xrow2=0, yrow2=0, xrow3=0, yrow3=0, xrow4=0, yrow4=0;
+      xcol1=0, ycol1=0, xcol2=0, ycol2=0, xcol3=0, ycol3=0, xcol4=0, ycol4=0;
+      xdiagDown=0, ydiagDown=0, xdiagUp=0, ydiagUp=0;
+    if(input[0][0] === 'X' || input[0][0] === 'T') xrow1++,xcol1++,xdiagDown++;
+    if(input[0][0] === 'O' || input[0][0] === 'T') yrow1++,ycol1++,ydiagDown++;
+    if(input[0][0] === '.') complete = false;
+    if(input[0][1] === 'X' || input[0][1] === 'T') xrow1++,xcol2++;
+    if(input[0][1] === 'O' || input[0][1] === 'T') yrow1++,ycol2++;
+    if(input[0][1] === '.') complete = false;
+    if(input[0][2] === 'X' || input[0][2] === 'T') xrow1++,xcol3++;
+    if(input[0][2] === 'O' || input[0][2] === 'T') yrow1++,ycol3++;
+    if(input[0][2] === '.') complete = false;
+    if(input[0][3] === 'X' || input[0][3] === 'T') xrow1++,xcol4++,xdiagUp++;
+    if(input[0][3] === 'O' || input[0][3] === 'T') yrow1++,ycol4++,ydiagUp++;
+    if(input[0][3] === '.') complete = false;
+
+    if(input[1][0] === 'X' || input[1][0] === 'T') xrow2++,xcol1++;
+    if(input[1][0] === 'O' || input[1][0] === 'T') yrow2++,ycol1++;
+    if(input[1][0] === '.') complete = false;
+    if(input[1][1] === 'X' || input[1][1] === 'T') xrow2++,xcol2++,xdiagDown++;
+    if(input[1][1] === 'O' || input[1][1] === 'T') yrow2++,ycol2++,ydiagDown++;
+    if(input[1][1] === '.') complete = false;
+    if(input[1][2] === 'X' || input[1][2] === 'T') xrow2++,xcol3++,xdiagUp++;
+    if(input[1][2] === 'O' || input[1][2] === 'T') yrow2++,ycol3++,ydiagUp++;
+    if(input[1][2] === '.') complete = false;
+    if(input[1][3] === 'X' || input[1][3] === 'T') xrow2++,xcol4++;
+    if(input[1][3] === 'O' || input[1][3] === 'T') yrow2++,ycol4++;
+    if(input[1][3] === '.') complete = false;
+
+    if(input[2][0] === 'X' || input[2][0] === 'T') xrow3++,xcol1++;
+    if(input[2][0] === 'O' || input[2][0] === 'T') yrow3++,ycol1++;
+    if(input[2][0] === '.') complete = false;
+    if(input[2][1] === 'X' || input[2][1] === 'T') xrow3++,xcol2++,xdiagUp++;
+    if(input[2][1] === 'O' || input[2][1] === 'T') yrow3++,ycol2++,ydiagUp++;
+    if(input[2][1] === '.') complete = false;
+    if(input[2][2] === 'X' || input[2][2] === 'T') xrow3++,xcol3++,xdiagDown++;
+    if(input[2][2] === 'O' || input[2][2] === 'T') yrow3++,ycol3++,ydiagDown++;
+    if(input[2][2] === '.') complete = false;
+    if(input[2][3] === 'X' || input[2][3] === 'T') xrow3++,xcol4++;
+    if(input[2][3] === 'O' || input[2][3] === 'T') yrow3++,ycol4++;
+    if(input[2][3] === '.') complete = false;
+    
+    if(input[3][0] === 'X' || input[3][0] === 'T') xrow4++,xcol1++,xdiagUp++;
+    if(input[3][0] === 'O' || input[3][0] === 'T') yrow4++,ycol1++,ydiagUp++;
+    if(input[3][0] === '.') complete = false;
+    if(input[3][1] === 'X' || input[3][1] === 'T') xrow4++,xcol2++;
+    if(input[3][1] === 'O' || input[3][1] === 'T') yrow4++,ycol2++;
+    if(input[3][1] === '.') complete = false;
+    if(input[3][2] === 'X' || input[3][2] === 'T') xrow4++,xcol3++;
+    if(input[3][2] === 'O' || input[3][2] === 'T') yrow4++,ycol3++;
+    if(input[3][2] === '.') complete = false;
+    if(input[3][3] === 'X' || input[3][3] === 'T') xrow4++,xcol4++,xdiagDown++;
+    if(input[3][3] === 'O' || input[3][3] === 'T') yrow4++,ycol4++,ydiagDown++;
+    if(input[3][3] === '.') complete = false;
+
+    var xwon = false;
+    var ywon = false;
+    if(xrow1 === 4 || xrow2 === 4 || xrow3 === 4 || xrow4 === 4 || xdiagDown === 4 || xdiagUp === 4 || xcol1 === 4 || xcol2 === 4 || xcol3 === 4 || xcol4 === 4 ){
+      xwon = true;
+    }
+    if(yrow1 === 4 || yrow2 === 4 || yrow3 === 4 || yrow4 === 4 || ydiagDown === 4 || ydiagUp === 4 || ycol1 === 4 || ycol2 === 4 || ycol3 === 4 || ycol4 === 4 ){
+      ywon = true;
+    }
+    output += 'Case #'+(i+1)+': ';
+    if( xwon ){
+      output += 'X won';
+    } else if ( ywon ) {
+      output += 'O won';
+    } else if (!complete) {
+      output += 'Game has not completed';
+    }
+    else {
+      output += 'Draw';
+    }
+    output += '\n';
+    input.shift(),input.shift(),input.shift(),input.shift(),input.shift();
+  }
+  fs.writeFile(__dirname + '/output.txt', output);
+};
+

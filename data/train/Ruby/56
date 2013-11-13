@@ -1,0 +1,45 @@
+# Supporting code can be found at https://github.com/BugRoger/codejam
+require "support/logging"
+
+class TicTacToeTomek 
+  include CodeJam::Logging
+
+  def initialize(filename)
+    input = File.readlines(filename)
+
+    input.shift.to_i.times do |i|
+      parse(input.shift(5))
+      puts "Case ##{i+1}: #{solve}"
+    end
+  end
+
+  def parse(lines)
+    @board = []
+    4.times { |i| @board[i] = lines.shift.chomp.chars }
+  end
+
+  def solve
+    return "X won" if win?("X")
+    return "O won" if win?("O")
+    return "Draw"  if draw?
+    "Game has not completed"
+  end
+
+  def win?(player)
+    rows = @board
+    cols = @board.transpose
+    dia0 = (0..3).map { |i| @board[i][i]  }
+    dia1 = (0..3).map { |i| @board[i][-(i+1)] }
+
+    (rows + cols + [dia0] + [dia1]).each do |test|
+      return true if test.count{ |c| c == "T" || c == player } == 4
+    end
+
+    false
+  end
+
+  def draw?
+    @board.flatten.none? {|c| c == '.'}
+  end
+
+end

@@ -1,0 +1,92 @@
+#!/usr/bin/env perl
+
+use perl5i::2;
+
+use Readonly;
+
+Readonly my $N => 4;
+
+chomp( my $T = <STDIN> );
+
+for my $t ( 1 .. $T ) {
+    my @board;
+    for my $i ( 1 .. $N ) {
+        chomp( my $line = <STDIN> );
+        push @board, [ split //, $line ];
+    }
+
+    <STDIN>;    # an empty line
+
+    my $x_won      = 0;
+    my $o_won      = 0;
+    my $empty_cell = 0;
+
+ROW:
+    for my $i ( 0 .. $N - 1 ) {
+        $x_won = $o_won = 1;
+        for my $j ( 0 .. $N - 1 ) {
+            given ( $board[$i]->[$j] ) {
+                when ('X') { $o_won = 0 }
+                when ('O') { $x_won = 0 }
+                when ('.') {
+                    $x_won = $o_won = 0;
+                    $empty_cell = 1;
+                }
+            }
+        }
+
+        last ROW if $x_won || $o_won;
+    }
+
+    if ( !$x_won && !$o_won ) {
+    COLUMN:
+        for my $j ( 0 .. $N - 1 ) {
+            $x_won = $o_won = 1;
+            for my $i ( 0 .. $N - 1 ) {
+                given ( $board[$i]->[$j] ) {
+                    when ('X') { $o_won = 0 }
+                    when ('O') { $x_won = 0 }
+                    when ('.') { $x_won = $o_won = 0 }
+                }
+            }
+
+            last COLUMN if $x_won || $o_won;
+        }
+    }
+
+    if ( !$x_won && !$o_won ) {
+        $x_won = $o_won = 1;
+        for my $i ( 0 .. $N - 1 ) {
+            given ( $board[$i]->[$i] ) {
+                when ('X') { $o_won = 0 }
+                when ('O') { $x_won = 0 }
+                when ('.') { $x_won = $o_won = 0 }
+            }
+        }
+    }
+
+    if ( !$x_won && !$o_won ) {
+        $x_won = $o_won = 1;
+        for my $i ( 0 .. $N - 1 ) {
+            given ( $board[ $N - $i - 1 ]->[$i] ) {
+                when ('X') { $o_won = 0 }
+                when ('O') { $x_won = 0 }
+                when ('.') { $x_won = $o_won = 0 }
+            }
+        }
+    }
+
+    print "Case #$t: ";
+    if ($x_won) {
+        say 'X won';
+    }
+    elsif ($o_won) {
+        say 'O won';
+    }
+    elsif ( !$empty_cell ) {
+        say 'Draw';
+    }
+    else {
+        say 'Game has not completed';
+    }
+}

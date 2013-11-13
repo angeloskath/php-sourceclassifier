@@ -1,0 +1,78 @@
+<?php
+# Yen-Ming Lee <leeym@leeym.com>
+# http://code.google.com/codejam/contest/dashboard?c=2270488#s=p0
+$opt = getopt('vd');
+fscanf(STDIN, "%d\n", $T);
+for ($t = 1;$t <= $T;$t++) {
+    fprintf(STDERR, "Case #$t/$T\n");
+    $grid = array();
+    for ($r = 0;$r < 4;$r++) {
+        $row = trim(fgets(STDIN));
+        $grid[$r] = $row;
+    }
+    fgets(STDIN);
+    if (array_key_exists('v', $opt)) {
+        print_r($grid);
+    }
+    $line = array();
+    // for each line
+    for ($r = 0;$r < 4;$r++) {
+        $l = $grid[$r];
+        if (!isset($line[$l])) {
+            $line[$l] = 0;
+        }
+        $line[$l]++;
+    }
+    // for each column
+    for ($c = 0;$c < 4;$c++) {
+        $l = '';
+        for ($r = 0;$r < 4;$r++) {
+            $l.= $grid[$r][$c];
+        }
+        if (!isset($line[$l])) {
+            $line[$l] = 0;
+        }
+        $line[$l]++;
+    }
+    // for each diagonal
+    $d1 = '';
+    $d2 = '';
+    for ($d = 0;$d < 4;$d++) {
+        $d1.= $grid[$d][$d];
+        $d2.= $grid[3 - $d][$d];
+        if (!isset($line[$d1])) {
+            $line[$d1] = 0;
+        }
+        $line[$d1]++;
+        if (!isset($line[$d2])) {
+            $line[$d2] = 0;
+        }
+        $line[$d2]++;
+    }
+    $dot = 0;
+    $y = '';
+    foreach (array_keys($line) as $l) {
+        $lO = str_replace('T', 'O', $l);
+        $lX = str_replace('T', 'X', $l);
+        if (strstr($l, '.') !== false) {
+            $dot++;
+        }
+        if ($l == 'OOOO' || $lO == 'OOOO') {
+            $y = 'O won';
+        }
+        if ($l == 'XXXX' || $lX == 'XXXX') {
+            $y = 'X won';
+        }
+        if ($y) {
+            break;
+        }
+    }
+    if ($y == '') {
+        if ($dot) {
+            $y = 'Game has not completed';
+        } else {
+            $y = 'Draw';
+        }
+    }
+    printf("Case #$t: $y\n");
+}

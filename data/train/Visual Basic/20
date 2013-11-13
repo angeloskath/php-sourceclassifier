@@ -1,0 +1,203 @@
+﻿Imports System
+Imports System.IO
+Imports System.Text
+Imports System.Text.RegularExpressions
+
+Public Class Form1
+
+
+    Private Sub RunFileBtn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles RunFileBtn.Click
+        Dim Inputfile As String = ""
+        Dim NumberOfCases As Integer = 0
+        Dim TempString As String = ""
+        Dim TempNumber As Integer = 0
+        Dim OutputText As String = ""
+        Dim InputLetters As Array = TempString.ToCharArray()
+
+        Dim fdlg As OpenFileDialog = New OpenFileDialog()
+        fdlg.RestoreDirectory = True
+        fdlg.Filter = "in File | *.in|All Files| *.*"
+        fdlg.Title = "AD Project File"
+        If fdlg.ShowDialog() = DialogResult.OK Then
+            Inputfile = fdlg.FileName
+
+        End If
+
+        If File.Exists(Inputfile) Then
+            Dim reader As StreamReader
+            Dim n As Integer = 0
+            Dim NumberOfLine As Integer = 0
+            Dim Linedata As String = ""
+            Dim CaseData As String = ""
+            Dim ColumnDate As String = ""
+            Dim NumberDots As Integer = 0
+            Dim CaseDataAray(10, 10) As String
+            Dim position As Integer = 0
+            Dim GameWon As Boolean
+            Dim Columnsdata As String = ""
+            Dim NumberOfColumn As Integer = 0
+
+
+
+
+
+            reader = New StreamReader(Inputfile, Encoding.UTF8, False)
+            TempString = reader.ReadLine
+            'MessageBox.Show("-" + TempString + "-")
+            NumberOfCases = Convert.ToInt16(TempString)
+            'Dim InputDate As String = reader.ReadToEnd
+
+            While TempNumber < NumberOfCases
+                'TempString = reader.ReadLine
+                OutputText = OutputText + "Case #" + Convert.ToString(TempNumber + 1) + ": "
+                'read in lines
+
+
+                Linedata = reader.ReadLine
+                While NumberOfLine < 4
+
+                    'MessageBox.Show("Game:" + Convert.ToString(TempNumber) + ControlChars.CrLf + "Line:" + Convert.ToString(NumberOfLine) + ControlChars.CrLf + "Data:" + Linedata + ControlChars.CrLf)
+
+
+
+                    If CheckIfStringWin(Linedata) <> "" Then
+                        OutputText = OutputText + CheckIfStringWin(Linedata) + ControlChars.CrLf
+                        'MessageBox.Show("Found winner in Line " + Convert.ToString(NumberOfLine))
+                        GameWon = True
+                        While NumberOfLine < 4
+
+                            NumberOfLine = NumberOfLine + 1
+                            reader.ReadLine()
+                        End While
+                        Exit While
+                    ElseIf Linedata <> "" Then
+                        CaseData = CaseData + Convert.ToString(NumberOfLine) + Linedata + ControlChars.CrLf
+                        Dim count As Integer = 0
+                        For Each c As Char In Linedata
+                            CaseDataAray(NumberOfLine, count) = c
+                            count += 1
+                        Next
+                        count = 0
+                        NumberDots = NumberDots + Regex.Matches(Linedata, Regex.Escape(".")).Count
+                    Else
+
+                    End If
+                    NumberOfLine = NumberOfLine + 1
+                    Linedata = reader.ReadLine
+                End While
+
+
+                'MessageBox.Show("Game:" + Convert.ToString(TempNumber) + ControlChars.CrLf + CaseData)
+
+                If GameWon = False Then
+
+                    'MessageBox.Show("ColumnSOurceData:" + ControlChars.CrLf + _
+                    '                "-" + CaseDataAray(0, 0) + CaseDataAray(0, 1) + CaseDataAray(0, 2) + CaseDataAray(0, 3) + ControlChars.CrLf + _
+                    '                "-" + CaseDataAray(1, 0) + CaseDataAray(1, 1) + CaseDataAray(1, 2) + CaseDataAray(1, 3) + ControlChars.CrLf + _
+                    '                "-" + CaseDataAray(2, 0) + CaseDataAray(2, 1) + CaseDataAray(2, 2) + CaseDataAray(2, 3) + ControlChars.CrLf + _
+                    '                "-" + CaseDataAray(3, 0) + CaseDataAray(3, 1) + CaseDataAray(3, 2) + CaseDataAray(3, 3))
+
+                    'Check Columns
+                    While NumberOfColumn < 4
+                        Columnsdata = CaseDataAray(0, NumberOfColumn) + CaseDataAray(1, NumberOfColumn) + CaseDataAray(2, NumberOfColumn) + CaseDataAray(3, NumberOfColumn)
+                        'MessageBox.Show("Game:" + Convert.ToString(TempNumber) + ControlChars.CrLf + "Column:" + Convert.ToString(NumberOfColumn) + ControlChars.CrLf + "Data:" + Columnsdata + ControlChars.CrLf)
+
+                        If CheckIfStringWin(Columnsdata) <> "" Then
+                            OutputText = OutputText + CheckIfStringWin(Columnsdata) + ControlChars.CrLf
+                            'MessageBox.Show("Found winner in column " + Convert.ToString(NumberOfColumn))
+                            GameWon = True
+                            Exit While
+
+                        End If
+                        NumberOfColumn = NumberOfColumn + 1
+                    End While
+
+                    Dim DiagString As String = CaseDataAray(0, 0) + CaseDataAray(1, 1) + CaseDataAray(2, 2) + CaseDataAray(3, 3)
+                    If CheckIfStringWin(DiagString) <> "" Then
+                        OutputText = OutputText + CheckIfStringWin(DiagString) + ControlChars.CrLf
+                        'MessageBox.Show("Found winner in DiagA " + Convert.ToString(NumberOfColumn))
+                        GameWon = True
+                    End If
+
+                    DiagString = CaseDataAray(0, 3) + CaseDataAray(1, 2) + CaseDataAray(2, 1) + CaseDataAray(3, 0)
+                    If CheckIfStringWin(DiagString) <> "" Then
+                        OutputText = OutputText + CheckIfStringWin(DiagString) + ControlChars.CrLf
+                        'MessageBox.Show("Found winner in Diagb " + Convert.ToString(NumberOfColumn))
+                        GameWon = True
+                    End If
+
+
+                    If NumberDots = 0 Then
+                        If GameWon = False Then
+                            OutputText = OutputText + "Draw" + ControlChars.CrLf
+                        End If
+
+                    ElseIf GameWon = False Then
+                        OutputText = OutputText + "Game has not completed" + ControlChars.CrLf
+                    End If
+
+                End If
+
+
+
+                GameWon = False
+                NumberOfLine = 0
+                NumberDots = 0
+                NumberOfColumn = 0
+                CaseData = ""
+                'reader.ReadLine()
+
+                TempNumber = TempNumber + 1
+            End While
+
+
+
+            Dim OutputFilename As String = ""
+            Dim OutDialog As New SaveFileDialog
+            OutDialog.Filter = "Text Files| *.txt"
+            If OutDialog.ShowDialog = Windows.Forms.DialogResult.OK Then
+                OutputFilename = OutDialog.FileName
+            End If
+
+            Dim OuttWriter As StreamWriter
+            OuttWriter = New StreamWriter(OutputFilename)
+            OuttWriter.WriteLine(OutputText)
+            OuttWriter.Close()
+
+            reader.Close()
+        End If
+
+
+        MessageBox.Show(OutputText)
+    End Sub
+
+    Public Function CheckIfStringWin(ByVal InputString As String)
+        Dim CheckResult As String = ""
+
+        If InputString.Contains("T") Then
+            If Regex.Matches(InputString, Regex.Escape("X")).Count > 2 Then
+                CheckResult = "X won"
+            End If
+            If Regex.Matches(InputString, Regex.Escape("O")).Count > 2 Then
+                CheckResult = "O won"
+            End If
+        Else
+            If Regex.Matches(InputString, Regex.Escape("X")).Count > 3 Then
+                CheckResult = "X won"
+            End If
+            If Regex.Matches(InputString, Regex.Escape("O")).Count > 3 Then
+                CheckResult = "O won"
+            End If
+        End If
+        'MessageBox.Show("InputString:" + InputString + ControlChars.CrLf + "Result" + CheckResult)
+        Return CheckResult
+    End Function
+
+    Public Function CountWins(ByVal InputString As String, ByVal ch As Char) As Integer
+        Dim count As Integer = 0
+        For Each c As Char In InputString
+            If c = ch Then count += 1
+        Next
+        Return count
+    End Function
+End Class

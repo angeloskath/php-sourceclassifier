@@ -1,0 +1,131 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	// "log"
+	"strconv"
+	"strings"
+)
+
+func wonLines(board [][]byte) (bool, byte) {
+	for i := 0; i < 4; i++ {
+		winner := byte('Z')
+		if board[i][0] == byte('T') {
+			winner = board[i][1]
+		} else {
+			winner = board[i][0]
+		}
+		for j := 0; j < 4; j++ {
+			if board[i][j] != winner && board[i][j] != byte(byte('T')) {
+				break
+			}
+			if j == 3 && winner != byte('.') {
+				return true, winner
+			}
+		}
+	}
+	return false, byte('Z')
+}
+
+func wonColumns(board [][]byte) (bool, byte) {
+	for i := 0; i < 4; i++ {
+		winner := byte('Z')
+		if board[0][i] == byte('T') {
+			winner = board[1][i]
+		} else {
+			winner = board[0][i]
+		}
+		for j := 0; j < 4; j++ {
+			if board[j][i] != winner && board[j][i] != byte('T') {
+				break
+			}
+			if j == 3 && winner != byte('.') {
+				return true, winner
+			}
+		}
+	}
+	return false, byte('Z')
+}
+
+func wonDiags(board [][]byte) (bool, byte) {
+	winner := board[0][0]
+	if board[0][0] == byte('T') {
+		winner = board[1][1]
+	}
+	for i := 0; i < 4; i++ {
+		if winner != board[i][i] {
+			break
+		}
+		if i == 3 && winner != byte('.') && board[i][i] != byte('T') {
+			return true, winner
+		}
+	}
+	winner = board[0][3]
+	if board[0][3] == byte('T') {
+		winner = board[1][2]
+	}
+	for i := 0; i < 4; i++ {
+		if winner != board[i][3-i] && board[i][3-i] != byte('T') {
+			break
+		}
+		if i == 3 && winner != byte('.') {
+			return true, winner
+		}
+	}
+	return false, byte('Z')
+}
+
+func solve(board [][]byte) byte {
+	if won, who := wonLines(board); won {
+		return who
+	}
+	if won, who := wonColumns(board); won {
+		return who
+	}
+	if won, who := wonDiags(board); won {
+		return who
+	}
+	return byte('Z')
+}
+
+func completed(board [][]byte) bool {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if board[i][j] == byte('.') {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func main() {
+	content, _ := ioutil.ReadFile("input")
+	lines := strings.Split(string(content), "\n")
+	// log.Printf("lines = %v", lines)
+	boards := make([][]byte, 0)
+	for _, l := range lines[1:] {
+		boards = append(boards, []byte(l))
+	}
+	// log.Printf("lines[0] = %s", lines[0])
+	num_cases, _ := strconv.ParseInt(lines[0], 10, 32)
+	// log.Printf("num_cases = %d", num_cases)
+	for i := int64(0); i < num_cases; i++ {
+		b := solve(boards[5*i : (5*i + 5)])
+		fmt.Printf("Case #%d: ", i+1)
+		// log.Printf("b = %c", b)
+		switch {
+		case b == 'X':
+			fmt.Printf("X won\n")
+		case b == 'O':
+			fmt.Printf("O won\n")
+		case b == 'Z':
+			if completed(boards[5*i : (5*i + 5)]) {
+				fmt.Printf("Draw\n")
+			} else {
+				fmt.Printf("Game has not completed\n")
+			}
+		}
+	}
+}

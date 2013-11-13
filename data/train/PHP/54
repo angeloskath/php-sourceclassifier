@@ -1,0 +1,206 @@
+<?php
+
+$fin = fopen('A-Large.in', 'r') or die('cannot read');
+$fout = fopen('output.txt', 'w') or die('cannot write');
+
+// read input
+$nbCase = fgets($fin);
+$case = 0;
+$lineIdx = 0;
+$tictac = array(4);
+
+function processCase()
+{
+  global $tictac, $case, $lineIdx, $fout;
+
+  $complete = true;
+  $winner = '';
+
+  // new test case
+  $case++;
+  $lineIdx = 0;
+
+  print "
+  ******************************
+  ********** CASE #$case **********
+  ******************************
+  ";
+  print_r($tictac);
+
+  for($i=0; $i<4; ++$i) {
+
+    // line testing
+    $onlyX = true;
+    $onlyO = true;
+    for ($j=0; $j<4; $j++) {
+      switch($tictac[$i][$j]) {
+        case 'X':
+          $onlyO = false;
+          break;
+        case 'O':
+          $onlyX = false;
+          break;
+        case '.':
+          $onlyO = false;
+          $onlyX = false;
+          $complete = false;
+          break;
+        case 'T':
+          // don't care
+          break;
+      }
+      // skip the line if useless
+      if (!$onlyO && !$onlyX && !$complete)
+        break;
+    }
+
+    // end of line
+    if ($onlyX) {
+      // X wins
+      printf("X wins with line $i\n");
+      fputs($fout, "Case #$case: X won\n");
+      return;
+    } else if ($onlyO) {
+      // O wins
+      printf("O wins with line $i\n");
+      fputs($fout, "Case #$case: O won\n");
+      return;
+    }
+
+    // column testing
+    $onlyX = true;
+    $onlyO = true;
+    for ($j=0; $j<4; $j++) {
+      switch($tictac[$j][$i]) {
+        case 'X':
+          $onlyO = false;
+          break;
+        case 'O':
+          $onlyX = false;
+          break;
+        case '.':
+          $onlyO = false;
+          $onlyX = false;
+          $complete = false;
+          break;
+        case 'T':
+          // don't care
+          break;
+      }
+      // skip the line if useless
+      if (!$onlyO && !$onlyX && !$complete)
+        break;
+    }
+
+    // end of column
+    if ($onlyX) {
+      // X wins
+      printf("X wins wih col $i\n");
+      fputs($fout, "Case #$case: X won\n");
+      return;
+    } else if ($onlyO) {
+      // O wins
+      printf("O wins with col $i\n");
+      fputs($fout, "Case #$case: O won\n");
+      return;
+    }
+  }
+
+  // test diag1
+  printf("test diag1\n");
+  $onlyX = true;
+  $onlyO = true;
+  for ($i=0; $i<4; ++$i) {
+    switch($tictac[$i][$i]) {
+      case 'X':
+        $onlyO = false;
+        break;
+      case 'O':
+        $onlyX = false;
+        break;
+      case '.':
+        $onlyO = false;
+        $onlyX = false;
+        break 2;
+    }
+    // skip the line if useless
+    if (!$onlyO && !$onlyX)
+      break;
+  }
+
+  // end of diag1
+  if ($onlyX) {
+    // X wins
+    printf("X wins wih diag 1\n");
+    fputs($fout, "Case #$case: X won\n");
+    return;
+  } else if ($onlyO) {
+    // O wins
+    printf("O wins with diag 1\n");
+    fputs($fout, "Case #$case: O won\n");
+    return;
+  }
+
+  printf("test diag2\n");
+  // test diag2
+  $onlyX = true;
+  $onlyO = true;
+  for ($i=0; $i<4; ++$i) {
+    switch($tictac[$i][3-$i]) {
+      case 'X':
+        $onlyO = false;
+        break;
+      case 'O':
+        $onlyX = false;
+        break;
+      case '.':
+        $onlyO = false;
+        $onlyX = false;
+        break 2;
+    }
+    // skip the line if useless
+    if (!$onlyO && !$onlyX)
+      break;
+  }
+
+  // end of diag2
+  if ($onlyX) {
+    // X wins
+    printf("X wins wih diag 2\n");
+    fputs($fout, "Case #$case: X won\n");
+    return;
+  } else if ($onlyO) {
+    // O wins
+    printf("O wins with diag 2\n");
+    fputs($fout, "Case #$case: O won\n");
+    return;
+  }
+
+  if ($complete) {
+    printf("Draw\n");
+    fputs($fout, "Case #$case: Draw\n");
+  } else {
+    printf("Not complete\n");
+    fputs($fout, "Case #$case: Game has not completed\n");
+  }
+}
+
+while($line = fgets($fin)) {
+  if (trim($line) == "") {
+    assert($lineIdx == 4);
+    processCase();
+  } else {
+    $tictac[$lineIdx] = $line;
+    $lineIdx++;
+  }
+}
+
+if ($case == $nbCase)
+  return;
+
+// process last case
+processCase();
+
+assert($case == $nbCase);
+
+?>

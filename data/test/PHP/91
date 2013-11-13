@@ -1,0 +1,119 @@
+<?php
+require_once "fileread.php";
+
+// Read the in file.
+$input_arr = read_input_file();
+$n = array_shift($input_arr);
+
+for ($j = 0; $j < $n; $j++) {
+	$game = array();
+
+	// Read the 4 lines
+	$game[] = array_shift($input_arr);
+	$game[] = array_shift($input_arr);
+	$game[] = array_shift($input_arr);
+	$game[] = array_shift($input_arr);
+
+	// Get rid of the empty line
+	array_shift($input_arr);
+
+	// Turn it into a martrix
+	$matrix = array();
+
+	foreach ($game as $index => $line) {
+		for ($x = 0; $x < strlen($line); $x++) {
+			$matrix[$index][$x] = $line[$x];
+		}
+	}
+
+	// Check for a horizontal
+	$win = false;
+
+	foreach ($matrix as $index => $line) {
+
+		$win = $line[0];
+
+		for ($x = 1; $x < count($line); $x++) {
+
+			$win = ($win == $line[$x] || $line[$x] == "T") ? $win : false;
+
+			if (!$win) {
+				break;
+			}
+		}
+
+		if ($win == "X" || $win == "O")
+		{
+			break;
+		}
+	}
+
+	// Check for a vertical 
+	if (!$win) {
+
+		for ($x = 0; $x < count($matrix[0]); $x++) {	
+			$win = $matrix[0][$x];
+
+			for ($i = 1; $i < count($matrix); $i++) {
+				
+				$win = ($win == $matrix[$i][$x] || $matrix[$i][$x] == "T") ? $win : false;
+			}
+
+			if ($win == "X" || $win == "O")
+			{
+				break;
+			}
+		}
+	}
+
+	// Check for a diagonal. There can only be
+	// 2 combinations of diagonal wins
+	if (!$win) {
+
+		foreach ($matrix as $index => $line) {
+
+			if ($index == 0) {
+				$win = $line[$index];	
+			} else {
+				$win = ($win == $line[$index] || $line[$index] == "T") ? $win : false;		
+			}
+		}
+
+		if (!$win) {
+			foreach ($matrix as $index => $line) {
+				$index = ($index - (count($matrix) -1)) * -1;
+				
+				if ($index == count($matrix) -1) {
+					$win = $line[$index];	
+				} else {
+					$win = ($win == $line[$index] || $line[$index] == "T") ? $win : false;		
+				}
+			}
+		}
+	}
+
+	// Check for a draw
+	if ($win == "." || $win == "" || !$win)
+	{
+		$win = "draw";
+
+		foreach ($matrix as $index => $line) {
+			if (in_array(".", $line)) {
+				$win = false;
+				break;
+			}
+		}
+	}
+
+
+	switch ($win) {
+		case false:
+			out("Case #" . ($j + 1) . ": Game has not completed");
+			break;
+		case "draw":
+			out("Case #" . ($j + 1) . ": Draw");
+			break;
+		default:
+			out("Case #" . ($j + 1) . ": ". $win . " won");
+	}
+}

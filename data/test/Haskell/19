@@ -1,0 +1,54 @@
+import Data.List
+
+parseFileInput:: String -> [[String]]
+parseFileInput inpstring 
+             | (read (head $ lines inpstring) :: Int) > 0 = take (read (head $ lines inpstring) :: Int) $ group_hlp $ tail $ lines inpstring
+             | otherwise = []
+             where group_hlp [] = []
+                   group_hlp xs = (take 5 xs):(group_hlp $ drop 5 xs)
+
+generate_configs [] = []
+generate_configs inps = [(inps!!0!!0, inps!!0!!1, inps!!0!!2, inps!!0!!3), (inps!!1!!0, inps!!1!!1, inps!!1!!2, inps!!1!!3), (inps!!2!!0, inps!!2!!1, inps!!2!!2, inps!!2!!3), (inps!!3!!0, inps!!3!!1, inps!!3!!2, inps!!3!!3),(inps!!0!!0, inps!!1!!0, inps!!2!!0, inps!!3!!0), (inps!!0!!1, inps!!1!!1, inps!!2!!1, inps!!3!!1), (inps!!0!!2, inps!!1!!2, inps!!2!!2, inps!!3!!2),(inps!!0!!3, inps!!1!!3, inps!!2!!3, inps!!3!!3),(inps!!0!!0, inps!!1!!1, inps!!2!!2, inps!!3!!3),(inps!!0!!3, inps!!1!!2, inps!!2!!1, inps!!3!!0)]
+
+
+eval4tuple:: (Char, Char, Char, Char) -> Char
+eval4tuple ('X', 'X', 'X', 'X') = 'X'
+eval4tuple ('T', 'X', 'X', 'X') = 'X'
+eval4tuple ('X', 'T', 'X', 'X') = 'X'
+eval4tuple ('X', 'X', 'T', 'X') = 'X'
+eval4tuple ('X', 'X', 'X', 'T') = 'X'
+
+eval4tuple ('O', 'O', 'O', 'O') = 'O'
+eval4tuple ('T', 'O', 'O', 'O') = 'O'
+eval4tuple ('O', 'T', 'O', 'O') = 'O'
+eval4tuple ('O', 'O', 'T', 'O') = 'O'
+eval4tuple ('O', 'O', 'O', 'T') = 'O'
+
+eval4tuple _ = 'N'
+
+
+
+eval_configs:: [(Char,Char,Char,Char)] -> Char
+eval_configs (x:[]) = eval4tuple x
+eval_configs (x:xs) = case eval4tuple x of
+                      'X' -> 'X'
+                      'O' -> 'O'
+                      'N' -> eval_configs xs
+
+eval_table:: [String] -> String
+eval_table inp = case (eval_configs $ generate_configs inp) of
+                'X' -> "X won"
+                'O' -> "O won"
+                'N' ->  case any (\x ->x) (map (\y -> elem '.' y) inp) of
+                        True -> "Game has not completed"
+                        False -> "Draw"
+
+
+printerProcess:: [String] -> String
+printerProcess inp = intercalate "\n" $ zipWith (\x y -> "Case #"++(show x)++": "++ y) [1..] inp
+
+main = do
+     inpstring <-  readFile "A-large.in"
+     let phrases = parseFileInput inpstring
+     writeFile "tictactoe_output.txt" $ printerProcess $ map eval_table phrases
+--     writeFile "beautiful_stringsoutput.txt" $ printerProcess $ map computeBeauty phrases

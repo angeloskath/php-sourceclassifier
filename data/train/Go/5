@@ -1,0 +1,112 @@
+package main
+
+import (
+	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
+)
+
+const in = "A-large"
+
+var linedata = map[string]uint8{"TXXX": 1, "XTXX": 1, "XXTX": 1, "XXXT": 1, "TOOO": 2, "OTOO": 2, "OOTO": 2, "OOOT": 2, "XXXX": 1, "OOOO": 2}
+
+func tttt(lines []string) string {
+	full := true
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if lines[i][j] == '.' {
+				full = false
+				break
+			}
+		}
+	}
+	if score, ok := linedata[lines[0]]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[lines[1]]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[lines[2]]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[lines[3]]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][0])+string(lines[1][0])+string(lines[2][0])+string(lines[3][0])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][1])+string(lines[1][1])+string(lines[2][1])+string(lines[3][1])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][2])+string(lines[1][2])+string(lines[2][2])+string(lines[3][2])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][3])+string(lines[1][3])+string(lines[2][3])+string(lines[3][3])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][0])+string(lines[1][1])+string(lines[2][2])+string(lines[3][3])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if score, ok := linedata[string(lines[0][3])+string(lines[1][2])+string(lines[2][1])+string(lines[3][0])]; ok {
+		if score == 1 {
+			return "X won"
+		} else {
+			return "O won"
+		}
+	}
+	if full {
+		return "Draw"
+	}
+	return "Game has not completed"
+}
+
+func main() {
+	data, _ := ioutil.ReadFile(in + ".in")
+	lines := strings.Split(string(data), "\n")
+	cases, _ := strconv.Atoi(lines[0])
+	fmt.Println(lines[0], []byte(lines[0]))
+	result := make([]string, 0)
+	fmt.Println(cases)
+	for i := 0; i < cases; i++ {
+		result = append(result, "Case #"+strconv.Itoa(i+1)+": "+tttt(lines[5*i+1:5*i+5]))
+	}
+	fmt.Println(result)
+	ioutil.WriteFile(in+".out", []byte(strings.Join(result, "\n")), 0777)
+}

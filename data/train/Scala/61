@@ -1,0 +1,63 @@
+package com.mantastyle.codejam.qualification
+
+import io.Source
+import java.io.{PrintWriter, BufferedWriter, FileWriter}
+
+object TicTacTomek extends App {
+  object Result extends Enumeration {
+    type Result = Value
+    val XWon = Value("X won")
+    val OWon = Value("O won")
+    val Draw = Value("Draw")
+    val Incomplete = Value("Game has not completed")
+  }
+  import Result._
+
+  val Dimension = 4
+  type Grid = Seq[Seq[Char]]
+  type Line = Seq[Char]
+
+  def getRow(grid: Grid, i: Int): Line = grid(i)
+  def getCol(grid: Grid, i: Int): Line = grid.map(_(i))
+  def getMainDiag(grid: Grid): Line = (0 until Dimension).map(i => grid(i)(i))
+  def getOffDiag(grid: Grid): Line = (0 until Dimension).map(i => grid(i)(Dimension - 1 - i))
+
+  def evalLine(line: Line): Result = {
+    if (line.forall(c => c == 'X' || c == 'T'))
+      XWon
+    else if (line.forall(c => c == 'O' || c == 'T'))
+      OWon
+    else if (line.contains('.'))
+      Incomplete
+    else
+      Draw
+  }
+
+  def allLines(grid: Grid): Seq[Line] = {
+    val rowsAndCols = (0 until Dimension).map(getRow(grid, _)) ++
+        (0 until Dimension).map(getCol(grid, _))
+    getMainDiag(grid) +: getOffDiag(grid) +: rowsAndCols
+  }
+
+  def evalGrid(grid: Grid): Result = {
+    val lineResults = allLines(grid).map(evalLine)
+    lineResults.find(r => (r == XWon) || (r == OWon)) match {
+      case Some(r) => r
+      case None => {
+        if (lineResults.contains(Incomplete))
+          Incomplete
+        else
+          Draw
+      }
+    }
+  }
+
+  val lines = Source.fromFile("input.txt").getLines().toList
+  val writer = new PrintWriter(new BufferedWriter(new FileWriter("output.txt")))
+  for ((fiveLines, i) <- lines.tail.grouped(5).zipWithIndex) {
+    val grid = fiveLines.take(4).map(_.toSeq)
+    val result = evalGrid(grid)
+    writer.println("Case #" + (i + 1) + ": " + result)
+  }
+  writer.close()
+}

@@ -1,0 +1,122 @@
+Public Class Form1
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        Dim fileReader =
+        My.Computer.FileSystem.OpenTextFileReader("C:\users\Edwin\Desktop\data.in")
+        Dim stringReader = fileReader.ReadLine()
+        Dim numbercases As Integer = stringReader
+        Dim ticar(numbercases, 16) As String
+        Dim y As Integer = 1
+        For i = 1 To ((5 * numbercases) + 1)
+            stringReader = fileReader.ReadLine()
+            If Not stringReader = "" And Not stringReader = Str(numbercases) Then
+                For y = 1 To 4
+                    If i = 1 Then
+                        ticar(1, ((i - 1) Mod 5) * 4 + y) = Mid(stringReader, y, 1) ''Put all data into array called ticar, where the first value represents the case number, and the second value represents the position within the 4x4 grid. ''
+                    Else
+                        ticar((i \ 5) + 1, ((i - 1) Mod 5) * 4 + y) = Mid(stringReader, y, 1)
+                    End If
+                Next y
+            End If
+        Next i
+        For i = 1 To numbercases
+            Dim xwin As Boolean = False ''Flags to keep track of the state of the game in the current grid''
+            Dim ywin As Boolean = False ''ywin should really be called owin''
+            Dim draw As Boolean = False
+            Dim nfin As Boolean = False
+            For y = 1 To 4
+                If ticar(i, 4 * (y - 1) + 1) = "X" Or ticar(i, 4 * (y - 1) + 1) = "T" Then
+                    If ticar(i, 4 * (y - 1) + 2) = "X" Or ticar(i, 4 * (y - 1) + 2) = "T" Then ''Find if there are 4 x's in any rows''
+                        If ticar(i, 4 * (y - 1) + 3) = "X" Or ticar(i, 4 * (y - 1) + 3) = "T" Then
+                            If ticar(i, 4 * (y - 1) + 4) = "X" Or ticar(i, 4 * (y - 1) + 4) = "T" Then
+                                xwin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, y) = "X" Or ticar(i, y) = "T" Then
+                    If ticar(i, y + 4) = "X" Or ticar(i, y + 4) = "T" Then ''Find if there are 4 x's in any columns''
+                        If ticar(i, y + 8) = "X" Or ticar(i, y + 8) = "T" Then
+                            If ticar(i, y + 12) = "X" Or ticar(i, y + 12) = "T" Then
+                                xwin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, 1) = "X" Or ticar(i, 1) = "T" Then
+                    If ticar(i, 6) = "X" Or ticar(i, 6) = "T" Then ''find if there are 4 x's in any diagonals.''
+                        If ticar(i, 11) = "X" Or ticar(i, 11) = "T" Then
+                            If ticar(i, 16) = "X" Or ticar(i, 16) = "T" Then
+                                xwin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, 4) = "X" Or ticar(i, 4) = "T" Then
+                    If ticar(i, 7) = "X" Or ticar(i, 7) = "T" Then
+                        If ticar(i, 10) = "X" Or ticar(i, 10) = "T" Then
+                            If ticar(i, 13) = "X" Or ticar(i, 13) = "T" Then
+                                xwin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, 4 * (y - 1) + 1) = "O" Or ticar(i, 4 * (y - 1) + 1) = "T" Then
+                    If ticar(i, 4 * (y - 1) + 2) = "O" Or ticar(i, 4 * (y - 1) + 2) = "T" Then ''Find if there are 4 y's in any rows''
+                        If ticar(i, 4 * (y - 1) + 3) = "O" Or ticar(i, 4 * (y - 1) + 3) = "T" Then
+                            If ticar(i, 4 * (y - 1) + 4) = "O" Or ticar(i, 4 * (y - 1) + 4) = "T" Then
+                                ywin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, y) = "O" Or ticar(i, y) = "T" Then
+                    If ticar(i, y + 4) = "O" Or ticar(i, y + 4) = "T" Then ''Find if there are 4 y's in any columns''
+                        If ticar(i, y + 8) = "O" Or ticar(i, y + 8) = "T" Then
+                            If ticar(i, y + 12) = "O" Or ticar(i, y + 12) = "T" Then
+                                ywin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, 1) = "O" Or ticar(i, 1) = "T" Then
+                    If ticar(i, 6) = "O" Or ticar(i, 6) = "T" Then ''Find if there are 4 y's in any diagonals''
+                        If ticar(i, 11) = "O" Or ticar(i, 11) = "T" Then
+                            If ticar(i, 16) = "O" Or ticar(i, 16) = "T" Then
+                                ywin = True
+                            End If
+                        End If
+                    End If
+                End If
+                If ticar(i, 4) = "O" Or ticar(i, 4) = "T" Then
+                    If ticar(i, 7) = "O" Or ticar(i, 7) = "T" Then
+                        If ticar(i, 10) = "O" Or ticar(i, 10) = "T" Then
+                            If ticar(i, 13) = "O" Or ticar(i, 13) = "T" Then
+                                ywin = True
+                            End If
+                        End If
+                    End If
+                End If
+            Next
+            If xwin = False And ywin = False Then ''Analyse booleans to come to a conclusion about the state of the game''
+                For z = 1 To 16
+                    If ticar(i, z) = "." Then
+                        nfin = True
+                    End If
+                Next
+                If nfin = True Then
+                    Debug.Print("Case #" & i & ": " & "Game has not completed")
+                End If
+                If nfin = False Then
+                    draw = True
+                    Debug.Print("Case #" & i & ": " & "Draw")
+                End If
+            End If
+            If xwin = True Then
+                Debug.Print("Case #" & i & ": " & "X won")
+            End If
+            If ywin = True Then
+                Debug.Print("Case #" & i & ": " & "O won")
+            End If
+        Next
+    End Sub
+End Class

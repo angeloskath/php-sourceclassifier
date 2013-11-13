@@ -1,0 +1,107 @@
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+
+
+my $NN = <STDIN>;
+my $CN = 1;
+while ($CN<=$NN)
+{
+	my @t = ();
+	my $void = 0;
+	my %rows = ();
+	my %cols = ();
+	
+	foreach my $r (0..3)
+	{
+		my $l = <STDIN>;
+		next unless ($l);
+		chomp $l;
+		my @els = split (//,$l);
+		
+		foreach my $c (0..3)
+		{		
+			if ($els[$c] eq 'X' || $els[$c] eq 'T')
+			{
+				$rows{$r}{'X'}++;
+				$cols{$c}{'X'}++;
+			}
+			elsif ($els[$c] eq 'O' || $els[$c] eq 'T')
+			{
+				$rows{$r}{'O'}++;
+				$cols{$c}{'O'}++;
+			}else
+			{
+				$void ++;
+			}
+			
+		}
+		
+		$t[$r] = \@els;
+	}
+
+	#Validar si alguien gana en fila o columna
+	my $res = "";
+	foreach my $ii (0..3)
+	{
+		if ( ($rows{$ii}{'X'} && $rows{$ii}{'X'} == 4) || ($cols{$ii}{'X'} && $cols{$ii}{'X'} == 4 ))		
+		{
+			$res = "X won";
+		}
+		elsif ( ($rows{$ii}{'O'} && $rows{$ii}{'O'} == 4) || ($cols{$ii}{'O'} && $cols{$ii}{'O'} == 4 ))		
+		{
+			$res = "O won";
+		}
+	}
+
+	if ($res eq "")
+	{
+		#validar diagonales
+		if (( $t[0][0] eq 'X' || $t[0][0] eq 'T') &&
+			( $t[1][1] eq 'X' || $t[1][1] eq 'T') &&
+			( $t[2][2] eq 'X' || $t[2][2] eq 'T') &&
+			( $t[3][3] eq 'X' || $t[3][3] eq 'T') )
+		{
+			$res = "X won";
+		}
+		elsif (( $t[0][0] eq 'O' || $t[0][0] eq 'T') &&
+			( $t[1][1] eq 'O' || $t[1][1] eq 'T') &&
+			( $t[2][2] eq 'O' || $t[2][2] eq 'T') &&
+			( $t[3][3] eq 'O' || $t[3][3] eq 'T') )
+		{
+			$res = "O won";
+		}
+		elsif (( $t[0][3] eq 'X' || $t[0][3] eq 'T') &&
+			( $t[1][2] eq 'X' || $t[1][2] eq 'T') &&
+			( $t[2][1] eq 'X' || $t[2][1] eq 'T') &&
+			( $t[3][0] eq 'X' || $t[3][0] eq 'T') )
+		{
+			$res = "X won";
+		}
+		elsif (( $t[0][3] eq 'O' || $t[0][3] eq 'T') &&
+			( $t[1][2] eq 'O' || $t[1][2] eq 'T') &&
+			( $t[2][1] eq 'O' || $t[2][1] eq 'T') &&
+			( $t[3][0] eq 'O' || $t[3][0] eq 'T') )
+		{
+			$res = "O won";
+		}
+	}
+
+	if ($res eq "")
+	{
+		if ($void == 0)
+		{
+			$res ="Draw";
+		}
+		else
+		{
+			$res = "Game has not completed";
+		}
+	}
+
+	print "Case #$CN: $res\n";	
+	$CN++;
+	<STDIN>;
+}

@@ -1,0 +1,157 @@
+package main
+
+import "fmt"
+func getMatrix() (result []string) {
+	result = make([]string, 4)
+	for i := 0; i < 4; i++ {
+		fmt.Scanf("%s", &result[i])
+		//fmt.Println("Scanned line:", result[i])
+	}
+	fmt.Scanln()
+	return
+}
+
+func winO() {
+	fmt.Println("O won")
+}
+func winX() {
+	fmt.Println("X won")
+}
+
+func solve(matrix []string) {
+	tiePossible := true
+	for r := 0; r < 4; r++ {
+		//fmt.Println("Operating on row", r, ":", matrix[r])
+		status := 0
+		for c := 0; c < 4; c++ {
+			switch matrix[r][c] {
+				case 'O':
+					if status == 0 || status == 1{
+						status = 1
+					} else {
+						status = -1
+					}
+				case 'X':
+					if status == 0 || status == 2{
+						status = 2
+					} else {
+						status = -1
+					}
+				case '.':
+					status = -1
+					tiePossible = false
+			}
+		}
+		switch status {
+			case 1:
+				winO()
+				return
+			case 2:
+				winX()
+				return
+		}
+	}
+	for c := 0; c < 4; c++ {
+		status := 0
+		for r := 0; r < 4; r++ {
+			switch matrix[r][c] {
+				case 'O':
+					if status == 0 || status == 1{
+						status = 1
+					} else {
+						status = -1
+					}
+				case 'X':
+					if status == 0 || status == 2{
+						status = 2
+					} else {
+						status = -1
+					}
+				case '.':
+					status = -1
+					tiePossible = false
+			}
+		}
+		switch status {
+			case 1:
+				winO()
+				return
+			case 2:
+				winX()
+				return
+		}
+	}
+	status := 0
+	for x := 0; x < 4; x++ {
+		r, c := x, x
+		switch matrix[r][c] {
+			case 'O':
+				if status == 0 || status == 1{
+					status = 1
+				} else {
+					status = -1
+				}
+			case 'X':
+				if status == 0 || status == 2{
+					status = 2
+				} else {
+					status = -1
+				}
+			case '.':
+				status = -1
+				tiePossible = false
+		}
+	}
+	switch status {
+		case 1:
+			winO()
+			return
+		case 2:
+			winX()
+			return
+	}
+	status = 0
+	for x := 0; x < 4; x++ {
+		r, c := x, 3-x
+		switch matrix[r][c] {
+			case 'O':
+				if status == 0 || status == 1{
+					status = 1
+				} else {
+					status = -1
+				}
+			case 'X':
+				if status == 0 || status == 2{
+					status = 2
+				} else {
+					status = -1
+				}
+			case '.':
+				status = -1
+				tiePossible = false
+		}
+	}
+	switch status {
+		case 1:
+			winO()
+			return
+		case 2:
+			winX()
+			return
+	}
+	if tiePossible {
+		fmt.Println("Draw")
+	} else {
+		fmt.Println("Game has not completed")
+	}
+}
+
+func main() {
+	var N int
+	fmt.Scanf("%d", &N)
+	for i := 0; i < N; i++ {
+		matrix := getMatrix()
+		fmt.Printf("Case #%d: ", i + 1)
+		solve(matrix)
+	}
+}

@@ -1,0 +1,185 @@
+program ProblemA;
+
+{$APPTYPE CONSOLE}
+
+{.$define test}
+{$define small}
+{.$define large}
+
+uses
+  Contnrs, SysUtils, Classes, Variants;
+
+{***********************************************}
+{***************** MAIN ************************}
+{***********************************************}
+var
+  AInput: TStringList;
+  AOutput: TStringList;
+  I, j, k, TestCases: Integer;
+  ProblemName: String;
+  hx, ho, dc: integer;
+  c: string;
+  linea: String;
+  f: boolean;
+  indice: integer;
+  x, l: integer;
+
+begin
+  ProblemName := 'A';
+  AInput := TStringList.Create;
+
+  try
+  AOutput := TStringList.Create;
+
+  try
+    {$ifdef test}
+    AInput.LoadFromFile('../Input/test.in');
+    {$else ifdef small}
+    AInput.LoadFromFile('../Input/' + ProblemName + '-Small-attemp0.in');
+    {$else}
+    AInput.LoadFromFile('../Input/' + ProblemName + '-large.in');
+    {$endif}
+
+    TestCases := StrToInt(AInput[0]);
+
+    I := 1; l := 1;
+    while (l < AInput.Count) do
+    begin
+      ho := 0; dc := 0; c := ''; f := True;
+      linea := '';
+      for x := 0 to 3 do
+      begin
+        linea := linea + AInput[l];
+        inc(l);
+      end;
+
+
+          for j := 0 to 3 do
+          begin
+            hx := 0;
+            c := '';
+
+            // horizontales
+            for k := 1 to 4 do
+            begin
+              indice := (j * 4) + k;
+              if (c = '') or (c = 'T') then
+                c := linea[indice];
+
+              if (linea[indice] = '.') or ((linea[indice] <> c) and (linea[indice] <> 'T')) then
+              begin
+                if linea[indice] = '.' then
+                  f := False;
+                break;
+              end;
+
+              Inc(hx);
+            end;
+
+            if hx = 4 then
+              break;
+
+            // verticales
+            hx := 0;
+            c := '';
+
+            for k := 0 to 3 do
+            begin
+              indice := (k * 4) + j + 1;
+              if (c = '') or (c = 'T') then
+                c := linea[indice];
+
+              if (linea[indice] = '.') or ((linea[indice] <> c) and (linea[indice] <> 'T')) then
+              begin
+                if linea[indice] = '' then
+                  f := False;
+                break;
+              end;
+
+              Inc(hx);
+            end;
+
+            if hx = 4 then
+              break;
+          end;
+
+          if (hx < 4) then
+          begin
+            // diagonal
+            hx := 0;
+            c := '';
+
+            for k := 0 to 3 do
+            begin
+              indice := (K * 4) + K + 1;
+              if (c = '') or (c = 'T') then
+                c := linea[indice];
+
+              if (linea[indice] = '.') or ((linea[indice] <> c) and (linea[indice] <> 'T')) then
+              begin
+                if linea[indice] = '' then
+                  f := False;
+                break;
+              end;
+
+              Inc(hx);
+            end;
+
+            if hx < 4 then
+            begin
+              hx := 0;
+              // diagonal
+              c := '';
+
+              for k := 0 to 3 do
+              begin
+                indice := (K * 4) + (4 - K);
+                if (c = '') or (c = 'T') then
+                  c := linea[indice];
+
+                if (linea[indice] = '.') or ((linea[indice] <> c) and (linea[indice] <> 'T')) then
+                begin
+                  if linea[indice] = '' then
+                    f := False;
+                  break;
+                end;
+
+                Inc(hx);
+              end;
+            end;
+          end;
+
+          if hx = 4 then
+          begin
+            if c = 'X' then
+              AOutput.Add(Format('Case #%d: X won', [I]))
+            else
+              AOutput.Add(Format('Case #%d: O won', [I]));
+          end
+          else if f then
+            AOutput.Add(Format('Case #%d: Draw', [I]))
+          else
+            AOutput.Add(Format('Case #%d: Game has not completed', [I]));
+
+      Inc(l);
+      Inc(I);
+    end;
+
+    {$ifdef test}
+    AOutput.SaveToFile('test.out');
+    {$else ifdef small}
+    AOutput.SaveToFile(ProblemName + '-Small.in');
+    {$else}
+    AOutput.SaveToFile(ProblemName + '-large.in');
+    {$endif}
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
+  finally
+    AInput.Free;
+
+    if Assigned(AOutput) then
+      AOutput.Free;
+  end;
+end.

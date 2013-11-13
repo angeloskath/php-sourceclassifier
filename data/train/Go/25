@@ -1,0 +1,154 @@
+package main
+
+import "fmt"
+
+func diagonal(board [][]int) int {
+  X := true
+  O := true
+  for i := 0; i < 4; i++ {
+    if board[i][i] == 0 { O = false; X = false }
+    if board[i][i] == -1 { X = false }
+    if board[i][i] == -2 { O = false }
+  }
+
+  if O == true {
+    return -1
+  }
+  if X == true {
+    return -2
+  }
+
+  X = true
+  O = true
+  for i := 0; i < 4; i++ {
+    j := 3 - i
+    if board[i][j] == 0 { O = false; X = false }
+    if board[i][j] == -1 { X = false }
+    if board[i][j] == -2 { O = false }
+  }
+
+  if O == true {
+    return -1
+  }
+  if X == true {
+    return -2
+  }
+
+  return 0
+}
+
+func vertical(board [][]int) int {
+  for j := 0; j < 4; j++ {
+
+    X := true
+    O := true
+
+    for i := 0; i < 4; i++ {
+      if board[i][j] == 0 { O = false; X = false }
+      if board[i][j] == -1 { X = false }
+      if board[i][j] == -2 { O = false }
+    }
+
+    if O == true {
+      return -1
+    }
+
+    if X == true {
+      return -2
+    }
+
+  }
+  return 0
+}
+
+func horizontal(board [][]int) (int,bool) {
+  incomplete := false
+  for i := 0; i < 4; i++ {
+
+    X := true
+    O := true
+
+    for j := 0; j < 4; j++ {
+      if board[i][j] == 0 { incomplete = true; O = false; X = false }
+
+      if board[i][j] == -1 { X = false }
+      if board[i][j] == -2 { O = false }
+    }
+
+    if O == true {
+      return -1, false
+    }
+
+    if X == true {
+      return -2, false
+    }
+
+  }
+  return 0, incomplete
+}
+
+func process_board(board [][]int) int {
+  status,incomplete := horizontal(board)
+
+  if status != 0 {
+    return status
+  }
+
+  status = vertical(board)
+  if status != 0 {
+    return status
+  }
+
+  status = diagonal(board)
+  if status != 0 {
+    return status
+  }
+
+  if incomplete { return 1 }
+  return 0
+}
+
+func read_board() [][]int {
+  board := make([][]int,4)
+
+  var line string
+  // consume newline
+
+  for i := 0; i < 4; i++ {
+    for {
+      n,_ := fmt.Scanln(&line)
+      if n!=0 {break}
+    }
+
+    board[i] = make([]int,4)
+
+    for j := 0; j < 4; j++ {
+      if line[j] == 'O' { board[i][j] = -1 }
+      if line[j] == 'X' { board[i][j] = -2 }
+      if line[j] == '.' { board[i][j] = 0 }
+      if line[j] == 'T' { board[i][j] = 1 }
+    }
+  }
+
+  fmt.Scanf("")
+
+  return board
+}
+
+func main() {
+	var T int
+	fmt.Scanln(&T)
+
+	for i := 0; i < T; i++ {
+    board := read_board()
+
+    status := process_board(board)
+
+    var s string
+    if status == -1 { s = "O won" }
+    if status == -2 { s = "X won" }
+    if status == 0 { s = "Draw" }
+    if status == 1 { s = "Game has not completed" }
+		fmt.Printf("Case #%d: %s\n", i+1, s)
+	}
+}

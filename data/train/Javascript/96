@@ -1,0 +1,158 @@
+/*jslint node: true */
+
+'use strict';
+
+var fs = require('fs'),
+    os = require('os'),
+    fileIn = 'A-large-attempt0.in',
+    fileOut = 'A-large-attempt0.out';
+
+console.time('Solved in');
+
+function solve(input) {
+
+    var x, y, z, value, playerXStreak, playerOStreak,
+        hasEmptySlots = false;
+
+    // First go through rows:
+    for (y = 0; y < 4; y += 1) {
+
+        // Reset scores:
+        playerXStreak = 0;
+        playerOStreak = 0;
+
+        for (x = 0; x < 4; x += 1) {
+
+            value = input[x + 4 * y];
+
+            if (value === '.') {
+                // In the first run check for empty values:
+                hasEmptySlots = true;
+            } else if (value === 'X') {
+                playerXStreak += 1;
+            } else if (value === 'O') {
+                playerOStreak += 1;
+            } else if (value === 'T') {
+                playerXStreak += 1;
+                playerOStreak += 1;
+            }
+
+            if (playerXStreak === 4) {
+                return 'X won';
+            }
+            if (playerOStreak === 4) {
+                return 'O won';
+            }
+        }
+    }
+
+    // Second go through columns:
+    for (x = 0; x < 4; x += 1) {
+
+        // Reset scores:
+        playerXStreak = 0;
+        playerOStreak = 0;
+
+        for (y = 0; y < 4; y += 1) {
+
+            value = input[x + 4 * y];
+
+            if (value === 'X') {
+                playerXStreak += 1;
+            } else if (value === 'O') {
+                playerOStreak += 1;
+            } else if (value === 'T') {
+                playerXStreak += 1;
+                playerOStreak += 1;
+            }
+
+            if (playerXStreak === 4) {
+                return 'X won';
+            }
+            if (playerOStreak === 4) {
+                return 'O won';
+            }
+        }
+    }
+
+    // Reset scores:
+    playerXStreak = 0;
+    playerOStreak = 0;
+
+    // Go diagonally left top to bottom right:
+    for (z = 0; z <= 15; z += 5) {
+
+        value = input[z];
+
+        if (value === 'X') {
+            playerXStreak += 1;
+        } else if (value === 'O') {
+            playerOStreak += 1;
+        } else if (value === 'T') {
+            playerXStreak += 1;
+            playerOStreak += 1;
+        }
+
+        if (playerXStreak === 4) {
+            return 'X won';
+        }
+        if (playerOStreak === 4) {
+            return 'O won';
+        }
+    }
+
+    // Reset scores:
+    playerXStreak = 0;
+    playerOStreak = 0;
+
+    // Go diagonally right top to bottom left:
+    for (z = 3; z <= 12; z += 3) {
+
+        value = input[z];
+
+        if (value === 'X') {
+            playerXStreak += 1;
+        } else if (value === 'O') {
+            playerOStreak += 1;
+        } else if (value === 'T') {
+            playerXStreak += 1;
+            playerOStreak += 1;
+        }
+
+        if (playerXStreak === 4) {
+            return 'X won';
+        }
+        if (playerOStreak === 4) {
+            return 'O won';
+        }
+    }
+
+    return (hasEmptySlots) ? 'Game has not completed' : 'Draw';
+}
+
+fs.readFile(fileIn, 'utf8', function (error, data) {
+
+    var caseCount, offset, i,
+        solutions = [];
+
+    if (error) {
+        console.error('Failed reading input. ' + error);
+        return;
+    }
+
+    offset = data.indexOf(os.EOL);
+    caseCount = parseInt(data.substr(0, offset), 10);
+    data = data.substr(offset).replace(/\n\r?/g, '');
+
+    for (i = 0; i < caseCount; i += 1) {
+        solutions.push('Case #' + (i + 1) + ': ' + solve(data.substr(i * 16, 16)));
+    }
+
+    fs.writeFile(fileOut, solutions.join(os.EOL), 'utf8', function (error) {
+        if (error) {
+            console.error('Failed writing output file. ' + error);
+            return;
+        }
+        console.timeEnd('Solved in');
+    });
+});

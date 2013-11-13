@@ -1,0 +1,42 @@
+def won(board, opponent)
+  board.each do |line|
+    return true if !(line.include?('.') or line.include?(opponent))
+  end
+  return false
+end
+
+def unfinished(board)
+  board.each do |line|
+    return true if line.include?('.')
+  end
+  return false
+end
+
+def solve(board)
+  board << "#{board[0][0]}#{board[1][0]}#{board[2][0]}#{board[3][0]}"
+  board << "#{board[0][1]}#{board[1][1]}#{board[2][1]}#{board[3][1]}"
+  board << "#{board[0][2]}#{board[1][2]}#{board[2][2]}#{board[3][2]}"
+  board << "#{board[0][3]}#{board[1][3]}#{board[2][3]}#{board[3][3]}"
+  board << "#{board[0][0]}#{board[1][1]}#{board[2][2]}#{board[3][3]}"
+  board << "#{board[0][3]}#{board[1][2]}#{board[2][1]}#{board[3][0]}"
+
+  return "X won" if won(board, "O")
+  return "O won" if won(board, "X")
+  return "Game has not completed" if unfinished(board)
+  return "Draw"
+end
+
+boardcount = 0
+board = []
+
+ARGF.each_with_index do |line, idx|
+  board = [] if idx % 5 == 0
+  next if idx % 5 == 0
+  
+  board << line
+
+  if idx % 5 == 4
+    boardcount = boardcount + 1
+    puts "Case ##{boardcount}: #{solve(board)}"
+  end
+end

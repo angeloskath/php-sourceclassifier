@@ -1,0 +1,95 @@
+clc
+clear all
+close all
+%%
+%Please open output file Wordpad, its messed up in notepad.
+%Thanks
+
+%%
+fid = fopen('Output.txt', 'w'); %Output file id
+
+%% Load input data
+inputfile=input('Select input file:\n 1 for small,\n 2 for large\n');
+
+if inputfile==1
+    !rename A-small-attempt0.in A-small.txt
+    filename='A-small.txt';
+else
+    !rename A-large.in A-large.txt
+    filename='A-large.txt';
+end
+
+test=importdata(filename,' ',10000);
+
+%% Magic
+
+T = str2num(test{1});
+p = 1;
+for i = 1:T
+    
+    for j = 1:4
+        k = p + j;
+        mat(j,:) = test{k};
+    end
+    results = abracadabra(mat);
+    p = k + 1;
+    
+    switch find(results==1)
+        case 1
+            res='X won';
+        case 2
+            res='O won';
+        case 3
+            res='Game has not completed';
+        otherwise
+            res='Draw';
+    end
+    
+    %% Write Output
+    fprintf(fid, '%s\t\n', horzcat('Case #', num2str(i), ': ', res));
+end
+
+fclose(fid);
+function result = abracadabra(mat)
+
+result=zeros(1,4);
+flagmatrix=zeros(4);
+
+%% Create flag matrix
+
+for n = 1:4
+    for m = 1:4
+        switch mat(n,m)
+            case 'X'
+                flagmatrix(n,m)=1;
+            case 'O'
+                flagmatrix(n,m)=0;
+            case 'T'
+                flagmatrix(n,m)=100;
+            otherwise
+                flagmatrix(n,m)=-500;
+        end
+    end
+end
+
+%% Analyse flagmatrix
+
+rowsum=sum(flagmatrix,2)';
+colsum=sum(flagmatrix);
+diagsum1=trace(flagmatrix);
+diagsum2=flagmatrix(1,4)+flagmatrix(2,3)+flagmatrix(3,2)+flagmatrix(4,1);
+
+awesum=[rowsum colsum diagsum1 diagsum2];
+%% X wins
+
+if ~isempty(find(awesum==4)) || ~isempty(find(awesum==103))
+    result(1)=1;
+elseif ~isempty(find(awesum==0)) || ~isempty(find(awesum==100))
+    result(2)=1;
+elseif ~isempty(find(awesum<0))
+    result(3)=1;
+else
+    result(4)=1;
+end
+
+end

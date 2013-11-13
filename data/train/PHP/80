@@ -1,0 +1,95 @@
+#!/usr/bin/php -q
+<?php
+
+$stdin = fopen('php://stdin', 'r');
+
+$status = array(
+    'X' => "X won",
+    'O' => "O won",
+    'D' => "Draw",
+    'N' => "Game has not completed",
+);
+
+fscanf($stdin, "%d\n", $T);
+for ($case = 1; $case <= $T; ++$case){
+    $cols = array(0,0,0,0);
+    $vt = array(-1, -1);
+    $cross = array(0,0);
+    $crossT = -1;
+    $empty = false;
+    $end = '';
+    for ($rw=0; $rw<4; $rw++) {
+        $row = 0;
+        $line = fgets($stdin);
+        if ('' !== $end) {continue;}
+        for ($cl=0; $cl<4; $cl++) {
+            switch ($line[$cl]) {
+                case 'X':
+                    $cols[$cl]++;
+                    $row++;
+                    if ($rw === $cl){
+                        $cross[0]++;
+                    } elseif ($rw === (3-$cl)){
+                        $cross[1]++;
+                    }
+                    break;
+                case 'O':
+                    $cols[$cl]--;
+                    $row--;
+                    if ($rw === $cl){
+                        $cross[0]--;
+                    } elseif ($rw === (3-$cl)){
+                        $cross[1]--;
+                    }
+                    break;
+                case 'T':
+                    $vt = array($rw, $cl);
+                    if ($rw === $cl){
+                        $crossT = 0;
+                    } elseif ($rw === (3-$cl)){
+                        $crossT = 1;
+                    }
+                    break;
+                case '.':
+                    $empty = true;
+                    break;
+            }
+        }
+        if ($row === -4 || ($row === -3 && $vt[0] === $rw)) {
+            $end = 'O';
+        } elseif ($row === 4 || ($row === 3 && $vt[0] === $rw)) {
+            $end = 'X';
+        }
+    }
+    if ('' === $end) {
+        for ($cl=0; $cl<4; $cl++) {
+            if ($cols[$cl] === -4 || ($cols[$cl] === -3 && $vt[1] === $cl)) {
+                $end = 'O';
+                break;
+            } elseif ($cols[$cl] === 4 || ($cols[$cl] === 3 && $vt[1] === $cl)) {
+                $end = 'X';
+                break;
+            }
+        }
+    }
+    if ('' === $end) {
+        for ($cx=0; $cx<2; $cx++) {
+            if ($cross[$cx] === -4 || ($cross[$cx] === -3 && $crossT === $cx)) {
+                $end = 'O';
+                break;
+            } elseif ($cross[$cx] === 4 || ($cross[$cx] === 3 && $crossT === $cx)) {
+                $end = 'X';
+                break;
+            }
+        }
+    }
+    if ('' === $end) {
+        if ($empty) {
+            $end = 'N';
+        } else {
+            $end = 'D';
+        }
+    }
+    echo "Case #$case: " . $status[$end] . PHP_EOL;
+    fgets($stdin);
+}

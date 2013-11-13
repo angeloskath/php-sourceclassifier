@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+scalar <>;
+$/ = "";
+my $case_no = 0;
+while (<>) {
+  tr/\n//d;
+  $case_no++;
+  evaluate_board($_);
+}
+
+sub transpose {
+  my $line = shift;
+  my @vals = split //, $line;
+  $line = join "", @vals[  0,  4,  8, 12,
+                           1,  5,  9, 13,
+                           2,  6, 10, 14,
+                           3,  7, 11, 15];
+  return $line;
+}
+
+sub check_line {
+  my $line = shift;
+  my $char = shift;
+  $line =~ s/T/$char/;
+  my $win = $char x 4;
+  return 1 if $win eq substr($line, 0, 4);
+  return 1 if $win eq substr($line, 4, 4);
+  return 1 if $win eq substr($line, 8, 4);
+  return 1 if $win eq substr($line, 12, 4);
+  $line = transpose($line);
+  return 1 if $win eq substr($line, 0, 4);
+  return 1 if $win eq substr($line, 4, 4);
+  return 1 if $win eq substr($line, 8, 4);
+  return 1 if $win eq substr($line, 12, 4);
+
+  my @vals = split //, $line;
+  return 1 if $win eq join "", @vals[0,5,10,15]; 
+  return 1 if $win eq join "", @vals[3,6,9,12];
+  return 0;
+}
+
+sub evaluate_board {
+  my $line = shift;
+  my $open = $line =~ /\./;
+  print "Case #$case_no: ";
+  if (check_line($line, "X")) {
+    print "X won\n";
+    return;
+  }
+  if (check_line($line, "O")) {
+    print "O won\n";
+    return;
+  }
+  if ($open) {
+    print "Game has not completed\n"
+  }
+  else {
+    print "Draw\n";
+  }
+}

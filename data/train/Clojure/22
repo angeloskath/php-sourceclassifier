@@ -1,0 +1,65 @@
+(ns tic-tac-toe-tomek.core)
+(use '[clojure.string :only (split join)])
+
+(def input (slurp "/home/sega/Source/codejam2013/qual1/A/tic-tac-toe-tomek/resources/A-large.in"))
+
+(def boards
+  (vec
+    (partition 4
+      (map (comp vec char-array)
+        (filter #(not= % "")
+          (drop 1
+            (split input #"\n")))))))
+
+(defn who-won-line?
+  "Calculates the outcome of the game on a line, returns X O :Incomplete or :Draw"
+  [line]
+  (let [xs (count (filter #{\X} line))
+        os (count (filter #{\O} line))
+        hasT (some #{\T} line)
+        hasDot (some #{\.} line)
+        length (count line)]
+    (cond
+      hasDot :Incomplete
+      (= length xs) \X
+      (= length os) \O
+      (and hasT (= xs (- length 1))) \X
+      (and hasT (= os (- length 1))) \O
+      :else :Draw)))
+
+(defn who-won-board?
+  "Calculates the outcome of the game on a board, returns X O :Incomplete or :Draw"
+  [board]
+  (def lines (map who-won-line? board) )
+  (def vert-and-diag
+    (let [[r1 r2 r3 r4] board]
+      (map who-won-line?
+        [[(r1 0) (r2 0) (r3 0) (r4 0)]
+         [(r1 1) (r2 1) (r3 1) (r4 1)]
+         [(r1 2) (r2 2) (r3 2) (r4 2)]
+         [(r1 3) (r2 3) (r3 3) (r4 3)]
+         [(r1 0) (r2 1) (r3 2) (r4 3)]
+         [(r1 3) (r2 2) (r3 1) (r4 0)]])))
+  (def all (concat lines vert-and-diag))
+  (cond
+    (some #{\X} all) \X
+    (some #{\O} all) \O
+    (every? #{:Draw} all) :Draw
+    :else :Incomplete)
+  )
+
+(defn result-to-output
+  [res]
+  (cond
+    (= res \X) "X won"
+    (= res \O) "O won"
+    (= res :Draw) "Draw"
+    (= res :Incomplete) "Game has not completed"
+    :else "Error!"))
+
+(def output
+  (map
+    #(str "Case #" (+ % 1) ": " (result-to-output (who-won-board? (boards %))) \newline)
+    (range (count boards))))
+
+(spit "/home/sega/Source/codejam2013/qual1/A/tic-tac-toe-tomek/resources/result.txt" (join output))

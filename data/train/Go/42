@@ -1,0 +1,115 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
+func checkrow(row string) string {
+	tryx := strings.Replace(row, "T", "X", 1)
+	if tryx == "XXXX" {
+		return "X"
+	}
+	tryo := strings.Replace(row, "T", "O", 1)
+	if tryo == "OOOO" {
+		return "O"
+	}
+	if strings.Contains(row, ".") {
+		return "."
+	}
+	return "_"
+}
+
+func docase(c string) {
+	full := true
+
+	// rows
+	for i := 0; i < 4; i++ {
+		row := string(c[4*i : 4*i+4])
+		result := checkrow(row)
+		if result == "X" {
+			fmt.Println("X won")
+			return
+		}
+		if result == "O" {
+			fmt.Println("O won")
+			return
+		}
+		if result == "." {
+			full = false
+		}
+	}
+
+	// cols
+	for i := 0; i < 4; i++ {
+		rowarray := []byte{c[i], c[4+i], c[8+i], c[12+i]}
+		row := string(rowarray)
+		result := checkrow(row)
+		if result == "X" {
+			fmt.Println("X won")
+			return
+		}
+		if result == "O" {
+			fmt.Println("O won")
+			return
+		}
+		if result == "." {
+			full = false
+		}
+	}
+
+	// ldiag
+	rowarray := []byte{c[0], c[5], c[10], c[15]}
+	row := string(rowarray)
+	result := checkrow(row)
+	if result == "X" {
+		fmt.Println("X won")
+		return
+	}
+	if result == "O" {
+		fmt.Println("O won")
+		return
+	}
+	if result == "." {
+		full = false
+	}
+
+	// rdiag
+	rowarray = []byte{c[3], c[6], c[9], c[12]}
+	row = string(rowarray)
+	result = checkrow(row)
+	if result == "X" {
+		fmt.Println("X won")
+		return
+	}
+	if result == "O" {
+		fmt.Println("O won")
+		return
+	}
+	if result == "." {
+		full = false
+	}
+
+	if full == false {
+		fmt.Println("Game has not completed")
+	} else {
+		fmt.Println("Draw")
+	}
+}
+
+func main() {
+	var ncases int
+	var l1, l2, l3, l4 string
+
+	fmt.Scanf("%d\n", &ncases)
+	fmt.Println("Got", ncases, "test cases")
+	for i := 1; i <= ncases; i++ {
+		if i != 1 {
+			fmt.Scanln()
+		}
+		fmt.Scanf("%s\n%s\n%s\n%s\n", &l1, &l2, &l3, &l4)
+		fmt.Print("Case #" + strconv.Itoa(i) + ": ")
+		docase(l1 + l2 + l3 + l4)
+	}
+}

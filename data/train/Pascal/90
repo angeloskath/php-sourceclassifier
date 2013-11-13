@@ -1,0 +1,123 @@
+uses math;
+const input='INPUT.INP';
+      output='OUTPUT.OUT';
+      answer='';
+var fi,fo:text;
+    a:Array[1..4,1..4] of char;
+procedure openfile;
+          begin;
+          assign(fi,input); reset(fi);
+          assign(fo,output); rewrite(fo);
+          end;
+procedure read_f;
+          var i,j:longint;
+          begin;
+          for i:=1 to 4 do
+              begin;
+              for j:=1 to 4 do read(fi,a[i,j]);
+              readln(fi);
+              end;
+          readln(fi);
+          end;
+procedure init;
+          begin;
+
+          end;
+function wincheck:longint; //0 means O, 1 means X, 2 mean no one
+         var i,j,p,q,v:longint;
+         begin;
+         for i:=1 to 4 do
+             for j:=1 to 4 do
+                 if a[i,j]='T' then
+                    begin;
+                    p:=i; q:=j;
+                    end;
+         //ngang
+         if q=1 then a[p,q]:=a[p,2];
+         if q=4 then a[p,q]:=a[p,3];
+         if (q=2) or (q=3) then a[p,q]:=a[p,1];
+         if (a[1,1]='X') and (a[1,2]='X') and (a[1,3]='X') and (a[1,4]='X') then exit(1);
+         if (a[2,1]='X') and (a[2,2]='X') and (a[2,3]='X') and (a[2,4]='X') then exit(1);
+         if (a[3,1]='X') and (a[3,2]='X') and (a[3,3]='X') and (a[3,4]='X') then exit(1);
+         if (a[4,1]='X') and (a[4,2]='X') and (a[4,3]='X') and (a[4,4]='X') then exit(1);
+         if (a[1,1]='O') and (a[1,2]='O') and (a[1,3]='O') and (a[1,4]='O') then exit(0);
+         if (a[2,1]='O') and (a[2,2]='O') and (a[2,3]='O') and (a[2,4]='O') then exit(0);
+         if (a[3,1]='O') and (a[3,2]='O') and (a[3,3]='O') and (a[3,4]='O') then exit(0);
+         if (a[4,1]='O') and (a[4,2]='O') and (a[4,3]='O') and (a[4,4]='O') then exit(0);
+         //doc
+         if p=1 then a[p,q]:=a[2,q];
+         if p=4 then a[p,q]:=a[3,q];
+         if (p=2) or (p=3) then a[p,q]:=a[1,q];
+         if (a[1,1]='X') and (a[2,1]='X') and (a[3,1]='X') and (a[4,1]='X') then exit(1);
+         if (a[1,2]='X') and (a[2,2]='X') and (a[3,2]='X') and (a[4,2]='X') then exit(1);
+         if (a[1,3]='X') and (a[2,3]='X') and (a[3,3]='X') and (a[4,3]='X') then exit(1);
+         if (a[1,4]='X') and (a[2,4]='X') and (a[3,4]='X') and (a[4,4]='X') then exit(1);
+         if (a[1,1]='O') and (a[2,1]='O') and (a[3,1]='O') and (a[4,1]='O') then exit(0);
+         if (a[1,2]='O') and (a[2,2]='O') and (a[3,2]='O') and (a[4,2]='O') then exit(0);
+         if (a[1,3]='O') and (a[2,3]='O') and (a[3,3]='O') and (a[4,3]='O') then exit(0);
+         if (a[1,4]='O') and (a[2,4]='O') and (a[3,4]='O') and (a[4,4]='O') then exit(0);
+         //cheo1
+         if p=q then
+            begin;
+            if p=1 then a[p,q]:=a[2,2];
+            if p=4 then a[p,q]:=a[3,3];
+            if (p=2) or (p=3) then a[p,q]:=a[1,1];
+            end;
+         if (a[1,1]='X') and (a[2,2]='X') and (a[3,3]='X') and (a[4,4]='X') then exit(1);
+         if (a[4,1]='X') and (a[3,2]='X') and (a[2,3]='X') and (a[1,4]='X') then exit(1);
+         //cheo2
+         if p+q=5 then
+            begin;
+            if p=1 then a[p,q]:=a[2,3];
+            if p=4 then a[p,q]:=a[3,2];
+            if (p=2) or (p=3) then a[p,q]:=a[1,4];
+            end;
+         if (a[1,1]='O') and (a[2,2]='O') and (a[3,3]='O') and (a[4,4]='O') then exit(0);
+         if (a[4,1]='O') and (a[3,2]='O') and (a[2,3]='O') and (a[1,4]='O') then exit(0);
+         exit(2);
+         end;
+function full:boolean;
+         var i,j:longint;
+         begin;
+         for i:=1 to 4 do
+             for j:=1 to 4 do
+                 if a[i,j]='.' then exit(false);
+         exit(true);
+         end;
+procedure process;
+          begin;
+
+          end;
+procedure write_f;
+          begin;
+
+          end;
+procedure main;
+          var t,k,testcase:longint;
+          begin;
+          readln(fi,t);
+          for testcase:=1 to t do
+              begin;
+              read_f;
+              write(fo,'Case #',testcase,': ');
+              k:=wincheck;
+              case k of
+                   0: writeln(fo,'O won');
+                   1: writeln(fo,'X won');
+                   else
+                       begin;
+                       if full then writeln(fo,'Draw') else writeln(fo,'Game has not completed');
+                       end;
+                   end; {of case}
+              end;
+          end;
+procedure closefile;
+          begin;
+          close(fi);
+          close(fo);
+          end;
+BEGIN
+openfile;
+main;
+closefile;
+END.

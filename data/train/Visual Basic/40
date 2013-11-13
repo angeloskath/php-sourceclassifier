@@ -1,0 +1,57 @@
+﻿Module Module1
+    Dim x() As String = {"TXXX", "XXXX", "XXXT", "XTXX", "XXTX"}
+    Dim o() As String = {"TOOO", "OOOO", "OOOT", "OTOO", "OOTO"}
+    Dim s() As String = {" won", "Draw", "Game has not completed"}
+    Dim T, i, j, k As Integer
+    Dim table(3), str, str1, str2 As String
+    Dim out As New List(Of String)
+    Dim w As Boolean
+    Sub Main()
+        T = Console.ReadLine
+        For i = 1 To T
+            w = False
+            For j = 0 To 3
+                table(j) = Console.ReadLine
+                w = w Or table(j).Contains(".")
+            Next
+            'Case #1: X won
+            j = 0
+            Do While j < 4 And out.Count < i
+                str = ""
+                str1 = ""
+                str2 = ""
+                For k = 0 To 3
+                    str &= table(k)(j)
+                Next
+                If x.Contains(table(j)) Or x.Contains(str) Then
+                    out.Add("Case #" & i & ": " & "X" & s(0))
+                ElseIf o.Contains(table(j)) Or o.Contains(str) Then
+                    out.Add("Case #" & i & ": " & "O" & s(0))
+                End If
+                For k = 0 To 3
+                    str1 &= table(k)(k)
+                    str2 &= table(k)(3 - k)
+                Next
+                If x.Contains(str1) Or x.Contains(str2) Then
+                    out.Add("Case #" & i & ": " & "X" & s(0))
+                ElseIf o.Contains(str1) Or o.Contains(str2) Then
+                    out.Add("Case #" & i & ": " & "O" & s(0))
+                End If
+                j += 1
+            Loop
+            If out.Count < i Then
+                If w Then
+                    out.Add("Case #" & i & ": " & s(2))
+                Else
+                    out.Add("Case #" & i & ": " & s(1))
+                End If
+            End If
+            If i < T Then Console.ReadLine()
+        Next
+        For i = 0 To T - 1
+            Console.WriteLine(out(i))
+        Next
+        'Console.ReadLine()
+    End Sub
+
+End Module

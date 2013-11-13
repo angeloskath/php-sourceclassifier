@@ -1,0 +1,92 @@
+<?php
+$file=array_slice(file('a.in'),1);
+
+$out=array();
+
+$c=0;
+while(count($file)>0){
+	$c++;
+	$board=array_slice($file,0,4);
+	$file=array_slice($file,5);
+
+	foreach($board as $k=>$v)
+		$board[$k]=trim($v);
+
+
+	// horizontal
+	foreach($board as $line){
+		if(preg_match('/^[XT]+$/',$line)){
+			$out[]="Case #$c: X won";
+			continue 2;
+		}
+		if(preg_match('/^[OT]+$/',$line)){
+			$out[]="Case #$c: O won";
+			continue 2;
+		}
+	}
+
+	// vertical
+	for($i=0;$i<4;$i++){
+		for($j=0;$j<4;$j++)
+			if($board[$j][$i]!='X'&&$board[$j][$i]!='T')
+				continue 2;
+		$out[]="Case #$c: X won";
+		continue 2;
+	}
+	for($i=0;$i<4;$i++){
+		for($j=0;$j<4;$j++)
+			if($board[$j][$i]!='O'&&$board[$j][$i]!='T')
+				continue 2;
+		$out[]="Case #$c: O won";
+		continue 2;
+	}
+
+	// diagonal
+	for($i=0;$i<4;$i++){
+		if($board[$i][$i]!='X'&&$board[$i][$i]!='T')
+			break;
+		if($i==3){
+		$out[]="Case #$c: X won";
+		continue 2;
+		}
+	}
+	for($i=0;$i<4;$i++){
+		if($board[$i][$i]!='O'&&$board[$i][$i]!='T')
+			break;
+		if($i==3){
+		$out[]="Case #$c: O won";
+		continue 2;
+		}
+	}
+	for($i=0;$i<4;$i++){
+		if($board[$i][3-$i]!='X'&&$board[$i][3-$i]!='T')
+			break;
+		if($i==3){
+		$out[]="Case #$c: X won";
+		continue 2;
+		}
+	}
+	for($i=0;$i<4;$i++){
+		if($board[$i][3-$i]!='O'&&$board[$i][3-$i]!='T')
+			break;
+		if($i==3){
+		$out[]="Case #$c: O won";
+		continue 2;
+		}
+	}
+
+
+	// incomplete
+	foreach($board as $line)
+		if(strpos($line,'.')!==false){
+			$out[]="Case #$c: Game has not completed";
+			continue 2;
+		}
+
+	// draw
+	$out[]="Case #$c: Draw";
+}
+
+$f=fopen('a.out','w');
+fwrite($f,implode("\n",$out));
+fclose($f);

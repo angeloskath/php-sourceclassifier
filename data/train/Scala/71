@@ -1,0 +1,37 @@
+object TicTacToeTomek {
+	def solve(arr: List[List[Char]]) : String = {
+		def checkWin(a: List[Char]) : String = {
+			val o = a.filter(c=>c=='O').length
+			val x = a.filter(c=>c=='X').length
+			val t = a.filter(c=>c=='T').length
+			if(o+t==4) return "O won"
+			else if(x+t==4) return "X won"
+			else return null
+		}
+		for(i<-0.to(3)) {
+			val h = arr(i)
+			val hres = checkWin(h)
+			if(hres!=null) return hres
+			val v = List(arr(0)(i),arr(1)(i),arr(2)(i),arr(3)(i))
+			val vres = checkWin(v)
+			if(vres!=null) return vres
+		}
+		val d1 =  List(arr(0)(0),arr(1)(1),arr(2)(2),arr(3)(3))
+		val d1res = checkWin(d1)
+		if(d1res!=null) return d1res
+		val d2 =   List	(arr(0)(3),arr(1)(2),arr(2)(1),arr(3)(0))
+		val d2res = checkWin(d2)
+		if(d2res!=null) return d2res
+		arr.foreach(a=>a.foreach(c=>if(c=='.') return "Game has not completed"))
+		return "Draw"
+	}
+	
+	def main(args: Array[String]):Unit = {
+		val T = readLine().toInt
+		for(i<-1.to(T)) {
+			val arr = List[List[Char]](readLine().toList,readLine().toList,readLine().toList,readLine().toList)
+			val empt = readLine()
+			println("Case #"+i+": " + solve(arr))
+		}
+	}
+}

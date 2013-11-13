@@ -1,0 +1,72 @@
+object TicTacToe extends App {
+  type Board=Array[String]
+
+
+  def won(board:Array[String],competitor:Character) = {
+    def good(c:Character) = (c == competitor) || (c == 'T')
+
+    def wonHoriz(board:Board) = {
+
+      var won = false
+      var i = 0
+      while( !won && i<board.length ) {
+        val line = board(i)
+        won = line.foldLeft(true)(_ & good(_))
+        i = i + 1
+      }
+      won
+    }
+
+    def wonVert(board:Board) = {
+      var won = false
+      var i = 0
+      var line2 = board(1)
+      while( !won && i<line2.length ) {
+        won = if( good(line2(i)) ) {
+          good(board(2)(i)) && good(board(0)(i)) && good(board(3)(i))
+        } else
+          false
+        i = i + 1
+      }
+      won
+    }
+    
+    def wonDiag(board:Board) = {
+      val one = good(board(0)(0)) && good(board(1)(1)) && good(board(2)(2)) && good(board(3)(3))
+      val two = good(board(0)(3)) && good(board(1)(2)) && good(board(2)(1)) && good(board(3)(0))
+      one || two
+    }
+
+    wonHoriz(board) || wonVert(board) || wonDiag(board)
+  }
+
+  def canPlay(board:Board) = {
+    board.exists(_.exists(_=='.'))
+  }
+
+  def read(lines:Iterator[String]) = {
+      val board=(0.until(4)).map { p => lines.next}.toArray
+      
+      // discard empty line
+      if(lines.hasNext) lines.next
+      board
+  }
+
+  val inputFile = "/Users/mseritan/Downloads/one.in"
+  val lines = io.Source.fromFile(inputFile).getLines()
+  val count = lines.next.toInt
+  val out = new java.io.PrintStream(new java.io.File("/Users/mseritan/Downloads/one.out"))
+  for { j <- 1.to(count) } {
+    val board = read(lines)
+    val status = if( won(board,'X') ) 
+      "X won"
+    else if( won(board,'O')) 
+      "O won"
+    else if( canPlay(board) )
+      "Game has not completed"
+    else
+      "Draw"
+    out.println("Case #%d: %s".format(j,status))
+  }
+  out.close
+}

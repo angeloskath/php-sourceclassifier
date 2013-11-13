@@ -1,0 +1,44 @@
+def extractLines(coordinates: (Int, Int)*): (Array[Array[Char]] => Array[Char]) = (board: Array[Array[Char]]) => coordinates.map { case (y, x) => board(y)(x) }.toArray
+
+val PieceLines = List(
+  extractLines((0, 0), (0, 1), (0, 2), (0, 3)),
+  extractLines((1, 0), (1, 1), (1, 2), (1, 3)),
+  extractLines((2, 0), (2, 1), (2, 2), (2, 3)),
+  extractLines((3, 0), (3, 1), (3, 2), (3, 3)),
+  extractLines((0, 0), (1, 0), (2, 0), (3, 0)),
+  extractLines((0, 1), (1, 1), (2, 1), (3, 1)),
+  extractLines((0, 2), (1, 2), (2, 2), (3, 2)),
+  extractLines((0, 3), (1, 3), (2, 3), (3, 3)),
+  extractLines((0, 0), (1, 1), (2, 2), (3, 3)),
+  extractLines((3, 0), (2, 1), (1, 2), (0, 3))
+)
+
+def hasWinner(line: Array[Char]): Option[Char] = {
+  new String(line.sorted) match {
+    case "OOOT" => Some('O')
+    case "OOOO" => Some('O')
+    case "TXXX" => Some('X')
+    case "XXXX" => Some('X')
+    case _ => None
+  }
+}
+
+def stateOf(board: Array[Array[Char]]): String = {
+  val success = PieceLines.map(_(board)).map(hasWinner(_)).flatten.headOption
+  success match {
+    case Some(piece) => s"$piece won"
+    case None =>
+      if (board.exists(_.contains('.')))
+        "Game has not completed"
+      else
+        "Draw"
+  }
+}
+
+val count = Console.readLine().toInt
+val lines = Iterator.continually(Console.readLine)
+(1 to count) foreach { caseNo =>
+  val board = lines.take(4).map(_.toCharArray).toArray
+  println (s"Case #$caseNo: ${stateOf(board)}")
+  Console.readLine()
+}

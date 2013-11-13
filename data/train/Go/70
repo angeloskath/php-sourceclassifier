@@ -1,0 +1,189 @@
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
+var inputFileName *string = flag.String("f", "", "The input file for this script")
+
+const X = "X"
+const O = "O"
+const T = "T"
+const PERIOD = "."
+const DRAW = "DRAW"
+const INCOMPLETE = "INCOMPLETE"
+
+type Board [][]string
+
+func (b Board) findWinner() string {
+	winner := ""
+	winnerFound := false
+	periodEncountered := false
+
+	for _, row := range b {
+		winner, periodEncountered = findWinnerIn(row)
+
+		if winner != "" {
+			winnerFound = true
+			break
+		}
+	}
+
+	if !winnerFound {
+		for _, column := range b.getColumns() {
+			winner, periodEncountered = findWinnerIn(column)
+
+			if winner != "" {
+				winnerFound = true
+				break
+			}
+		}
+	}
+
+	if !winnerFound {
+		for _, diagonal := range b.getDiagonals() {
+			winner, periodEncountered = findWinnerIn(diagonal)
+
+			if winner != "" {
+				winnerFound = true
+				break
+			}
+		}
+	}
+
+	if !winnerFound  {
+    if periodEncountered {
+      winner = INCOMPLETE
+    } else {
+      winner = DRAW
+    }
+  }
+
+	return winner
+}
+
+func (b Board) getColumns() [][]string {
+	var columns [][]string
+
+	column := []string{}
+	numColumns := len(b[0])
+
+	for columnNumber := 0; columnNumber < numColumns; columnNumber++ {
+		for rowNumber, _ := range b {
+			column = append(column, b[rowNumber][columnNumber])
+		}
+
+		columns = append(columns, column)
+		column = []string{}
+	}
+
+	return columns
+}
+
+func (b Board) getDiagonals() [][]string {
+	diagonals := [][]string{
+		[]string{b[0][0], b[1][1], b[2][2], b[3][3]}, //Right diagonal
+		[]string{b[0][3], b[1][2], b[2][1], b[3][0]}, //Left diagonal
+	}
+
+	return diagonals
+}
+
+func findWinnerIn(slice []string) (string, bool) {
+	winner := ""
+	periodEncountered := false
+
+	candidates := []string{X, O}
+	candidateCounts := map[string]int{}
+
+	for _, entry := range slice {
+		if entry != PERIOD {
+			candidateCounts[entry] += 1
+		} else {
+			periodEncountered = true
+		}
+	}
+
+	for _, candidate := range candidates {
+		if candidateCounts[candidate] == 4 || (candidateCounts[candidate] == 3 && candidateCounts[T] == 1) {
+			winner = candidate
+			break
+		}
+	}
+
+	return winner, periodEncountered
+}
+
+func main() {
+	flag.Parse()
+
+	if *inputFileName == "" {
+		panic("No Input File Provided!")
+	}
+
+	inputFile, openError := os.Open(*inputFileName)
+
+	if openError != nil {
+		errorDesc := fmt.Sprint("Error opening %s for reading!", inputFileName)
+		panic(errorDesc)
+	}
+
+	defer inputFile.Close()
+
+	bufferedInput := bufio.NewReader(inputFile)
+
+	var currentLine []byte
+
+	currentLine, isTruncated, readError := bufferedInput.ReadLine()
+
+	if readError != nil {
+		fmt.Fprintf(os.Stdout, "Error reading from %s!: ", inputFileName, readError)
+	}
+
+	//First line of file is always the number of test cases...
+	numCases, _ := strconv.Atoi(string(currentLine))
+
+	rowsPerBoard := 4
+
+	//For each line in the file
+	for caseNumber := 1; caseNumber <= numCases && readError == nil; caseNumber++ {
+		var board Board
+
+		for rowNumber := 1; rowNumber <= rowsPerBoard; rowNumber++ {
+			currentLine, isTruncated, readError = bufferedInput.ReadLine()
+			rawBoardRow := string(currentLine)
+
+			if isTruncated {
+				fmt.Fprintf(os.Stdout, "Buffer was too small! Line was truncated to %s ", string(currentLine))
+			} else {
+				board = append(board, strings.Split(rawBoardRow, ""))
+			}
+		}
+
+		determineGameState(caseNumber, board)
+
+		//Consume the blank line after each case.
+		currentLine, isTruncated, readError = bufferedInput.ReadLine()
+	}
+}
+
+func determineGameState(caseNumber int, board Board) {
+	resultantOutput := ""
+	winner := board.findWinner()
+
+	switch winner {
+	case X, O:
+		resultantOutput = winner + " won"
+	case DRAW:
+		resultantOutput = "Draw"
+	case INCOMPLETE:
+		resultantOutput = "Game has not completed"
+	}
+
+	fmt.Fprintf(os.Stdout, "Case #%d: %s\n", caseNumber, resultantOutput)
+}

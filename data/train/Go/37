@@ -1,0 +1,162 @@
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+)
+
+var (
+	infile = flag.String("i", "sample.in", "input")
+	prob   [][]byte
+)
+
+func main() {
+	flag.Parse()
+	prob = make([][]byte, 4)
+	for i := range prob {
+		prob[i] = make([]byte, 4)
+	}
+	read()
+}
+
+func read() {
+	// Input
+	file, err := os.Open(*infile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	// Output
+	extension := filepath.Ext(*infile)
+	filename := (*infile)[0:len(*infile)-len(extension)] + ".out"
+	writer, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+    defer writer.Close()
+	// Read first Line
+	str, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
+	num, err := strconv.Atoi(strings.TrimSpace(str))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Nums %d", num)
+	for i := 0; i < num; i++ {
+		log.Printf("Prob #%d", i)
+		err := parseProb(reader, writer, i+1)
+		if err != nil {
+			break
+		}
+		_, err = reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+	}
+}
+
+func parseProb(r *bufio.Reader, w *os.File, num int) error {
+	for i := 0; i < 4; i++ {
+		line, err := r.ReadBytes('\n')
+		if err != nil {
+			break
+			return err
+		}
+		for j := range prob {
+			prob[i][j] = line[j]
+		}
+	}
+	for i := 0; i < 4; i++ {
+		log.Printf("%c %c %c %c", prob[i][0], prob[i][1], prob[i][2], prob[i][3])
+	}
+	res := calcProb()
+	erg := fmt.Sprintf("Case #%d: %s", num, res)
+	w.WriteString(erg + "\n")
+	log.Print(erg)
+	return nil
+}
+
+func calcProb() string {
+	completed := true
+	//check horizontal
+	for i := 0; i < 4; i++ {
+		p := prob[i][0]
+		if p == 'T' {
+			p = prob[i][1]
+		}
+		for j := 1; j < 4; j++ {
+			if p != prob[i][j] && prob[i][j] != 'T' {
+				p = ' '
+			}
+			if prob[i][j] == '.' {
+				completed = false
+			}
+		}
+		if p == 'X' {
+			return "X won"
+		} else if p == 'O' {
+			return "O won"
+		}
+	}
+	//check vertical
+	for j := 0; j < 4; j++ {
+		p := prob[0][j]
+		if p == 'T' {
+			p = prob[1][j]
+		}
+		for i := 1; i < 4; i++ {
+			if p != prob[i][j] && prob[i][j] != 'T' {
+				p = ' '
+				break
+			}
+		}
+		if p == 'X' {
+			return "X won"
+		} else if p == 'O' {
+			return "O won"
+		}
+	}
+	//check cross
+	p := prob[0][0]
+	if p == 'T' {
+		p = prob[1][1]
+	}
+	for i := 1; i < 4; i++ {
+		if p != prob[i][i] && prob[i][i] != 'T' {
+			p = ' '
+			break
+		}
+	}
+	if p == 'X' {
+		return "X won"
+	} else if p == 'O' {
+		return "O won"
+	}
+	p = prob[0][3]
+	if p == 'T' {
+		p = prob[1][2]
+	}
+	for i := 1; i < 4; i++ {
+		if p != prob[i][3-i] && prob[i][3-i] != 'T' {
+			p = ' '
+			break
+		}
+	}
+	if p == 'X' {
+		return "X won"
+	} else if p == 'O' {
+		return "O won"
+	} else if !completed {
+		return "Game has not completed"
+	}
+	return "Draw"
+}

@@ -1,0 +1,87 @@
+$N = <>;
+@offset_x = (-1, 0, 1, -1, 1, -1, 0, 1);
+@offset_y = (-1, -1, -1, 0, 0, 1, 1, 1);
+while ($caseNumber < $N)
+{
+    $caseNumber += 1;
+    @chessboard = (); 
+    #input
+    $row = <>;
+    @row1 = split(//, $row);
+    push(@chessboard, [@row1]);
+    $row = <>;
+    @row2 = split(//, $row);
+    push(@chessboard, [@row2]);
+    $row = <>;
+    @row3 = split(//, $row);
+    push(@chessboard, [@row3]);
+    $row = <>;
+    @row4 = split(//, $row);
+    push(@chessboard, [@row4]);
+    $row = <>;
+    
+    # print chessboard
+    #for(my $i=0; $i<4; $i++){
+    #  for(my $j=0; $j<4; $j++){
+    #      print $chessboard[$i][$j]; 
+    #    }
+    #    print "\n";
+    #}
+
+    $isFind = 0;
+    $notCompleted = 0;
+    for (my $offset=0; $offset<8 && not $isFind; $offset++){
+        for (my $x=0; $x<4 && not $isFind; $x++){
+            for (my $y=0; $y<4 && not $idFind; $y++){
+               if ($chessboard[$y][$x] eq ".") {
+                   $notCompleted = 1;
+               }
+               if (($chessboard[$y][$x] eq "X" ||
+                   $chessboard[$y][$x] eq "O") && 
+                   findConnect($x, $y, $chessboard[$y][$x], 0, $offset)) {
+                   $result = "$chessboard[$y][$x] won";
+                   $isFind = 1;
+               }
+            }
+        }
+    }
+    if ($notCompleted && $isFind == 0)
+    {
+        $result = "Game has not completed"
+    }
+    elsif ($isFind == 0)
+    {
+        $result = "Draw";
+    }
+    print "Case #$caseNumber: $result\n";
+}
+
+sub findConnect
+{
+    ($x, $y, $symbol, $nfConnect, $offset) = @_;
+    
+    #print $x, $y, $symbol, $nfConnect, $offset, $chessboard[$y][$x] ;
+    #print "\n";
+
+    if ($chessboard[$y][$x] eq $symbol ||
+        $chessboard[$y][$x] eq "T") {
+        $nfConnect += 1;
+    }
+    else
+    {
+        return 0;
+    }
+
+
+    if ($nfConnect == 4) {
+        return 1;
+    }
+
+    if (($x + $offset_x[$offset]) < 0 ||
+        ($y + $offset_y[$offset]) < 0 ||
+        ($x + $offset_x[$offset]) > 4 ||
+        ($y + $offset_y[$offset]) > 4) {
+        return 0;
+    }
+    findConnect($x + $offset_x[$offset], $y + $offset_y[$offset], $symbol, $nfConnect, $offset);
+}

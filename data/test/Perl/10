@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use strict;
+use Data::Dumper;
+################ MAIN #############################
+
+sub check {
+    my $_ = join "", @_;
+    return "X" if /^[XT]+$/;
+    return "O" if /^[OT]+$/;
+    return undef;
+}
+
+my $caseCount = <>;
+my $case = 0;
+c: for my $case (1 .. $caseCount) {
+    my @grid = ();
+    my $full = 1;
+    for my $row (1 .. 4) {
+        my $_ = <>;
+        $full = 0 if /\./;
+        chomp;
+        push @grid, [ split '' ];
+    }
+    # print Dumper(@grid);
+
+    # rows
+    my $winner;
+    for my $idx (0 .. 3) {
+        $winner = &check(@{$grid[$idx]});
+        if ($winner) {
+            print "Case #$case: $winner won\n";
+            my $_ = <>;
+            next c;
+        }
+    }
+
+    # cols
+    for my $idx (0 .. 3) {
+        $winner = &check($grid[0][$idx], $grid[1][$idx], $grid[2][$idx], $grid[3][$idx]);
+        if ($winner) {
+            print "Case #$case: $winner won\n";
+            my $_ = <>;
+            next c;
+        }
+    }
+
+    # diagonals
+    $winner = &check($grid[0][0], $grid[1][1], $grid[2][2], $grid[3][3]);
+    if ($winner) {
+        print "Case #$case: $winner won\n";
+        my $_ = <>;
+        next c;
+    }
+    $winner = &check($grid[0][3], $grid[1][2], $grid[2][1], $grid[3][0]);
+    if ($winner) {
+        print "Case #$case: $winner won\n";
+        my $_ = <>;
+        next c;
+    }
+
+    if ($full) {
+        print "Case #$case: Draw\n";
+    } else {
+        print "Case #$case: Game has not completed\n";
+    }
+    my $_ = <>;
+}

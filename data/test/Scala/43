@@ -1,0 +1,41 @@
+import sys.process._
+
+object GCJ2013As extends App {
+  val a = io.Source.fromFile("A-large.in").getLines.toList
+  val count = a.head.toInt
+  val sb = new StringBuilder
+
+  val f = new java.io.File("output.txt")
+
+  var l = a.tail
+  val ss = for(_ <- 0 until count) yield {
+    val p = (l take 5).mkString
+    l = l drop 5
+    p
+  }
+
+  for((s, i) <- ss.zipWithIndex) {
+    val state = chk(s)
+
+    s"echo Case #${i+1}: ${state}\n" #>> f!
+  }
+
+//  println(s"${res.toString}")
+
+  def chk(s: String): String = {
+    if (solve(s.replace("T","O"), 'O')) {
+      "O won"
+    } else if (solve(s.replace("T","X"), 'X')) {
+      "X won"
+    } else if (s.indexOf(".") == -1) {
+      "Draw"
+    } else {
+      "Game has not completed"
+    }
+  }
+
+  def solve(s: String, c: Char): Boolean = {
+    def q(t: Int, d: Int): Boolean = (s(t) :: s(t+d) :: s(t+d*2) :: s(t+d*3) :: Nil).forall(_ == c)
+    q(0,4) || q(1,4) || q(2,4) || q(3,4) || q(0,1) || q(4,1) || q(8,1) || q(12,1) || q(0,5) || q(3,3)
+  }
+} 

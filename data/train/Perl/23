@@ -1,0 +1,75 @@
+#!/usr/local/bin/perl
+# Yen-Ming Lee <leeym@leeym.com>
+# http://code.google.com/codejam/contest/dashboard?c=2270488#s=p0
+use Data::Dumper;
+use Getopt::Std;
+use strict;
+
+$| = 1;
+my %opt;
+getopts('vd', \%opt);
+
+chomp(my $T = <>);
+foreach my $t (1 .. $T)
+{
+  warn("Case #$t/$T\n");
+  my @G;
+  foreach (0 .. 3)
+  {
+    chomp(my $l = <>);
+    my @R = split(//, $l);
+    push(@G, \@R);
+    warn join('', @R) . "\n" if $opt{d};
+  }
+  <>;
+  my %L;
+
+  # for each row
+  foreach my $r (0 .. 3)
+  {
+    my $l;
+    foreach my $c (0 .. 3)
+    {
+      $l .= $G[$r][$c];
+    }
+    $L{$l}++;
+  }
+
+  # for each column
+  foreach my $c (0 .. 3)
+  {
+    my $l;
+    foreach my $r (0 .. 3)
+    {
+      $l .= $G[$r][$c];
+    }
+    $L{$l}++;
+  }
+
+  # for each diagonal
+  my $d1;
+  my $d2;
+  foreach my $d (0 .. 3)
+  {
+    $d1 .= $G[$d][$d];
+    $d2 .= $G[3 - $d][$d];
+  }
+  $L{$d1}++;
+  $L{$d2}++;
+
+  warn Dumper(\%L) if $opt{d};
+  my $y;
+  my $dot;
+  foreach my $l (keys %L)
+  {
+    my $lO = $l;
+    my $lX = $l;
+    $lO =~ s{T}{O};
+    $lX =~ s{T}{X};
+    $dot++ if $l =~ m{\.};
+    $y = 'O won' if ($l eq 'OOOO' || $lO eq 'OOOO');
+    $y = 'X won' if ($l eq 'XXXX' || $lX eq 'XXXX');
+  }
+  $y = $dot ? 'Game has not completed' : 'Draw' if !$y;
+  printf("Case #$t: $y\n");
+}

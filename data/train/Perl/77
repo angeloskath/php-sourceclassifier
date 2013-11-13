@@ -1,0 +1,32 @@
+#!/usr/local/bin/perl
+
+use strict;
+use warnings;
+
+my $T = <>;
+
+foreach my $testcase (1 .. $T){
+	my @lines = ("","","","");
+	my @trans = ("","","","");
+	my @cross = ("","");
+	my $hasDot = 0;
+	my $winner = "";
+	foreach my $y (0 .. 3){
+		$lines[$y] = <>;
+		my @line = split //, $lines[$y];
+		foreach my $x (0 .. 3){
+			$hasDot = 1 if $line[$x] eq ".";
+			$trans[$x] .= $line[$x];
+			$cross[0] .= $line[$x] if $x == $y;
+			$cross[1] .= $line[$x] if $x + $y == 3;
+		}
+	}
+	my $ret = <>;
+	$ret = $hasDot ? "Game has not completed" : "Draw";
+	foreach(@lines, @trans, @cross){
+		$ret = "O won" if m/^[OT]{4}$/;
+		$ret = "X won" if m/^[XT]{4}$/;
+	}
+	print "Case #$testcase: $ret\n";
+}
+

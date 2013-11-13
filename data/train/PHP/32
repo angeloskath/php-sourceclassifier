@@ -1,0 +1,51 @@
+<?php
+
+$file = fopen("input.txt", "r");
+$numCases = fgets($file);
+
+$output = fopen("output.txt", "w+");
+
+$x_row = '/[XT]{4}/';
+$x_col = '/([XT].{3}){4}|(.[XT].{2}){4}|(.{2}[XT].{1}){4}|(.{3}[XT]){4}|[XT].{3}.[XT].{2}.{2}[XT].{4}[XT]|.{3}[XT].{2}[XT].{1}.{1}[XT].{2}[XT].{3}/';
+
+$o_row = '/[OT]{4}/';
+$o_col = '/([OT].{3}){4}|(.[OT].{2}){4}|(.{2}[OT].{1}){4}|(.{3}[OT]){4}|[OT].{3}.[OT].{2}.{2}[OT].{4}[OT]|.{3}[OT].{2}[OT].{1}.{1}[OT].{2}[OT].{3}/';
+
+
+for($i = 1; $i<=$numCases; $i++) {
+	$field = "";
+	$done = false;
+	for($j = 0; $j < 4; $j++) {
+		$line = trim(fgets($file));
+
+		if(preg_match($x_row, $line)) {
+			fwrite($output, "Case #$i: X won\n");
+			$done = true;
+		}
+		if(preg_match($o_row, $line)) {
+			fwrite($output, "Case #$i: O won\n");
+			$done = true;
+		}
+
+		$field .= $line;
+	}
+	
+	$field = str_replace("\n", '', $field);
+
+	if(!$done) {
+		if(preg_match($x_col, $field))
+			fwrite($output, "Case #$i: X won\n");
+		else if(preg_match($o_col, $field))
+			fwrite($output, "Case #$i: O won\n");
+		else if(strpos($field, '.')!==false)
+			fwrite($output, "Case #$i: Game has not completed\n");
+		else
+			fwrite($output, "Case #$i: Draw\n");
+	}
+	fgets($file);
+}
+
+fclose($file);
+fclose($output);
+
+?>

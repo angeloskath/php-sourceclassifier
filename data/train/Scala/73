@@ -1,0 +1,133 @@
+package prob1
+
+import scala.io.Source
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: devesh
+ * Date: 4/12/13
+ * Time: 9:32 PM
+ * To change this template use File | Settings | File Templates.
+ */
+object Problem1 extends App{
+
+
+
+//  val lines: Any = Source.fromPath("/Users/devesh/scala-tutorial/codejam/src/prob1/testinput").getLines()
+
+  val file: String = "/Users/devesh/scala-tutorial/codejam/src/prob1/testinput"
+
+  val count = 0;
+  val list = Source.fromFile(file).getLines().toList
+
+  val numberOfCases:Int =  (list.head).toInt
+
+  val remainingList = list.tail
+
+  def getArrParams(str:String):Array[String] =  str.split("")
+
+  processCases(1, remainingList)
+
+  def processCases(numCases:Int, pList:List[String]):Unit={
+    val paramsList = Array.ofDim[String](4)
+      if (paramsList.length > 0){
+        val remain = processList(0, pList)
+        if (remain.length >0)
+          processCases(numCases +1, remain)
+      }
+
+
+      def processList(count:Int, rList:List[String]):List[String]={
+//        if (rList.isEmpty)  Nil
+//        else
+        if ( rList.isEmpty || rList.head == "") {
+          if (count == 4){
+            println("Case #"+ numCases +": " + solveProb(paramsList))
+          }
+          if (rList.isEmpty) {
+            Nil
+          } else{
+            rList.tail
+          }
+
+        }
+        else{
+          paramsList(count) = rList.head
+          processList(count+1, rList.tail)
+        }
+      }
+//    }
+  }
+
+//  OOXX
+//  OXXX
+//  OX.T
+//  O..O
+  val myList1 = "OOXX"
+  val myList2 = "OXXX"
+  val myList3 = "OX.T"
+  val myList4 = "O..O"
+  val mt = Array(myList1, myList2, myList3, myList4)
+  val paramsList = Array.ofDim[String](4)
+
+  paramsList(0) =myList1
+  paramsList(1) = myList2
+  paramsList(2) = myList3
+  paramsList(3) = myList4
+//  println(solveProb(paramsList))
+
+  def solveProb(myMatrix:Array[String]):String ={
+    def incr(x:Int):Int = x+1
+    def noincr(x:Int):Int = x
+    def decr(x:Int):Int = x -1
+
+//    println(myMatrix(0).substring(1,2))
+//    println(myMatrix(1).substring(1,2))
+//    println(myMatrix(2).substring(1,2))
+//    println(myMatrix(3).substring(1,2))
+//    println(checkWon(0,0, 1,incr, noincr, "O"))
+
+    def checkWon(i:Int, j:Int, xCount:Int, iIncr:Int=>Int, jIncr:Int=>Int ,check:String):Boolean={
+      if(xCount > 4) true
+      else if(i > 3 || i < 0) false
+      else if(j > 3 || j < 0) false
+      else if(check == myMatrix(i).substring(j, j+1) || myMatrix(i).substring(j, j+1) == "T") checkWon(iIncr(i), jIncr(j), xCount+1, iIncr, jIncr, check)
+      else false
+    }
+    def checkWhoWon(check:String):Boolean ={
+      if (checkWon(0,0, 1,incr, noincr, check)   || checkWon(0,0, 1,incr, incr, check) || checkWon(0, 3, 1, incr, decr, check) ){
+        return true
+      }else{
+        for (i <- 0 to 3 ){
+          if ( checkWon(i,0, 1,noincr, incr, check)){
+            return true
+          }
+          if ( checkWon(0,i, 1,incr, noincr, check)){
+            return true
+          }
+        }
+      }
+      false
+    }
+
+    def isGameComplete():Boolean = {
+      for (i <- 0 to 3)
+        for (j <- 0 to 3){
+          if (myMatrix(i).substring(j, j+1) == "."){
+            return false
+          }
+        }
+      true
+    }
+
+    val didXWin = checkWhoWon("X")
+    val did0Win = checkWhoWon("O")
+
+    if (didXWin) "X won"
+    else if (did0Win) "O won"
+    else if (isGameComplete()) "Draw"
+    else  "Game has not completed"
+
+  }
+
+}

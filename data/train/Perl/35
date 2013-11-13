@@ -1,0 +1,58 @@
+use v5.16;
+use common::sense;
+
+my @wins = (
+	# horizontals
+	[ 0, 1, 2, 3 ],
+	[ 4, 5, 6, 7 ],
+	[ 8, 9, 10, 11 ],
+	[ 12, 13, 14, 15 ],
+	# verticals
+	[ 0, 4, 8, 12 ],
+	[ 1, 5, 9, 13 ],
+	[ 2, 6, 10, 14 ],
+	[ 3, 7, 11, 15 ],
+	# diagonals
+	[ 0, 5, 10, 15 ],
+	[ 3, 6, 9, 12 ]
+);
+
+sub check_win {
+	my ($seq, $w) = @_;
+	my @l = map $seq->[$_], @$w;
+	return 'X won' if int(grep {$_ eq 'X' || $_ eq 'T'} @l) == 4;
+	return 'O won' if int(grep {$_ eq 'O' || $_ eq 'T'} @l) == 4;
+	undef
+}
+
+sub check_all_wins {
+	my ($seq) = @_;
+	for my $w (@wins) {
+		my $resu = check_win($seq, $w);
+		return $resu if $resu;
+	}	
+	undef
+}
+
+sub check_draw {
+	my ($seq) = @_;
+	for (@$seq) {
+		return undef if $_ eq '.';
+	}
+	return 'Draw';
+}
+
+my $N = <STDIN>;
+for (my $n = 1; $n <= $N; ++$n) {
+	my @seq;
+	while (<STDIN>) {
+		chomp;
+		last if length $_ == 0;
+		push @seq, split '';
+	}
+	my $resu = check_all_wins(\@seq) // check_draw(\@seq) // 'Game has not completed';
+	my $status = $resu;
+	
+	say "Case #$n: $status";
+}
+

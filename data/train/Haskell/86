@@ -1,0 +1,59 @@
+module QA where
+
+import Control.Monad (msum)
+import Data.List (sort, transpose)
+
+type Board = [String]
+
+main = interact 
+  (unlines . zipWith gcj [1..] . map (show.status) . parseInput)
+
+gcj :: Int -> String -> String
+gcj n answer = "Case #" ++ show n ++ ": " ++ answer
+
+parseInput :: String -> [Board]
+parseInput = 
+  takeWhile (not.null) . map (take 4) . iterate (drop 5) . tail . lines
+
+rows :: Board -> [String]
+rows = id
+
+cols :: Board -> [String]
+cols = transpose
+
+diag :: Board -> [String]
+diag bs = [lr, rl]
+  where
+  len = length bs
+  lr  = zipWith (!!) bs [0 ..] 
+  rl  = zipWith (!!) bs [len-1, len-2 ..]
+
+data Status = XWon| OWon | OnTheWay | Draw
+
+instance Show Status where
+  show XWon  = "X won"
+  show OWon  = "O won"
+  show Draw  = "Draw"
+  show OnTheWay = "Game has not completed"
+
+status :: Board -> Status
+status bs = 
+  case msum $ map flush l ++ map onTheWay l of
+    Just s  -> s
+    Nothing -> Draw
+  where
+  l = concatMap ($bs) [rows, cols, diag]
+
+flush :: String -> Maybe Status
+flush xs = 
+  case sort xs of
+    "XXXX" -> Just XWon
+    "TXXX" -> Just XWon
+    "OOOO" -> Just OWon
+    "OOOT" -> Just OWon
+    _      -> Nothing
+
+onTheWay :: String -> Maybe Status
+onTheWay xs =
+  if any (== '.') xs then Just OnTheWay else Nothing
+

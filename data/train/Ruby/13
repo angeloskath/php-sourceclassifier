@@ -1,0 +1,43 @@
+def check(l)
+	if l.include?('.') or (l.include? 'X' and l.include? 'O')
+		return '' 
+	end
+	if l.include? 'X' 
+		'X won' 
+	else
+		'O won'
+	end
+end
+
+T = STDIN.readline.to_i
+T.times{ |t|
+	game = []
+	complete = true
+	4.times{
+		line = STDIN.readline.strip.split('')
+		complete &&= (not line.include? '.')
+		game << line
+	}
+
+	res = ''
+	game.each{|l| 
+		break if res != ''
+		res = check l
+	}
+
+	4.times{|i|
+		break if res != ''
+		res = check [game[0][i],game[1][i],game[2][i],game[3][i]]
+	}
+
+	res = check [game[0][0],game[1][1],game[2][2],game[3][3]] if res == ''
+	res = check [game[0][3],game[1][2],game[2][1],game[3][0]] if res == ''
+
+	if res == ''
+		res = (complete ? 'Draw' : 'Game has not completed')
+	end
+
+	puts "Case ##{t+1}: #{res}"
+
+	STDIN.readline
+}

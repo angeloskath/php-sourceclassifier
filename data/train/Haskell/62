@@ -1,0 +1,113 @@
+import Text.ParserCombinators.Parsec
+
+import Control.Applicative ((<$>))
+import Control.Monad
+
+import System.Environment
+import System.IO
+
+import Debug.Trace
+
+import Data.List (transpose)
+import Data.Set (fromList, isSubsetOf)
+
+
+type Input = [Case]
+type Solution = [SolvedCase]
+type Output = [String]
+
+----------------------------------------------  SEZIONE DA EDITARE -----------------------------------------
+
+type Case = [[Cell]]
+type SolvedCase = GameState
+
+data Cell = X | O | T | Dot deriving (Ord, Eq, Show) 
+data GameState = XWon | OWon | Draw | GNC deriving (Ord, Eq, Show)
+
+
+algorithm :: Case -> SolvedCase
+algorithm board
+  | playerWon board X            = XWon
+  | playerWon board O            = OWon
+  | Dot `notElem` (concat board) = Draw
+  | otherwise                    = GNC
+
+
+playerWon :: Case -> Cell -> Bool
+playerWon status p = horizontalWin || verticalWin || diagonal1Win || diagonal2Win
+  where horizontalWin = or . map (\x -> isSubsetOf x (fromList [p, T])) $ map fromList status
+        verticalWin   = or . map (\x -> isSubsetOf x (fromList [p, T])) $ map fromList (transpose status)
+        diagonal1Win  = isSubsetOf (fromList $ map (\x -> (status!!x) !! x    ) [0..3]) (fromList [p, T])
+        diagonal2Win  = isSubsetOf (fromList $ map (\x -> (status!!x) !! (3-x)) [0..3]) (fromList [p, T])
+
+
+caseParser :: Parser Case
+caseParser = do
+  line0 <- wholeLine
+  line1 <- wholeLine
+  line2 <- wholeLine
+  line3 <- wholeLine
+  line4 <- wholeLine
+  return $ map (map translateChar) [line1,line2,line3,line4]
+
+translateChar :: Char -> Cell
+translateChar 'X' = X
+translateChar 'O' = O
+translateChar 'T' = T
+translateChar '.' = Dot
+
+formatCase :: SolvedCase -> String
+formatCase XWon = "X won"
+formatCase OWon = "O won"
+formatCase Draw = "Draw"
+formatCase GNC  = "Game has not completed"
+
+--------------------------------------------- FINE SEZIONE DA EDITARE ----------------------------------------
+
+
+main = do
+  fileName <- head <$> getArgs
+  file <- readFile fileName
+  let outp = zipWith (++) prefixes . map (formatCase . algorithm) . trace (show (parseWith mainParser file)) $ parseWith mainParser file
+  writeFile (fileName ++ ".out") $ unlines outp
+
+parseWith p = either (error . show) id . parse p ""
+prefixes = [ "Case #" ++ show n ++ ": " | n <- [1..]]
+
+
+mainParser :: Parser Input
+mainParser = do
+  n <- word
+  ms <- count (read n) caseParser
+  return ms
+  <?> "mainParser"
+
+
+
+------------ Parser di utilità ------------
+
+wholeLine :: Parser String
+wholeLine = manyTill anyChar (try newline) <?> "wholeLine"
+
+whiteSepLine :: Parser [String]
+whiteSepLine = do a <- sepEndBy word (many (char ' '))
+                  many (char ' ')
+                  return a
+                <?> "whiteSepLine"
+
+word = many1 nonWhite <?> "word"
+
+--spaceSepWord = do
+--  w <- many1 nonWhite
+--  many (char ' ')
+--  return w
+--  <?> "spaceSepWord"
+
+twoWordSepBy c = do
+  x <- manyTill nonWhite (try $ char c)
+  y <- many1 nonWhite
+  many (char ' ')
+  return (x,y)
+  <?> "twoWordSepBy"
+
+nonWhite = noneOf " \v\f\t\r\n" <?> "nonWhite"

@@ -1,0 +1,62 @@
+var bigInt = require('big-integer');
+var fs = require('fs');
+
+var inputFileName = process.argv[2];
+
+if (typeof inputFileName !== 'string') {
+	console.error('Missing input filename');
+	return;
+}
+
+var problemFunction = function (testCaseArr) {
+	testCaseArr.pop();
+	var possibilities = testCaseArr.map(function (line) {
+		return line;
+	});
+	for (var i = 0; i < 4; i++) {
+		possibilities.push(testCaseArr[0][i] + testCaseArr[1][i] + testCaseArr[2][i] + testCaseArr[3][i]);
+	}
+	possibilities.push(testCaseArr[0][0] + testCaseArr[1][1] + testCaseArr[2][2] + testCaseArr[3][3]);
+	possibilities.push(testCaseArr[3][0] + testCaseArr[2][1] + testCaseArr[1][2] + testCaseArr[0][3]);
+	var all = testCaseArr.join('');
+
+	var who;
+	var found = possibilities.some(function (testCase) {
+		if (testCase.match('[XT][XT][XT][XT]')) {
+			who = 'X won';
+			return true;
+		} else if (testCase.match('[OT][OT][OT][OT]')) {
+			who = 'O won';
+			return true;
+		}
+		return false;
+	});
+	if (!found) {
+		if (!all.match('[\.]')) {
+			who = 'Draw';
+		} else {
+			who = 'Game has not completed';
+		}
+	}
+	return who;
+};
+
+fs.readFile(inputFileName, function (err, data) {
+	if (err) throw err;
+
+	var lines = data.toString().split('\n');
+	lines.shift(); // remove number of cases
+	lines.pop(); // remove last empty line
+
+	var results = [],
+		idx = 1;
+	while (lines.length > 0) {
+		var testCaseArr = lines.splice(0, 5);
+		var testCaseResult = problemFunction(testCaseArr);
+		results.push('Case #' + idx+++': ' + testCaseResult);
+	}
+	var resultStr = results.join('\n') + '\n';
+
+	console.log(resultStr);
+	fs.writeFile(inputFileName + '.out', resultStr);
+});

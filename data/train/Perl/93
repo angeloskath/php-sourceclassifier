@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+$count=<STDIN>;
+chomp ($count);
+
+for ($i=1;$i<=$count;$i++)
+{
+	for ($y=0;$y<4;$y++)
+	{
+		$line=<STDIN>;
+		for ($x=0;$x<4;$x++)
+		{
+			@array=split(//,$line);
+			$key="$x$y";
+			$m[$key]=$array[$x];
+		}
+	}	
+	$n=<STDIN>;
+		
+
+	$res="";
+
+	$notcomp=0;
+
+	#tate yoko
+	for ($p=0;$p<=1;$p++)
+	{
+		for ($y=0;$y<4;$y++)
+		{
+			$ct=0;
+			$cx=0;
+			$co=0;
+
+			for ($x=0;$x<4;$x++)
+			{
+				$key=($p==0) ? "$x$y" : "$y$x";
+
+				$c=$m[$key];
+				if ($c eq "T") {$ct++;}
+				if ($c eq "X") {$cx++;}
+				if ($c eq "O") {$co++;}
+				if ($c eq ".") {$notcomp=1;}
+			}
+			if (($ct+$cx)==4) {
+				$res="Case #$i: X won";
+			}
+			if (($ct+$co)==4) {
+				$res="Case #$i: O won";
+			}
+		}
+	}
+
+
+	#naname
+	for ($p=0;$p<=1;$p++)
+	{
+		$nt=0;
+		$nx=0;
+		$no=0;
+		for ($nc=0;$nc<=3;$nc++)
+		{
+			$rnc=3-$nc;
+			$key=($p==0) ? "$nc$nc" : "$nc$rnc";
+			if ($m["$key"] eq "T") {$nt++};
+			if ($m["$key"] eq "O") {$no++};
+			if ($m["$key"] eq "X") {$nx++};
+		}
+		if (($nt+$nx)==4) {
+			$res="Case #$i: X won";
+		}
+		if (($nt+$no)==4) {
+			$res="Case #$i: O won";
+		}
+	}
+
+	#not complete or Draw
+	if($res eq "") 
+	{
+		if ($notcomp==1)
+		{
+			$res="Case #$i: Game has not completed";
+		}
+		else
+		{
+			$res="Case #$i: Draw";
+		}
+
+	}
+
+	print "$res\n";
+}

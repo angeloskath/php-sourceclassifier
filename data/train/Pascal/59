@@ -1,0 +1,114 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+  i, i1, j, n: integer;
+  bool: boolean;
+  a: array[1..100, 1..100] of char;
+
+function win(c: char): boolean;
+var
+  i, j: integer;
+  bool: boolean;
+begin
+  bool := true;
+  for i := 1 to 4 do begin
+    if (a[i][i] <> c) and (a[i][i] <> 'T') then
+      bool := false;
+  end;
+  if (bool) then begin
+    result := true;
+    exit;
+  end;
+
+  bool := true;
+  for i := 1 to 4 do begin
+    if (a[i][5 - i] <> c) and (a[i][5 - i] <> 'T') then
+      bool := false;
+  end;
+  if (bool) then begin
+    result := true;
+    exit;
+  end;
+
+
+  for j := 1 to 4 do begin
+    bool := true;
+    for i := 1 to 4 do begin
+      if (a[j][i] <> c) and (a[j][i] <> 'T') then
+        bool := false;
+    end;
+    if (bool) then begin
+      result := true;
+      exit;
+    end;
+  end;
+
+
+  for j := 1 to 4 do begin
+    bool := true;
+    for i := 1 to 4 do begin
+      if (a[i][j] <> c) and (a[i][j] <> 'T') then
+        bool := false;
+    end;
+    if (bool) then begin
+      result := true;
+      exit;
+    end;
+  end;
+
+  result := false;
+
+end;  
+
+begin
+  reset(input, 'input.txt');
+  rewrite(output, 'output.txt');
+
+  readln(n);
+  
+  for i1 := 1 to n do begin
+    for i := 1 to 4 do begin
+      for j := 1 to 4 do begin
+        read(a[i][j]);
+      end;
+      readln;
+    end;
+    readln;
+
+    write('Case #', i1, ': ');
+
+    if (win('X')) then begin
+      writeln('X won');
+      continue;
+    end;
+    if (win('O')) then begin
+      writeln('O won');
+      continue;
+    end;
+
+    bool := false;
+
+    for i := 1 to 4 do begin
+      for j := 1 to 4 do begin
+        if (a[i][j] = '.') then
+          bool := true;
+      end;
+    end;
+
+    if (bool) then begin
+      writeln('Game has not completed');
+    end else begin
+      writeln('Draw');
+    end;
+
+  end;
+
+  
+  
+end.
+ 

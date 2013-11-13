@@ -1,0 +1,164 @@
+package qual2013;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+public class Kattio extends PrintWriter {
+	public Kattio(InputStream i) {
+		super(new BufferedOutputStream(System.out));
+		r = new BufferedReader(new InputStreamReader(i));
+	}
+
+	public Kattio(InputStream i, OutputStream o) {
+		super(new BufferedOutputStream(o));
+		r = new BufferedReader(new InputStreamReader(i));
+	}
+
+	public boolean hasMoreTokens() {
+		return peekToken() != null;
+	}
+
+	public int getInt() {
+		return Integer.parseInt(nextToken());
+	}
+
+	public double getDouble() {
+		return Double.parseDouble(nextToken());
+	}
+
+	public long getLong() {
+		return Long.parseLong(nextToken());
+	}
+
+	public String getWord() {
+		return nextToken();
+	}
+
+
+	private BufferedReader r;
+	private String line;
+	private StringTokenizer st;
+	private String token;
+
+	private String peekToken() {
+		if (token == null)
+			try {
+				while (st == null || !st.hasMoreTokens()) {
+					line = r.readLine();
+					if (line == null) return null;
+					st = new StringTokenizer(line);
+				}
+				token = st.nextToken();
+			} catch (IOException e) {
+			}
+		return token;
+	}
+
+	private String nextToken() {
+		String ans = peekToken();
+		token = null;
+		return ans;
+	}
+}package qual2013;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+/**
+ * Bot Trust
+ */
+public class A {
+	public static void main(String[] args) throws FileNotFoundException {
+		Kattio io;
+
+//		io = new Kattio(System.in, System.out);
+//		io = new Kattio(new FileInputStream("src/qual2013/A-sample.in"), System.out);
+//		io = new Kattio(new FileInputStream("src/qual2013/A-small-attempt0.in"), new FileOutputStream("src/qual2013/A-small-attempt0.out"));
+		io = new Kattio(new FileInputStream("src/qual2013/A-large.in"), new FileOutputStream("src/qual2013/A-large.out"));
+
+		int cases = io.getInt();
+		for (int i = 1; i <= cases; i++) {
+			io.print("Case #" + i + ": ");
+			new A().solve(io);
+		}
+		io.close();
+	}
+
+	private void solve(Kattio io) {
+        String[] board = new String[4];
+        for(int i=0;i<4;i++) {
+            board[i] = io.getWord();
+        }
+        boolean xwon = false, owon = false, empty = false;
+
+        for(int y=0;y<4;y++) {
+            int wildcard = 0;
+            int xc=0,oc=0;
+            for(int x=0;x<4;x++) {
+                char c = board[y].charAt(x);
+                if (c == 'T') wildcard = 1;
+                if (c == 'X') xc++;
+                if (c == 'O') oc++;
+                if (c == '.') empty = true;
+            }
+            if (xc + wildcard == 4) xwon = true;
+            if (oc + wildcard == 4) owon = true;
+        }
+
+        for(int y=0;y<4;y++) {
+            int wildcard = 0;
+            int xc=0,oc=0;
+            for(int x=0;x<4;x++) {
+                char c = board[x].charAt(y);
+                if (c == 'T') wildcard = 1;
+                if (c == 'X') xc++;
+                if (c == 'O') oc++;
+            }
+            if (xc + wildcard == 4) xwon = true;
+            if (oc + wildcard == 4) owon = true;
+        }
+
+        {
+            int wildcard = 0;
+            int xc=0,oc=0;
+            for(int d=0;d<4;d++) {
+                char c = board[d].charAt(d);
+                if (c == 'T') wildcard = 1;
+                if (c == 'X') xc++;
+                if (c == 'O') oc++;
+            }
+            if (xc + wildcard == 4) xwon = true;
+            if (oc + wildcard == 4) owon = true;
+        }
+
+        {
+            int wildcard = 0;
+            int xc=0,oc=0;
+            for(int d=0;d<4;d++) {
+                char c = board[3-d].charAt(d);
+                if (c == 'T') wildcard = 1;
+                if (c == 'X') xc++;
+                if (c == 'O') oc++;
+            }
+            if (xc + wildcard == 4) xwon = true;
+            if (oc + wildcard == 4) owon = true;
+        }
+
+        if (xwon) {
+            io.println("X won");
+        } else if (owon) {
+            io.println("O won");
+        } else if (empty) {
+            io.println("Game has not completed");
+        } else {
+            io.println("Draw");
+        }
+	}
+}

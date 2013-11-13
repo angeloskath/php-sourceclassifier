@@ -1,0 +1,76 @@
+program tip(input,output);
+ var
+  a,b:array[1..4,1..4]of char;
+  i,j,n,k:integer;
+  q,all,xq,oq:boolean;
+ procedure x;
+  var
+   i,j:integer;
+   w:boolean;
+  begin
+   w:=false;
+   for i:=1 to 4 do
+    for j:=1 to 4 do
+     if a[i,j]='T' then a[i,j]:='X';
+   for i:=1 to 4 do
+    begin
+    if (a[1,i]='X')and(a[2,i]='X')and(a[3,i]='X')and(a[4,i]='X') then w:=true;
+    if (a[i,1]='X')and(a[i,2]='X')and(a[i,3]='X')and(a[i,4]='X') then w:=true;
+    end;
+   if (a[1,1]='X')and(a[2,2]='X')and(a[3,3]='X')and(a[4,4]='X') then w:=true;
+   if (a[4,1]='X')and(a[3,2]='X')and(a[2,3]='X')and(a[1,4]='X') then w:=true;
+  if w then begin writeln('Case #',k,':',' X won');xq:=true end;
+  end;
+ procedure o;
+  var
+   i,j:integer;
+   w:boolean;
+  begin
+   w:=false;
+   for i:=1 to 4 do
+    for j:=1 to 4 do
+     if a[i,j]='T' then a[i,j]:='O';
+   for i:=1 to 4 do
+    begin
+    if (a[1,i]='O')and(a[2,i]='O')and(a[3,i]='O')and(a[4,i]='O') then w:=true;
+    if (a[i,1]='O')and(a[i,2]='O')and(a[i,3]='O')and(a[i,4]='O') then w:=true;
+    end;
+   if (a[1,1]='O')and(a[2,2]='O')and(a[3,3]='O')and(a[4,4]='O') then w:=true;
+   if (a[1,4]='O')and(a[2,3]='O')and(a[3,2]='O')and(a[4,1]='O') then w:=true;
+  if w then begin writeln('Case #',k,':',' O won');oq:=true end;
+  end;
+ begin
+  assign(input,'tip.in');
+  assign(output,'tip.out');
+  reset(input);
+  rewrite(output);
+  readln(n);
+  for k:=1 to n do
+   begin
+    xq:=false;
+    oq:=false;
+    q:=false;
+    for i:=1 to 4 do
+     begin
+     for j:=1 to 4 do
+      begin
+       read(b[i,j]);
+       if b[i,j]='.' then q:=true;
+      end;
+     readln;
+     end;
+    a:=b;
+    x;
+    a:=b;
+    o;
+    a:=b;
+    if (not(xq))and(not(oq))and(not(q)) then writeln('Case #',k,': Draw');
+    if (not(xq))and(not(oq))and(q) then writeln('Case #',k,': Game has not completed');
+    readln;
+   end;
+  close(input);
+  close(output);
+ end.
+
+
+

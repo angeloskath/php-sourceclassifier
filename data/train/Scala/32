@@ -1,0 +1,48 @@
+object TicTacToeTomek extends App {
+
+  def loadCases(file: String) = {
+    val lines = scala.io.Source.fromFile(file).getLines.toList
+    val n = lines(0).toInt
+    for (i <- 0 to n - 1) yield {
+      lines.slice(i * 5 + 1, i * 5 + 5) map { _.toList }
+    }
+  }
+
+  def boardStatus(board: List[List[Char]]) = {
+    def checkRows(player: Char) = {
+      board.find(_.dropWhile(c => c == player || c == 'T').size == 0).isDefined 
+    }
+    
+    def checkColumns(player: Char) = {
+      val cc = for (i <- 0 to 3) yield {
+        board.foldLeft(true)( (b, row) => b && (row(i) == player || row(i) == 'T'))
+      }
+      cc.contains(true)
+    }
+    
+    def checkDiagonals(player: Char) = {
+      lazy val leftToRight = board.zipWithIndex.foldLeft(true)((b, tuple) => b && (tuple._1(tuple._2) == player || tuple._1(tuple._2) == 'T'))
+      lazy val rightToLeft = board.zipWithIndex.foldLeft(true)((b, tuple) => b && (tuple._1(3 - tuple._2) == player || tuple._1(3 - tuple._2) == 'T'))
+      leftToRight || rightToLeft
+    }
+    
+    def check(player: Char) = checkRows(player) || checkColumns(player) || checkDiagonals(player)
+    
+    if (check('X')) {
+      "X won"
+    } else if (check('O')) {
+      "O won"
+    } else if (board.flatten.contains('.')){
+      "Game has not completed"
+    } else {
+      "Draw"
+    }
+  }
+
+  val output = loadCases("inputs/A-large.txt").zipWithIndex.map {
+    case (board, i) => "Case #%d: %s".format(i + 1, boardStatus(board))
+  }.mkString("\n")
+  
+  println(output)
+
+}

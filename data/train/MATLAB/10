@@ -1,0 +1,36 @@
+cd 'C:\Users\Class2014\Desktop\CJ'
+fin = fopen('A-large.in','r');
+fout = fopen('soln-large.out','w');
+T = fscanf(fin,'%d',1);
+
+for Tnum = 1:T
+    X = zeros(4,4);
+    O = zeros(4,4);
+    fgetl(fin);
+    for row = 1:4
+        line = fgetl(fin);
+        for col = 1:4
+            X(row,col)= line(col)=='X' || line(col)=='T';
+            O(row,col)= line(col)=='O' || line(col)=='T';
+        end
+    end
+    % filled X and O
+    if (   any(sum(X,1)==4)...
+        || any(sum(X,2)==4)...
+        || sum(diag(X))==4 ...
+        || (X(4,1)&&X(3,2)&&X(2,3)&&X(1,4)) )
+        fprintf(fout,'Case #%i: X won\n',Tnum);
+    elseif (...
+           any(sum(O,1)==4)...
+        || any(sum(O,2)==4)...
+        || sum(diag(O))==4 ...
+        || (O(4,1)&&O(3,2)&&O(2,3)&&O(1,4)) )
+        fprintf(fout,'Case #%i: O won\n',Tnum);
+    elseif ( all(all(X | O)) )
+        fprintf(fout,'Case #%i: Draw\n',Tnum);
+    else
+        fprintf(fout,'Case #%i: Game has not completed\n',Tnum);
+    end
+end
+
+fin = fclose(fin);

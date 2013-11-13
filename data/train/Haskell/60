@@ -1,0 +1,113 @@
+import Control.Monad
+import System.Environment
+import System.IO
+import Data.Maybe
+import Data.List
+-- import Debug.Trace
+import Data.Map (Map)
+import qualified Data.Map as Map
+
+data LineStatus = LXWon | LOWon | LUnknown deriving (Show, Eq)
+data BoardStatus = XWon | OWon | Incomplete | Draw deriving (Eq)
+instance Show BoardStatus where
+  show = fromJust . flip lookup table
+    where table = [(XWon, "X won"),
+                   (OWon, "O won"),
+                   (Incomplete, "Game has not completed"),
+                   (Draw, "Draw")]
+
+
+type Line = String
+type Board = [Line]
+
+
+if' :: Bool -> a -> a -> a
+if' True  x _ = x
+if' False _ y = y
+
+main :: IO ()
+main = do
+  args <- getArgs
+  handle <- openFile (args !! 0) ReadMode
+  tcs <- hGetLine handle
+  let tc = read tcs
+  mapM_ (tMain handle) [1..tc]
+
+tMain :: Handle -> Integer -> IO ()
+tMain handle target = do
+  putStr "Case #"
+  putStr $ show target
+  putStr ": "
+  lines5 <- replicateM 5 $ hGetLine handle
+  let lines4 = take 4 lines5
+--  putStrLn $ show $ diagonal ["XXXO","..O.",".O..","T..."]
+  putStrLn $ show $ tCalc lines4
+  
+
+
+-- We assume there are no two winners (based on Limits)
+tCalc :: Board -> BoardStatus
+tCalc board = 
+  -- 1. Scan each rows, columns and diagonal (totally 10),
+  -- and determine winning or not
+  -- 2. if 1 does not find winner,
+  -- check whether all are filled in or not.
+  -- if all are filled in, it is potential to be Draw otherwise Incomplete
+  let winningStatus =
+        (map tLineCheck (board ++ (transpose board) ++ (diagonal board)))
+      realWinningStatus = dropWhile (== LUnknown) winningStatus
+  in
+   if (null realWinningStatus)
+   then
+     if (doesBoardHaveSpace board)
+     then
+       Incomplete
+     else
+       Draw
+   else
+     case (head realWinningStatus) of
+       LXWon -> XWon
+       LOWon -> OWon
+       otherwise -> error "what is this!"
+     
+       
+     
+    
+    
+    
+     
+-- return 2 line.
+diagonal :: Board -> [Line]
+diagonal b =
+  [[(b !! 0) !! 0, (b !! 1) !! 1, (b !! 2) !! 2, (b !! 3) !! 3],
+   [(b !! 0) !! 3, (b !! 1) !! 2, (b !! 2) !! 1, (b !! 3) !! 0]]
+   
+  
+
+
+doesLineHaveSpace :: Line -> Bool
+doesLineHaveSpace line = '.' `elem` line
+
+doesBoardHaveSpace :: Board -> Bool
+doesBoardHaveSpace board = any doesLineHaveSpace board
+  
+
+tLineCheck :: Line -> LineStatus
+tLineCheck line =
+  findWithDefaultMine LUnknown line table
+  where table = Map.fromList [("XXXX", LXWon),
+                              ("XXXT", LXWon),
+                              ("XXTX", LXWon),
+                              ("XTXX", LXWon),
+                              ("TXXX", LXWon),
+                              ("OOOO", LOWon),
+                              ("OOOT", LOWon),
+                              ("OOTO", LOWon),
+                              ("OTOO", LOWon),
+                              ("TOOO", LOWon)]
+
+findWithDefaultMine :: Ord k => a -> k -> Map k a -> a
+findWithDefaultMine a k m =
+  case (Map.lookup k m) of
+    Just b -> b
+    Nothing -> a

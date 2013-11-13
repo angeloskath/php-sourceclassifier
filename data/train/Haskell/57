@@ -1,0 +1,108 @@
+
+module Main where
+
+import Control.Monad
+import Data.Array
+import Data.List
+import System.IO
+import Text.Printf
+
+type Point = (Int, Int)
+type Board = Array Point Cell
+
+data Cell = X | O | T | E deriving Show
+data State = XWon | OWon | Draw | NotCompleted | Start deriving Show
+
+main :: IO ()
+main = do
+    hSetBuffering stdout LineBuffering
+    [t] <- getInts
+    forM_ [1..t] $ \n -> do
+        board <- getBoard
+        let result = solve board
+        putStr $ printf "Case #%d: %s\n" n result
+        unless (n == t) (do _ <- getLine; return ();)
+
+getInts :: IO [Int]
+getInts = fmap (map read . words) getLine
+
+getBoard :: IO Board
+getBoard = do
+    lines' <- replicateM 4 getLine
+    let board = listBoard $ concat lines'
+    return board
+
+listBoard :: String -> Board
+listBoard = listArray ((1, 1), (4, 4)) . map c2cell
+  where
+    c2cell 'X' = X
+    c2cell 'O' = O
+    c2cell 'T' = T
+    c2cell '.' = E
+    c2cell a   = error ("Invalid Cell. " ++ [a])
+
+solve :: Board -> String
+solve board = toString . foldl1' judge . concatMap ($ board) $ [rowState, columnState, diagonalState]
+  where
+    toString :: State -> String
+    toString XWon = "X won"
+    toString OWon = "O won"
+    toString Draw = "Draw"
+    toString NotCompleted = "Game has not completed"
+    toString _ = error "Invalid State: toString"
+
+judge :: State -> State -> State
+judge XWon _    = XWon
+judge OWon _    = OWon
+judge Draw x    = x
+judge NotCompleted XWon = XWon
+judge NotCompleted OWon = OWon
+judge NotCompleted _    = NotCompleted
+judge Start _     = error "Invalid State: judge"
+
+rowState :: Board -> [State]
+rowState board = map (foldl' decide Start . toRowList board) [lo board .. hi board]
+
+columnState :: Board -> [State]
+columnState board = map (foldl' decide Start . toColumnList board) [lo board .. hi board]
+
+diagonalState :: Board -> [State]
+diagonalState board = map (foldl' decide Start . ($ board)) [toDiagonalList, toDiagonalList']
+
+toRowList :: Board -> Int -> [Cell]
+toRowList board row = foldrBoard (\i -> (row, i)) (:) [] board
+
+toColumnList :: Board -> Int -> [Cell]
+toColumnList board col = foldrBoard (\i -> (i, col)) (:) [] board
+
+toDiagonalList :: Board -> [Cell]
+toDiagonalList = foldrBoard (\i -> (i, i)) (:) []
+
+toDiagonalList' :: Board -> [Cell]
+toDiagonalList' board = foldrBoard di' (:) [] board
+  where
+    di' i = (i, hi board + 1 - i)
+
+foldrBoard :: (Int -> Point) -> (Cell -> t -> t) -> t -> Board -> t
+foldrBoard di f z0 ar = loop $ lo ar
+  where
+    loop i
+      | i > hi ar = z0
+      | otherwise = f (ar ! di i) (loop (i + 1))
+
+lo, hi :: Board -> Int
+lo = fst . fst . bounds
+hi = fst . snd . bounds
+
+decide :: State -> Cell -> State
+decide _     E = NotCompleted
+decide x     T = x
+decide Draw         _ = Draw
+decide NotCompleted _ = NotCompleted
+decide Start X = XWon
+decide Start O = OWon
+decide XWon  X = XWon
+decide XWon  O = Draw
+decide OWon  X = Draw
+decide OWon  O = OWon
+

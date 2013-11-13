@@ -1,0 +1,56 @@
+package ch.pboos.facebook.hackercup.solver
+
+class TicTacToeTomekSolver extends ProblemSolver {
+  override def handleCase(): String = {
+    val board = lines.next() :: lines.next() :: lines.next() :: lines.next() :: Nil
+    TicTacToeTomekSolver.getBoardState(board)
+  }
+}
+
+object TicTacToeTomekSolver {
+  def getBoardState(board: List[String]): String = {
+    var done = true
+
+    def checkCombination(positions: List[Pair[Int,Int]]): Char = {
+      var winner: Char = 0
+      for (position <- positions) {
+        val piece = board(position._1).charAt(position._2)
+        if (piece == '.') {
+          done = false
+          return 0
+        } else if (piece == 'T') {
+          // Ignore this piece, it stands for either player
+        } else if (winner == 0) {
+          winner = piece
+        } else if (winner != piece) {
+          return 0
+        }
+      }
+      winner
+    }
+
+    val checks =
+      ((0, 0) ::(0, 1) ::(0, 2) ::(0, 3) :: Nil) ::
+        ((1, 0) ::(1, 1) ::(1, 2) ::(1, 3) :: Nil) ::
+        ((2, 0) ::(2, 1) ::(2, 2) ::(2, 3) :: Nil) ::
+        ((3, 0) ::(3, 1) ::(3, 2) ::(3, 3) :: Nil) ::
+        ((0, 0) ::(1, 0) ::(2, 0) ::(3, 0) :: Nil) ::
+        ((0, 1) ::(1, 1) ::(2, 1) ::(3, 1) :: Nil) ::
+        ((0, 2) ::(1, 2) ::(2, 2) ::(3, 2) :: Nil) ::
+        ((0, 3) ::(1, 3) ::(2, 3) ::(3, 3) :: Nil) ::
+        ((0, 0) ::(1, 1) ::(2, 2) ::(3, 3) :: Nil) ::
+        ((0, 3) ::(1, 2) ::(2, 1) ::(3, 0) :: Nil) :: Nil
+
+    for (check <- checks) {
+      val result = checkCombination(check)
+      if (result != 0) {
+        return result.toString + " won"
+      }
+    }
+
+    if (done)
+      "Draw"
+    else
+      "Game has not completed"
+  }
+}

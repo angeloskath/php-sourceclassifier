@@ -1,0 +1,131 @@
+package main
+
+import (
+  "fmt"
+  "io"
+  "bufio"
+  "os"
+)
+
+type Board [][]byte
+
+const (
+  X_WON = iota
+  Y_WON = iota
+  DRAW  = iota
+  IN_PROGRESS = iota
+)
+
+type Solver struct {
+  xfound bool
+  yfound bool
+  tfound bool
+  dotfound bool
+}
+
+func (s* Solver) NextPiece(p byte) {
+  switch(p) {
+    case 'X' : s.xfound = true
+    case 'O' : s.yfound = true
+    case 'T' : s.tfound = true
+    case '.' : s.dotfound = true
+  }
+}
+
+func (s Solver) Solve(xwon, ywon, inProgress *bool) int {
+  if s.xfound && !s.yfound && !s.dotfound {
+    *xwon = true
+    return X_WON
+  } else if s.yfound && !s.xfound && !s.dotfound {
+    *ywon = true
+    return Y_WON
+  } else if s.dotfound {
+    *inProgress = true
+    return IN_PROGRESS
+  }
+  return DRAW
+}
+
+func Solve(b Board) int {
+  xwon := false
+  ywon := false
+  inProgress := false
+  // rows
+  for _, row := range b {
+    s := Solver{}
+    for _, col := range row {
+      s.NextPiece(col)
+    }
+    s.Solve(&xwon, &ywon, &inProgress)
+  }
+  // cols
+  for colIx := 0; colIx < 4; colIx++ {
+    s := Solver{}
+    for rowIx := 0; rowIx < 4; rowIx++ {
+      s.NextPiece(b[rowIx][colIx])
+    }
+    s.Solve(&xwon, &ywon, &inProgress)
+  }
+  // diagonals
+  d1 := Solver{}
+  d1.NextPiece(b[0][0])
+  d1.NextPiece(b[1][1])
+  d1.NextPiece(b[2][2])
+  d1.NextPiece(b[3][3])
+  d1.Solve(&xwon, &ywon, &inProgress)
+
+  d2 := Solver{}
+  d2.NextPiece(b[3][0])
+  d2.NextPiece(b[2][1])
+  d2.NextPiece(b[1][2])
+  d2.NextPiece(b[0][3])
+  d2.Solve(&xwon, &ywon, &inProgress)
+
+  if xwon && !ywon {
+    return X_WON
+  } else if ywon && !xwon {
+    return Y_WON
+  } else if (xwon && ywon) || (!xwon && !ywon && !inProgress) {
+    return DRAW
+  }
+  return IN_PROGRESS
+}
+
+func ReadCase(in *bufio.Reader) Board {
+  b := make(Board, 4)
+  for i := 0; i < 4; i++ {
+    b[i] = make([]byte,4)
+    fmt.Fscanf(in, "%s",&b[i])
+    in.ReadString('\n')
+  }
+  in.ReadString('\n')
+  return b
+}
+
+func ReadCases(in io.Reader) []Board {
+  var T int
+  fmt.Scanf("%d", &T)
+  br := bufio.NewReader(in)
+  cases := make([]Board,0,T)
+  for i := 0; i < T; i++ {
+    cases = append(cases, ReadCase(br))
+  }
+  return cases
+}
+
+func Show(s int) string {
+  switch (s) {
+    case X_WON: return "X won"
+    case Y_WON: return "O won"
+    case IN_PROGRESS: return "Game has not completed"
+  }
+  return "Draw"
+}
+
+func main() {
+  cases := ReadCases(os.Stdin)
+  for i,c := range cases {
+    s := Solve(c)
+    fmt.Printf("Case #%d: %s\n", i+1, Show(s))
+  }
+}

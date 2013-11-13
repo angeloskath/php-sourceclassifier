@@ -1,0 +1,69 @@
+program ticTacToeTomek(stdin,stdout);
+
+type
+  str4 = string[4];
+  char4 = array[1..4] of char;
+
+var
+  board : array[1..4] of char4;
+  i,j,r,n : integer;
+  winnerFound : boolean;
+  winner : char;
+  dotFound : boolean;
+
+procedure check( a:str4);
+var
+  t:integer;
+begin
+  if pos('.',a) > 0 then
+    dotFound := true
+  else
+  begin
+    t := pos('T',a);
+    if t > 0 then
+      if t=1 then
+        a[1]:=a[2]
+      else
+        a[t]:=a[t-1];
+    winnerFound := (a = 'XXXX') or (a = 'OOOO');
+    winner:=a[1];
+  end;
+end;
+
+begin
+  readln(n);
+  for r:=1 to n do
+  begin
+    winnerFound:=false;
+    dotFound:=false;
+    for i := 1 to 4 do
+    begin
+      for j:=1 to 4 do
+        read(board[i,j]);
+      if not winnerFound then
+        check(board[i]);
+      readln;
+     end;
+    readln;
+    if not winnerFound then
+    begin
+      j := 1;
+      while (j<=4) and not winnerFound do
+      begin
+        check(board [1][j]+board[2][j]+board[3][j]+board[4][j]);
+        inc(j);
+      end;
+      if not winnerFound then
+        check(board[1][1]+board[2][2]+board[3][3]+board[4][4]);
+      if not winnerFound then
+        check(board[4][1]+board[3][2]+board[2][3]+board[1][4]);
+    end;
+    write('Case #',r,': ');
+    if winnerFound then
+      writeln( winner,' won')
+    else if dotFound then
+      writeln( 'Game has not completed')
+    else
+      writeln('Draw');
+  end;
+end.

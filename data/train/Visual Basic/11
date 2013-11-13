@@ -1,0 +1,70 @@
+Attribute VB_Name = "a"
+Public lines() As String
+
+Public Sub main()
+    '
+    'Application.SendKeys "^g ^a {DEL}"
+    
+    ' input
+    Dim fnum As Integer: fnum = FreeFile
+    Open ThisWorkbook.Path & "\A-large.in" For Input As #fnum
+        lines = Split(Input$(LOF(fnum), #fnum), vbLf)
+    Close #fnum
+    
+    '
+    Dim fout As Integer: fout = FreeFile
+    Open ThisWorkbook.Path & "\A-large.out" For Output As fout
+    nTest = CInt(lines(0)): i = 1: fi = 1
+    Do
+        Debug.Print "Case #"; i; ": "; process(fi)
+        Print #fout, "Case #" & i & ": " & process(fi)
+        i = i + 1: fi = fi + 5
+    Loop Until i > nTest
+    Close #fout
+End Sub
+
+
+Public Function process(fi) As String
+    ' check horizontal
+    For i = fi To fi + 3
+        process = check(lines(i))
+        If process <> "" Then Exit Function
+    Next
+    
+    ' check vertical
+    For i = 1 To 4
+        process = check(Mid(lines(fi), i, 1) & Mid(lines(fi + 1), i, 1) & Mid(lines(fi + 2), i, 1) & Mid(lines(fi + 3), i, 1))
+        If process <> "" Then Exit Function
+    Next
+    
+    ' check diagonal
+    process = check(Mid(lines(fi), 1, 1) & Mid(lines(fi + 1), 2, 1) & Mid(lines(fi + 2), 3, 1) & Mid(lines(fi + 3), 4, 1))
+    If process <> "" Then Exit Function
+    process = check(Mid(lines(fi), 4, 1) & Mid(lines(fi + 1), 3, 1) & Mid(lines(fi + 2), 2, 1) & Mid(lines(fi + 3), 1, 1))
+    If process <> "" Then Exit Function
+    
+    ' check draw
+    process = "Game has not completed"
+    For i = fi To fi + 3
+        For j = 1 To 4
+            If Mid(lines(i), j, 1) = "." Then Exit Function
+        Next j
+    Next i
+    process = "Draw"
+End Function
+
+Public Function check(str) As String
+    check = "": p = ""
+    For i = 1 To 4
+        c = Mid(str, i, 1)
+        
+        If c = "." Then Exit Function
+        
+        If (c = "X") Or (c = "O") Then
+            If p = "" Then p = c
+            If p <> c Then Exit Function
+        End If
+    Next
+    
+    check = p & " won"
+End Function

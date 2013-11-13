@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use List::Util qw(sum);
+
+my $count = <>;
+my @co = (0..3);
+CASE: for my $case (1..$count) {
+    my @data;
+    for my $i (@co) {
+        chomp(my $line=<>);
+        @{$data[$i]} = split "", $line;
+    }
+    <>;
+    my @lines = (
+        map($data[$_], @co),
+        map({my $col=$_; [map {$data[$_][$col]} @co];} @co),
+        [map $data[$_][$_], @co],
+        [map $data[$_][3-$_], @co]
+    );
+    #print join "\n",@lines;
+    for my $player ('X', 'O') {
+        my $win = grep { $_ == 4 }
+        map {sum(map {$_ eq $player || $_ eq 'T'} @$_)} @lines;
+        if ($win) {
+            print "Case #$case: $player won\n";
+            next CASE;
+        }
+    }
+    my $blank = grep { grep { $_ eq '.'} @$_ } @data;
+    if ($blank) {
+        print "Case #$case: Game has not completed\n";
+    } else {
+        print "Case #$case: Draw\n";
+    }
+}
+
+
+

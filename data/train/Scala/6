@@ -1,0 +1,34 @@
+package meir
+
+import java.io.BufferedReader
+import scala.io.Source
+
+/** create by  meir on 4/13/13 */
+object ProblemA {
+
+    def win(r: Iterable[Char]) = {
+        val ocnt=r.count(_ == 'O')
+        val xcnt=r.count(_ == 'X')
+        val tcnt=r.count(_ == 'T')
+        if (ocnt+tcnt>3) 'O' else
+            if (xcnt+tcnt>3) 'X' else '.'
+
+    }
+
+    def processTest(in: BufferedReader): String = {
+        val mat=(1 to 4).map(i => in.readLine())
+        in.readLine()
+        val byRows = mat.map(x=>win(x)).max
+        val byCols = (0 to 3).map(i => win(mat.map(_.charAt(i)))).max
+        val byDiag1 = win((0 to 3).map(i=> mat(i).charAt(i)))
+        val byDiag2 = win((0 to 3).map(i=> mat(i).charAt(3-i)))
+        val winner=Seq(byRows,byCols,byDiag1,byDiag2).max
+        if (winner != '.') "%c won".format(winner) else if (mat.flatten.contains('.')) "Game has not completed" else "Draw"
+    }
+
+    def main(args: Array[String]) {
+        val in = Source.stdin.bufferedReader()
+        val N = in.readLine().toInt
+        Range(1, N + 1).foreach(i => printf("Case #%d: %s\n", i, processTest(in)))
+    }
+}

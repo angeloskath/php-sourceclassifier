@@ -1,0 +1,47 @@
+use strict;
+
+my $line = <>;
+my $T = 0;
+($line =~ /(\d+)/) and ($T = $1);
+
+my $game = 0;
+my $board = "";
+while (<>)
+{
+    if (/./)
+    {
+	$board .= $_;
+    }
+
+    if (length($board) == 4*5)
+    {
+	# print "board: \n$board\n";
+	++$game;
+	print "Case #$game: ";
+	$board =~ s/\n/ /g;
+	if (($board =~ /[XT][XT][XT][XT]/) or
+	    ($board =~ /[XT]...[XT]...[XT]...[XT]/) or
+	    ($board =~ /[XT]....[XT]....[XT]....[XT]/) or
+	    ($board =~ /[XT].....[XT].....[XT].....[XT]/))
+	{
+	    print "X won\n";
+	}
+	elsif (($board =~ /[OT][OT][OT][OT]/) or
+	       ($board =~ /[OT]...[OT]...[OT]...[OT]/) or
+	       ($board =~ /[OT]....[OT]....[OT]....[OT]/) or
+	       ($board =~ /[OT].....[OT].....[OT].....[OT]/))
+	{
+	    print "O won\n";
+	}
+	elsif ($board =~ /\./)
+	{
+	    print "Game has not completed\n";
+	}
+	else
+	{
+	    print "Draw\n";
+	}
+
+	$board = "";
+    }
+}

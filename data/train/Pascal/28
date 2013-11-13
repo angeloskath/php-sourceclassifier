@@ -1,0 +1,99 @@
+const   fi='a2.in';
+        fo='a.out';
+var     f,g:text;
+        n,test,o:Longint;
+        check:boolean;
+        a:array[1..4,1..4] of char;
+procedure mofile;
+begin
+        assign(f,fi);reset(f);
+        assign(g,fo);rewrite(g);
+end;
+
+procedure dongfile;
+begin
+        close(f);
+        close(g);
+end;
+
+procedure input;
+ var    i,j:longint;
+begin
+        check:=false;  o:=0;
+        for i:=1 to 4 do
+          begin
+            for j:=1 to 4 do
+              begin
+               read(f,a[i,j]);
+               if a[i,j]  ='X' then inc(o);
+               if a[i,j]  ='O' then dec(o);
+               if a[i,j] = '.' then check:=true;
+              end;
+          readln(f);
+          end;
+end;
+
+function xet(g:char):boolean;
+ var     i,d,h,j:longint;
+begin
+            for i:=1 to 4 do
+              begin
+                d:=0;h:=0;
+                for j:=1 to 4 do
+                  begin
+                    if (a[i,j] = g) or (a[i,j]='T') then inc(d);
+                    if (a[j,i] = g) or (a[j,i]='T') then inc(h);
+                  end;
+                if (d = 4) or (h=4) then
+                 begin
+                   exit(true);
+                 end;
+              end;
+            d:=0;h:=0;
+            for i:=1 to 4 do
+              begin
+                if ( a[i,i] = g) or (a[i,i] ='T') then inc(d);
+                if (a[i,4-i+1]= g) or (a[i,4-i+1]='T') then inc(h);
+              end;
+            if (d=4) or (h=4) then
+              begin
+                exit(true);
+              end;
+exit(false);
+end;
+
+procedure solve1;
+begin
+        if o > 0 then
+          begin
+            if xet('X') then writeln(g,'Case #',test,': X won') else writeln(g,'Case #',test,': Game has not completed');
+          end else
+            if xet('O') then writeln(g,'Case #',test,': O won') else writeln(g,'Case #',test,': Game has not completed');
+end;
+
+procedure solve2;
+begin
+        if o > 0 then
+          begin
+            if xet('X') then writeln(g,'Case #',test,': X won') else writeln(g,'Case #',test,': Draw');
+          end else
+            if xet('O') then writeln(g,'Case #',test,': O won') else writeln(g,'Case #',test,': Draw');
+end;
+
+procedure solve;
+begin
+        if check then solve1 else solve2;
+end;
+        begin
+          mofile;
+          readln(f,n); test:=0;
+          while n <> 0 do
+            begin
+              dec(n);
+              inc(test);
+              input;
+              solve;
+              readln(f);
+            end;
+          dongfile;
+        end.

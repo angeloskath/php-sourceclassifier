@@ -1,0 +1,128 @@
+﻿Module Module1
+
+    Sub Main()
+
+        Dim Contents As String()
+        Dim Board(3, 3) As Char
+        Dim Current As Integer
+        Dim Xs, Os As Integer
+        Dim Result As String
+        Dim Completed As Boolean
+        Dim Out As New Text.StringBuilder
+
+        Contents = IO.File.ReadAllLines("C:\In.txt")
+
+        Current = 1
+
+        For I As Integer = 1 To Contents(0)
+
+            Result = String.Empty
+
+            Completed = True
+
+            For L As Integer = 0 To 3
+                For C As Integer = 0 To 3
+                    Board(L, C) = Contents(Current + L).Chars(C)
+                    If Board(L, C) = "."c Then Completed = False
+                Next
+            Next
+
+            Current += 5
+
+            For L As Integer = 0 To 3
+                Xs = 0
+                Os = 0
+                For C As Integer = 0 To 3
+                    If Board(L, C) = "X"c Then Xs += 1
+                    If Board(L, C) = "O"c Then Os += 1
+                    If Board(L, C) = "T"c Then
+                        Xs += 1
+                        Os += 1
+                    End If
+                Next
+                If Xs = 4 Then
+                    Result = "X won"
+                    Continue For
+                End If
+                If Os = 4 Then
+                    Result = "O won"
+                    Continue For
+                End If
+            Next
+
+            For C As Integer = 0 To 3
+                Xs = 0
+                Os = 0
+                For L As Integer = 0 To 3
+                    If Board(L, C) = "X"c Then Xs += 1
+                    If Board(L, C) = "O"c Then Os += 1
+                    If Board(L, C) = "T"c Then
+                        Xs += 1
+                        Os += 1
+                    End If
+                Next
+                If Xs = 4 Then
+                    Result = "X won"
+                    Continue For
+                End If
+                If Os = 4 Then
+                    Result = "O won"
+                    Continue For
+                End If
+            Next
+
+            Xs = 0
+            Os = 0
+
+            For C As Integer = 0 To 3
+                Dim L As Integer = C
+                If Board(L, C) = "X"c Then Xs += 1
+                If Board(L, C) = "O"c Then Os += 1
+                If Board(L, C) = "T"c Then
+                    Xs += 1
+                    Os += 1
+                End If
+                If Xs = 4 Then
+                    Result = "X won"
+                    Continue For
+                End If
+                If Os = 4 Then
+                    Result = "O won"
+                    Continue For
+                End If
+            Next
+
+            Xs = 0
+            Os = 0
+
+            For C As Integer = 0 To 3
+                Dim L As Integer = 3 - C
+                If Board(L, C) = "X"c Then Xs += 1
+                If Board(L, C) = "O"c Then Os += 1
+                If Board(L, C) = "T"c Then
+                    Xs += 1
+                    Os += 1
+                End If
+                If Xs = 4 Then
+                    Result = "X won"
+                    Continue For
+                End If
+                If Os = 4 Then
+                    Result = "O won"
+                    Continue For
+                End If
+            Next
+
+            If Result = String.Empty AndAlso Completed Then Result = "Draw"
+
+            If Result = String.Empty Then Result = "Game has not completed"
+
+            Out.AppendLine("Case #" & I & ": " & Result)
+
+        Next
+
+        IO.File.WriteAllText("C:\Out.txt", Out.ToString, Text.Encoding.ASCII)
+
+    End Sub
+
+End Module

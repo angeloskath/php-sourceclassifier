@@ -1,0 +1,106 @@
+<html>
+	<head>
+		<title>TicTacToe</title>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+	</head>
+	<body>
+		<textarea id="input"></textarea>
+
+		<br>
+
+		<button id="gogogo">Go, Go, Go</button>
+
+		<br>
+
+		<textarea id="output"></textarea>
+
+		<script>
+			$(function() {
+				var wins = [
+					// horizontal
+					[[0,0], [0,1], [0,2], [0,3]],
+					[[1,0], [1,1], [1,2], [1,3]],
+					[[2,0], [2,1], [2,2], [2,3]],
+					[[3,0], [3,1], [3,2], [3,3]],
+
+					// vertical
+					[[0,0], [1,0], [2,0], [3,0]],
+					[[0,1], [1,1], [2,1], [3,1]],
+					[[0,2], [1,2], [2,2], [3,2]],
+					[[0,3], [1,3], [2,3], [3,3]],
+
+					// diagonal
+					[[0,0], [1,1], [2,2], [3,3]],
+					[[0,3], [1,2], [2,1], [3,0]]
+				];
+
+				var field = [];
+
+				$("#gogogo").click(function() {
+					var lines = $("#input").val().split(/\n/);
+
+					$("#output").val("");
+
+					for(var n=0; n<parseInt(lines[0]); n++) {
+						field = [];
+
+						for(var y=1; y<5; y++) {
+							var row = [];
+
+							for(var x=0; x<4; x++) {
+								row.push(lines[(n*5)+y].charAt(x));
+							}
+
+							field.push(row);
+						}
+
+						console.log(field);
+
+						var result = calc();
+						$("#output").val($("#output").val() + "Case #"+(n+1)+": "+result+"\n");
+					}
+				});
+
+				function calc() {
+					var drawn = true;
+
+					for(var win in wins) {
+						var winO = true;
+						var winX = true;
+						for(var step in wins[win]) {
+							var point = wins[win][step];
+
+							var value = field[point[0]][point[1]];
+
+							if(value != 'O' && value != 'T') {
+								winO = false;
+							}
+
+							if(value != 'X' && value != 'T') {
+									winX = false;
+							}
+
+							if(value == '.') {
+								drawn = false;
+							}
+						}
+
+						if(winO && winX) {
+							return"X&O won";
+						} else if(winO) {
+							return "O won";
+						} else if(winX) {
+							return "X won";
+						}
+					}
+
+					if(drawn) {
+						return "Draw";
+					}
+
+					return "Game has not completed";
+				}
+			});
+		</script>
+	</body>
+</html>

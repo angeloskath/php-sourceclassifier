@@ -1,0 +1,103 @@
+
+PROBLEM = "A"
+
+def get_state(grid)
+	[grid, grid.transpose].each do |g|
+		g.each do |gl|
+			return "X won" if gl.join =~ /^[XT]*$/
+			return "O won" if gl.join =~ /^[OT]*$/
+		end
+	end
+
+	d1 = grid[0][0] + grid[1][1] + grid[2][2] + grid[3][3]
+	d2 = grid[0][3] + grid[1][2] + grid[2][1] + grid[3][0]
+
+	return "X won" if d1 =~ /^[XT]*$/
+	return "O won" if d1 =~ /^[OT]*$/
+
+	return "X won" if d2 =~ /^[XT]*$/
+	return "O won" if d2 =~ /^[OT]*$/
+
+	completed = true
+	grid.each do |gl|
+		gl.each do |g|
+			if g == "."
+				completed = false
+				break
+			end
+		end
+	end
+
+	if completed
+		return "Draw"
+	else
+		return "Game has not completed"
+	end
+end
+
+def solve(lines)
+	output = ""
+	lines.delete_at 0
+	i = 0
+	until lines.length == 0
+		i += 1
+		grid = []
+		4.times do
+			grid << lines.delete_at(0).chars
+		end
+		lines.delete_at 0
+		output += "Case ##{i}: #{get_state(grid)}\n"
+	end
+	output
+end
+
+require 'diffy'
+
+input_paths = []
+Dir["*"].each do |fn|
+	if fn =~ Regexp.new("#{PROBLEM}[^/\\\\]*\.in")
+		input_paths.insert(-1, fn)
+	elsif fn =~ Regexp.new("#{PROBLEM}[^/\\\\]*\.good")
+		input_paths.insert(0, fn.gsub(/\.good$/, ".in"))
+	end
+end
+
+input_paths.uniq.each do |input_path|
+	output_path = input_path.gsub(/\.in$/, ".out")
+	lines = File.readlines(input_path).map { |l| l.chomp }
+	output = solve(lines)
+	File.write(output_path, output)
+
+	good_path = input_path.gsub(/\.in$/, ".good")
+	diff_path = input_path.gsub(/\.in$/, ".diff.html")
+	if File.exists? good_path
+		good = File.read(good_path)
+		if output.chomp != good.chomp
+			diff = Diffy::Diff.new(good, output)
+			diff_html = "<html><head><style>#{Diffy::CSS}</style></head><body>#{diff.to_s(:html)}</body></html>"
+			File.write(diff_path, diff_html)
+			# system %{open "#{diff_path}"}
+			puts "[ERROR-notgood] #{output_path} != #{good_path}"
+			puts diff
+		else
+			puts "[OK-good] #{output_path} == #{good_path}"
+			File.delete diff_path if File.exists? diff_path
+		end
+	else
+		is_bad = false
+		bad_paths = Dir["*"].select { |fn| fn =~ Regexp.new("#{PROBLEM}[^/\\\\]*\.bad\\.?\\d*") }
+		bad_paths = Dir["*"].select { |fn| fn =~ Regexp.new("#{input_path.gsub(/\.in$/, "\\d*\\.?\\.bad\\.?\\d*")}") }
+		bad_paths.each do |bad_path|
+			bad = File.read(bad_path)
+			if output.chomp == bad.chomp
+				puts "[ERROR-bad] #{output_path} == #{bad_path}"
+			else
+				puts "[OK-notbad] #{output_path} != #{bad_path}"
+			end
+		end
+		if bad_paths.length == 0
+			puts "[OK-gen] #{output_path}"
+			File.delete diff_path if File.exists? diff_path
+		end
+	end
+end

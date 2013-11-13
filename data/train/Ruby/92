@@ -1,0 +1,52 @@
+quantity = gets.to_i
+
+@r_x = "X won" # (the game is over, and X won)
+@r_o = "O won" # (the game is over, and O won)
+@r_d = "Draw" # (the game is over, and it ended in a draw)
+@r_g = "Game has not completed" # (the game is not over yet)
+
+def go_for_it
+  test_case = []
+  pending = false
+  4.times do
+    test_case << gets
+  end
+  gets
+  test_case.each do |line|
+    if !line.include? "."
+      return @r_x if !(line.include? "O")
+      return @r_o if !(line.include? "X")
+    else
+      pending = true
+    end
+  end
+  4.times do |time|
+    z = test_case.map { |line| line[time] }
+    if !z.include? "."
+      return @r_x if !(z.include? "O")
+      return @r_o if !(z.include? "X")
+    end
+  end
+  top_left = [test_case[0][0],test_case[1][1],test_case[2][2],test_case[3][3]]
+  if !top_left.include? "."
+    return @r_x if !(top_left.include? "O")
+    return @r_o if !(top_left.include? "X")
+  end
+  top_right = [test_case[0][3],test_case[1][2],test_case[2][1],test_case[3][0]]
+  if !top_right.include? "."
+    return @r_x if !(top_right.include? "O")
+    return @r_o if !(top_right.include? "X")
+  end
+  pending ? @r_g : @r_d
+end
+
+result = []
+quantity.times do |time|
+  result << "Case ##{time+1}: #{go_for_it}"
+end
+
+gets
+
+result.each do |r|
+  puts r
+end

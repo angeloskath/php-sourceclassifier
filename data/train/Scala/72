@@ -1,0 +1,105 @@
+package codejam
+
+import java.io.{File, PrintWriter}
+
+/**
+ * @author leonid
+ */
+object Solution extends App {
+  var inputFile = new File(args(0))
+  val fw = new PrintWriter(inputFile.getAbsolutePath.split("\\.")(0) + ".out")
+
+  val input = getInputLines(inputFile)
+  val inputIter = input.tail.iterator
+
+  var caseCounter = 1
+  while (inputIter.hasNext) {
+    fw.println("Case #" + caseCounter + ": " + solve(inputIter))
+    caseCounter += 1
+  }
+  fw.close()
+
+
+  def getInputLines(inputFile: File): List[String] = {
+    scala.io.Source.fromFile(inputFile).getLines().toList
+  }
+
+  def solve(inIter: Iterator[String]) : String = {
+    var input = new Array[String](4)
+    for(i <- 0 to 3)
+      input(i) = inIter.next()
+    if(inIter.hasNext)
+      inIter.next()
+
+    solveCase(input)
+  }
+
+  def solveCase(input: Array[String]) : String = {
+    var xh = Array(0,0,0,0)
+    var xv = Array(0,0,0,0)
+    var xd1: Int = 0
+    var xd2: Int = 0
+
+    var oh = Array(0,0,0,0)
+    var ov = Array(0,0,0,0)
+    var od1: Int = 0
+    var od2: Int = 0
+    var dot: Boolean = false
+
+    var i = 0
+    var j = 0
+
+    while(i < 4) {
+      j = 0
+      while(j < 4) {
+        if ( (input(i)(j)=='O') || (input(i)(j)=='T') ) {
+          oh(i) += 1
+          ov(j) += 1
+
+          if ((oh(i)==4) || (ov(j)==4))
+            return "O won"
+
+          if(i==j) {
+            od1 += 1
+            if(od1==4)
+              return "O won"
+          }
+          if(i==3-j) {
+            od2 += 1
+            if(od2==4)
+              return "O won"
+          }
+        }
+        if ( (input(i)(j)=='X') || (input(i)(j)=='T') ) {
+          xh(i) += 1
+          xv(j) += 1
+
+          if ((xh(i)==4) || (xv(j)==4))
+            return "X won"
+
+          if(i==j) {
+            xd1 += 1
+            if(xd1==4)
+              return "X won"
+          }
+          if(i==3-j) {
+            xd2 += 1
+            if(xd2==4)
+              return "X won"
+          }
+        }
+        if(input(i)(j)=='.')
+          dot = true
+
+        j += 1
+      }
+      i += 1
+    }
+
+    if(dot) {
+      return "Game has not completed"
+    } else {
+      return "Draw"
+    }
+  }
+}

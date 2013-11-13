@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> Tic-Tac-Toe-Tomek </title>
+  <meta name="Generator" content="EditPlus">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+
+<style type="text/css">
+#in, #out {
+	height: 200px;
+	width: 500px;
+}
+</style>
+
+<script>
+
+function solveTest(positions) {
+	// check colums
+	for (var i = 0; i < 4; i++) {
+		if ((positions[i][0] == 'O' || positions[i][0] == 'T') 
+			&& (positions[i][1] == 'O' || positions[i][1] == 'T') 
+			&& (positions[i][2] == 'O' || positions[i][2] == 'T') 
+			&& (positions[i][3] == 'O' || positions[i][3] == 'T'))
+		{
+			return 'O won';
+		}
+		if ((positions[i][0] == 'X' || positions[i][0] == 'T') 
+			&& (positions[i][1] == 'X' || positions[i][1] == 'T') 
+			&& (positions[i][2] == 'X' || positions[i][2] == 'T') 
+			&& (positions[i][3] == 'X' || positions[i][3] == 'T'))
+		{
+			return 'X won';
+		}
+	}
+	// Check lines
+	for (var i = 0; i < 4; i++) {
+		if ((positions[0][i] == 'O' || positions[0][i] == 'T') 
+			&& (positions[1][i] == 'O' || positions[1][i] == 'T') 
+			&& (positions[2][i] == 'O' || positions[2][i] == 'T') 
+			&& (positions[3][i] == 'O' || positions[3][i] == 'T'))
+		{
+			return 'O won';
+		}
+		if ((positions[0][i] == 'X' || positions[0][i] == 'T') 
+			&& (positions[1][i] == 'X' || positions[1][i] == 'T') 
+			&& (positions[2][i] == 'X' || positions[2][i] == 'T') 
+			&& (positions[3][i] == 'X' || positions[3][i] == 'T'))
+		{
+			return 'X won';
+		}
+	}
+
+	// Check diagonals
+	if ((positions[0][0] == 'O' || positions[0][0] == 'T') 
+		&& (positions[1][1] == 'O' || positions[1][1] == 'T') 
+		&& (positions[2][2] == 'O' || positions[2][2] == 'T') 
+		&& (positions[3][3] == 'O' || positions[3][3] == 'T'))
+	{
+		return 'O won';
+	}
+	if ((positions[0][0] == 'X' || positions[0][0] == 'T') 
+		&& (positions[1][1] == 'X' || positions[1][1] == 'T') 
+		&& (positions[2][2] == 'X' || positions[2][2] == 'T') 
+		&& (positions[3][3] == 'X' || positions[3][3] == 'T'))
+	{
+		return 'X won';
+	}
+
+	if ((positions[3][0] == 'O' || positions[3][0] == 'T') 
+		&& (positions[2][1] == 'O' || positions[2][1] == 'T') 
+		&& (positions[1][2] == 'O' || positions[1][2] == 'T') 
+		&& (positions[0][3] == 'O' || positions[0][3] == 'T'))
+	{
+		return 'O won';
+	}
+	if ((positions[3][0] == 'X' || positions[3][0] == 'T') 
+		&& (positions[2][1] == 'X' || positions[2][1] == 'T') 
+		&& (positions[1][2] == 'X' || positions[1][2] == 'T') 
+		&& (positions[0][3] == 'X' || positions[0][3] == 'T'))
+	{
+		return 'X won';
+	}
+
+	for (var i = 0; i < 4; i++) {
+		for (var j = 0; j < 4; j++) {
+			if (positions[i][j] == '.') {
+				return 'Game has not completed';
+			}
+		}
+	}
+
+	return 'Draw';
+}
+
+function storeTickTack() {
+	//-----------------------------------------------------
+	// Read Input
+	var input = document.getElementById('in').value;
+	var output = '';
+	var pos;
+
+	var numTests;
+
+	pos = input.indexOf('\n');
+	numTests = parseInt(input.substring(0,pos));
+	input = input.slice(pos+1);
+
+	for (var i = 0; i < numTests; i++)	{
+		var positions = new Array ();
+		for (var j = 0; j < 4; j++) {
+			positions[j] = new Array();
+			pos = input.indexOf('\n');
+			line = input.substring(0,pos);
+			input = input.slice(pos+1);
+
+			positions[j][0] = line.charAt(0);
+			positions[j][1] = line.charAt(1);
+			positions[j][2] = line.charAt(2);
+			positions[j][3] = line.charAt(3);
+		}
+		pos = input.indexOf('\n');
+		input = input.slice(pos+1);
+
+//		prices[j] = parseInt(input.substring(0,pos));
+
+		output += 'Case #' + (i+1) + ': ' + solveTest(positions) + '\n';
+	}
+
+	//-----------------------------------------------------
+	document.getElementById('out').value = output;
+}
+
+</script>
+
+</head>
+
+
+ <body>
+<textarea cols="30" height="300px" width="500px" id="in">
+6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O
+</textarea>
+	</br>
+	</br>
+	<textarea cols="30" height="300px" width="500px" id="out">Output</textarea>
+	</br>
+	<input type="button" onclick="storeTickTack();" value="Solve Tic-Tac-Toe-Tomek" />
+ </body>
+</html>

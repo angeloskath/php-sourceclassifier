@@ -1,0 +1,83 @@
+object Solver extends App {
+  
+  class Board(board: Seq[String]) {
+
+    def row(i: Int): Seq[Char] = {
+      board(i).toSeq
+    }
+
+    def colum(i: Int): Seq[Char] = {
+      board.map(_(i))
+    }
+
+    def diagLeftToBottom: Seq[Char] = {
+      board.foldLeft((0, Seq[Char]()))((t, s) => (t._1 + 1, t._2 :+ s(t._1)))._2
+    }
+
+    def diagRigthToBottom: Seq[Char] = {
+      board.foldLeft((3, Seq[Char]()))((t, s) => (t._1 - 1, t._2 :+ s(t._1)))._2
+    }
+  }
+
+  if (args.length < 1) {
+    Console.println("At least input file must be specified")
+  } else {
+    val result = solve(transformInput(readInput(args(0))))
+    val s = (0 until result.length).map( i => s"Case #${i + 1}: ${result(i)}")
+    import java.io._
+    val writer = new PrintWriter(new File(s"${args(0).split('.')(0)}.out" ))
+    writer.write(s.mkString("\n"))
+    writer.close()
+  }
+
+
+  def solve(games: List[Seq[String]]) = {
+    games.map(solveGame)
+  }
+
+  def solveGame(game: Seq[String]) =  {
+
+    val board = new Board(game)
+    if (isWinner(board, 'X')) {
+      "X won"
+    } else if (isWinner(board, 'O')) {
+      "O won"
+    } else if (isInProgress(game)) {
+      "Game has not completed"
+    } else {
+      "Draw"
+    }
+
+  }
+
+  def isWinner(board: Board, participant: Char): Boolean = {
+    val el = (c: Char) => if (c == 'T') participant else c
+    val predicate = (c: Char) => c != '.' && el(c) == participant
+
+    (0 to 3).exists { i =>
+      board.colum(i).forall(predicate) ||
+      board.row(i).forall(predicate) ||
+      board.diagLeftToBottom.forall(predicate) ||
+      board.diagRigthToBottom.forall(predicate)
+    }
+  }
+
+  def isInProgress(game: Seq[String]) = {
+    game.exists(_.contains("."))
+  }
+
+  def readInput(inputFile: String) = {
+    import scala.io.Source
+    Source.fromFile(inputFile, "utf-8").getLines.filter(!_.isEmpty)
+  }
+
+  def transformInput(lines: Iterator[String]) = {
+    val count = lines.next().toInt
+    val games = lines.grouped[String](4).toList
+    games
+  }
+}
+
+  
+
+

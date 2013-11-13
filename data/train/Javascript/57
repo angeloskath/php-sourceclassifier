@@ -1,0 +1,122 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+var input_url = "file:///C:/Users/Lrdwhyt/Documents/tictact.txt";
+function checkDiag(inp) {
+	ts = inp[0][0] + inp[1][1] + inp[2][2] + inp[3][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[0][3] + inp[1][2] + inp[2][1] + inp[3][0];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+}
+function checkHori(inp) {
+	ts = inp[0][0] + inp[0][1] + inp[0][2] + inp[0][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[1][0] + inp[1][1] + inp[1][2] + inp[1][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[2][0] + inp[2][1] + inp[2][2] + inp[2][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[3][0] + inp[3][1] + inp[3][2] + inp[3][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+}
+function checkVert(inp) {
+	ts = inp[0][0] + inp[1][0] + inp[2][0] + inp[3][0];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[0][1] + inp[1][1] + inp[2][1] + inp[3][1];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[0][2] + inp[1][2] + inp[2][2] + inp[3][2];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+	ts = inp[0][3] + inp[1][3] + inp[2][3] + inp[3][3];
+	if (checkWin(ts)) {
+		return checkWin(ts);
+	}
+}
+function checkWin(inp) {
+	if (inp) {
+		ts0 = inp.replace(/X/g,"T");
+		if (ts0 == "TTTT") {
+			return "X";
+		}
+		ts0 = inp.replace(/O/g,"T");
+		if (ts0 == "TTTT") {
+			return "O";
+		}
+	}
+}
+$(document).ready(function() {
+	var result = "";
+	$("div").load(input_url, function() {
+		testvar = $("div").html().split("\n");
+		testvar = $("div").html().replace(testvar[0],"");
+		testvar = testvar.trim();
+		tc = testvar.split("\n\n");
+		for (var a = 0; a < tc.length; a++) {
+			var ts = tc[a];
+			tc[a] = ts.split("\n");
+			for (var b = 0; b < tc[a].length; b++) {
+				var ts = tc[a][b];
+				tc[a][b] = ts.split("");
+			}
+		}
+		for (var c = 0; c < tc.length; c++) {
+			testdraw = "";
+			for (var d = 0; d < 4; d++) {
+				for (var e = 0; e < 4; e++) {
+					testdraw += tc[c][d][e];
+				}
+			}
+			testdraw = testdraw.replace(/X/g,"T");
+			testdraw = testdraw.replace(/O/g,"T");
+			if (checkDiag(tc[c])) {
+				result += checkDiag(tc[c]);
+			} else if (checkHori(tc[c])) {
+				result += checkHori(tc[c]);
+			} else if (checkVert(tc[c])) {
+				result += checkVert(tc[c]);
+			} else if (testdraw == "TTTTTTTTTTTTTTTT") {
+				result += "D";
+			} else {
+				result += "-";
+			}
+		}
+		parseresult = result.split("");
+		for (var i = 0; i < parseresult.length; i++) {
+			if (parseresult[i] == "X") {
+				message = "X won";
+			} else if (parseresult[i] == "O") {
+				message = "O won";
+			} else if (parseresult[i] == "D") {
+				message = "Draw";
+			} else if (parseresult[i] == "-") {
+				message = "Game has not completed";
+			}
+			$("span").append("Case #"+(i + 1)+": "+message+"<br />");
+		}
+	});
+});
+</script>
+</head>
+<body>
+<div>
+</div>
+<span style='background-color:red;font-size:94px;'></span>
+</body>
+</html>

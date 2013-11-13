@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+
+open(F,"A-large.in");
+@lignes = <F>;
+close(F);
+
+chomp $lignes[0];
+$T = $lignes[0];
+
+open(F,">A-large.out");
+
+$l=1;
+for($t=1; $t<=$T; $t++) {
+	for($i=0; $i<4; $i++) {
+		for($j=0; $j<4; $j++) {
+			$c = substr($lignes[$l], $j, 1);
+			if($c eq '.') { $board[$i][$j] = 64; }
+			if($c eq 'T') { $board[$i][$j] = 1; }
+			if($c eq 'X') { $board[$i][$j] = 2; }
+			if($c eq 'O') { $board[$i][$j] = 8; }
+		}
+		$l++;
+	}
+	$l++;
+	
+	for($i=0; $i<10; $i++) { $sum[$i] = 0; }
+	$s = 0;
+	# Test horizontal
+	for($i=0; $i<4; $i++) {
+		for($j=0; $j<4; $j++) { $sum[$s] += $board[$i][$j]; }
+		$s++;
+	}
+	# Test vertical
+	for($i=0; $i<4; $i++) {
+		for($j=0; $j<4; $j++) { $sum[$s] += $board[$j][$i]; }
+		$s++;
+	}
+	# Test 1st diagonal
+	for($i=0; $i<4; $i++) { $sum[$s] += $board[$i][$i]; }
+	$s++;
+	#Test 2nd diagonal
+	for($i=0; $i<4; $i++) { $sum[$s] += $board[$i][3-$i];}
+	
+	# Results
+	$res = "Draw";
+	for($i=0; $i<10; $i++) {
+		if($sum[$i] > 64) { $res = "Game has not completed"; }
+		if($sum[$i] == 32 || $sum[$i] == 25) { $res = "O won"; $i = 11;}
+		elsif($sum[$i] == 8 || $sum[$i] == 7) { $res = "X won"; $i = 11;}
+	}
+	
+	print F "Case #$t: $res\n";
+}
+
+close(F);

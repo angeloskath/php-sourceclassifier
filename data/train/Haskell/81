@@ -1,0 +1,58 @@
+import Control.Monad
+import Control.Applicative
+import Data.Array
+import Text.Printf
+
+data Ch = X | O | T | D 
+  deriving (Eq)
+data Re a = Xwon | Draw | Owon
+
+instance Monad Re where
+  return x = Draw
+  a >>= f = case a of
+    Xwon -> Xwon
+    Owon -> Owon
+    Draw -> f undefined
+
+main = do
+  n <- read <$> getLine :: IO Int
+  forM [1..n] $ \n -> do
+    arr <- readGame
+    let result = test arr
+    printf "Case #%d: " n
+    case result of
+      Xwon -> putStrLn "X won"
+      Owon -> putStrLn "O won"
+      Draw -> if or $ (== D) <$> elems arr
+              then putStrLn "Game has not completed"
+              else putStrLn "Draw"
+  return ()
+      
+readGame = do
+  ls <- sequence $ take 4 $ repeat getLine
+  getLine
+  return $ listArray (0,15) $ map f $ concat ls
+  where f '.' = D
+        f 'X' = X
+        f 'O' = O
+        f 'T' = T
+        
+pos = [ [ 4*n+k | k <- [0..3] ] | n <- [0..3] ]
+         ++ [ [ 4*n+k | n <- [0..3] ] | k <- [0..3] ]
+         ++ [ [0,5,10,15], [3,6,9,12] ]
+         
+test arr = sequence_ $ map (test' arr) pos 
+  
+test' arr pos = run 0 0 0 pos
+  where run x o t [] 
+          | x == 4 || x == 3 && t == 1 = Xwon
+          | o == 4 || o == 3 && t == 1 = Owon
+          | otherwise = Draw
+        run x o t (y:xs) = 
+          case arr!y of
+            X -> run (x+1) o t xs
+            O -> run x (o+1) t xs
+            T -> run x o (t+1) xs
+            D -> run x o t xs
+                                
+  

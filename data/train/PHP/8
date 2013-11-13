@@ -1,0 +1,106 @@
+<?php
+
+ini_set("memory_limit", "1G");
+
+function read_input($source)
+{
+  global $cases_nb;
+  $source = explode("\n", $source);
+  $cases_nb = $source[0];
+}
+
+function has_won($letter, $case1, $case2, $case3, $case4)
+{
+  return 4 === (($letter == $case1 || 'T' == $case1) + ($letter == $case2 || 'T' == $case2) + ($letter == $case3 || 'T' == $case3) + ($letter == $case4 || 'T' == $case4));
+}
+
+function get_status($case)
+{
+  // Rows
+  for($i = 0; $i < 4; $i++)
+  {
+    if(has_won('X', $case[$i][0], $case[$i][1], $case[$i][2], $case[$i][3]))
+      return 'X won';
+    if(has_won('O', $case[$i][0], $case[$i][1], $case[$i][2], $case[$i][3]))
+      return 'O won';
+  }
+  // Lines
+  for($i = 0; $i < 4; $i++)
+  {
+    if(has_won('X', $case[0][$i], $case[1][$i], $case[2][$i], $case[3][$i]))
+      return 'X won';
+    if(has_won('O', $case[0][$i], $case[1][$i], $case[2][$i], $case[3][$i]))
+      return 'O won';
+  }
+  // Diagonals
+  if(has_won('X', $case[0][0], $case[1][1], $case[2][2], $case[3][3]))
+    return 'X won';
+  if(has_won('O', $case[0][0], $case[1][1], $case[2][2], $case[3][3]))
+    return 'O won';
+  if(has_won('X', $case[3][0], $case[2][1], $case[1][2], $case[0][3]))
+    return 'X won';
+  if(has_won('O', $case[3][0], $case[2][1], $case[1][2], $case[0][3]))
+    return 'O won';
+  // Draw
+  $strCase = implode($case[0]) . implode($case[1]) . implode($case[2]) . implode($case[3]);
+  if(false === strpos($strCase, '.'))
+    return 'Draw';
+
+  return 'Game has not completed';
+}
+
+$cases_nb = 0;
+$source_open = "6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O";
+$source_open=file_get_contents('A-large.in');
+
+$return = "";
+read_input($source_open);
+
+file_put_contents('output.out', '');
+
+$case = array();
+$sources = explode("\n", $source_open);
+for($i = 1; $i <= $cases_nb; $i++)
+{
+  $case = array(
+    str_split($sources[5 * ($i - 1) + 1]),
+    str_split($sources[5 * ($i - 1) + 2]),
+    str_split($sources[5 * ($i - 1) + 3]),
+    str_split($sources[5 * ($i - 1) + 4])
+  );
+
+  $return = "Case #" . $i . ": ";
+  $return.=get_status($case) . "\n";
+
+  echo str_replace("\n", '<br />', $return);
+  file_put_contents('output.out', $return, FILE_APPEND);
+}

@@ -1,0 +1,42 @@
+(ns qual.a)
+
+(defn read-board []
+  (vec (for [_ (range 4)] (vec (read-line)))))
+
+(defn col-places [col-idx]
+  (for [i (range 4)] [i col-idx]))
+
+(defn lin-places [lin-idx]
+  (for [i (range 4)] [lin-idx i]))
+
+(defn diag1-places []
+  (for [i (range 4)] [i i]))
+
+(defn diag2-places []
+  (for [i (range 4)] [i (- 3 i)]))
+
+(defn get-values [board places]
+  (map (partial get-in board) places))
+
+(defn won [values]
+  (let [s (reduce #(if (not= %2 \T) (conj % %2) %) #{} values)]
+    (when (= 1 (count s))
+      ((vec s) 0))))
+
+(defn solve [board]
+  (let [combs (concat (for [f [col-places lin-places] i (range 4)]
+                        (->> (f i) (get-values board) (won)))
+                      (for [f [diag1-places diag2-places]]
+                        (->> (f) (get-values board) (won))))
+        winner (some #{\X \O} combs)]
+    (cond winner (str winner " won")
+          (some #{\.}
+                (get-values board (for [i (range 4) j (range 4)] [i j]))) "Game has not completed"
+          :else "Draw")))
+
+(defn -main []
+  (let [t (read)]
+    (dotimes [t t]
+      (read-line)
+      (let [board (read-board)]
+        (println (str "Case #" (inc t) ": " (solve board)))))))

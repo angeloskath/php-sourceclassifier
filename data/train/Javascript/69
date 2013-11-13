@@ -1,0 +1,77 @@
+
+var fs = require('fs');
+var rawData = fs.readFileSync('./tic.txt', 'utf8');
+var lines = rawData.split('\r\n');
+
+var tests = 0,
+    i = 1,
+    T = lines[0];
+
+while(tests < T) {
+    var game = readGame();
+    console.log(getResult(tests + 1, game));
+    tests = tests + 1;
+}
+
+function readGame() {
+    var j, game = [];
+    for(j = i; j < i + 4; j++) {
+        game.push(lines[j].split(''));
+    }
+    i = i + 5;
+    return game;
+}
+
+function getResult(n, game) {
+    var i,j, output = 'Case #' + n + ': ';
+
+    // check for vertical wins
+    for(i = 0; i < 4; i++) {
+        var col = game[0][i] + game[1][i] + game[2][i] + game[3][i];
+        if(wins('X', col)) {
+            return output + 'X won';
+        } else if(wins('O', col)) {
+            return output + 'O won';
+        }
+    }
+    // check for horizontal wins;
+    for(i = 0; i < 4; i++) {
+        var row = game[i][0] + game[i][1] + game[i][2] + game[i][3];
+        if(wins('X', row)) {
+            return output + 'X won';
+        } else if(wins('O', row)) {
+            return output + 'O won';
+        }
+    }
+    // check for diagonal wins
+    var lr = game[0][0] + game[1][1] + game[2][2] + game[3][3];
+    
+    if(wins('X', lr)) {
+        return output + 'X won';
+    } else if(wins('O', lr)) {
+        return output + 'O won';
+    }
+    var rl = game[0][3] + game[1][2] + game[2][1] + game[3][0];
+    if(wins('X', rl)) {
+        return output + 'X won';
+    } else if(wins('O', rl)) {
+        return output + 'O won';
+    }
+    // find if there are empty squares
+    for(i = 0; i < 4; i++) {
+        for(j = 0; j < 4; j++) {
+            if(game[i][j] === '.') {
+                return output + 'Game has not completed';
+            }
+        }
+    }
+    return output + 'Draw';
+}
+
+function wins(c, row) {
+    var tRow = row.replace('T', '');
+    if(tRow === c + c + c + c || tRow === c + c + c) {
+        return true;
+    }
+    return false;
+}

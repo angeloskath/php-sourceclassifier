@@ -1,0 +1,132 @@
+#!/usr/bin/perl
+
+
+use strict;
+
+my $xwon = "X won";
+my $owon = "O won";
+my $draw = "Draw";
+my $incomplete = "Game has not completed";
+
+
+my $matches;
+my @matrix;
+
+use Switch;
+
+sub line_judge {
+#my ($a,$b,$c,$d) = (@_);
+
+my ($cntx,$cnto,$cntt,$cntdot)=(0,0,0,0);
+
+for (my $i=0;$i<4;$i++) {
+    switch (@_[$i]) {
+	case "X" { $cntx++;	}
+	case "O" { $cnto++;     }
+	case "T" { $cntt++;     }
+	case "." { $cntdot++;   }
+    }                           
+}
+
+#print STDERR "$cntx,$cnto,$cntt,$cntdot\n";
+
+if ($cntx + $cntt >= 4) {
+print "X won\n";
+return 1;
+} elsif ($cnto + $cntt >= 4) {
+print "O won\n";
+return 1;
+} else {
+return 0;
+}
+
+#if ($a eq $b && $b eq $c && $c eq $d) {
+#
+#    print "$a won\n";
+#}
+
+#print "$a$b$c$d\n";
+}
+
+sub scan_won {
+#(my $target) = ($_[0]);
+#print STDERR "@_\n";
+#print STDERR "$target\n";
+
+for(my $i=0; $i<4; $i++) {
+    if (
+    &line_judge(
+	(substr $matrix[$i], 0, 1),
+	(substr $matrix[$i], 1, 1),
+	(substr $matrix[$i], 2, 1),
+	(substr $matrix[$i], 3, 1))
+    ) { return 1; }
+}
+for(my $i=0; $i<4; $i++) {
+    if (
+    &line_judge(
+	(substr $matrix[0], $i, 1),
+	(substr $matrix[1], $i, 1),
+	(substr $matrix[2], $i, 1),
+	(substr $matrix[3], $i, 1))
+    ) { return 1; }
+}
+
+    if (
+    &line_judge(
+	(substr $matrix[0], 0, 1),
+	(substr $matrix[1], 1, 1),
+	(substr $matrix[2], 2, 1),
+	(substr $matrix[3], 3, 1))
+    ) { return 1; }
+
+    if (
+    &line_judge(
+	(substr $matrix[0], 3, 1),
+	(substr $matrix[1], 2, 1),
+	(substr $matrix[2], 1, 1),
+	(substr $matrix[3], 0, 1))
+    ) { return 1; }
+
+return 0;
+}
+
+sub scan_completeness {
+   #my $cntdotall = 0;
+    for(my $i=0; $i<4; $i++) {
+	for(my $j=0; $j<4; $j++) {
+	    if ((substr $matrix[$i], $j, 1) eq ".") {
+	    print "Game has not completed\n";
+	    return 0;}
+	}
+    }
+    print "Draw\n";
+    return 1;
+}
+
+sub judge {
+if (&scan_won) { return; }
+#if (&scan_won('X')) { return; }
+#if (&scan_won('O')) { return; }
+if (&scan_completeness) {return; }
+#my $char = substr $matrix[0], 0, 1;
+#print $char;
+}
+
+    $matches=<STDIN>;
+
+#print STDERR "matches = $matches\n";
+
+#while(<STDIN>) {
+for(my $i=0; $i<$matches; $i++) {
+#print STDERR "scanning matches = $i\n";
+    print "Case #".($i+1).": ";
+    $matrix[0]=<STDIN>;
+    $matrix[1]=<STDIN>;
+    $matrix[2]=<STDIN>;
+    $matrix[3]=<STDIN>;
+    &judge;
+ my $space    =<STDIN>;
+}
+
+

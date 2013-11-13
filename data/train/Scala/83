@@ -1,0 +1,92 @@
+import io.Source
+
+object TickTackToeTomek extends App {
+  object xWinCases {
+    val xWins = List(
+      List('X', 'X', 'X', 'X'),
+      List('X', 'X', 'X', 'T'),
+      List('X', 'X', 'T', 'X'),
+      List('X', 'T', 'X', 'X'),
+      List('T', 'X', 'X', 'X'))
+  }
+
+  object oWinCases {
+    val oWins = List(
+      List('O', 'O', 'O', 'O'),
+      List('O', 'O', 'O', 'T'),
+      List('O', 'O', 'T', 'O'),
+      List('O', 'T', 'O', 'O'),
+      List('T', 'O', 'O', 'O'))
+  }
+
+  var winner = ""
+  var gameWon = false
+  var gameStatus = "Draw"
+
+  def checkHorizontal(game: List[List[Char]]) {
+    game.foreach { row =>
+      xWinCases.xWins.foreach { xwin =>
+        if (xwin.containsSlice(row)) {
+          gameWon = true
+          winner = "X won"
+        }
+      }
+      oWinCases.oWins.foreach { owin =>
+        if (owin.containsSlice(row)) {
+          gameWon = true
+          winner = "O won"
+        }
+      }
+    }
+  }
+
+  def checkVertical(game: List[List[Char]]) {
+    checkHorizontal(game.transpose)
+  }
+
+  def checkLeftDiagonal(game: List[List[Char]]) {
+    var leftDiag = List[Char]()
+    (0 to game.length - 1).foreach(n => leftDiag = leftDiag :+ (game(n)(n)))
+    checkHorizontal(List(leftDiag))
+  }
+
+  def checkRightDiagonal(game: List[List[Char]]) {
+    var rightDiag = List[Char]()
+    (0 to game.length - 1).foreach(n => rightDiag = rightDiag :+ (game(n).reverse(n)))
+    checkHorizontal(List(rightDiag))
+  }
+
+  def checkGame(game: List[List[Char]]) {
+    winner = ""
+    gameWon = false
+    gameStatus = "Draw"
+    checkHorizontal(game)
+    checkVertical(game)
+    checkLeftDiagonal(game)
+    checkRightDiagonal(game)
+  }
+
+  val gameFile = Source.fromFile("/home/cmk/workspace/TickTackToeTomek/src/A-large.in").getLines
+  val testCases = gameFile.next.toInt
+  (1 to testCases).foreach { t =>
+    var game = List[List[Char]]()
+    (0 until 4).foreach { i =>
+      val completeRow = gameFile.next
+      game = game :+ completeRow.toList
+    }
+    checkGame(game)
+    if (gameWon) {
+      println("Case #" + t + ": " + winner)
+    } else {
+      game.foreach { row =>
+        row.foreach { cell =>
+          if (cell == '.') gameStatus = "Game has not completed"
+        }
+      }
+      println("Case #" + t + ": " + gameStatus)
+    }
+    if (gameFile.hasNext) gameFile.next
+  }
+
+}
+

@@ -1,0 +1,200 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+)
+
+func main() {
+	inputName := "tic.in"
+	outputName := "tic.out"
+	input, err := os.Open(inputName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer input.Close()
+	reader := bufio.NewReader(input)
+	casesLen := cases(reader)
+	output, err := os.Create(outputName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer output.Close()
+	for c := 1; c <= casesLen; c++ {
+		result := analize(reader)
+		out(output, c, casesLen, result)
+	}
+}
+
+func extract(reader *bufio.Reader) [][]rune {
+	t := make([][]rune, 4)
+	for i := 0; i < 4; i++ {
+		r := readLine(reader)
+		t[i] = make([]rune, 4)
+		for j, c := range r {
+			t[i][j] = c
+		}
+	}
+	reader.ReadString('\n') //empty line
+	return t
+}
+
+func winnerByLine(t [][]rune) (bool, string) {
+	for i := 0; i<4;  i++ {
+		x := 0
+		var w rune
+		for j := 0; j<4; j++ {
+			c := t[i][j]
+			if (c == t[i][0] && c != '.') || c == 'T' {
+				if c != 'T' {
+					w = c
+				}
+				x++
+			}
+		}
+		if x == 4 {
+			return true, string(w)
+		}
+	}
+	return false, ""
+}
+
+func winnerByCol(t [][]rune) (bool, string) {
+	for i := 0; i<4;  i++ {
+		x := 0
+		var w rune
+		for j := 0; j<4; j++ {
+			c := t[j][i]
+			if (c == t[i][0] && c != '.') || c == 'T' {
+				if c != 'T' {
+					w = c
+				}
+				x++
+			}
+		}
+		if x == 4 {
+			return true, string(w)
+		}
+	}
+	return false, ""
+}
+
+func winnerByDi1(t [][]rune) (bool, string) {
+	x := 1
+	var w rune
+	if t[0][0] != 'T' {
+		w = t[0][0]
+	}  else {
+		w = t[1][1]
+	}
+	if w == '.' {
+		return false, ""
+	}
+	if w == t[1][1] {
+		x++
+	}
+	if w == t[2][2] {
+		x++
+	}
+	if w == t[3][3] {
+		x++
+	}
+	if t[0][0] == 'T' || t[1][1] == 'T' || t[2][2] == 'T' || t[3][3] == 'T' {
+		x++
+	}
+	if x == 4 {
+		return true, string(w)
+	}
+	return false, ""
+}
+
+func winnerByDi2(t [][]rune) (bool, string) {
+	x := 1
+	var w rune
+	if t[0][3] != 'T' {
+		w = t[0][3]
+	}  else {
+		w = t[1][2]
+	}
+	if w == '.' {
+		return false, ""
+	}
+	if w == t[1][2] {
+		x++
+	}
+	if w == t[2][1] {
+		x++
+	}
+	if w == t[3][0] {
+		x++
+	}
+	if t[0][3] == 'T' || t[1][2] == 'T' || t[2][1] == 'T' || t[3][0] == 'T' {
+		x++
+	}
+	if x == 4 {
+		return true, string(w)
+	}
+	return false, ""
+}
+
+func draw(t [][]rune) bool {
+	for i := 0; i<4; i++ {
+		for j := 0; j <4; j++ {
+			if t[i][j] == '.' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func analize(reader *bufio.Reader) string {
+	t := extract(reader)
+	b, w := winnerByLine(t)
+	if b {
+		return fmt.Sprintf("%s won", w)
+	}
+	b, w = winnerByCol(t)
+	if b {
+		return fmt.Sprintf("%s won", w)
+	}
+	b, w = winnerByDi1(t)
+	if b {
+		return fmt.Sprintf("%s won", w)
+	}
+	b, w = winnerByDi2(t)
+	if b {
+		return fmt.Sprintf("%s won", w)
+	}
+	b = draw(t)
+	if b {
+		return "Draw"
+	}
+	return "Game has not completed"
+}
+
+func readLine(reader *bufio.Reader) string {
+	r, _ := reader.ReadString('\n')
+	return strings.Replace(r, "\n", "", -1)
+}
+
+func cases(reader *bufio.Reader) int {
+	i, _ := strconv.Atoi(readLine(reader))
+	return i
+}
+
+func out(writer io.Writer, c int, clen int, result string) {
+	o := "Case #%d: %s%s"
+	end := ""
+	if c != clen {
+		end = "\n"
+	}
+	o = fmt.Sprintf(o, c, result, end)
+	writer.Write([]byte(o))
+}

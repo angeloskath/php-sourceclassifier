@@ -1,0 +1,49 @@
+(ns ttttomek.core
+  (:require [clojure.test :as t]))
+
+
+(defn rows [state]
+  (partition 4 state ))
+
+(defn columns [state] 
+  (apply map vector (rows state)
+  ))
+
+(defn diagonals [state]
+  (for [coord [[0 5 10 15][3 6 9 12]]]
+    (map state coord)))
+
+(defn is? [v d] (or (= \T d) (= v d)))
+
+(defn any-empty? [group] (.contains group \.))
+
+(defn win [group] 
+  (cond (any-empty? group) nil 
+        (every? #(is? \X %) group) \X
+        (every? #(is? \O %) group) \O))
+
+
+(defn ttt [group]
+  (let [group (into [] group)
+        groups (mapcat #(% group) [rows columns diagonals])] 
+    (if-let [winner (some win groups)]
+      (str winner " won")
+      (if (any-empty? group)
+         "Game has not completed"
+         "Draw"))))
+
+(defn -main [f]
+(with-open [file (clojure.java.io/reader f)]
+  (let [n (Integer/valueOf  (.readLine file))
+        tables (map vector 
+                    (take n 
+                      (map #(ttt (apply str %)) 
+                       (partition 4 
+                                (filter  #(not (= % "")) 
+                                         (repeatedly #(.readLine file))))))
+                    (range 1 (inc n)))]
+    (doseq [[table i] tables]
+      (println (str "Case #" i ": " table))))))
+
+
+

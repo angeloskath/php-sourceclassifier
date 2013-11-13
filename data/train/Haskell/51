@@ -1,0 +1,38 @@
+module Main where
+
+
+import System.IO
+import Data.List
+
+main = do
+    contents <- getContents
+    let a = lines contents
+    let b = filter (not . null) a
+    let c = tail b
+    let d = mySpan [] c
+    let e = map myFun d
+    let f = zip [1..] e
+    mapM_ (\(sn, s) -> putStrLn $ "Case #" ++ show(sn) ++ ": " ++ s) f
+
+mySpan r [] = r
+mySpan r (x1 : x2 : x3 : x4 : x) = mySpan (r ++ [(x1, x2, x3, x4)]) x
+
+-- ("XXXT","....","OO..","....")
+myFun (x1, x2, x3, x4) =
+    let a = [x1,x2,x3,x4]
+        x5 = [x1 !! 0, x2 !! 1, x3 !! 2, x4 !! 3]
+        x6 = [x1 !! 3, x2 !! 2, x3 !! 1, x4 !! 0]
+        x7 = map (!!0) a
+        x8 = map (!!1) a
+        x9 = map (!!2) a
+        x10 = map (!!3) a
+        x = sort [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10]
+        xw = sort $ ["XXXX", "XXXT", "XXTX", "XTXX", "TXXX"]
+        ow = sort $ ["OOOO", "OOOT", "OOTO", "OTOO", "TOOO"]
+        in if x \\ xw /= x
+            then "X won"
+            else if x \\ ow /= x
+                    then "O won"
+                    else if '.' `elem` (concat x)
+                            then "Game has not completed"
+                            else "Draw"

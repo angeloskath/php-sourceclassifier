@@ -1,0 +1,121 @@
+(ns tic-tac-toe-tomek.core
+  (:gen-class))
+
+
+
+;prints nice text 
+(defn solution-printer [res-coll]
+  (apply str
+    (let [res-vec (vec res-coll)]
+    (for [t (range (count res-vec))] 
+      (format "Case #%d: %s\n" 
+              (inc t) 
+              (res-vec t))))))
+
+
+(defn solution-text [result]
+  (case result
+    "X" "X won" 
+    "O" "O won"     
+    "D" "Draw"
+    "." "Game has not completed"
+    ))
+
+
+
+; help functions
+
+
+
+    
+    
+(defn board-lines [some-board-rows]
+  (let
+    [board-rows some-board-rows
+
+    board-columns
+        (map #(apply str %)
+          
+          (for [x (range 4)]
+          (for [y board-rows]
+            (get y x))))
+ 
+    board-diagonal-1  
+          (apply str
+            (for [x (range 4)] 
+            (nth (nth board-rows x) x)))
+  
+    board-doagonal-2
+          (apply str
+  
+          (for [x (range 4)] 
+            (nth (nth board-rows x) (- 3 x))))]
+    (conj 
+     (concat board-rows board-columns) 
+     board-diagonal-1  
+     board-doagonal-2)
+    ))
+          
+      
+
+          
+(defn check-line [line]
+(cond
+  (every? #(= \O %)
+    (clojure.string/replace-first line \T "")) "O"
+  (every? #(= \X %)
+    (clojure.string/replace-first line \T "")) "X"
+  :else 
+     "."))
+
+
+
+
+
+(defn find-status [test-board-lines]
+(let
+  [rt 
+   (map check-line test-board-lines)
+   Otest
+   (some #(= "O" %) rt)
+   Xtest
+   (some #(= "X" %) rt)]
+  (cond
+    Otest "O"
+    Xtest "X"
+   :else  ".")))
+
+
+
+(defn board-is-full? [board-rows]
+  (not (some #(= \. %) (apply str board-rows))))
+
+;(board-is-full? '("XXOO" "OOXX" "XX.O" "O..O" ))
+
+
+;; board result based on board rows
+
+(defn find-board-result [board-rows]
+  (let 
+    [tmp-status
+      (find-status (board-lines board-rows))]
+    (if (= tmp-status ".")
+      (if (board-is-full? board-rows) "D" tmp-status) 
+      tmp-status)))
+    
+;(find-board-result '("OXXO" "OOXX" "XXOO" "OOXX"))
+
+
+   
+(defn solve [input-text]
+    
+  (solution-printer
+    (map solution-text
+      (map find-board-result
+         (partition 4 5
+            (rest (clojure.string/split-lines input-text)))))))
+
+
+
+(defn -main [file-in file-out]
+  (spit file-out (solve (slurp file-in))))

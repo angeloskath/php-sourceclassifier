@@ -1,0 +1,192 @@
+
+function LIN(txt){
+	this.todo = txt;
+	this.tokens = txt.trim().split(/[ ]+/);
+	this.next = 0;
+}
+LIN.prototype.ct = function() {
+	return this.tokens.length;
+};
+LIN.prototype.nS = function() {
+	if(this.next < this.tokens.length){
+		var res = this.tokens[this.next];
+		if(res)
+		this.next++;
+		return res;
+	} else {
+		return null;
+	}
+};
+LIN.prototype.nI = function() {
+	var res = this.nS();
+	if(res){
+		return parseInt(res, 10);
+	} else {
+		return null;
+	}
+};
+LIN.prototype.nF = function() {
+	var res = this.nS();
+	if(res){
+		return parseFloat(res);
+	} else {
+		return null;
+	}
+};
+function RLT(txt){
+	this.todo = txt;
+	this.lines = txt.match(/[^\r\n]+/g);
+	this.next = 0;
+}
+RLT.prototype.ct = function() {
+	return this.lines.length;
+};
+RLT.prototype.nextLine = function() {
+	if(this.next < this.lines.length){
+		var res = new LIN(this.lines[this.next]);
+		this.next++;
+		return res;
+	} else {
+		return null;
+	}
+};
+RLT.prototype.execute = function() {
+	var res = "";
+	var cl=this.nextLine().nI();
+	var pr = true;
+	for (var i = 0; i < cl; i++) {
+		if(!pr){
+			this.nextLine();
+		} else {
+			br = false;
+		}
+
+		var line1 = this.nextLine().todo;
+		var line2 = this.nextLine().todo;
+		var line3 = this.nextLine().todo;
+		var line4 = this.nextLine().todo;
+
+		var rs = this.juego(line1, line2, line3, line4);
+
+		res += this.executeLine(i+1, rs);
+	};
+	return res;
+};
+RLT.prototype.executeLine = function(line_num, line) {
+	var res = "Case #"+line_num+": "+line+"\n";
+	return res;
+};
+RLT.prototype.juego = function(l1, l2, l3, l4) {
+	ju=[];
+	ju.push(l1.split(""));
+	ju.push(l2.split(""));
+	ju.push(l3.split(""));
+	ju.push(l4.split(""));
+
+	var res = "Draw";
+	for (var i = 0; i < 4; i++) {
+		var pr = ju[i][0];
+		if(pr=='.'){
+			res = "Game has not completed";
+			continue;	
+		}
+		var st = false;
+		if(pr=='T') st = true;
+		var tt = 1;
+		for (var j = 1; j < 4; j++) {
+			var ot = ju[i][j];
+			if(ot=='.'){
+				res = "Game has not completed";
+				break;	
+			}
+			if(st){
+				pr=ot;
+				st = false;
+			}
+			if(pr==ot || ot=='T'){
+				tt++;
+			}
+		};
+		if(tt >= 4){
+			return ""+pr+" won";
+		}
+	};
+	for (var i = 0; i < 4; i++) {
+		var pr = ju[0][i];
+		if(pr=='.'){
+			res = "Game has not completed";
+			continue;	
+		}
+		var st = false;
+		if(pr=='T') st = true;
+		var tt = 1;
+		for (var j = 1; j < 4; j++) {
+			var ot = ju[j][i];
+			if(ot=='.'){
+				res = "Game has not completed";
+				break;	
+			}
+			if(st){
+				pr=ot;
+				st = false;
+			}
+			if(pr==ot || ot=='T'){
+				tt++;
+			}
+		};
+		if(tt >= 4){
+			return ""+pr+" won";
+		}
+	};
+	var d1 = ju[0][0];
+	if(d1=='.'){
+		res = "Game has not completed";
+	} else {
+		var st = false;
+		if(d1=='T') st = true;
+		var tt = 1;
+		for (var j = 1; j < 4; j++) {
+			var ot = ju[j][j];
+			if(ot=='.'){
+				res = "Game has not completed";
+				break;	
+			}
+			if(st){
+				d1=ot;
+				st = false;
+			}
+			if(d1==ot || ot=='T'){
+				tt++;
+			}
+		};
+		if(tt >= 4){
+			return ""+d1+" won";
+		}
+	}
+	d1 = ju[0][3];
+	if(d1=='.'){
+		res = "Game has not completed";
+	} else {
+		var st = false;
+		if(d1=='T') st = true;
+		var tt = 1;
+		for (var j = 1; j < 4; j++) {
+			var ot = ju[j][3-j];
+			if(ot=='.'){
+				res = "Game has not completed";
+				break;	
+			}
+			if(st){
+				d1=ot;
+				st = false;
+			}
+			if(d1==ot || ot=='T'){
+				tt++;
+			}
+		};
+		if(tt >= 4){
+			return ""+d1+" won";
+		}
+	}
+	return res;
+};

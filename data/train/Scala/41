@@ -1,0 +1,103 @@
+import io.Source
+
+object Solution extends App {
+  val input = Source.fromFile("input")
+  val output = new java.io.FileWriter("output")
+  val newline = "\n"
+  val empty = '.'
+  val tie = 'Y'
+  val tomec = 'T'
+  val x = 'X'
+  val o = 'O'
+
+  val lines = input.getLines()
+  var rows = List[Char]()
+
+  val testCases = lines.next
+  var caseCount = 0
+  while(lines.hasNext) {
+    var lineCount = 0
+    val maxLines = 4
+
+    caseCount = caseCount + 1
+
+    while(lineCount < maxLines) {
+      lineCount = lineCount + 1
+
+      val line = lines.next
+      rows = rows ::: line.toList
+    }
+
+    val outcome = getOutcome(rows)
+
+    output.write( "Case #" + caseCount + ": ")
+    if(outcome == x) {
+      output.write("X won")
+    }
+    else if(outcome == o) {
+      output.write("O won")
+    }
+    else if(outcome == empty) {
+      output.write("Game has not completed")
+    }
+    else {
+      output.write("Draw")
+    }
+    output.write(newline)
+
+    if(lines.hasNext) {
+      lines.next
+    }
+    rows = List()
+  }
+
+  output.close
+
+  def getOutcome(values: List[Char]) = {
+    val possibleWinners = List(
+      List(values(0), values(1), values(2), values(3)),
+      List(values(4), values(5), values(6), values(7)),
+      List(values(8), values(9), values(10), values(11)),
+      List(values(12), values(13), values(14), values(15)),
+      List(values(0), values(4), values(8), values(12)),
+      List(values(1), values(5), values(9), values(13)),
+      List(values(2), values(6), values(10), values(14)),
+      List(values(3), values(7), values(11), values(15)),
+      List(values(0), values(5), values(10), values(15)),
+      List(values(12), values(9), values(6), values(3)))
+
+    val results = possibleWinners.map { (possibleWinner) =>
+      possibleWinner.reduceLeft { (accumulator, value) =>
+        if(accumulator == tomec) {
+          value
+        }
+        else if(accumulator == value || value == tomec) {
+          accumulator
+        }
+        else if(accumulator == empty || value == empty) {
+          empty
+        }
+        else {
+          tie
+        }
+      }
+    }
+
+    if(results.contains(x)) {
+      x
+    }
+    else if(results.contains(o)) {
+      o
+    }
+    else if(results.contains(empty)) {
+      empty
+    }
+    else {
+      tie
+    }
+  }
+
+  def valueForX(value: String) = value == "X" || value == "T"
+
+  def valueForO(value: String) = value == "O" || value == "T"
+}

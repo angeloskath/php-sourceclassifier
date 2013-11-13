@@ -1,0 +1,60 @@
+import scala.util.control.Breaks._
+
+object A extends App {
+	def logf(text: String, xs: Any*) = System.err.print(text.format(xs: _*))
+//    def logf(text: String, xs: Any*) = Unit
+
+	val input = new java.util.Scanner(new java.io.File(args(0)))
+	val numCases = input.nextInt
+	input.nextLine
+	for (numCase <- 1 to numCases) {
+		val board = Array.fill(4) { input.nextLine.toCharArray() }
+		input.nextLine
+		
+		for (i <- 0 until 4) {
+			for (j <- 0 until 4)
+				logf("%s", board(i)(j))
+			logf("\n")
+		}
+		
+		def checkWon(xs: Seq[Char]) = {
+			if (xs.forall(x => x == 'X' || x == 'T'))
+				"X won"
+			else if (xs.forall(x => x == 'O' || x == 'T'))
+				"O won"
+			else
+				null
+		}
+		
+		var solution: String = null
+		breakable {
+			for (i <- 0 until 4) {
+				solution = checkWon(board(i))
+				if (solution != null) break
+			}
+				
+			for (j <- 0 until 4) {
+				solution = checkWon(for (i <- 0 until 4) yield board(i)(j))
+				if (solution != null) break
+			}
+				
+			solution = checkWon(for (i <- 0 until 4) yield board(i)(i))
+			if (solution != null) break
+				
+			solution = checkWon(for (i <- 0 until 4) yield board(i)(3-i))
+			if (solution != null) break
+			
+			for (i <- 0 until 4) {
+				if (board(i).exists(_ == '.')) {
+					solution = "Game has not completed"
+					if (solution != null) break
+				}
+			}
+		}
+		
+		if (solution == null)
+			solution = "Draw"
+		
+		printf("Case #%d: %s\n", numCase, solution)
+	}
+}

@@ -1,0 +1,75 @@
+"use strict";
+
+var fs    = require('fs')
+  , clone = require('clone')
+  , file  = process.argv[2]
+  , input = fs.readFileSync(file).toString().split('\n')
+  , count = parseInt(input.shift())
+  ;
+
+var boards = [];
+for (var i = 0; i < count; ++i) {
+  var board = [];
+  for (var j = 0; j < 4; ++j) {
+    board.push(input.shift().split(''));
+  }
+  input.shift();
+  boards.push(board);
+}
+
+boards.forEach(solve);
+
+function solve(board, i) {
+  process.stdout.write('Case #' + (i + 1) + ': ');
+  if (checkIfWon('X', board)) {
+    console.log('X won');
+  } else if (checkIfWon('O', board)) {
+    console.log('O won');
+  } else if (unfinished(board)) {
+    console.log('Game has not completed');
+  } else {
+    console.log('Draw');
+  }
+}
+
+function checkIfWon(letter, board, retry) {
+  var won = board.some(function(row) {
+    return row.every(function(square) {
+      return square === letter || square === 'T';
+    });
+  });
+
+  var count = 0;
+  for (var i = 0; i < 4; ++i) {
+    if (board[i][i] == letter || board[i][i] == 'T') {
+      count += 1;
+    }
+  }
+  if (count == 4) {
+    won = true;
+  }
+
+  if (retry !== false) {
+    won = won || checkIfWon(letter, rotate90(board), false);
+  }
+
+  return won;
+}
+
+function unfinished(board) {
+  return board.some(function(row) {
+    return row.some(function(square) {
+      return square == '.';
+    });
+  });
+}
+
+function rotate90(board) {
+  var rotated = [ [], [], [], [] ];
+  for (var i = 0; i < 4; ++i) {
+    for (var j = 0; j < 4; ++j) {
+      rotated[i][j] = board[4 - j - 1][i];
+    }
+  }
+  return rotated;
+}

@@ -1,0 +1,228 @@
+﻿Imports System.IO
+Module Module1
+
+    Sub Main()
+        Dim input As New StreamReader("C:\Users\user\Google Drive\Code Jam\TicTacToeTomek\large.in")
+        Dim output As New StreamWriter("C:\Users\user\Google Drive\Code Jam\TicTacToeTomek\large.out")
+
+        Dim currentBoard()() As Char
+        Dim x, y, Xcount, Ocount As Integer
+        Dim TPresent, rowWin, columnWin, diagonalWin, emptySpace As Boolean
+        Dim currentLine As String
+
+        Dim column(3) As Char
+        Dim diagonal(3) As Char
+
+        currentBoard = {New Char() {"", "", "", ""},
+                        New Char() {"", "", "", ""},
+                        New Char() {"", "", "", ""},
+                        New Char() {"", "", "", ""}}
+
+        Dim T As Integer = input.ReadLine()
+
+        For i = 1 To T
+            For y = 0 To 3
+                currentLine = input.ReadLine()
+                For x = 0 To 3
+                    currentBoard(y)(x) = currentLine.Substring(x, 1)
+                Next
+            Next
+
+            rowWin = False
+            columnWin = False
+            diagonalWin = False
+            emptySpace = False
+
+            'Check rows
+            For y = 0 To 3
+                If Not rowWin Then
+                    Xcount = 0
+                    Ocount = 0
+                    TPresent = False
+
+                    For Each token In currentBoard(y)
+                        Select Case token
+                            Case "X"
+                                Xcount += 1
+                            Case "O"
+                                Ocount += 1
+                            Case "T"
+                                TPresent = True
+                            Case "."
+                                emptySpace = True
+                        End Select
+                    Next
+
+                    If TPresent Then
+                        If Xcount = 3 Then
+                            output.WriteLine("Case #{0}: X won", i)
+                            rowWin = True
+                        ElseIf Ocount = 3 Then
+                            output.WriteLine("Case #{0}: O won", i)
+                            rowWin = True
+                        End If
+                    Else
+                        If Xcount = 4 Then
+                            output.WriteLine("Case #{0}: X won", i)
+                            rowWin = True
+                        ElseIf Ocount = 4 Then
+                            output.WriteLine("Case #{0}: O won", i)
+                            rowWin = True
+                        End If
+                    End If
+                End If
+            Next
+
+            'Check Columns
+            If Not rowWin Then
+                For x = 0 To 3
+                    If Not columnWin Then
+                        Xcount = 0
+                        Ocount = 0
+                        TPresent = False
+                        For y = 0 To 3
+                            column(y) = currentBoard(y)(x)
+                        Next
+
+                        For Each token In column
+                            Select Case token
+                                Case "X"
+                                    Xcount += 1
+                                Case "O"
+                                    Ocount += 1
+                                Case "T"
+                                    TPresent = True
+                                Case "."
+                                    emptySpace = True
+                            End Select
+                        Next
+
+                        If TPresent Then
+                            If Xcount = 3 Then
+                                output.WriteLine("Case #{0}: X won", i)
+                                columnWin = True
+                            ElseIf Ocount = 3 Then
+                                output.WriteLine("Case #{0}: O won", i)
+                                columnWin = True
+                            End If
+                        Else
+                            If Xcount = 4 Then
+                                output.WriteLine("Case #{0}: X won", i)
+                                columnWin = True
+                            ElseIf Ocount = 4 Then
+                                output.WriteLine("Case #{0}: O won", i)
+                                columnWin = True
+                            End If
+                        End If
+                    End If
+                Next
+            End If
+
+            'Check Diagonal
+            If Not rowWin And Not columnWin Then
+                'Top to bottom
+                Xcount = 0
+                Ocount = 0
+                TPresent = False
+
+                y = 0
+                For x = 0 To 3
+                    diagonal(y) = currentBoard(y)(x)
+                    y += 1
+                Next
+
+                For Each token In diagonal
+                    Select Case token
+                        Case "X"
+                            Xcount += 1
+                        Case "O"
+                            Ocount += 1
+                        Case "T"
+                            TPresent = True
+                        Case "."
+                            emptySpace = True
+                    End Select
+                Next
+
+                If TPresent Then
+                    If Xcount = 3 Then
+                        output.WriteLine("Case #{0}: X won", i)
+                        diagonalWin = True
+                    ElseIf Ocount = 3 Then
+                        output.WriteLine("Case #{0}: O won", i)
+                        diagonalWin = True
+                    End If
+                Else
+                    If Xcount = 4 Then
+                        output.WriteLine("Case #{0}: X won", i)
+                        diagonalWin = True
+                    ElseIf Ocount = 4 Then
+                        output.WriteLine("Case #{0}: O won", i)
+                        diagonalWin = True
+                    End If
+                End If
+
+                'Bottom to Top
+                If Not diagonalWin Then
+                    Xcount = 0
+                    Ocount = 0
+                    TPresent = False
+
+                    If Not diagonalWin Then
+                        y = 0
+                        For x = 3 To 0 Step -1
+                            diagonal(y) = currentBoard(y)(x)
+                            y += 1
+                        Next
+
+                        For Each token In diagonal
+                            Select Case token
+                                Case "X"
+                                    Xcount += 1
+                                Case "O"
+                                    Ocount += 1
+                                Case "T"
+                                    TPresent = True
+                                Case "."
+                                    emptySpace = True
+                            End Select
+                        Next
+
+                        If TPresent Then
+                            If Xcount = 3 Then
+                                output.WriteLine("Case #{0}: X won", i)
+                                diagonalWin = True
+                            ElseIf Ocount = 3 Then
+                                output.WriteLine("Case #{0}: O won", i)
+                                diagonalWin = True
+                            End If
+                        Else
+                            If Xcount = 4 Then
+                                output.WriteLine("Case #{0}: X won", i)
+                                diagonalWin = True
+                            ElseIf Ocount = 4 Then
+                                output.WriteLine("Case #{0}: O won", i)
+                                diagonalWin = True
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+
+            If Not rowWin And Not columnWin And Not diagonalWin Then
+                If emptySpace Then
+                    output.WriteLine("Case #{0}: Game has not completed", i)
+                Else
+                    output.WriteLine("Case #{0}: Draw", i)
+                End If
+            End If
+
+            input.ReadLine()
+        Next
+
+        input.Close()
+        output.Close()
+
+    End Sub
+
+End Module

@@ -1,0 +1,63 @@
+var fs = require('fs');
+
+var buf = fs.readFileSync("A-large.in");
+var data = buf.toString("ascii");
+var lines = data.split("\n");
+var n = parseInt(lines[0]);
+var xo = {'X': 'X', 'O': 'O'};
+for (var c=0; c<n; c++) {
+  var won = '';
+  var ended = true;
+  for (var i=0; i<4; i++) {
+    for (var j=0; j<4; j++) {
+      if (lines[c*5+1+i][j] == '.') {
+        ended = false;
+      }
+    }
+  }
+  for (var i=0; i<4 && won==''; i++) {
+    for (var t in xo) {
+      for (var j=0; j<4; j++) {
+        if (!(lines[c*5+1+i][j] == t || lines[c*5+1+i][j] == 'T')) {
+          break;
+        }
+        if (j==3) {
+          won = t;
+        }
+      }
+      for (var j=0; j<4; j++) {
+        if (!(lines[c*5+1+j][i] == t || lines[c*5+1+j][i] == 'T')) {
+          break;
+        }
+        if (j==3) {
+          won = t;
+        }
+      }
+    }
+  }
+  for (var t in xo) {
+    for (var j=0; j<4; j++) {
+      if (!(lines[c*5+1+j][j] == t || lines[c*5+1+j][j] == 'T')) {
+        break;
+      }
+      if (j==3) {
+        won = t;
+      }
+    }
+    for (var j=0; j<4; j++) {
+      if (!(lines[c*5+1+j][3-j] == t || lines[c*5+1+j][3-j] == 'T')) {
+        break;
+      }
+      if (j==3) {
+        won = t;
+      }
+    }
+  }
+  if (won) {
+    console.log("Case #"+(c+1)+": "+won+" won");
+  } else if (ended) {
+    console.log("Case #"+(c+1)+": Draw");
+  } else {
+    console.log("Case #"+(c+1)+": Game has not completed");
+  }
+}

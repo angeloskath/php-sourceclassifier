@@ -1,0 +1,65 @@
+n = gets.to_i
+
+def won?(symbol, board)
+	# Horizontal
+	0.upto(3) do |i|
+		valid = true
+		# Check rows
+		0.upto(3) do |j|
+			unless board[i][j] == symbol or board[i][j] == 'T'
+				valid = false
+			end
+		end
+		return valid if valid
+	end
+	
+	# Vertical
+	0.upto(3) do |j|
+		valid = true
+		# Check rows
+		0.upto(3) do |i|
+			unless board[i][j] == symbol or board[i][j] == 'T'
+				valid = false
+			end
+		end
+		return valid if valid
+	end
+	
+	#Diagonal1
+	valid = true
+	0.upto(3) do |i|
+		unless board[i][i] == symbol or board[i][i] == 'T'
+			valid = false
+		end
+	end
+	return valid if valid
+	
+	#Diagonal2
+	valid = true
+	0.upto(3) do |i|
+		unless board[3-i][i] == symbol or board[3-i][i] == 'T'
+			valid = false
+		end
+	end
+	return valid if valid
+	
+	return false
+end
+
+1.upto(n) do |k|
+	board = []
+	1.upto(4) {board << gets.split(//)}
+	tokens = Hash.new(0)
+	board.each{|r| r.each{|e| tokens[e] +=1}}
+	turn = (tokens["O"] == tokens["X"])? "O" : "X"
+	if won?(turn, board)
+		puts "Case ##{k}: #{turn} won"
+	else
+		if tokens["."] == 0
+			puts "Case ##{k}: Draw"
+		else
+			puts "Case ##{k}: Game has not completed"
+		end
+	end
+	gets
+end

@@ -1,0 +1,74 @@
+import Control.Monad
+import System.Environment (getArgs)
+import System.IO
+import Data.List
+
+readN :: Handle -> IO Int
+readN = fmap read . hGetLine
+  
+readLine :: Handle -> IO [Char]
+readLine = hGetLine
+
+readBoard :: Handle -> IO [[Char]]
+readBoard = \ih -> do
+	l1 <- readLine ih
+	l2 <- readLine ih
+	l3 <- readLine ih
+	l4 <- readLine ih
+	_  <- readLine ih
+	return [l1,l2,l3,l4]
+
+winner :: Char -> Char -> Char  
+winner '.'  _  =  '.'
+winner 'N'  _  =  'N'
+winner 'T'  u  =   u
+winner 'X' 'X' =  'X'
+winner 'X' 'T' =  'X'
+winner 'X' 'O' =  'N'
+winner 'X' '.' =  '.'
+winner 'O' 'X' =  'N'
+winner 'O' 'T' =  'O'
+winner 'O' 'O' =  'O'
+winner 'O' '.' =  '.'
+
+lineWonBy :: [Char] -> Char
+lineWonBy = foldl1' winner
+
+boardWonBy :: [Char] -> Char
+boardWonBy = foldl1' update
+  where
+	update :: Char -> Char -> Char
+	update  _ 'X' = 'X'
+	update  _ 'O' = 'O'
+	update 'X' _  = 'X'
+	update 'O' _  = 'O'
+	update  _ '.' = '.'
+	update  _ 'N' = 'N'
+	
+diagonals :: [[a]] -> [[a]]
+diagonals [[x00,x01,x02,x03],[x10,x11,x12,x13],[x20,x21,x22,x23],[x30,x31,x32,x33]] = [[x00,x11,x22,x33],[x03,x12,x21,x30]]
+diagonals _ = undefined
+
+out :: Char -> String
+out c = case c of
+  'X' -> "X won"
+  'O' -> "O won"
+  'N' -> "Draw"
+  '.' -> "Game has not completed"
+
+main :: IO ()
+main = do
+  ifile : ofile : _ <- getArgs
+  ih <- openFile ifile ReadMode
+  oh <- openFile ofile WriteMode
+  t  <- readN ih
+  putStrLn $ show t
+  forM_ [1..t] $ \i -> do
+    board <- readBoard ih
+    let win = boardWonBy $ map lineWonBy (board ++ transpose board ++ diagonals board)
+    putStrLn $ show win
+    hPutStrLn oh $ "Case #" ++ show i ++ ": " ++ out win
+  hClose ih
+  hClose oh
+
+

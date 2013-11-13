@@ -1,0 +1,46 @@
+package problem.a
+
+import java.io.{BufferedReader, FileReader}
+
+object Solution {
+  def main(args: Array[String]) {
+    val reader: BufferedReader = new BufferedReader(new FileReader("src\\problem\\a\\A-large.in"))
+    try {
+      val cases: Int = reader.readLine().toInt
+      for (i <- 1 to cases) {
+        print(s"Case #$i: ")
+        solve(reader)
+      }
+    } finally{
+      reader.close()
+    }
+  }
+
+  def solve(reader: BufferedReader) {
+    val board = (1 to 4).map(_ => {
+      reader.readLine().toList
+    }).toList
+    reader.readLine() //eat empty string
+    val checkLine = (line: List[Char]) => {
+      if (line.forall(c => c == 'T' || c == 'X')) {
+        println("X won")
+        return
+      } else if (line.forall(c => c == 'T' || c == 'O')) {
+        println("O won")
+        return
+      }
+    }
+    for (i <- 0 until 4) {
+      checkLine(board(i))
+      checkLine(board.map(l => l(i)))
+    }
+    checkLine((0 to 3).map(i => board(i)(i)).toList)
+    checkLine((0 to 3).map(i => board(i)(3 - i)).toList)
+
+    if (board.forall(_.forall(_ != '.'))) {
+      println("Draw")
+    } else {
+      println("Game has not completed")
+    }
+  }
+}

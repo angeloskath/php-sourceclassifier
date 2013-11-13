@@ -1,0 +1,188 @@
+var
+a,b,c,d,e,f : longint;
+g,h,i : char;
+j : array [1..4, 1..4] of char;
+x,y : boolean;
+tu,rf,ag : ansistring;
+
+function Replace(S, Old, New: ansistring): ansistring;
+begin
+     while (Pos(Old, S) > 0) do
+     begin
+          Insert(New, S, Pos(Old, S));
+          Delete(S, Pos(Old, S), Length(Old));
+     end;
+     Replace := S;
+end;
+
+begin
+	readln(a);
+	
+	for b := 1 to a do
+	begin
+		x := false;
+		y := false;
+		
+		for c := 1 to 4 do
+		begin
+			for d := 1 to 3 do
+			begin
+				read(j[c,d]);
+				if j[c,d] = '.' then
+					y := true;
+			end;
+			
+			readln(j[c,4]);
+		end;
+		
+		readln();
+		
+		for c := 1 to 4 do
+		begin
+			//awal mendatar
+			tu := j[c,1] + j[c,2] + j[c,3] + j[c,4];
+			
+			if pos('T', tu) > 0 then
+			begin
+				rf := replace(tu, 'T', 'O');
+				if rf = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+				
+				rf := replace(tu, 'T', 'X');
+				if rf = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end;
+			end
+			else
+			begin
+				if tu = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end
+				else if tu = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+			end;
+			//akhir mendatar
+			
+			//awal menurun
+			tu := j[1,c] + j[2,c] + j[3,c] + j[4,c];
+			
+			if pos('T', tu) > 0 then
+			begin
+				rf := replace(tu, 'T', 'O');
+				if rf = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+				
+				rf := replace(tu, 'T', 'X');
+				if rf = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end;
+			end
+			else
+			begin
+				if tu = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end
+				else if tu = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+			end;
+			//akhir menurun
+			
+			//awal DIAGONAL1
+			tu := j[1,1] + j[2,2] + j[3,3] + j[4,4];
+			
+			if pos('T', tu) > 0 then
+			begin
+				rf := replace(tu, 'T', 'O');
+				if rf = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+				
+				rf := replace(tu, 'T', 'X');
+				if rf = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end;
+			end
+			else
+			begin
+				if tu = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end
+				else if tu = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+			end;
+			//akhir DIAGONAL1
+			
+			//awal DIAGONAL2
+			tu := j[4,1] + j[3,2] + j[2,3] + j[1,4];
+			
+			if pos('T', tu) > 0 then
+			begin
+				rf := replace(tu, 'T', 'O');
+				if rf = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+				
+				rf := replace(tu, 'T', 'X');
+				if rf = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end;
+			end
+			else
+			begin
+				if tu = 'XXXX' then
+				begin
+					x := true;
+					g := 'X';
+				end
+				else if tu = 'OOOO' then
+				begin
+					x := true;
+					g := 'O';
+				end;
+			end;
+			//akhir DIAGONAL2
+		end;
+		
+		if x then
+			writeln('Case #' , b, ': ', g, ' won')
+		else if y then
+			writeln('Case #' , b, ': ', 'Game has not completed')
+		else
+			writeln('Case #' , b, ': ', 'Draw');
+	end;
+	
+
+end.

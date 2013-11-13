@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+
+use strict;
+
+my $count = <>;
+chomp($count);
+
+my $j = 1;
+
+sub CheckSolution
+{
+    my $first;
+    for my $val (@_) {
+	if ($val eq ".") {
+	    return undef;
+	}
+	if ($val ne "T") {
+	    if (defined $first && $first ne $val) {
+		return undef;
+	    } else {
+		$first = $val;
+	    }
+	}
+    }
+    if (!defined $first) {
+	return undef;
+    }
+    return "$first won";
+}
+
+while($j <= $count) {
+    my @row;
+    for (my $i=0;$i<4;$i++) {
+	my $row = <>;
+	chomp($row);
+	push(@row,$row);
+    }
+    $= = <>;
+
+    my $sol;
+    for(my $i = 0;$i < 4;$i++) {
+	$sol = &CheckSolution(substr($row[$i],0,1),substr($row[$i],1,1),substr($row[$i],2,1),substr($row[$i],3,1));
+	if (defined $sol) {
+	    last;
+	}
+    }
+
+    if (!defined $sol) {
+	for(my $i = 0;$i < 4;$i++) {
+	    $sol = &CheckSolution(substr($row[0],$i,1),substr($row[1],$i,1),substr($row[2],$i,1),substr($row[3],$i,1));
+	    if (defined $sol) {
+		last;
+	    }
+	}
+    }
+
+    if (!defined $sol) {
+	$sol = &CheckSolution(substr($row[0],0,1),substr($row[1],1,1),substr($row[2],2,1),substr($row[3],3,1));
+    }
+
+    if (!defined $sol) {
+	$sol = &CheckSolution(substr($row[3],0,1),substr($row[2],1,1),substr($row[1],2,1),substr($row[0],3,1));
+    }
+    
+    if (!defined $sol) {
+	for (my $i = 0;$i<4;$i++) {
+	    if ($row[$i] =~ /\./) {
+		$sol = "Game has not completed";
+	    }
+	}
+	if (!defined $sol) {
+	    $sol = "Draw";
+	}
+    }
+
+    print "Case #$j: $sol\n";
+    $j++;
+}

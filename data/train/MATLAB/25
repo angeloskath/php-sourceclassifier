@@ -1,0 +1,46 @@
+clear;clc;close;
+% read in data
+input = fopen('A-large.in');
+num_cases = str2double(fgetl(input));
+
+output = fopen('output.txt', 'w');
+
+for i = 1:num_cases%for each game
+    board = zeros(4);
+    for j = 1:4%for each line
+        line = fgetl(input);
+        for k = 1:4%for each element in line
+            if(line(k) == 'X')
+               board(j,k) = 11; 
+            elseif(line(k) == 'O')
+                board(j,k) = 117;
+            elseif(line(k) == 'T');
+                board(j,k) = 1;             
+            end
+        end
+    end
+    
+    %calculate winner;
+    winner = zeros(4);
+    
+    for m = 1:4
+       winner(1,m) = sum(board(m,:));%columns
+       winner(2,m) = sum(board(:,m));%rows
+    end
+     winner(3,m) = sum(diag(board));%left diagonal
+     winner(4,m) = sum(diag(fliplr(board)));%left diagonal
+        
+     if(sum(sum(winner == 44)) > 0 || sum(sum((winner == 34))) > 0)%'X' has won
+         fprintf(output,'Case #%d: X won\n',i);
+     elseif(sum(sum(winner == 468)) > 0 || sum(sum((winner == 352))) > 0)%'O' has won
+         fprintf(output,'Case #%d: O won\n',i);
+     elseif(sum(sum(board == 0)) == 0)%its a draw
+         fprintf(output,'Case #%d: Draw\n',i);
+     elseif(sum(sum(board == 0)) > 0)%game not completed
+         fprintf(output,'Case #%d: Game has not completed\n',i);
+     end
+     
+    fgetl(input);%read past the deliminating line
+end
+
+fclose(input);

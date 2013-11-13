@@ -1,0 +1,72 @@
+import Data.List
+import Control.Monad
+
+data Player = X | O
+            deriving Show
+
+riddle = [ "XXXT"
+         , "...."
+         , "OO.."
+         , "...."]
+
+riddle1 = [ "XOXT"
+          , "XXOO"
+          , "OXOX"
+          , "XXOO"]
+
+riddle2 = [ "XOX."
+          , "OX.."
+          , "...."
+          , "...."]
+
+foo :: [[Char]] -> [[Char]]
+foo riddle = rows ++ columns ++ diagonals
+ where
+   rows = riddle
+   columns = transpose riddle
+   diagonals = [diag1, diag2]
+   diag1 = [riddle !! i !! i | i <- [0..3]]
+   diag2 = [riddle !! i !! (3-i) | i <- [0..3]]
+
+checkRow :: [Char] -> Maybe Player
+checkRow row = case checkX row of
+    True -> Just X
+    False ->
+        case checkO row of
+            True -> Just O
+            False -> Nothing
+  where
+    checkX = all (\e -> e == 'X' || e == 'T')
+    checkO = all (\e -> e == 'O' || e == 'T')
+
+firstJust :: [Maybe a] -> Maybe a
+firstJust [] = Nothing
+firstJust (m:ms) = case m of
+    Just x -> Just x
+    Nothing -> firstJust ms
+
+solve :: [[Char]] -> String
+solve riddle = case firstJust $ map checkRow $ foo riddle of
+    Just x -> show x ++ " won"
+    Nothing -> case isBoardFull riddle of
+        True -> "Draw"
+        False -> "Game has not completed"
+
+
+isRowFull :: [Char] -> Bool
+isRowFull row = and $ map (/= '.') row
+
+isBoardFull :: [[Char]] -> Bool
+isBoardFull board = and $ map isRowFull board
+
+getRiddle :: IO [[Char]]
+getRiddle = do
+    riddle <- replicateM 4 getLine
+    getLine
+    return riddle
+
+main = do
+    n <- readLn
+    forM_ [1..n] $ \i -> do
+      riddle <- getRiddle
+      putStrLn $ "Case #" ++ show i ++ ": " ++ solve riddle

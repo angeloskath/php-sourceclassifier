@@ -1,0 +1,25 @@
+import Data.List
+import Control.Monad
+import Control.Applicative
+
+main :: IO ()
+main = do
+  testCases <- readLn
+  forM_ [1..testCases::Int] $ \n -> do
+         board <- replicateM 4 getLine <* getLine
+         putStrLn $ "Case #" ++ show n ++ ": " ++ judge board
+
+judge :: [String] -> String
+judge board
+    | any (win 'X') candidates   = "X won"
+    | any (win 'O') candidates   = "O won"
+    | all ('.'/=) (concat board) = "Draw"
+    | otherwise                  = "Game has not completed"
+    where
+      horizontal = board
+      vertical = transpose board
+      diagonal = map (zipWith (!!) board) [ [0..], [3,2..] ]
+      candidates = horizontal ++ vertical ++ diagonal
+
+win :: Char -> String -> Bool
+win player line = any (all (player==) . ($ line)) [id, filter ('T'/=)]

@@ -1,0 +1,71 @@
+function result = kc(mat)
+
+result=zeros(1,4);
+flagmatrix=zeros(4);
+
+%% Create flag matrix
+
+for n = 1:4
+    for m = 1:4
+        switch mat(n,m)
+            case 'X'
+                flagmatrix(n,m)=1;
+            case 'O'
+                flagmatrix(n,m)=0;
+            case 'T'
+                flagmatrix(n,m)=100;
+            otherwise
+                flagmatrix(n,m)=-500;
+        end
+    end
+end
+
+%% Analyse flagmatrix
+
+rowsum=sum(flagmatrix,2)';
+colsum=sum(flagmatrix);
+diagsum1=trace(flagmatrix);
+diagsum2=flagmatrix(1,4)+flagmatrix(2,3)+flagmatrix(3,2)+flagmatrix(4,1);
+
+awesum=[rowsum colsum diagsum1 diagsum2];
+%% X wins
+
+if ~isempty(find(awesum==4)) || ~isempty(find(awesum==103))
+    result(1)=1;
+elseif ~isempty(find(awesum==0)) || ~isempty(find(awesum==100))
+    result(2)=1;
+elseif ~isempty(find(awesum<0))
+    result(3)=1;
+else
+    result(4)=1;
+end
+
+endclc
+close all
+
+T = str2num(test{1});
+p = 1;
+for i = 1:T
+    
+    for j = 1:4
+        k = p + j;
+        mat(j,:) = test{k};
+    end
+    results = kc(mat);
+    p = k + 1;
+    
+    switch find(results==1)
+        case 1
+            res='X won';
+        case 2
+            res='O won';
+        case 3
+            res='Game has not completed';
+        otherwise
+            res='Draw';
+    end
+    
+    disp(horzcat('Case #', num2str(i), ': ', res))
+    
+end
+

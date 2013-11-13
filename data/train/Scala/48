@@ -1,0 +1,55 @@
+case class Puzzle(rows: Seq[Seq[Char]]) {
+  private def getPlayerMove(chars: Seq[Char]) = chars.find(e => e != '.' && e != 'T')
+  private def getRowWinner: Option[Char] = {
+    getLineWinner(rows)
+  }
+
+  private def getLineWinner(lines:Seq[Seq[Char]]): Option[Char] = {
+    val winningLineOpt = lines.find { line =>
+      val playerMoveOpt = getPlayerMove(line)
+      playerMoveOpt.map {playerMove =>
+        (line.forall(e => e == playerMove || e == 'T'))
+      }.getOrElse(false)
+    }
+    winningLineOpt.map(getPlayerMove(_).get)
+  }
+
+  private def getColWinner: Option[Char] = {
+    val cols = (0 until 4).map(i => (0 until 4).map(j => rows(j)(i)))
+    getLineWinner(cols)
+  }
+
+  private def getDiagonalWinner: Option[Char] = {
+    val primDiagonal = (0 until 4).map(i => rows(i)(i))
+    val secondDiagonal = (0 until 4).map(i => rows(3 - i)(i))
+
+    getLineWinner(Seq(primDiagonal, secondDiagonal))
+  }
+
+  def state: String = {
+    val winner = getRowWinner.orElse(getColWinner).orElse(getDiagonalWinner)
+    if (winner.isDefined) {
+      winner.get + " won"
+    } else {
+      val movesRemaining = rows.flatten.exists(_ equals '.')
+      if (movesRemaining) {
+        "Game has not completed"
+      } else {
+        "Draw"
+      }
+    }
+  }
+}
+
+object TicTac extends App {
+
+  val lines = io.Source.fromFile("A-large.in").getLines
+
+  val T = lines.next
+  lines.grouped(5).zipWithIndex.foreach {
+    case (g, i) =>
+      val puzzle = Puzzle(g.take(4).map(_.toSeq))
+
+      println("Case #" + (i + 1) + ": " + puzzle.state)
+  }
+}

@@ -1,0 +1,43 @@
+<?php
+
+$f = file_get_contents("in");
+$f = explode("\n", trim($f), 2);
+$f[0] = intval($f[0]);
+$f[1] = explode("\n\n", trim($f[1]));
+
+function comp($x1, $x2, $y1, $y2) {
+	return ($x1 == $y1 || $x1 == $y2 || $x2 == $y1 || $x2 == $y2);
+}
+
+function check($b){
+	for($i = 0; $i < 4; $i++){
+		$c = 0;
+		$r = 0;
+		for($j = 0; $j < 4;$j++){
+			$c += ord($b[$i][$j]);
+			$r += ord($b[$j][$i]);
+		}
+		if(comp($c, $r, 4 * ord('X'), 3 * ord('X') + ord('T'))) return "X won";
+                if(comp($c, $r, 4 * ord('O'), 3 * ord('O') + ord('T'))) return "O won";
+	
+	}
+	$c = 0;
+	$r = 0;
+	for($i = 0; $i < 4; $i++) {
+		$c += ord($b[$i][$i]);
+		$r += ord($b[$i][3 - $i]);
+	}
+	if(comp($c, $r, 4 * ord('X'), 3 * ord('X') + ord('T'))) return "X won";
+	if(comp($c, $r, 4 * ord('O'), 3 * ord('O') + ord('T'))) return "O won";
+	return "";
+}
+
+for($i = 0; $i < $f[0]; $i++){
+	$f[1][$i] = explode("\n", $f[1][$i]);
+	$res = check($f[1][$i]);
+	if($res) echo "Case #" . ($i + 1) . ": $res\n";
+	elseif(strpos(implode("", $f[1][$i]), ".") === false) echo "Case #" . ($i + 1) . ": Draw\n";
+	else echo "Case #" . ($i + 1) . ": Game has not completed\n";
+}
+
+?>

@@ -1,0 +1,86 @@
+{
+Language: Pascal
+Compiler: fpc 2.4.0-2 [2010/02/20]
+Reference: www.freepascal.org
+}
+var
+  i, j, cases, output_code : longint;
+  blank : string;
+  board : array[0..3] of string;
+
+function contains(board : array of string; letter : char) : boolean;
+var
+  i, j : longint;
+  found : boolean;
+begin
+  found := false;
+  for i := 0 to 3 do
+    for j := 0 to 3 do
+      if board[i][j + 1] = letter then
+        found := true;
+  contains := found;
+end;
+
+function same(board : array of string; letter : char; x, y, dx, dy : longint) : boolean;
+var
+  i : longint;
+  all : boolean;
+  temp : char;
+  tee : string;
+begin
+  tee := 'T';
+  all := true;
+  for i := 0 to 3 do begin
+    temp := board[x + dx * i][y + dy * i + 1];
+    if (temp <> letter) and (temp <> tee[1]) then
+      all := false;
+  end;
+  same := all;
+end;
+
+function solve(board : array of string) : longint;
+var
+  return_value, i, j : longint;
+  player : array[1..2] of string;
+  dot : string;
+begin
+  player[1] := 'X';
+  player[2] := 'O';
+  dot := '.';
+  return_value := 3;
+
+  for j := 1 to 2 do begin
+    for i := 0 to 3 do begin
+      if same(board, player[j][1], 0, i, 1, 0) then
+        return_value := j;
+      if same(board, player[j][1], i, 0, 0, 1) then
+        return_value := j;
+    end;
+    if same(board, player[j][1], 0, 0, 1, 1) then
+      return_value := j;
+    if same(board, player[j][1], 0, 3, 1, -1) then
+      return_value := j;
+  end;
+
+  if (return_value = 3) and (contains(board, dot[1])) then
+    return_value := 4;
+
+  solve := return_value;
+end;
+
+begin
+  readln(cases);
+  for i := 1 to cases do begin
+    for j := 0 to 3 do
+      readln(board[j]);
+    readln(blank);
+    output_code := solve(board);
+    write('Case #', i, ': ');
+    case output_code of
+      1 : writeln('X won');
+      2 : writeln('O won');
+      3 : writeln('Draw');
+      4 : writeln('Game has not completed');
+    end
+  end
+end.

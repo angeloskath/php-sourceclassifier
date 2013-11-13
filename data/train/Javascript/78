@@ -1,0 +1,90 @@
+function getBoard(){
+  var input = SpreadsheetApp.openById(ssInput).getSheetByName(sheetName);
+  var output = DocumentApp.openById(docOutput);
+  var total = parseInt(input.getRange(1,1).getValue());  
+  var index = 2;
+  var completeOutput = "";
+  for(var i=1;i<=total;i++){
+   //Logger.log(">>>>>>> T" + i);
+   var board = formatBoard(input.getRange(index, 1, 4).getValues());
+   //Logger.log(board);
+   var result = evaluateBoard(board);
+   Logger.log("Case #" + i + ": " + result);
+   completeOutput += "Case #" + i + ": " + result + "\n";    
+   index += 5;  
+  } 
+  output.setText(completeOutput);
+  //Logger.log("fin");
+}
+
+function formatBoard(board){
+  var newBoard = [];  
+  for(var i=0;i<board.length;i++){
+    var row = [];
+    row.push(String(board[i]).substring(0,1));
+    row.push(String(board[i]).substring(1,2));
+    row.push(String(board[i]).substring(2,3));
+    row.push(String(board[i]).substring(3,4));
+    newBoard.push(row);
+  }  
+  return newBoard;
+}
+
+function evaluateBoard(board){
+  var result;
+  var respH = evaluateHorizontalVerticalDiagonal(board);
+  //Logger.log(respH)
+  if(respH[0] == true){
+    result = respH[1] + " won";    
+  }else{
+    if(respH[1] > 0){
+      result = "Game has not completed";
+    }
+    else{
+      result = "Draw";      
+    }  
+  }  
+  return result;
+}
+    
+function evaluateHorizontalVerticalDiagonal(board){
+  var vacios = 0;
+  var xd_1 = 0;
+  var od_1 = 0;
+  var xd_2 = 0;
+  var od_2 = 0;
+  for(var i=0;i<4;i++){
+    var xh = 0;
+    var oh = 0;
+    var xv = 0;
+    var ov = 0;
+    for(var j=0;j<4;j++){
+      //Evaluando los horizontales
+      if(board[i][j] == 'X' || board[i][j] == 'T') xh++;
+      if(board[i][j] == 'O' || board[i][j] == 'T') oh++;
+      //Evaluando las verticales
+      if(board[j][i] == 'X' || board[j][i] == 'T') xv++;
+      if(board[j][i] == 'O' || board[j][i] == 'T') ov++
+      //Evaluando las diagonales
+      if(i==j){
+        //Logger.log("Entro a evaluar diagonal: " + i + "," + j);
+        if(board[i][j] == 'X' || board[i][j] == 'T') xd_1++;
+        if(board[i][j] == 'O' || board[i][j] == 'T') od_1++;
+      }
+      if((i==0 && j==3) || (i==1 && j==2) || (i==2 && j==1) || (i==3 && j==0)){
+        //Logger.log("Entro a evaluar diagonal: " + i + "," + j);
+        if(board[i][j] == 'X' || board[i][j] == 'T') xd_2++;
+        if(board[i][j] == 'O' || board[i][j] == 'T') od_2++;
+      }
+      //Evaluando los espacios vacios
+      if(board[i][j] == '.') vacios++;
+    }
+    if(xh == 4 || xv == 4 || xd_1 == 4 || xd_2 == 4){
+      return [true,"X"];
+    }
+    if(oh == 4 || ov == 4 || od_1 == 4 || od_2 == 4){
+      return [true,"O"];
+    }
+  }  
+  return [false, vacios];
+}

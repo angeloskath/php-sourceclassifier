@@ -1,0 +1,80 @@
+fs = require('fs')
+fs.readFile('A-small-attempt0.in', 'utf8', function (err,data) {
+  if (err) {
+    return console.log(err);
+  }
+  
+  var lines = data.split('\n');
+
+  var numberOfTestCases = lines[0] - 0;
+
+  var c = 1;
+  var text = "";
+  for (var i = 1; i<lines.length-4; i+=5)
+  {
+  	text += "Case #" + c + ": " + analyse([lines[i],lines[i+1],lines[i+2],lines[i+3]]) + "\n";
+  	c++;
+  }
+
+  fs.writeFile("text.txt", text, function(err) {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("The file was saved!");
+    }
+  });
+});
+
+var xWon = "X won";
+var oWon = "O won";
+var draw = "Draw";
+var none = "Game has not completed";
+
+function analyse(data)
+{
+	var solutionXH = true;
+	var solutionXV = true;
+	var solutionOH = true;
+	var solutionOV = true;
+	var solutionXD = true;
+	var solutionOD = true;
+	var solutionXDD = true;
+	var solutionODD = true;
+
+	// check for X/O win hor, ver
+	for (var i = 0; i < 4 ; i++) {
+		for (var j = 0; j < 4; j++) {
+			if(data[i].charAt(j) != "X" && data[i].charAt(j) != "T") solutionXH = false;
+			if(data[j].charAt(i) != "X" && data[j].charAt(i) != "T") solutionXV = false;
+			if(data[i].charAt(j) != "O" && data[i].charAt(j) != "T") solutionOH = false;
+			if(data[j].charAt(i) != "O" && data[j].charAt(i) != "T") solutionOV = false;
+		}
+		if(solutionXH) return xWon;
+		if(solutionXV) return xWon;
+		if(solutionOH) return oWon;
+		if(solutionOV) return oWon;
+		solutionXH = true;
+		solutionXV = true;
+		solutionOH = true;
+		solutionOV = true;
+
+		if(data[i].charAt(i) != "X" && data[i].charAt(j) != "T") solutionXD = false;
+		if(data[i].charAt(i) != "O" && data[i].charAt(j) != "T") solutionOD = false;
+		if(data[i].charAt(3-i) != "X" && data[i].charAt(4-j) != "T") solutionXDD = false;
+		if(data[i].charAt(3-i) != "O" && data[i].charAt(4-j) != "T") solutionODD = false;
+	}
+	if(solutionXD) return xWon;
+	if(solutionOD) return oWon;
+	if(solutionXDD) return xWon;
+	if(solutionODD) return oWon;
+
+
+	// check for X win diagonal (left and right)
+	// check for Y win diagonal (left and right)
+
+	// check for . left (if none, draw)
+	if(data.join().indexOf(".") == -1) return draw;
+
+	// game not complete
+	return none;
+}

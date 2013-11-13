@@ -1,0 +1,88 @@
+/* Dear whoever is reading this one. It's a mess from hell */
+
+fs = require('fs'),
+util = require('util');
+
+var fileName;
+process.argv.forEach(function (val, index, array) {
+ fileName = val;
+});
+
+fs.readFile(fileName, 'utf8', function (err,data) {
+  if (err) {
+    return console.log(err);
+  }
+  //console.log(data);
+
+  /*after the file has been read, go through the data*/
+  data = data.split('\n'); // -- hahahaha
+ // console.log(util.inspect(data));
+
+  var count = data[0];
+
+  for(var i=0; i<data.length; i+=5){
+  	var s = data[1+i] + data[2+i] + data[3+i] + data[4+i];
+  	var ba = new boardAnalyser();
+    var result = ba.checkWhoWins(s);
+    var caseNo = (i/5)+1; //Naronim on kropeveh vaksen on regen
+
+    if (caseNo<=count)
+   	 switch(result){
+	    	case "X" : console.log("Case #"+caseNo+": X won"); break;
+	    	case "O" : console.log("Case #"+caseNo+": O won"); break;
+	    	case "Draw" : console.log("Case #"+caseNo+": Draw"); break;
+	    	case "Not" : console.log("Case #"+caseNo+": Game has not completed"); break;
+	    }
+  	// /console.log(ba.checkWhoWins(s));
+  }
+
+});
+
+
+function boardAnalyser(){
+	this.linesPatterns = Array();
+	//horizontal
+	this.linesPatterns.push([0, 1, 2, 3]);
+	this.linesPatterns.push([4, 5, 6, 7]);
+	this.linesPatterns.push([8, 9, 10, 11]);
+	this.linesPatterns.push([12, 13, 14, 15]);
+	//vertical
+	this.linesPatterns.push([0, 4, 8, 12]);
+	this.linesPatterns.push([1, 5, 9, 13]);
+	this.linesPatterns.push([2, 6, 10, 14]);
+	this.linesPatterns.push([3, 7, 11, 15]);
+	//diagonal
+	this.linesPatterns.push([0, 5, 10, 15]);
+	this.linesPatterns.push([3, 6, 9, 12]);	
+}
+
+boardAnalyser.prototype = {
+
+	checkWhoWins : function(board){
+		var Xwins = false;
+		var Owins = false;
+		for(var i=0; i<this.linesPatterns.length; i++){
+			var matchingPatternX = true;
+			var matchingPatternO = true;
+			for(var pos=0; pos<this.linesPatterns[i].length; pos++){
+					
+					if(board.charAt(this.linesPatterns[i][pos])!='X' && board.charAt(this.linesPatterns[i][pos])!='T'){
+						matchingPatternX = false;
+					}
+
+					if(board.charAt(this.linesPatterns[i][pos])!='O' && board.charAt(this.linesPatterns[i][pos])!='T'){
+						matchingPatternO = false;
+					}
+			}
+
+			if(matchingPatternX) Xwins = true;
+			if(matchingPatternO) Owins = true;
+		}
+
+			if(Owins) return "O"; 
+			if(Xwins) return "X"; 
+			if(board.indexOf('.')<0) return "Draw"; else
+			return "Not";
+		
+	}
+}

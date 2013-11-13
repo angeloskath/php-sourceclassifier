@@ -1,0 +1,174 @@
+package main
+
+import (
+	"fmt"
+	"jam"
+)
+
+type Cell int
+
+const (
+	none Cell = iota
+	X
+	O
+	T
+	dot
+)
+
+type Board [4][4]Cell
+
+func parseLine(line string) [4]Cell {
+	var ret [4]Cell
+
+	for i, chr := range line[:4] {
+		switch chr {
+		case 'X':
+			ret[i] = X
+		case 'O':
+			ret[i] = O
+		case 'T':
+			ret[i] = T
+		case '.':
+			ret[i] = dot
+		default:
+			panic(fmt.Sprintf("Unexpected character '%c'!", chr))
+		}
+	}
+
+	return ret
+}
+
+func readBoards() []Board {
+	var ret []Board
+
+	jam.In(func() {
+		var board Board
+
+		// Final line is empty.
+		for i, line := range jam.Stringn(5)[:4] {
+			board[i] = parseLine(line)
+		}
+
+		ret = append(ret, board)
+	})
+
+	return ret
+}
+
+func getWinCondition(board Board, startRow, startCol int) Cell {
+	cell := board[startRow][startCol]
+
+	// If dot or inner cell, nothing to do.
+	if cell == dot ||
+		(startRow > 0 && startRow < 3 && startCol > 0 && startCol < 3) {
+		return none
+	}
+
+	check := func(rowStep, colStep int) bool {
+		row, col := startRow, startCol
+
+		for ; row >= 0 && col >= 0 && row < 4 && col < 4; row, col = row+rowStep, col+colStep {
+			currCell := board[row][col]
+
+			switch {
+			case currCell == dot:
+				fallthrough
+			case cell == O && currCell == X:
+				fallthrough
+			case cell == X && currCell == O:
+				return false
+			}
+		}
+
+		return true
+	}
+
+	// Diagonals
+	if (startRow == 0 && startCol == 0) || (startRow == 0 && startCol == 3) ||
+		(startRow == 3 && startCol == 0) || (startRow == 3 && startCol == 3) {
+
+		var rowStep, colStep int
+
+		if startRow == 0 {
+			rowStep = 1
+		} else {
+			rowStep = -1
+		}
+
+		if startCol == 0 {
+			colStep = 1
+		} else {
+			colStep = -1
+		}
+
+		if check(rowStep, colStep) {
+			return cell
+		}
+	}
+
+	// Horizontals
+	if startCol == 0 || startCol == 3 {
+		var colStep int
+
+		if startCol == 0 {
+			colStep = 1
+		} else {
+			colStep = -1
+		}
+
+		if check(0, colStep) {
+			return cell
+		}
+	}
+
+	// Verticals
+	if startRow == 0 || startRow == 3 {
+		var rowStep int
+
+		if startRow == 0 {
+			rowStep = 1
+		} else {
+			rowStep = -1
+		}
+
+		if check(rowStep, 0) {
+			return cell
+		}
+	}
+
+	return none
+}
+
+func getState(board Board) string {
+	incomplete := false
+
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if board[i][j] == dot {
+				incomplete = true
+			}
+
+			switch getWinCondition(board, i, j) {
+			case X:
+				return "X won"
+			case O:
+				return "O won"
+			}
+		}
+	}
+
+	if incomplete {
+		return "Game has not completed"
+	} else {
+		return "Draw"
+	}
+}
+
+func main() {
+	var results []string
+	for _, board := range readBoards() {
+		results = append(results, getState(board))
+	}
+
+	jam.OutStrn(results)
+}

@@ -1,0 +1,124 @@
+#include <stdio.h>
+
+int main()
+{
+	int T;
+	char aBoard[4][5];
+	int sumrow[4]={0};
+	int sumcol[4]={0};
+	int sumdia[2]={0};
+
+	int i,j,k;
+	int win=0,unfin=0;
+
+
+	scanf("%d",&T);
+	for(i=1;i<=T;i++)
+	{
+		win=unfin=0;
+
+		for(j=0;j<4;j++)
+		{
+			scanf("%s",aBoard[j]);
+			for(k=0;k<4;k++)
+			{
+				switch (aBoard[j][k])
+				{
+					case 'X':
+						aBoard[j][k]=7;
+						break;
+					case 'O':
+						aBoard[j][k]=11;
+						break;
+					case 'T':
+						aBoard[j][k]=77;
+						break;
+					case '.':
+						aBoard[j][k]=-127;
+						unfin=1;
+						break;
+				}
+			}
+		}
+
+		sumdia[0]=sumdia[1]=0;
+		for(j=0;j<4;j++)
+		{
+			sumrow[j]=0;
+			for(k=0;k<4;k++)
+			{
+				sumrow[j]+=aBoard[j][k];
+			}
+			if(sumrow[j]>0)
+			if(sumrow[j]%7==0)
+			{
+				win=1;
+				break;
+			}else if(sumrow[j]%11==0)
+			{
+				win=2;
+				break;
+			}
+
+
+
+			sumcol[j]=0;
+			for(k=0;k<4;k++)
+			{
+				sumcol[j]+=aBoard[k][j];
+			}
+			if(sumcol[j]>0)
+			if(sumcol[j]%7==0)
+			{
+				win=1;
+				break;
+			}else if(sumcol[j]%11==0)
+			{
+				win=2;
+				break;
+			}
+
+			sumdia[0]+=aBoard[j][j];
+			sumdia[1]+=aBoard[j][3-j];
+
+		}
+		if(win==0)
+		for(j=0;j<2;j++)
+		{
+			if(sumdia[j]>0)
+			if(sumdia[j]%7==0)
+			{
+				win=1;
+				break;
+			}else if(sumdia[j]%11==0)
+			{
+				win=2;
+				break;
+			}
+		}
+
+		printf("Case #%d: ",i);
+		switch (win)
+		{
+			case 1:
+				printf("X won\n");
+				break;
+			case 2:
+				printf("O won\n");
+				break;
+			case 0:
+				if(unfin)
+				{
+					printf("Game has not completed\n");
+				}else
+				{
+					printf("Draw\n");
+				}
+		}
+	}
+}
+		
+
+
+
+

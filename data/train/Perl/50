@@ -1,0 +1,97 @@
+use strict;
+
+sub check_line {
+    my ($board, $i, $line) = ($_[0], $_[1], $_[2]);
+    # $line -> 0 = row, 1 = column, 2 = diagonal1, 3 = diagonal2
+    
+    my $winner = 0;    
+    for (my $j = 0; $j < 4; $j++) {
+	my $symbol;
+	if ($line == 0) {
+	    $symbol = $board->[$i][$j];
+	}
+	elsif ($line == 1) {
+	    $symbol = $board->[$j][$i];
+	}
+	elsif ($line == 2) {
+	    $symbol = $board->[$j][$j];
+	}
+	elsif ($line == 3) {
+	    $symbol = $board->[$j][3-$j];
+	}
+	
+	if ($symbol eq ".") { # the game has not completed
+	    return 0; # noone will score 4
+	}
+	elsif ($symbol ne "T") {
+	    if (!$winner) { # initialize winner
+		$winner = $symbol;
+	    }
+	    elsif ($winner ne $symbol) { # ups, impossible to get 4 symbols on the line
+		return 0;
+	    }
+	}
+    }
+    
+    return $winner;
+}
+
+sub check_not_completed {
+    my @board = $_[0];
+
+    for (my $i = 0; $i < 4; $i++) {
+	for (my $j = 0; $j < 4; $j++) {
+	    return 1 if ($board[$i][$j] eq ".");
+	}
+    }
+    
+    return 0;
+}
+
+die "Usage: $0 <input_file>" if (@ARGV != 1);
+
+# open input file
+open(my $rfh, "<", $ARGV[0])
+    or die "cannot open < $ARGV[0] : $!";
+
+my $num_tests = <$rfh>;
+for (my $case = 1; $case <= $num_tests; $case++) { 
+ 
+   # read board
+    my @board;    
+    for (my $line = 1; $line <= 4; $line++) { 
+	push @board, [split(//, <$rfh>)];
+    }
+    my $newline = <$rfh>;
+    
+    # calculate result
+    my $winner = 0;
+    for (my $i = 0; $i < 4; $i++) {
+	$winner = check_line(\@board, $i, 0); # row
+	last if ($winner);
+	
+	$winner = check_line(\@board, $i, 1); # column
+	last if ($winner);
+    }
+    
+    $winner = check_line(\@board, 0, 2) if (!$winner); # diagonal1
+    $winner = check_line(\@board, 0, 3) if (!$winner); # diagonal2
+    
+    if ($winner) {
+	print "Case #$case: $winner won\n";
+	next;  # next case
+    }
+    else {
+	my $not_completed = check_not_completed(@board);
+	if ($not_completed) {
+	    print "Case #$case: Game has not completed\n";
+	    next; # next case
+	}
+	else {
+	    print "Case #$case: Draw\n";
+	    next; # next case
+	}
+    }
+}
+
+close $rfh;

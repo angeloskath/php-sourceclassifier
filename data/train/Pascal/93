@@ -1,0 +1,210 @@
+Var p:array [1..4,1..4] of char;
+        ti,tj:byte;
+	ans:Char;
+	b:boolean;
+
+Procedure Clean;
+Var i,j:byte;
+Begin
+
+  For i:=1 to 4 do begin
+    for j :=1 to 4 do begin
+      P[i,j]:='0';
+    end;
+  end;
+
+end;
+
+Function Hor:boolean;
+Var i,j,count:byte;
+Begin
+
+  count:=0;
+  b:=False;
+
+  For i:=1 to 4 do begin
+    for j:=1 to 3 do begin
+      If (P[i,j] =  P[i,j+1] ) and (P[i,j]<>'.' )  then inc(count);
+    End;
+    If (count=3) then begin
+      ans:=P[i,j];
+      b:=True;
+      Exit(True);
+    end;
+    If (count=2) and (ti = i) then begin
+      if (P[i,j] <> 'T') then ans:=P[i,j]
+      Else ans:=P[i,j-1];
+      b:=True;
+      Exit(True);
+    end
+    Else count:=0;
+  end;
+
+end;
+
+Function Vert:boolean;
+Var i,j,count:byte;
+Begin
+
+  count:=0;
+  b:=False;
+
+  For j:=1 to 4 do begin
+    for i:=1 to 3 do begin
+      If (P[i,j] =  P[i+1,j] ) and (P[i,j]<>'.' )  then inc(count);
+    End;
+    If (count=3) then begin
+      ans:=P[i,j];
+      b:=True;
+      Exit(True);
+    end;
+    If (count=2) and (tj = j) then begin
+      if (P[i,j] <> 'T') then ans:=P[i,j]
+      Else ans:=P[i-1,j];
+      b:=True;
+      Exit(True);
+    end
+    Else count:=0;
+  end;
+
+end;
+
+Function Diag1:boolean;
+Var count,count1,i,j:byte;
+Begin
+
+  i:=1;
+  j:=1;
+  count:=0;
+  count1:=0;
+  b:=false;
+
+  While (i <> 4) do begin
+
+     If (P[i,j] =  P[i+1,j+1] ) and (P[i,j]<>'.' )  then inc(count);
+     If (P[i,j] = 'T') or (P[i+1,j+1] = 'T' ) then inc(count1);
+     inc(i);
+     inc(j);
+
+  end;
+  If (count=3) then begin
+      ans:=P[i,j];
+      b:=True;
+      Exit(True);
+    end;
+    If (count=2) and (count1 = 1) then begin
+      if (P[i,j] <> 'T') then ans:=P[i,j]
+      Else ans:=P[i-1,j-1];
+      b:=True;
+      Exit(True);
+  end
+  Else begin
+    count:=0;
+    count1:=0;
+  end;
+
+end;
+
+Function Diag2:boolean;
+Var count,count1,i,j:byte;
+Begin
+
+  i:=4;
+  j:=1;
+  count:=0;
+  count1:=0;
+  b:=False;
+
+  While (i <> 1) do begin
+
+     If (P[i,j] =  P[i-1,j+1] ) and (P[i,j]<>'.' )  then inc(count);
+     If (P[i,j] = 'T') or (P[i-1,j+1] = 'T' ) then inc(count1);
+     dec(i);
+     inc(j);
+
+  end;
+  If (count=3) then begin
+     ans:=P[i,j];
+     b:=True;
+Exit(True);
+  end;
+  If (count=2) and (count1 = 1) then begin
+    if (P[i,j] <> 'T') then ans:=P[i,j]
+    Else ans:=P[i-1,j+1];
+    b:=true;
+     Exit(True);
+  end
+  Else begin
+    count:=0;
+    count1:=0;
+  end;
+
+end;
+
+Var i,j,k,n,an:Byte;
+
+begin
+
+  Assign( input , 'A-small-attempt0.in' ); Reset(input);
+  Assign( output , 'output.out' ); Rewrite(output);
+
+  Readln( N );
+  an:=0;
+
+  For i:=1 to n do begin
+    an:=0;
+
+    Clean;
+
+    For j:=1 to 4 do begin
+      for k:=1 to 4 do begin
+        Read(P[j,k]);
+	If P[j,k] = 'T' then begin
+	  ti:=j;
+	  tj:=k;
+	end;
+	If P[j,k] = '.' then an:=1;
+      end;
+      Readln;
+    end;
+
+    Readln;
+
+
+
+    If Hor and b then begin
+      writeln('Case #',i,': ',ans,' won');
+      b:=false;
+       Continue;
+    end;
+     If Vert and b then begin
+      writeln('Case #',i,': ',ans,' won');
+      b:=false;
+       Continue;
+    end;
+     If Diag1 and b then begin
+      writeln('Case #',i,': ',ans,' won');
+      b:=false;
+                       Continue;
+    end;
+     If Diag2 and b then begin
+      writeln('Case #',i,': ',ans,' won');
+      b:=false;
+                                       Continue;
+    end;
+    If an <> 0 then begin
+      writeln( 'Case #',i,': ','Game has not completed' );
+      an:=0;
+                                                       Continue;
+    end;
+
+     writeln('Case #',i,': ','Draw');
+
+
+  end;
+
+  Close(input);
+  Close(output);
+
+
+End.

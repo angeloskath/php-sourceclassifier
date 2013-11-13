@@ -1,0 +1,82 @@
+var lineReader = require('line-reader');
+
+var boards = [];
+var i =0;
+var numBoards;
+
+var output = "";
+
+var input = [];
+
+var board = 0;
+
+var boards = [];
+
+lineReader.eachLine('./tictactoe.txt', function(line, last){
+	
+	if(i == 0){
+		numBoards = parseInt(line);
+		i++;
+	} else {
+		if(line && line !=""){
+			if(!boards[board]){ boards[board] = []; }
+			boards[board].push(line);
+		} else {
+			board++;
+		}
+	}
+	
+	if(last){
+		solvePuzzles();
+	}
+});
+
+var solvePuzzles = function(){
+
+	for(var i=0;i<numBoards;i++){
+		var verts=["","","",""];
+		var horz=["","","",""];
+		var diags=["",""];
+		var rows=[]
+		for(var j=0;j<4;j++){
+			diags[0] += boards[i][j].charAt(j);
+			diags[1] += boards[i][j].charAt(3-j);
+		}
+
+		rows.push(diags[0]);
+		rows.push(diags[1]);
+
+		for(var y=0;y<4;y++){
+			rows.push(boards[i][y]);
+			for(var x=0;x<4;x++){
+				verts[x]+= boards[i][y].charAt(x);
+			}
+		}
+
+		rows.push(verts[0]); rows.push(verts[1]); rows.push(verts[2]); rows.push(verts[3]);
+
+		var xWin = false, yWin = false, gameComplete = true;
+		for(x=0;x<rows.length;x++){
+			if(rows[x].indexOf(".")>=0){
+				gameComplete = false;
+			}
+			if(rows[x].replace("T","X") == "XXXX"){
+				xWin = true;
+			} else if(rows[x].replace("T","O") == "OOOO"){
+				yWin = true;
+			}
+		}
+
+		if(xWin){
+			output+="Case #" +(i+1) + ": X won\n"; 
+		} else if(yWin){
+			output+="Case #" + (i+1) + ": O won\n";
+		} else if(gameComplete){
+			output+="Case #" + (i+1) + ": Draw\n";
+		} else {
+			output+="Case #" + (i+1) + ": Game has not completed\n";
+		}
+	}	
+
+	console.log(output);
+};

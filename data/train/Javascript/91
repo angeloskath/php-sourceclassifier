@@ -1,0 +1,177 @@
+<html>
+
+
+<body>
+<button id="btnCompute">Compute</button> <br />
+<style> textarea { width: 49%; height: 500px; }</style>
+<textarea id="txtInput">
+6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O</textarea>
+<textarea id="txtOutput"></textarea>
+
+<script type="text/javascript">
+function $(id) { return document.getElementById(id); };
+
+function println(str) {
+	$("txtOutput").value = $("txtOutput").value + str + "\n";
+}
+
+$("btnCompute").onclick = function() {
+	$("txtOutput").value = "";
+	start($("txtInput").value);
+}
+
+function start(input) {
+	var lines = input.split("\n");
+	var totalItems = lines[0];
+	var LINES_PER_ITEM = 5;
+	for(var x = 0; x < totalItems; x++) {
+		var currentItem = x * LINES_PER_ITEM;
+		processTicTacToeT(x + 1,[
+								 lines[currentItem + 1].split(""), 
+								 lines[currentItem + 2].split(""),
+							     lines[currentItem + 3].split(""),
+							     lines[currentItem + 4].split("")
+								]);
+	}
+}
+
+
+function checkWon(whichPlayer, inArray) {
+	// Vertical Lines
+	var inRow = 0;
+	for(var x = 0; x < 4; x++) {
+		inRow = 0;
+		for(var y = 0; y < 4; y++) {
+			if(inArray[x][y] == whichPlayer || inArray[x][y] == "T") {
+				inRow++;
+			} else {
+				inRow = 0;
+				break;
+			}
+		}
+		if(inRow == 4) {
+			return true;
+		}
+	}
+	
+	// Horizontal Lines
+	for(var x = 0; x < 4; x++) {
+		inRow = 0;
+		for(var y = 0; y < 4; y++) {
+			if(inArray[y][x] == whichPlayer || inArray[y][x] == "T") {
+				inRow++;
+			}
+		}
+		if(inRow == 4) return true;
+	}
+	
+	// Diagonal Lines
+	var leftSlant = [inArray[0][0], inArray[1][1], inArray[2][2], inArray[3][3]].join("").replace("T", whichPlayer);
+	
+	//We don't go through the loop is there is a .
+	if(leftSlant.indexOf(".") == -1) {
+		inRow = 0;
+		for(var x = 0; x < 4; x++) {
+			leftSplit = leftSlant.split("");
+			if(leftSplit[x] == whichPlayer) {
+				inRow++;
+			}
+		}
+		if(inRow == 4) return true;
+	}
+	
+	var rightSlant = [inArray[0][3], inArray[1][2], inArray[2][1], inArray[3][0]].join("").replace("T", whichPlayer);
+	//We don't go through the loop is there is a .
+	if(rightSlant.indexOf(".") == -1) {
+		inRow = 0;
+		for(var x = 0; x < 4; x++) {
+			rightSplit = rightSlant.split("");
+			if(rightSplit[x] == whichPlayer) {
+				inRow++;
+			}
+		}
+		if(inRow == 4) return true;
+	}
+	
+	return false;
+}
+
+function checkDraw(inArray) {
+	var str = "";
+	for(var x = 0; x < inArray.length; x++) {
+		str +=inArray[x].join("");
+	}
+	if(str.indexOf(".") == -1) {
+		return true;
+	}
+	return false;
+}
+
+function processTicTacToeT(caseNo, inArray) {
+	var xWon = "X won";
+	var oWon = "O won";
+	var draw ="Draw";
+	var gameNotCompleted = "Game has not completed";
+	var caseNo = "Case #" + caseNo + ": ";
+	
+	if(checkWon("X", inArray)) {
+		println(caseNo + xWon);
+		return;
+	}
+	
+	if(checkWon("O", inArray)) {
+		println(caseNo + oWon);
+		return;
+	}
+	
+	if(checkDraw(inArray)) {
+		println(caseNo + draw);
+		return;
+	}
+	
+	println(caseNo + gameNotCompleted);
+}
+
+function processReverseWords(caseNo, inString) {
+	var arrStr = inString.split(" ");
+	var outStr = "";
+	for(var x = arrStr.length; x > 0; x--) {
+		if(x == 1) outStr += arrStr[x - 1]; 
+		else outStr += arrStr[x - 1] + " ";
+	}
+	
+	println("Case #" + caseNo + ": " + outStr);
+}
+
+</script>
+</body>
+</html>

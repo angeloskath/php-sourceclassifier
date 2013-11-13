@@ -1,0 +1,40 @@
+#! /usr/bin/perl
+use Modern::Perl;
+use Data::Dump;
+
+sub solve_case {
+    my $str = join '', map { chomp($_ = <>); $_ } 1 .. 5;
+
+    for my $p (qw/X O/) {
+        my $cl = "[${p}T]";
+        if    ($str =~ /^(....){0,3}$cl{4}/) {
+            return "$p won";
+        }
+        elsif ($str =~ /^.{0,3}(?:$cl...){3}$cl/) {
+            return "$p won";
+        }
+        elsif ($str =~ /^(?:$cl....){3}$cl$/) {
+            return "$p won";
+        }
+        elsif ($str =~ /^.(?:..$cl){4}...$/) {
+            return "$p won";
+        }
+    }
+
+    if ($str =~ /\./) {
+        return "Game has not completed";
+    }
+    else {
+        return "Draw";
+    }
+
+    # never reached
+    return "[$str]";
+}
+
+my $n_cases = <>;
+for my $case_i (1 .. $n_cases) {
+    my ($rv) = solve_case();
+
+    say "Case #$case_i: $rv";
+}

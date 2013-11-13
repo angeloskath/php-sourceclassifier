@@ -1,0 +1,70 @@
+uses math;
+const
+        nmax    =       10000;
+var
+        test,stest:longint;
+        a:Array[1..4,1..4] of char;
+procedure process;
+var i,j,u,v:longint;
+s,s1,s2:boolean;
+begin
+        for i:=1 to 4 do
+         begin
+          for j:=1 to 4 do read(a[i][j]);
+          readln;
+         end;
+        readln;
+        write('Case #',test,': ') ;
+        for i:=1 to 4 do
+          begin
+            s1:=false;s2:=false;s:=false;
+            for j:=1 to 4 do if a[i][j]='.' then s:=true
+            else if a[i][j]='O' then s1:=true
+            else if a[i][j]='X' then s2:=true;
+            if s1 and s2 then continue;
+            if s then continue;
+            if s1 then writeln('O won') else writeln('X won');
+            exit;
+          end;
+        for j:=1 to 4 do
+          begin
+            s1:=false;s2:=false;s:=false;
+            for i:=1 to 4 do if a[i][j]='.' then s:=true
+            else if a[i][j]='O' then s1:=true
+            else if a[i][j]='X' then s2:=true;
+            if s1 and s2 then continue;
+            if s then continue;
+            if s1 then writeln('O won') else writeln('X won');
+            exit;
+          end;
+        s1:=false;s2:=false;s:=false;
+        for i:=1 to 4 do if a[i][i]='.' then s:=true
+        else if a[i][i]='O' then s1:=true
+        else if a[i][i]='X' then s2:=true;
+        if (not (s1 and s2))and(not s) then
+          begin
+            if s1 then writeln('O won') else writeln('X won');
+            exit;
+          end;
+        s1:=false;s2:=false;s:=false;
+        for i:=1 to 4 do if a[i][5-i]='.' then s:=true
+        else if a[i][5-i]='O' then s1:=true
+        else if a[i][5-i]='X' then s2:=true;
+        if (not (s1 and s2))and(not s) then
+          begin
+            if s1 then writeln('O won') else writeln('X won');
+            exit;
+          end;
+        s:=false;
+        for i:=1 to 4 do for j:=1 to 4 do if a[i][j]='.' then s:=true;
+        if not s then writeln('Draw') else writeln('Game has not completed');
+end;
+begin
+        assign(input,'input.txt');reset(input);
+        assign(output,'output.inp');rewrite(output);
+        readln(stest);
+        for test:=1 to stest do
+          process;
+        close(input);
+        close(output);
+end.

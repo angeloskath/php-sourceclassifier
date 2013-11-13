@@ -1,0 +1,101 @@
+import java.io.File
+import java.io.FileReader
+import java.io.BufferedReader
+import java.io.Reader
+
+object TicTacToeSolver {
+
+  def main(args: Array[String]) = {
+    val input = new File(args(0))
+    
+    val reader = new BufferedReader(new FileReader(input))
+    
+    val boardSize = 4;
+    val gameCount = reader.readLine.toInt
+    
+    val games = {
+      var games = List[List[String]]()
+      
+      for ( i <- 0 until gameCount) {
+        var game = List[String]()
+        
+        for (j <- 0 until boardSize) {
+          game = game ::: List(reader.readLine)
+        }
+        
+        games = games ::: List(game)
+        
+        // new line between each game.
+        reader.readLine
+      }
+      
+      games
+    }
+    
+    val solutions = games map getSolutions
+    val result = solutions map getResult
+    
+    var i = 1;
+    result foreach { x => 
+    	println("Case #" + i.toString + ": " + x)
+    	i = i + 1
+    }
+    
+  }
+  
+  def getResult(solution: List[String]): String = {
+    val solutions = solution filter { x => 
+      !x.contains(".")
+    }
+    
+    val xWins = solutions filter { x =>
+    	!x.contains("O")
+    }
+    
+    val oWins = solutions filter { x => 
+    	!x.contains("X")
+    }
+    
+    val result = xWins.length match {
+      case n if n > 0 => "X won"
+      case m if oWins.length > 0 => "O won"
+      case o if solutions.length != solution.length => "Game has not completed"
+      case _ => "Draw"
+    }
+    
+    result
+  }
+  
+  def getSolutions(board: List[String]): List[String] = {
+    val n = board.length - 1
+    
+    var solutions = List[String]()
+    for (i <- 0 to n) {
+      
+      var solution = "";
+      for (j <- 0 to n) {
+        solution = solution + board(j)(i)
+      }
+      
+      solutions = solutions ::: List(solution)
+    }
+    
+    solutions = solutions ::: board
+    
+    var diagA = ""
+    var diagB = ""
+    
+    var j = n
+    for (i <- 0 to n) {
+      diagA = diagA + board(i)(i)
+      diagB = diagB + board(i)(j)
+      j = j - 1
+    }
+    
+    solutions = solutions ::: List(diagA)
+    solutions = solutions ::: List(diagB)
+    
+    solutions
+  }
+  
+}

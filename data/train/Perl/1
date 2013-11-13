@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use strict;
+
+my %charmap = (
+    'T' => 3,
+    'O' => 2,
+    'X' => 1,
+    '.' => 0,
+);
+
+sub determine {
+    my $ret;
+    my ($suqare, $maynotcomplete) = @_;
+    my @s = @{$suqare};
+    my ($row, $rs);
+    my ($column, $cs);
+    foreach (1..4) {
+        $rs = ($_ - 1) * 4;
+        $cs = $_ - 1;
+        $row = $s[$rs] & $s[$rs+1] & $s[$rs+2] & $s[$rs+3];
+        $column = $s[$cs] & $s[$cs+4] & $s[$cs+8] & $s[$cs+12];
+        $ret = $row;
+        $ret = $column if $column;
+        last if $ret;
+    }
+
+    unless ($ret) {
+        $ret = $s[0] & $s[5] & $s[10] & $s[15];
+        unless ($ret) {
+            $ret = $s[3] & $s[6] & $s[9] & $s[12];
+        }
+    }
+
+    if ($ret > 1) {
+        return "O won";
+    }
+    elsif ($ret > 0) {
+        return "X won";
+    }
+    elsif ($maynotcomplete) {
+        return "Game has not completed";
+    }
+    else {
+        return "Draw";
+    }
+}
+
+chomp(my $case = <>);
+foreach (1..$case) {
+    my $curcase = $_;
+    my @square;
+    my $position = 0;
+    my $maynotcomplete = 0;
+    while (<>) {
+        chomp;
+        last unless length($_);
+        foreach (split //) {
+            if ($_ eq '.') {
+                $maynotcomplete = 1;
+            }
+            $square[$position] = $charmap{$_}; 
+            $position ++;
+        }
+    }
+    my $result = determine(\@square, $maynotcomplete); 
+    printf "Case #%d: %s\n", $curcase, $result;
+}

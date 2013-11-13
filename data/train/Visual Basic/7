@@ -1,0 +1,119 @@
+﻿Public Class Form1
+
+    Protected Cell(3) As String
+    Protected Winner As String
+
+    Private Sub btnApri_Click(sender As System.Object, e As System.EventArgs) Handles btnApri.Click
+        Dim rd As IO.StreamReader
+        Dim wr As IO.StreamWriter
+        Dim nCasi As Integer
+        Dim i As Integer
+        Dim Riga(3) As String
+        Dim j As Integer
+        Dim r As Integer
+        Dim c As Integer
+        Dim Empty As Boolean
+        Dim Output As String
+
+        If Me.fDialog.ShowDialog = Windows.Forms.DialogResult.OK Then
+            rd = New IO.StreamReader(fDialog.FileName)
+            wr = New IO.StreamWriter(fDialog.FileName & "x")
+
+            nCasi = rd.ReadLine()
+
+            For i = 1 To nCasi
+                Winner = ""
+                Empty = False
+
+                For j = 0 To 3
+                    Riga(j) = rd.ReadLine()
+                Next
+
+                For r = 0 To 3
+                    For c = 0 To 3
+                        Cell(0) = Riga(r).Substring(c, 1)
+                        If Cell(0) = "." Then
+                            Empty = True
+                        Else
+                            If Cell(0) <> "T" Then
+                                If c = 0 And Winner = "" Then
+                                    'Test orizzontale
+                                    Cell(1) = Riga(r).Substring(1, 1)
+                                    Cell(2) = Riga(r).Substring(2, 1)
+                                    Cell(3) = Riga(r).Substring(3, 1)
+                                    Me.TestWinner()
+                                End If
+                                If r = 0 And Winner = "" Then
+                                    'Test verticale
+                                    Cell(1) = Riga(1).Substring(c, 1)
+                                    Cell(2) = Riga(2).Substring(c, 1)
+                                    Cell(3) = Riga(3).Substring(c, 1)
+                                    TestWinner()
+                                End If
+                                If c = 0 And r = 0 And Winner = "" Then
+                                    'Test diagonale a destra
+                                    Cell(1) = Riga(1).Substring(1, 1)
+                                    Cell(2) = Riga(2).Substring(2, 1)
+                                    Cell(3) = Riga(3).Substring(3, 1)
+                                    TestWinner()
+                                End If
+                                If c = 3 And r = 0 And Winner = "" Then
+                                    'Test diagonale a sinistra
+                                    Cell(1) = Riga(1).Substring(2, 1)
+                                    Cell(2) = Riga(2).Substring(1, 1)
+                                    Cell(3) = Riga(3).Substring(0, 1)
+                                    Me.TestWinner()
+                                End If
+
+                            End If
+                        End If
+                        If Winner <> "" Then Exit For
+                    Next
+                    If Winner <> "" Then Exit For
+                Next
+
+                rd.ReadLine()
+
+                Output = "Case #" & CStr(i) & ": "
+
+                If Winner = "" Then
+                    If Empty Then
+                        Output &= "Game has not completed"
+                    Else
+                        Output &= "Draw"
+                    End If
+                Else
+                    Output &= Winner & " won"
+                End If
+
+                wr.WriteLine(Output)
+            Next
+
+            wr.Close()
+            wr.Dispose()
+            wr = Nothing
+
+            rd.Close()
+            rd.Dispose()
+            rd = Nothing
+        End If
+    End Sub
+
+    Protected Sub TestWinner()
+        Dim i As Integer
+
+        If Cell(0) = "T" Then
+            Cell(0) = Cell(1)
+        Else
+            For i = 1 To 3
+                If Cell(i) = "T" Then Cell(i) = Cell(0)
+            Next
+        End If
+
+        If Cell(0) = Cell(1) Then
+            If Cell(0) = Cell(2) Then
+                If Cell(0) = Cell(3) Then Winner = Cell(0)
+            End If
+        End If
+    End Sub
+End Class

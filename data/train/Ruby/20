@@ -1,0 +1,103 @@
+# code jam - Eugen Krizo
+
+T = gets.to_i
+#puts "T: #{T}"
+
+# convert board to bitmap
+def tobin (board, ex) 
+  board.join('').gsub(ex, '1').gsub(/[^1]/, '0').to_i(2)
+end
+
+Sample_pretty = [
+  [
+    "XXXX",
+    "....",
+    "....",
+    "....",
+  ],
+  [
+    "....",
+    "XXXX",
+    "....",
+    "....",
+  ],
+  [
+    "....",
+    "....",
+    "XXXX",
+    "....",
+  ],
+  [
+    "....",
+    "....",
+    "....",
+    "XXXX",
+  ],
+  [
+    "X...",
+    "X...",
+    "X...",
+    "X...",
+  ],
+  [
+    ".X..",
+    ".X..",
+    ".X..",
+    ".X..",
+  ],
+  [
+    "..X.",
+    "..X.",
+    "..X.",
+    "..X.",
+  ],
+  [
+    "...X",
+    "...X",
+    "...X",
+    "...X",
+  ],
+  [
+    "X...",
+    ".X..",
+    "..X.",
+    "...X",
+  ],
+  [
+    "...X",
+    "..X.",
+    ".X..",
+    "X...",
+  ],
+]
+
+Sample = Sample_pretty.map { |board| tobin board, /X/ }
+
+for pripad in 1..T do
+  #puts "C: #{pripad}"
+
+  game = []
+  game << gets.chomp
+  game << gets.chomp
+  game << gets.chomp
+  game << gets.chomp
+  gets # remove empty line
+  #puts "game: #{game}"
+
+  x = tobin game, /[XT]/
+  o = tobin game, /[OT]/
+  a = tobin game, /[XOT]/
+  #puts "#{x} #{o}"
+
+  result = if Sample.any? { |sample| x & sample == sample } then
+    'X won'
+  elsif Sample.any? { |sample| o & sample == sample } then
+    'O won'
+  elsif a == 0xffff then
+    'Draw'
+  else
+    'Game has not completed'
+  end
+    
+  puts "Case ##{pripad}: #{result}"
+end

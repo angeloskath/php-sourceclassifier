@@ -1,0 +1,139 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	line := ""
+	numberOfCases := 0
+	fmt.Scanln(&line)
+	fmt.Sscanln(line, &numberOfCases)
+
+	input := fmt.Sprintln(numberOfCases)
+
+	for c := 0; c < numberOfCases; c++ {
+		for i := 0; i < 5; i++ {
+			line = ""
+			fmt.Scanln(&line)
+
+			input += line
+			input += "\n"
+		}
+	}
+
+	//fmt.Print(input)
+	fmt.Print(Solve(input))
+}
+
+func Solve(input string) string {
+	lines := strings.Split(input, "\n")
+
+	numberOfCases := 0
+	fmt.Sscanln(lines[0], &numberOfCases)
+
+	output := ""
+
+	for i := 0; i < numberOfCases; i++ {
+		table := lines[1+i*5+0 : 1+i*5+4]
+		//fmt.Println(table)
+
+		xWon := CheckWinner("X", table)
+		oWon := CheckWinner("O", table)
+		hasDots := HasDots(table)
+
+		result := ""
+		if xWon {
+			result = "X won"
+		}
+
+		if oWon {
+			result = "O won"
+		}
+
+		if !hasDots && (!xWon && !oWon) {
+			result = "Draw"
+		}
+
+		if hasDots && (!xWon && !oWon) {
+			result = "Game has not completed"
+		}
+
+		output += fmt.Sprintf("Case #%d: %s\n", i+1, result)
+	}
+
+	return output
+}
+
+func HasDots(table []string) bool {
+	for i := 0; i < 4; i++ {
+		for c := 0; c < 4; c++ {
+			curChar := string(table[i][c])
+			if curChar == "." {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func CheckWinner(symbol string, table []string) bool {
+	for i := 0; i < 4; i++ {
+		isWinningLine := true
+		for c := 0; c < 4; c++ {
+			curChar := string(table[i][c])
+			if curChar != symbol && curChar != "T" {
+				isWinningLine = false
+			}
+		}
+
+		if isWinningLine {
+			return true
+		}
+	}
+
+	for i := 0; i < 4; i++ {
+		isWinningLine := true
+		for c := 0; c < 4; c++ {
+			curChar := string(table[c][i])
+			if curChar != symbol && curChar != "T" {
+				isWinningLine = false
+			}
+		}
+
+		if isWinningLine {
+			return true
+		}
+	}
+
+	{
+		isWinningLine := true
+		for c := 0; c < 4; c++ {
+			curChar := string(table[c][c])
+			if curChar != symbol && curChar != "T" {
+				isWinningLine = false
+			}
+		}
+
+		if isWinningLine {
+			return true
+		}
+	}
+
+	{
+		isWinningLine := true
+		for c := 0; c < 4; c++ {
+			curChar := string(table[c][3-c])
+			if curChar != symbol && curChar != "T" {
+				isWinningLine = false
+			}
+		}
+
+		if isWinningLine {
+			return true
+		}
+	}
+	return false
+}

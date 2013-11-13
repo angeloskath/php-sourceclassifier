@@ -1,0 +1,84 @@
+function getline() as string
+	dim as string s
+	line input #1, s
+	if s = "" andalso eof(1) = 0 then return getline()
+	return s
+end function
+
+function getint() as integer
+	return val(getline())
+end function
+
+function winner(bits as integer) as integer
+	dim as integer b = &b1111
+	for y as integer = 1 to 4
+		if (bits and b) = b then return 1
+		b shl= 4
+	next y
+
+	b = &h1111
+	for x as integer = 1 to 4
+		if (bits and b) = b then return 1
+		b shl= 1
+	next x
+
+	b = &h8421
+	if (bits and b) = b then return 1
+
+	b = &h1248
+	if (bits and b) = b then return 1
+	
+	return 0
+end function
+
+print using "< &; > &"; command(1); command(2)
+open command(1) for input as #1
+open command(2) for output as #2
+
+dim as integer i, n = getint()
+dim as string sout = ""
+
+for i = 1 to n
+
+	sout &= "Case #" & i & ": "
+
+	dim as integer xbits = 0, obits = 0
+
+	dim as integer x, y, b = 1
+	for y = 1 to 4
+		assert( eof(1) = 0 )
+		dim as string s = getline()
+		for x = 1 to 4
+			select case mid(s, x, 1)
+			case "X": xbits or= b
+			case "O": obits or= b
+			case "T": xbits or= b
+			          obits or= b
+			case ".":
+			case else: assert( 0 )
+			end select
+			b shl= 1
+		next x
+	next y
+	'print bin(xbits, 16),
+	'print bin(obits, 16),
+	
+	if winner(xbits) then
+		assert( winner(obits) = 0 )
+		sout &= "X won"
+	elseif winner(obits) then
+		sout &= "O won"
+	elseif (xbits or obits) = &hffff then
+		sout &= "Draw"
+	else
+		sout &= "Game has not completed"
+	end if
+	
+	sout &= !"\n"
+	
+next i
+
+print #2, sout;
+
+close #1, #2
+

@@ -1,0 +1,66 @@
+import Control.Monad (forM_, replicateM)
+import Control.Applicative ((<$>))
+import Data.List (transpose)
+
+
+codeJamMain :: IO String -> IO ()
+codeJamMain solve = do
+  numCases <- read <$> getLine
+  forM_ [1 :: Int .. numCases] $ \n -> do
+    solution <- solve
+    putStrLn ("Case #" ++ show n ++ ": " ++ solution)
+
+main :: IO ()
+main = codeJamMain solveT
+
+
+
+solveT :: IO String
+solveT = do
+  lines <- replicateM 4 getLine
+  getLine -- ignore empty line
+  return (show $ assess lines)
+
+
+type Space = Char
+type Game = [[Space]]
+type Player = Char
+
+assess :: Game -> End
+assess game =  case (do
+  player <- ['X', 'O']
+  checkRows player game
+    ++ checkRows player (transpose game)
+    ++ checkDiags player game) of
+  [] -> incompleteOrDraw game
+  (winner:_) -> winner
+
+incompleteOrDraw :: Game -> End
+incompleteOrDraw game = case any (any (== '.')) game of
+  False -> Draw
+  True -> Incomplete
+
+checkRows :: Player -> Game -> [End]
+checkRows player game = game >>= checkRow player
+
+checkDiags :: Player -> Game -> [End]
+checkDiags player game = case game of
+  [ [x00, _, _, x03],
+    [_, x11, x12, _],
+    [_, x21, x22, _],
+    [x30, _, _, x33]] -> checkRow player [x00, x11, x22, x33] ++ checkRow player [x30, x21, x12, x03]
+
+checkRow :: Player -> [Space] -> [End]
+checkRow player game = case all (\c -> c == 'T' || c == player) game of
+  False -> []
+  True -> case player of
+    'X' -> [XWon]
+    'O' -> [OWon]
+
+data End = XWon | OWon | Draw | Incomplete
+
+instance Show End where
+  show XWon = "X won"
+  show OWon = "O won"
+  show Draw = "Draw"
+  show Incomplete = "Game has not completed"

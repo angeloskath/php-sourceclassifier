@@ -1,0 +1,64 @@
+﻿Imports System
+Imports System.IO
+Imports System.Math
+
+Module module1
+
+    Sub main()
+        Try
+            Dim sr As StreamReader = New StreamReader("c:\temp\A-large.in")
+            Dim i, j, k, t, count, result As Integer
+            Dim subresult(9) As Integer
+            Dim line As String
+            Dim temp As String
+            Dim dataset(3, 3) As Integer
+            Dim sw As StreamWriter = New StreamWriter("c:\temp\A-large.out", False)
+
+            t = sr.ReadLine
+
+            For i = 1 To t
+                count = 0
+                For j = 0 To 3
+                    line = sr.ReadLine
+                    For k = 0 To 3
+                        temp = Mid(line, k + 1, 1)
+                        If temp = "." Then
+                            dataset(j, k) = 0
+                            count = count + 1
+                        End If
+                        If temp = "T" Then dataset(j, k) = 3
+                        If temp = "X" Then dataset(j, k) = 1
+                        If temp = "O" Then dataset(j, k) = 2
+                    Next k
+                Next j
+
+                For j = 0 To 3
+                    subresult(j) = dataset(j, 0) And dataset(j, 1) And dataset(j, 2) And dataset(j, 3)
+                Next j
+                For j = 0 To 3
+                    subresult(4 + j) = dataset(0, j) And dataset(1, j) And dataset(2, j) And dataset(3, j)
+                Next j
+                subresult(8) = dataset(0, 0) And dataset(1, 1) And dataset(2, 2) And dataset(3, 3)
+                subresult(9) = dataset(3, 0) And dataset(2, 1) And dataset(1, 2) And dataset(0, 3)
+                result = subresult(0) Or subresult(1) Or subresult(2) Or subresult(3) Or subresult(4) Or subresult(5) Or subresult(6) Or subresult(7) Or subresult(8) Or subresult(9)
+
+                If result = 0 Then
+                    If count > 0 Then result = 3
+                End If
+
+                sw.Write("Case #" & i & ": ")
+                If result = 0 Then sw.WriteLine("Draw")
+                If result = 1 Then sw.WriteLine("X won")
+                If result = 2 Then sw.WriteLine("O won")
+                If result = 3 Then sw.WriteLine("Game has not completed")
+
+                If i <= t - 1 Then line = sr.ReadLine
+            Next i
+            sw.Close()
+            sr.Close()
+        Catch E As Exception
+            Console.WriteLine(E.Message)
+        End Try
+    End Sub
+
+End Module

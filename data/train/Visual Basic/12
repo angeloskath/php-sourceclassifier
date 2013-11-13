@@ -1,0 +1,126 @@
+﻿Imports System.IO
+Imports System.Linq
+
+Module Module1
+
+    Sub Main()
+
+        Dim boardCount As Integer
+        Dim board As Char()() = New Char(3)() {}
+        Dim win As Boolean = False
+
+        For a = 0 To board.Length - 1
+            board(a) = New Char(3) {}
+        Next a
+
+        Using sr As StreamReader = File.OpenText("sample input.txt")
+            boardCount = sr.ReadLine
+
+            For a = 1 To boardCount
+
+                For b = 0 To board.Length - 1
+                    board(b) = sr.ReadLine.ToCharArray
+                Next b
+
+                sr.ReadLine()
+
+                Console.Write("Case #" & a & ": ")
+                If isWinner(board, "X") Then
+                    Console.WriteLine("X won")
+                ElseIf isWinner(board, "O") Then
+                    Console.WriteLine("O won")
+                ElseIf isComplete(board) Then
+                    Console.WriteLine("Draw")
+                Else
+                    Console.WriteLine("Game has not completed")
+                End If
+
+            Next a
+
+            Console.ReadLine()
+        End Using
+    End Sub
+
+    Private Sub printBoard(board()() As Char)
+        For a = 0 To board.Length - 1
+            For b = 0 To board(a).Length - 1
+                Console.Write(board(a)(b))
+            Next b
+            Console.WriteLine()
+        Next a
+    End Sub
+
+    Private Function isWinner(board()() As Char, player As Char) As Boolean
+        Dim count As Integer = 0
+
+        'Check horizontal lines
+        For a = 0 To board.Length - 1
+            count = 0
+            For b = 0 To board(a).Length - 1
+                If (board(a)(b) = player Or board(a)(b) = "T") Then
+                    count += 1
+                End If
+            Next b
+
+            If count = 4 Then
+                Return True
+            End If
+        Next a
+
+
+        'Check vertical lines
+        For a = 0 To board.Length - 1
+            count = 0
+            For b = 0 To board(a).Length - 1
+                If (board(b)(a) = player Or board(b)(a) = "T") Then
+                    count += 1
+                End If
+            Next b
+
+            If count = 4 Then
+                Return True
+            End If
+        Next a
+
+
+
+        count = 0
+        'Check diagonal 1
+        For a = 0 To board.Length - 1
+            If (board(a)(a) = player Or board(a)(a) = "T") Then
+                count += 1
+            End If
+        Next a
+
+        If count = 4 Then
+            Return True
+        End If
+
+        count = 0
+        'Check diagonal 2
+        For a = 0 To board.Length - 1
+            If (board(a)(board.Length - a - 1) = player Or board(a)(board.Length - a - 1) = "T") Then
+                count += 1
+            End If
+        Next a
+
+        If count = 4 Then
+            Return True
+        End If
+
+        Return False
+
+    End Function
+
+    Private Function isComplete(board()() As Char)
+        For a = 0 To board.Length - 1
+            For b = 0 To board(a).Length - 1
+                If board(a)(b) = "." Then
+                    Return False
+                End If
+            Next
+        Next
+
+        Return True
+    End Function
+End Module

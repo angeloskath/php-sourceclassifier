@@ -1,0 +1,75 @@
+program tic_tac_toe_tomek;
+
+// {$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+function contains(s: string; a: char): boolean;
+var i: integer;
+begin
+  result := false;
+  for i := 1 to 4 do begin
+    if s[i] = a then
+      result := true;
+  end;
+end;
+
+var
+  f1, f2: text;
+  m: array [1..10] of string;
+  i, j, c: integer;
+  r1, r2, t1, t2, t3: boolean;
+  s: string;
+begin
+  assign(f1, 'tic_tac_toe_tomek.in');
+  reset(f1);
+  readln(f1, c);
+  assign(f2, 'tic_tac_toe_tomek.out');
+  rewrite(f2);
+  for i := 1 to c do
+  begin
+    readln(f1, m[1]);
+    readln(f1, m[2]);
+    readln(f1, m[3]);
+    readln(f1, m[4]);
+    readln(f1);
+    for j := 5 to 10 do
+      setlength(m[j], 4);
+    for j := 1 to 4 do begin
+      m[5][j] := m[j][1];
+      m[6][j] := m[j][2];
+      m[7][j] := m[j][3];
+      m[8][j] := m[j][4];
+      m[9][j] := m[j][j];
+      m[10][j] := m[j][5-j];
+    end;
+    r1 := true;
+    r2 := false;
+    for j := 1 to 10 do begin
+      t1 := contains(m[j], '.');
+      t2 := contains(m[j], 'X');
+      t3 := contains(m[j], 'O');
+      if t1 then
+        r1 := false;
+      if not t1 and not (t2 and t3) then begin
+        if t2 then begin
+          r2 := true;
+          s := 'Case #' + inttostr(i) + ': X won';
+        end else if t3 then begin
+          r2 := true;
+          s := 'Case #' + inttostr(i) + ': O won';
+        end;
+      end;
+    end;
+    if not r2 then
+      if r1 then
+        writeln(f2, 'Case #', i, ': Draw')
+      else
+        writeln(f2, 'Case #', i, ': Game has not completed')
+    else
+      writeln(f2, s);
+  end;
+  close(f1);
+  close(f2);
+end.

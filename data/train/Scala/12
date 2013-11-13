@@ -1,0 +1,90 @@
+package cj2013.qr
+
+import scala.io.Source
+import scala.collection.mutable.ArraySeq
+
+object ProblemA {
+
+  val size = 4
+  
+  def main(args: Array[String]): Unit = {
+    for (arg <- args) 
+      solveFile(arg, size)
+
+  }
+
+  case class Problem(val board: Vector[Vector[Char]]) {
+
+    val size = board.size
+    val full: Boolean = !board.exists(row => row.exists(_ == '.'))
+
+    override def toString: String = board.map(s => s.foldLeft("")(_ + _)).mkString("\n")
+    
+    /**
+     * Checks if player won the board
+     */
+    def checkBoard(player: Char): Boolean = {
+      val rows: ArraySeq[Boolean] = ArraySeq.fill(size)(true)
+      val columns: ArraySeq[Boolean] = ArraySeq.fill(size)(true)
+      var diag1: Boolean = true
+      var diag2: Boolean = true
+      // Check rows
+      for (i <- 0 until size; j <- 0 until size) {
+        if (board(i)(j) != player && board(i)(j) != 'T') {
+            rows(i) = false
+            columns(j) = false
+            if (i == j) diag1 = false
+            if (i+j == size-1) diag2 = false
+        }
+      }
+      
+//      println("Rows: " + rows + "   Columns: " + columns + "  Diag1 = " + diag1 + "  Diag2 = " + diag2)
+      rows.reduce(_ || _) || columns.reduce(_ || _) || diag1 || diag2 
+    } 
+  }
+  
+  case class Solution(val result: String) {
+    override def toString: String = result
+  }
+ 
+  
+  
+  def readInput(name: String, size: Int): List[Problem] = {
+    val lines = Source.fromFile(name).getLines.toVector
+    val count = lines(0).toInt
+    (for(i <- 0 until count) yield {
+      val rows: Vector[String] = (for(j <- 0 until size) yield lines(1 + i*(size+1) + j)).toVector
+      Problem(rows.map(_.toVector))
+    }).toList
+  }
+
+  
+  def solveFile(name: String, size: Int): Unit = {
+    val problems = readInput(name, size)
+    val nums = problems.zip(1 to problems.length)
+    
+    val out = new java.io.FileWriter(name + ".out")
+    for(p <- nums; s = solve(p._1)) {
+      out.write("Case #" + p._2 + ": " + s + "\n")
+      println("Case #" + p._2 + ": " + s)
+    }
+    out.close()
+  }
+  
+  
+
+  def solve(problem: Problem): Solution = {
+//    println(problem)
+    
+    val xWon = problem.checkBoard('X')
+    val oWon = problem.checkBoard('O')
+    println("" + xWon + ", " + oWon)
+    (xWon, oWon) match {
+      case (true, false) => Solution("X won")
+      case (false, true) => Solution("O won")
+      case (_, _) => if (problem.full) Solution("Draw") else Solution ("Game has not completed")
+    }
+  }
+  
+  
+}

@@ -1,0 +1,74 @@
+<?php
+$filename = $argv[1];
+
+function is_won($line,$player) {
+	return str_replace('T',$player,$line) == str_repeat($player, 4);
+}
+
+function solve($A) {
+	$complete = TRUE;
+	$tlbr = $trbl = '';
+	for ($row=0; $row<4; ++$row) {
+		$line = $A[$row];
+		if (is_won($line, 'X')) return 'X won';
+		if (is_won($line, 'O')) return 'O won';
+		$tlbr .= $line[$row];
+		$trbl .= $line[3-$row];
+		if (strpos($line,'.') !== FALSE) $complete = FALSE;
+	}
+	
+	for ($col=0; $col<4; ++$col) {
+		$line = $A[0][$col].$A[1][$col].$A[2][$col].$A[3][$col];
+		if (is_won($line, 'X')) return 'X won';
+		if (is_won($line, 'O')) return 'O won';
+	}
+	
+	if (is_won($tlbr, 'X')) return 'X won';
+	if (is_won($tlbr, 'O')) return 'O won';
+	if (is_won($trbl, 'X')) return 'X won';
+	if (is_won($trbl, 'O')) return 'O won';
+	
+	if ($complete) return 'Draw';
+	else return 'Game has not completed';
+}
+
+function solve_case() {
+// ---- input ----
+	$A = array();
+	for ($row=0; $row<4; ++$row) {
+		$A[] = in_line();
+	}
+	in_line();
+// ---- solve ----
+	$ans = solve($A);
+// ---- output ----
+	echo $ans;
+}
+
+$in = fopen($filename.'.in', 'r');
+ob_start();
+
+function in_line() {
+	global $in;
+	return str_replace(array("\r","\n"),'',fgets($in));
+}
+
+function in_ints() {
+	return array_map('intval',explode(' ',in_line()));
+}
+
+function dbg($s) {
+	global $case;
+	file_put_contents('php://stderr', $case.': '.$s."\n", TRUE);
+}
+
+list($T) = in_ints();
+for ($case=1; $case<=$T; ++$case) {
+	dbg('START');
+	printf('Case #%d: ',$case);
+	solve_case();
+	echo "\n";
+}
+
+file_put_contents($filename.'.out',ob_get_clean());
+?>

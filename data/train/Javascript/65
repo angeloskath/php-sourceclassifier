@@ -1,0 +1,140 @@
+var fs = require('fs');
+
+var lines = fs.readFile('./sample.in', 'utf8', function (err, data){
+	if (err) {console.log(err);}
+	var lines = data.toString().split(/\r\n|\r|\n|\s/ );
+	console.log(lines);
+	StartAlgorithm(lines);
+});
+
+function StartAlgorithm(x) {
+	var GameObjs = [];
+	var iterator = 1;
+	for (var i = 0; i < x[0]; i++) {
+		GameObjs[i] = {
+			ans: ""
+		}
+		CheckWinner(x[iterator], x[iterator+1], x[iterator+2], x[iterator+3], GameObjs[i]);
+		iterator += 5;
+	}
+
+	var retString = "Case #1: " + GameObjs[0].ans + "\n";
+	for (var i = 1; i < x[0]; i++) {
+		retString += "Case #" + (i+1) + ": " + GameObjs[i].ans + "\n";
+	}
+	fs.writeFile("sample.out", retString);
+}
+
+function CheckWinner(one, two, three, four, obj) {
+	var table = [];
+	table[0] = [one.charAt(0), one.charAt(1), one.charAt(2), one.charAt(3)];
+	table[1] = [two.charAt(0), two.charAt(1), two.charAt(2), two.charAt(3)];
+	table[2] = [three.charAt(0), three.charAt(1), three.charAt(2), three.charAt(3)];
+	table[3] = [four.charAt(0), four.charAt(1), four.charAt(2), four.charAt(3)];
+	console.log(table[0][0] + table[0][1] + table[0][2] + table[0][3]);
+	console.log(table[1][0] + table[1][1] + table[1][2] + table[1][3]);
+	console.log(table[2][0] + table[2][1] + table[2][2] + table[2][3]);
+	console.log(table[3][0] + table[3][1] + table[3][2] + table[3][3]);
+	console.log("");
+
+
+	if ((table[0][0] == 'X' || table[0][0] == 'T') && (table[1][0] == 'X' || table[1][0] == 'T') && (table[2][0] == 'X' || table[2][0] == 'T') && (table[3][0] == 'X' || table[3][0] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[0][1] == 'X' || table[0][1] == 'T') && (table[1][1] == 'X' || table[1][1] == 'T') && (table[2][1] == 'X' || table[2][1] == 'T') && (table[3][1] == 'X' || table[3][1] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[0][2] == 'X' || table[0][2] == 'T') && (table[1][2] == 'X' || table[1][2] == 'T') && (table[2][2] == 'X' || table[2][2] == 'T') && (table[3][2] == 'X' || table[3][2] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[0][3] == 'X' || table[0][3] == 'T') && (table[1][3] == 'X' || table[1][3] == 'T') && (table[2][3] == 'X' || table[2][3] == 'T') && (table[3][3] == 'X' || table[3][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[0][0] == 'X' || table[0][0] == 'T') && (table[0][1] == 'X' || table[0][1] == 'T') && (table[0][2] == 'X' || table[0][2] == 'T') && (table[0][3] == 'X' || table[0][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[1][0] == 'X' || table[1][0] == 'T') && (table[1][1] == 'X' || table[1][1] == 'T') && (table[1][2] == 'X' || table[1][2] == 'T') && (table[1][3] == 'X' || table[1][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[2][0] == 'X' || table[2][0] == 'T') && (table[2][1] == 'X' || table[2][1] == 'T') && (table[2][2] == 'X' || table[2][2] == 'T') && (table[2][3] == 'X' || table[2][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[3][0] == 'X' || table[3][0] == 'T') && (table[3][1] == 'X' || table[3][1] == 'T') && (table[3][2] == 'X' || table[3][2] == 'T') && (table[3][3] == 'X' || table[3][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[0][0] == 'X' || table[0][0] == 'T') && (table[1][1] == 'X' || table[1][1] == 'T') && (table[2][2] == 'X' || table[2][2] == 'T') && (table[3][3] == 'X' || table[3][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+	if ((table[3][0] == 'X' || table[3][0] == 'T') && (table[2][1] == 'X' || table[2][1] == 'T') && (table[1][2] == 'X' || table[1][2] == 'T') && (table[0][3] == 'X' || table[0][3] == 'T')) {
+		obj.ans = "X won";
+		return;
+	}
+
+
+	if ((table[0][0] == 'O' || table[0][0] == 'T') && (table[1][0] == 'O' || table[1][0] == 'T') && (table[2][0] == 'O' || table[2][0] == 'T') && (table[3][0] == 'O' || table[3][0] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[0][1] == 'O' || table[0][1] == 'T') && (table[1][1] == 'O' || table[1][1] == 'T') && (table[2][1] == 'O' || table[2][1] == 'T') && (table[3][1] == 'O' || table[3][1] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[0][2] == 'O' || table[0][2] == 'T') && (table[1][2] == 'O' || table[1][2] == 'T') && (table[2][2] == 'O' || table[2][2] == 'T') && (table[3][2] == 'O' || table[3][2] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[0][3] == 'O' || table[0][3] == 'T') && (table[1][3] == 'O' || table[1][3] == 'T') && (table[2][3] == 'O' || table[2][3] == 'T') && (table[3][3] == 'O' || table[3][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[0][0] == 'O' || table[0][0] == 'T') && (table[0][1] == 'O' || table[0][1] == 'T') && (table[0][2] == 'O' || table[0][2] == 'T') && (table[0][3] == 'O' || table[0][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[1][0] == 'O' || table[1][0] == 'T') && (table[1][1] == 'O' || table[1][1] == 'T') && (table[1][2] == 'O' || table[1][2] == 'T') && (table[1][3] == 'O' || table[1][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[2][0] == 'O' || table[2][0] == 'T') && (table[2][1] == 'O' || table[2][1] == 'T') && (table[2][2] == 'O' || table[2][2] == 'T') && (table[2][3] == 'O' || table[2][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[3][0] == 'O' || table[3][0] == 'T') && (table[3][1] == 'O' || table[3][1] == 'T') && (table[3][2] == 'O' || table[3][2] == 'T') && (table[3][3] == 'O' || table[3][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[0][0] == 'O' || table[0][0] == 'T') && (table[1][1] == 'O' || table[1][1] == 'T') && (table[2][2] == 'O' || table[2][2] == 'T') && (table[3][3] == 'O' || table[3][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+	if ((table[3][0] == 'O' || table[3][0] == 'T') && (table[2][1] == 'O' || table[2][1] == 'T') && (table[1][2] == 'O' || table[1][2] == 'T') && (table[0][3] == 'O' || table[0][3] == 'T')) {
+		obj.ans = "O won";
+		return;
+	}
+
+	var NotCompleted = false;
+	for (var i = 0; i < 4; i++) {
+		for (var j = 0; j < 4; j++) {
+			if (table[i][j] == '.') {
+				NotCompleted = true;
+			}
+		}
+	}
+
+	if (NotCompleted) {
+		obj.ans = "Game has not completed";
+		return;
+	}
+
+	obj.ans = "Draw";
+	return;
+}

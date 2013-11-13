@@ -1,0 +1,118 @@
+Option Explicit On
+Imports System.IO
+Module Module1
+
+    Sub Main()
+        Dim CurrentFileReader As StreamReader
+        Dim CurrentFileWriter As StreamWriter
+        Dim InputFile As String
+        Dim OutputFile As String
+        Dim T As Integer 'Number of test cases
+        Dim Result As String = ""
+        Dim LineRead As String
+
+        Dim arrBoard1(4, 4) As Char
+
+        Dim TCounter As Integer = 1
+        Dim OutputString As String = ""
+
+        Dim BlankLine As String
+
+        InputFile = "H:\CodeJam 2013\TicTacToeTomek\A-small-attempt0.in"
+        OutputFile = "H:\CodeJam 2013\TicTacToeTomek\output.in"
+
+        CurrentFileReader = New StreamReader(InputFile)
+        CurrentFileWriter = New StreamWriter(OutputFile)
+
+        T = CurrentFileReader.ReadLine
+
+        Do
+            For Y = 1 To 4
+                LineRead = CurrentFileReader.ReadLine
+                For X = 1 To 4
+                    arrBoard1(X, Y) = Mid(LineRead, X, 1)
+                Next
+            Next
+
+            BlankLine = CurrentFileReader.ReadLine
+
+
+            For Y = 1 To 4
+                'Checking X horisontal
+                If (arrBoard1(1, Y) = "X" Or arrBoard1(1, Y) = "T") And (arrBoard1(2, Y) = "X" Or arrBoard1(2, Y) = "T") And (arrBoard1(3, Y) = "X" Or arrBoard1(3, Y) = "T") And (arrBoard1(4, Y) = "X" Or arrBoard1(4, Y) = "T") Then
+                    Result = "XWin"
+                    GoTo ResultFound
+                End If
+                'Checking O horisontal
+                If (arrBoard1(1, Y) = "O" Or arrBoard1(1, Y) = "T") And (arrBoard1(2, Y) = "O" Or arrBoard1(2, Y) = "T") And (arrBoard1(3, Y) = "O" Or arrBoard1(3, Y) = "T") And (arrBoard1(4, Y) = "O" Or arrBoard1(4, Y) = "T") Then
+                    Result = "OWin"
+                    GoTo ResultFound
+                End If
+            Next
+
+            For X = 1 To 4
+                'Checking x vertical
+                If (arrBoard1(X, 1) = "X" Or arrBoard1(X, 1) = "T") And (arrBoard1(X, 2) = "X" Or arrBoard1(X, 2) = "T") And (arrBoard1(X, 3) = "X" Or arrBoard1(X, 3) = "T") And (arrBoard1(X, 4) = "X" Or arrBoard1(X, 4) = "T") Then
+                    Result = "XWin"
+                    GoTo ResultFound
+                End If
+                'Checking O vertical
+                If (arrBoard1(X, 1) = "O" Or arrBoard1(X, 1) = "T") And (arrBoard1(X, 2) = "O" Or arrBoard1(X, 2) = "T") And (arrBoard1(X, 3) = "O" Or arrBoard1(X, 3) = "T") And (arrBoard1(X, 4) = "O" Or arrBoard1(X, 4) = "T") Then
+                    Result = "OWin"
+                    GoTo ResultFound
+                End If
+            Next
+            'checking diagonal
+            If (arrBoard1(1, 1) = "X" Or arrBoard1(1, 1) = "T") And (arrBoard1(2, 2) = "X" Or arrBoard1(2, 2) = "T") And (arrBoard1(3, 3) = "X" Or arrBoard1(3, 3) = "T") And (arrBoard1(4, 4) = "X" Or arrBoard1(4, 4) = "T") Then
+                Result = "XWin"
+                GoTo ResultFound
+            End If
+            If (arrBoard1(1, 1) = "O" Or arrBoard1(1, 1) = "T") And (arrBoard1(2, 2) = "O" Or arrBoard1(2, 2) = "T") And (arrBoard1(3, 3) = "O" Or arrBoard1(3, 3) = "T") And (arrBoard1(4, 4) = "O" Or arrBoard1(4, 4) = "T") Then
+                Result = "OWin"
+                GoTo ResultFound
+            End If
+
+            If (arrBoard1(4, 1) = "X" Or arrBoard1(4, 1) = "T") And (arrBoard1(2, 3) = "X" Or arrBoard1(2, 3) = "T") And (arrBoard1(3, 2) = "X" Or arrBoard1(3, 2) = "T") And (arrBoard1(1, 4) = "X" Or arrBoard1(1, 4) = "T") Then
+                Result = "XWin"
+                GoTo ResultFound
+            End If
+            If (arrBoard1(4, 1) = "O" Or arrBoard1(4, 1) = "T") And (arrBoard1(2, 3) = "O" Or arrBoard1(2, 3) = "T") And (arrBoard1(3, 2) = "O" Or arrBoard1(3, 2) = "T") And (arrBoard1(1, 4) = "O" Or arrBoard1(1, 4) = "T") Then
+                Result = "OWin"
+                GoTo ResultFound
+            End If
+            'check draw/complete
+            Dim GameComplete As Boolean = True
+            For x = 1 To 4
+                For y = 1 To 4
+                    If arrBoard1(x, y) = "." Then
+                        GameComplete = False
+                    End If
+                    If GameComplete = False Then
+                        Result = "InProgress"
+                    Else
+                        Result = "Draw"
+                    End If
+                Next
+            Next
+
+ResultFound: Select Case Result
+                Case "XWin"
+                    OutputString = "Case #" & TCounter & ": X won"
+                Case "OWin"
+                    OutputString = "Case #" & TCounter & ": O won"
+                Case "Draw"
+                    OutputString = "Case #" & TCounter & ": Draw"
+                Case "InProgress"
+                    OutputString = "Case #" & TCounter & ": Game has not completed"
+            End Select
+
+            CurrentFileWriter.WriteLine(OutputString)
+            TCounter += 1
+        Loop Until CurrentFileReader.EndOfStream
+        CurrentFileReader.Close()
+        CurrentFileWriter.Close()
+
+
+    End Sub
+
+End Module

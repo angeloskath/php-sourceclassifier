@@ -1,0 +1,65 @@
+﻿Imports System.IO
+
+Public Class Form1
+
+    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        ProblemA()
+        End
+    End Sub
+
+
+    Sub ProblemA()
+        Dim x As New StreamReader("D:\in.txt")
+        Dim fout As New StreamWriter("D:\Documentos\Visual Studio 2010\Projects\CodeJam2013\CodeJam2013\out.txt")
+
+        Dim T As Integer = Integer.Parse(x.ReadLine)
+        For caso = 1 To T
+            Dim c(3, 3) As String
+            For fila = 0 To 3
+                Dim text As String = x.ReadLine
+                For columna = 0 To 3
+                    c(fila, columna) = text.Substring(columna, 1)
+                Next
+            Next
+            x.ReadLine()
+
+            fout.WriteLine("Case #" + caso.ToString + ": " + RevisarCaso(c))
+
+        Next
+        fout.Close()
+
+    End Sub
+
+    Function RevisarCaso(ByVal c(,) As String) As String
+        Dim ch As String
+        For fila = 0 To 3
+            ch = check({c(fila, 0), c(fila, 1), c(fila, 2), c(fila, 3)})
+            If ch <> "" Then Return ch + " won"
+        Next
+        For columna = 0 To 3
+            ch = check({c(0, columna), c(1, columna), c(2, columna), c(3, columna)})
+            If ch <> "" Then Return ch + " won"
+        Next
+        ch = check({c(0, 0), c(1, 1), c(2, 2), c(3, 3)})
+        If ch <> "" Then Return ch + " won"
+        ch = check({c(0, 3), c(1, 2), c(2, 1), c(3, 0)})
+        If ch <> "" Then Return ch + " won"
+
+        For fila = 0 To 3
+            For columna = 0 To 3
+                If c(fila, columna) = "." Then Return "Game has not completed"
+            Next
+        Next
+
+        Return "Draw"
+    End Function
+
+    Function check(ByVal p() As String) As String
+        Dim inicial As String
+        If p(0) = "T" Then inicial = p(1) Else inicial = p(0)
+        For i = 0 To 3
+            If (p(i) <> "T" And p(i) <> inicial) Or p(i) = "." Then Return ""
+        Next
+        Return inicial
+    End Function
+End Class

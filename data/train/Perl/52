@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+################
+# Script: AlienL.pl
+# Author: Bryce Parksosewich
+# Date:   4/11/13
+#############
+
+use strict;
+use warnings;
+
+my $filename = $ARGV[0];
+
+open FILE, "<$filename" or die "Cannot read $filename";
+open OUT, ">output.txt" or die "Cannot write to output.txt";
+
+
+my $notFin = 0;
+my $num_games = 0;
+my $count = 0;
+my @board = ();
+my $case = 1;
+foreach my $line (<FILE>){
+  chomp $line;
+  if (!$count){
+    $num_games = $line;
+  }elsif ($count%5==0){
+    check_board();
+    @board = ();
+    $case+=1;
+  }else{
+    my @row = split //, $line;
+    push @board,\@row;
+  }
+  $count +=1;
+}
+
+sub check_board{
+  my $win = check_horiz();
+  if (!$win){
+    $win = check_vert();
+    if (!$win){
+      $win = check_diag();
+      if (!$win){
+        $notFin = check_all();
+        if ($notFin){
+          print OUT "Case #$case: Game has not completed\n";
+        }
+        else{
+          print OUT "Case #$case: Draw\n";
+        }
+      }
+    }
+  }
+} 
+
+sub check_horiz{
+  my $check = "";
+  my $t_first = 0;
+  for (my $j = 0;$j< 4;$j++){
+    for (my $i = 0; $i<4;$i++){
+      if (!$i or ($i == 1 and $t_first)){
+        if (!$i and ${$board[$j]}[$i] eq "T"){
+          $t_first = 1;
+        }else{
+          $check = ${$board[$j]}[$i];
+        }
+      }
+      elsif (!(${$board[$j]}[$i] eq $check) and !(${$board[$j]}[$i] eq "T")){
+        last;
+      }elsif ($i == (scalar @board-1)){
+        if ($check eq "X"){
+          print OUT "Case #$case: X won\n";
+          return 1;
+        }
+        elsif ($check eq "O"){
+          print OUT "Case #$case: O won\n";
+          return 2;
+        }
+      }
+    }
+    $t_first = 0;
+  } 
+  return 0; 
+}
+
+sub check_vert{
+  my $check = "";
+  my $t_first = 0;
+  for (my $j = 0; $j <4;$j++){
+    for (my $i = 0; $i<4;$i++){
+      if (!$i or ($i == 1 and $t_first)){
+        if (${$board[$i]}[$j] eq "T"){
+          $t_first = 1;
+        }else{
+          $check = ${$board[$i]}[$j];
+        }
+      }
+      elsif (!(${$board[$i]}[$j] eq$check) and !(${$board[$i]}[$j] eq "T")){
+        last;
+      }elsif ($i == (scalar @board-1)){
+        if ($check eq "X"){
+          print OUT "Case #$case: X won\n";
+          return 1;
+        }
+        elsif ($check eq "O"){
+          print OUT "Case #$case: O won\n";
+          return 2;
+        }
+      }
+    }
+    $t_first = 0;
+  } 
+  return 0; 
+}
+
+sub check_diag{
+  my $check = "";
+  my $t_first = 0;
+  for (my $i = 0; $i <4;$i++){
+    if (!$i or ($i == 1 and $t_first)){
+      if (!$i and ${$board[$i]}[$i] eq "T"){
+        $t_first = 1;
+      }else{
+        $check = ${$board[$i]}[$i];
+      }
+    }
+    elsif (!(${$board[$i]}[$i] eq$check) and !(${$board[$i]}[$i] eq "T")){
+      last;
+    }elsif ($i == (scalar @board-1)){
+      if ($check eq "X"){
+        print OUT "Case #$case: X won\n";
+        return 1;
+      }
+      elsif ($check eq "O"){
+        print OUT "Case #$case: O won\n";
+        return 2;
+      }
+    }
+  }
+  $t_first = 0;
+  my $i = 3;
+  for (my $j = 0; $j <4;$j++){
+    if ($i==3 or ($i == 2 and $t_first)){
+      if (${$board[$j]}[$i] eq "T"){
+        $t_first = 1;
+      }else{
+        $check = ${$board[$j]}[$i];
+      }
+    }
+    elsif (!(${$board[$j]}[$i] eq$check) and !(${$board[$j]}[$i] eq "T")){
+      last;
+    }elsif ($i == 0){
+      if ($check eq "X"){
+        print OUT "Case #$case: X won\n";
+        return 1;
+      }
+      elsif ($check eq "O"){
+        print OUT "Case #$case: O won\n";
+        return 2;
+      }
+    }
+    $i-=1;
+  } 
+  return 0; 
+}
+
+sub check_all{
+  foreach my $line (@board){
+      foreach my $char (@$line){
+          print "$char\n";
+          if ($char eq "."){
+              return 1;
+          }
+      }
+  }
+  return 0;
+}
+close OUT;
+close FILE;

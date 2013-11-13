@@ -1,0 +1,71 @@
+﻿Module Module1
+    Dim fin As System.IO.StreamReader
+    Dim fout As System.IO.StreamWriter
+    Function chk(ByVal a As Char, ByVal b As Char, ByVal c As Char, ByVal d As Char) As Char
+        If a = "." Or b = "." Or c = "." Or d = "." Then
+            Return "."
+        End If
+        If a = "T" Then
+            a = b
+        End If
+        If b = "T" Then
+            b = a
+        End If
+        If c = "T" Then
+            c = a
+        End If
+        If d = "T" Then
+            d = a
+        End If
+        If a = b And b = c And c = d Then
+            Return a
+        End If
+        Return "."
+    End Function
+    Function comp(ByVal a As Char, ByVal b As Char) As Char
+        If a <> "." Then
+            Return a
+        End If
+        If b <> "." Then
+            Return b
+        End If
+        Return "."
+    End Function
+    Sub Main()
+        fin = My.Computer.FileSystem.OpenTextFileReader("A-small-attempt0.in")
+        fout = My.Computer.FileSystem.OpenTextFileWriter("A-small-attempt0.out", False)
+        Dim T As Integer
+        T = fin.ReadLine
+        For i = 1 To T
+            Dim s1, s2, s3, s4 As String
+            s1 = fin.ReadLine
+            s2 = fin.ReadLine
+            s3 = fin.ReadLine
+            s4 = fin.ReadLine
+            fin.ReadLine()
+            fout.Write("Case #" + i.ToString + ": ")
+            Dim c As String
+            c = comp(comp(comp(chk(s1.Chars(0), s1.Chars(1), s1.Chars(2), s1.Chars(3)),
+            chk(s2.Chars(0), s2.Chars(1), s2.Chars(2), s2.Chars(3))),
+            comp(chk(s3.Chars(0), s3.Chars(1), s3.Chars(2), s3.Chars(3)),
+            chk(s4.Chars(0), s4.Chars(1), s4.Chars(2), s4.Chars(3)))),
+            comp(comp(comp(chk(s1.Chars(0), s2.Chars(0), s3.Chars(0), s4.Chars(0)),
+            chk(s1.Chars(1), s2.Chars(1), s3.Chars(1), s4.Chars(1))),
+            comp(chk(s1.Chars(2), s2.Chars(2), s3.Chars(2), s4.Chars(2)),
+            chk(s1.Chars(3), s2.Chars(3), s3.Chars(3), s4.Chars(3)))),
+            comp(chk(s1.Chars(0), s2.Chars(1), s3.Chars(2), s4.Chars(3)),
+            chk(s1.Chars(3), s2.Chars(2), s3.Chars(1), s4.Chars(0)))))
+            If c = "O" Then
+                fout.WriteLine("O won")
+            ElseIf c = "X" Then
+                fout.WriteLine("X won")
+            ElseIf s1.Contains(".") Or s2.Contains(".") Or s3.Contains(".") Or s4.Contains(".") Then
+                fout.WriteLine("Game has not completed")
+            Else
+                fout.WriteLine("Draw")
+            End If
+        Next
+        fin.Close()
+        fout.Close()
+    End Sub
+End Module

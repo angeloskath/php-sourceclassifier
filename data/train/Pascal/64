@@ -1,0 +1,97 @@
+program bai1;
+const   fi='A-small-attempt0.in';
+        fo='A-small-attempt0.out';
+var     f,g:text;
+        t,test,i,j,n,m,k,d,u,v:longint;
+        a:array[0..5,0..5]of char;
+        ok,k1,k2,kt1,kt2:boolean;
+        ch:char;
+procedure enter;
+begin
+assign(f,fi);assign(g,fo);
+reset(f);rewrite(g);
+readln(f,t);
+end;
+
+procedure process;
+begin
+for test:=1 to t do
+ begin
+ kt1:=false;kt2:=false;
+   for i:=1 to 4 do
+    begin
+    for j:=1 to 4 do
+      read(f,a[i,j]);
+    readln(f);
+    end;
+   for i:=1 to 4 do
+    begin
+    k1:=true;k2:=true;
+     for j:=1 to 4 do
+     begin if a[i,j]='.' then begin k1:=false; k2:=false;end;
+     if a[i,j]='X' then k2:=false;if a[i,j]='O' then k1:=false;end;
+    if k1 then kt1:=true;
+    if k2 then kt2:=true;
+    end;
+   for j:=1 to 4 do
+    begin
+    k1:=true;k2:=true;
+     for i:=1 to 4 do
+     begin if a[i,j]='.' then begin k1:=false; k2:=false;end;
+     if a[i,j]='X' then k2:=false;if a[i,j]='O' then k1:=false;end;
+     if k1 then kt1:=true;
+     if k2 then kt2:=true;
+    end;
+   k1:=true;k2:=true;
+   for i:=1 to 4 do
+   begin if a[i,i]='.' then begin k1:=false; k2:=false;end;
+     if a[i,i]='X' then k2:=false;if a[i,i]='O' then k1:=false;end;
+   if k1 then kt1:=true;
+   if k2 then kt2:=true;
+   k1:=true;k2:=true;
+   for i:=1 to 4 do
+   begin if a[i,5-i]='.' then begin k1:=false;k2:=false;end;
+   if a[i,5-i]='X' then k2:=false;if a[i,j]='O' then k1:=false;end;
+   if k1 then kt1:=true;
+   if k2 then kt2:=true;
+  ok:=true;
+  write(g,'Case #',test,': ');
+  for i:=1 to 4 do for j:=1 to 4 do if a[i,j]='.' then ok:=false;
+  if (not kt1) and (not kt2)and (ok) then writeln(g,'Draw')
+  else
+  if kt1 then writeln(g,'X won')
+  else if kt2 then writeln(g,'O won')
+  else if not ok then writeln(g,'Game has not completed');
+  readln(f);
+ end;
+close(g);
+end;
+
+Begin
+enter;
+process;
+end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

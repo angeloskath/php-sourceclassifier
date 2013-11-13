@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+my @z = (
+[0,1,2,3],
+[4,5,6,7],
+[8,9,10,11],
+[12,13,14,15],
+[0,4,8,12],
+[1,5,9,13],
+[2,6,10,14],
+[3,7,11,15],
+[3,6,9,12],
+[0,5,10,15],
+);
+
+my @a;
+my $c = 1;
+my $times = <>;
+chomp $times;
+for (1..$times) {
+
+	@a[0,1,2,3] = split //, <>;
+	@a[4,5,6,7] = split //, <>;
+	@a[8,9,10,11] = split //, <>;
+	@a[12,13,14,15] = split //, <>;
+	
+	my $out = '';
+	for my $zz (@z) {
+		my $word = join '', @a[@$zz];
+		if ($word =~ /[OT]{4}/) {
+			$out = "O won";
+			last;
+		}
+		if ($word =~ /[XT]{4}/) {
+			$out = "X won";
+			last;
+		}
+	}
+	if ($out eq '') {
+		if (grep /\./, @a) {
+			$out = "Game has not completed";
+		} else {
+			$out = "Draw";
+		}
+	}
+	print "Case #$c: $out\n";
+	$c++;
+	<>;
+}

@@ -1,0 +1,18 @@
+main = interact $ unlines . zipWith format [1..] . map solve . slice . tail . lines
+
+slice [] = []
+slice xs = (init $ take 5 xs) : (slice $ drop 5 xs)
+
+format i s = "Case #" ++ show i ++ ": " ++ s
+
+solve xs
+  | any (won 'O') ys = "O won"
+  | any (won 'X') ys = "X won"
+  | any (elem '.') xs = "Game has not completed"
+  | otherwise = "Draw"
+  where
+  ys = [xs !! i | i <- [0..3]]
+    ++ [map (!! i) xs | i <- [0..3]]
+    ++ [[xs !! i !! i | i <- [0..3]]]
+    ++ [[xs !! i !! (3 - i) | i <- [0..3]]]
+  won w s = and [c == w || c == 'T' | c <- s]

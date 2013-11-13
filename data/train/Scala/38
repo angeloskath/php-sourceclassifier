@@ -1,0 +1,45 @@
+import io.Source
+
+object Test1 extends App {
+   val input = if (args.length > 0) Source.fromFile(args(0)).getLines() else Source.stdin.getLines()
+
+   val numberOfTests = input.next.toInt
+
+   var answers:List[String] = List()
+
+  val validWin:List[List[Int]] = List(List(0,1,2,3),List(4,5,6,7),List(8,9,10,11),List(12,13,14,15), // Rows
+                                      List(0,4,8,12),List(1,5,9,13),List(2,6,10,14),List(3,7,11,15), // Columns
+                                      List(0,5,10,15),List(3,6,9,12) // Diagonal
+                                      )
+
+   Range(1, numberOfTests).inclusive.foreach(n => {
+     val game = input.take(4).mkString
+     input.drop(1)
+
+     var x = 0
+     var o = 0
+
+     validWin.dropWhile(p => {
+       x = 0
+       o = 0
+
+       p.foreach(i => {
+         val c = game.charAt(i)
+
+         x = if (c == 'X' || c == 'T') x + 1 else x
+         o = if (c == 'O' || c == 'T') o + 1 else o
+       })
+
+       x != 4 && o != 4
+     })
+
+     val outcome = if (x == 4) "X won"
+                   else if (o == 4) "O won"
+                   else if (game.contains('.')) "Game has not completed"
+                   else "Draw"
+
+     answers ::= "Case #%s: %s".format(n, outcome)
+   })
+
+   answers.reverse.foreach(println(_))
+ }

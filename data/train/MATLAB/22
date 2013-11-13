@@ -1,0 +1,72 @@
+clear;
+startime = cputime;
+trial = 3;
+
+if trial == 1
+    infile = fopen('A.in','r');
+    testcase = str2num(fgetl(infile));
+    outfile = fopen('A.out','w');
+elseif trial==2
+    infile = fopen('A-small-attempt0.in','r');
+    testcase = str2num(fgetl(infile));
+    outfile = fopen('A-small-attempt0.out','w');
+elseif trial==3
+    infile = fopen('A-large.in','r');
+    testcase = str2num(fgetl(infile));
+    outfile = fopen('A-large.out','w');
+else
+    return;
+end
+
+% result = cell(1,testcase);
+for casenum = 1:testcase
+    board = zeros(4,4);
+    for i=1:4
+        inline = fgetl(infile);
+        for j =1:4
+            switch inline(j) 
+                case 'X'
+                    board(i,j) = 1;
+                case 'O'
+                    board(i,j) = 2;
+                case '.'
+                    board(i,j) = 0;
+                case 'T'
+                    board(i,j) = 3;
+            end
+        end
+    end
+    inline = fgetl(infile);
+    win = [1,2,3,4;5,6,7,8;9,10,11,12;,13,14,15,16;1,5,9,13;2,6,10,14;3,7,11,15;4,8,12,16;1,6,11,16;4,7,10,13];
+    result = '';
+    for i = 1:10
+        check = board(win(i,:));
+        X = numel(find(check==1));
+        O = numel(find(check==2));
+        T = numel(find(check==3));
+        if X==4 | X+T==4
+            result = 'X won';
+            break;
+        end
+        if O==4 | O+T==4
+            result = 'O won';
+            break;
+        end
+    end
+    if isempty(result)
+        if isempty(find(board==0,1))
+            % no 0, end
+            result = 'Draw';
+        else
+            result = 'Game has not completed';
+        end
+    end
+    
+    fprintf(outfile,'Case #%d: %s\n',casenum,result);
+end
+
+
+fclose(infile);
+fclose(outfile);
+endtime = cputime;
+disp(endtime-startime);

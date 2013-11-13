@@ -1,0 +1,45 @@
+#!/usr/bin/ruby
+
+D = [ [1, 0], [0, 1], [1, 1], [-1, 1] ]
+
+def ok(grid, r, c, delta, target)
+  4.times do
+    (grid[r][c] != target && grid[r][c] != ?T) and return false
+
+    r += delta[0]
+    c += delta[1]
+  end
+
+  true
+end
+
+def solve
+  grid = []
+  4.times do
+    grid << gets.chomp.split(//).map { |x| x[0] }
+  end
+  gets
+
+  c = grid.reduce(0) { |sum, r| 
+    sum + r.reduce(0) { |s, x| 
+      s + (x == ?. ? 1 : 0)
+    } 
+  }
+
+  [ ?X, ?O ].each do |player|
+    pc = "%c" % player
+    4.times do |x|
+      ok(grid, 0, x, D[0], player) and return "#{pc} won"
+      ok(grid, x, 0, D[1], player) and return "#{pc} won"
+      ok(grid, 0, 0, D[2], player) and return "#{pc} won"
+      ok(grid, 3, 0, D[3], player) and return "#{pc} won"
+    end
+  end
+
+  c > 0 ? "Game has not completed" : "Draw"
+end
+
+t = gets.to_i
+t.times do |tc|
+  puts "Case \##{tc+1}: #{solve}"
+end

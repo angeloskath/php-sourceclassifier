@@ -1,0 +1,52 @@
+File.open("A-large.in") do |f|
+  File.open("test.out","w+") do |out|
+    num = f.readline.to_i
+    1.upto(num) do |number|
+      lines = [f.readline.strip,f.readline.strip,f.readline.strip,f.readline.strip]
+      f.readline
+      type = '.'
+      0.upto(3) do |x|
+        type = lines[0][x]        
+        next if type=='.'
+        type = lines[1][x] if type=='T'
+        1.upto(3) do |y|
+          type = '.' if lines[y][x]!=type and lines[y][x]!='T'
+        end
+        break if type!='.'
+      end
+      if type=='.' then
+        0.upto(3) do |y|
+          type = lines[y][0]        
+          next if type=='.'
+          type = lines[y][1] if type=='T'          
+          1.upto(3) do |x|
+            type = '.' if lines[y][x]!=type and lines[y][x]!='T'
+          end
+          break if type!='.'
+        end
+      end
+      if type=='.' and lines[0][0]!='.' then
+        type = lines[0][0]
+        type = lines[1][1] if type=='T'        
+        1.upto(3) do |x|
+          type = '.' if lines[x][x]!=type and lines[x][x]!='T'
+        end
+      end
+      if type=='.' and lines[3][0]!='.' then
+        type = lines[3][0]
+        type = lines[2][1] if type=='T'                
+        1.upto(3) do |x|
+          type = '.' if lines[3-x][x]!=type and lines[3-x][x]!='T'
+        end
+      end 
+      solution = "Draw"
+      case type
+      when 'X' then solution = 'X won'
+      when 'O' then solution = 'O won'
+      when '.' then solution = "Game has not completed" if lines.join.include?(".")
+      end
+      puts "Case ##{number}: #{solution}"
+      out.puts "Case ##{number}: #{solution}"
+    end
+  end
+end

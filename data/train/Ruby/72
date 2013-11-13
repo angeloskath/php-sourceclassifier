@@ -1,0 +1,136 @@
+def winsline (player,line)
+	result = true
+	line.chars { |c|
+		if c != player and c != "T" and result != false then
+			result = false
+		end}
+	return result
+end
+
+def winscolumn (player,lines)
+	finalresult = false
+	(0..3).each { |index|
+		if finalresult == false then
+			result = true
+			(0..3).each { |l|
+				if lines[l][index,1] != player and lines[l][index,1] != "T" and result != false then
+					result = false
+				end
+				}
+			if result == true then
+				finalresult = true
+			end
+		end
+		}
+
+	return finalresult
+end
+
+def winsdiagonal1(player,lines)
+	result = true
+	
+	(0..3).each { |i| 
+		if lines[i][i,1] != player and lines[i][i,1] != "T" and result != false then
+			result = false
+		end
+	}
+	
+	return result
+end
+
+def winsdiagonal2(player,lines)
+	result = true
+	
+	(0..3).each { |i| 
+		if lines[i][3-i,1] != player and lines[i][3-i,1] != "T" and result != false then
+			result = false
+		end
+	}
+	
+	return result
+end
+
+def wins (player,lines)
+	result = false
+
+	lines.each { |line| if winsline(player,line) and result == false then; result = true; end }
+
+	if result == false and winscolumn(player,lines)
+		result = true
+	end
+
+	if result == false and winsdiagonal1(player,lines)
+		result = true
+	end
+
+	if result == false and winsdiagonal2(player,lines)
+		result = true
+	end
+
+	return result
+end
+
+def draw (lines)
+	result = true
+
+	(0..3).each { |i|
+		if lines[i].include? "." then
+			result = false
+		end
+	}
+
+	return result
+end
+
+
+if __FILE__ == $0
+
+	begin
+		file = open("#{ARGV[0]}")
+	rescue
+		puts "Can't open file #{ARGV[0]}"
+	end
+
+	if file != nil
+		begin
+			line = file.gets
+			T = line.to_i
+			(1..T).each { |caso|
+				lines = []
+				lines[0] = file.gets.chomp
+				lines[1] = file.gets.chomp
+				lines[2] = file.gets.chomp
+				lines[3] = file.gets.chomp
+				linediscard = file.gets
+				winner = 0
+				if wins("X",lines) then
+					winner = 1
+				else
+					if wins("O",lines) then
+						winner = 2
+					else
+						if draw(lines) then
+							winner = 10
+						end
+					end
+				end
+				print "Case #"+caso.to_s+": "
+				case winner
+				when 1
+					puts "X won"
+				when 2
+					puts "O won"
+				when 0
+					puts "Game has not completed"
+				when 10
+					puts "Draw"
+				end
+			}
+		rescue
+			puts "Can't read file #{ARGV[0]}"
+		ensure
+			file.close
+		end
+	end
+
+end

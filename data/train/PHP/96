@@ -1,0 +1,85 @@
+<?php
+
+$res = file_get_contents(__DIR__ . '/A-large.in');
+$lines = explode("\n", $res);
+
+$boards = [];
+$board = [];
+foreach ($lines as $i => $l) {
+	if ($i === 0 || !trim($l)) continue;
+
+	$board[] = $l;
+
+	if (count($board) === 4) {
+		$boards[] = $board;
+		$board = [];
+	}
+}
+
+$results = [];
+$output = '';
+foreach ($boards as $i => $b) {
+	$results[$i] = solve($b);
+	$case = $i + 1;
+	$output .= "Case #$case: $results[$i]\n";
+}
+file_put_contents('output', $output);
+
+
+
+function solve($b)
+{
+	// check horizontal
+	$filled = TRUE;
+	foreach ($b as $l) {
+		$s = checkLine($l);
+		if ($s !== FALSE) {
+			return $s;
+		}
+		if (strpos($l, '.') !== FALSE) {
+			$filled = FALSE;
+		}
+	}
+
+	// check vertical
+	for ($c = 0; $c < 4; ++$c) {
+		$l = "{$b[0][$c]}{$b[1][$c]}{$b[2][$c]}{$b[3][$c]}";
+		$s = checkLine($l);
+		if ($s !== FALSE) {
+			return $s;
+		}
+	}
+
+	// check diagonal 1
+	$l = "{$b[0][0]}{$b[1][1]}{$b[2][2]}{$b[3][3]}";
+	$s = checkLine($l);
+	if ($s !== FALSE) {
+		return $s;
+	}
+
+	// check diagonal 2
+	$l = "{$b[0][3]}{$b[1][2]}{$b[2][1]}{$b[3][0]}";
+	$s = checkLine($l);
+	if ($s !== FALSE) {
+		return $s;
+	}
+
+	if ($filled) {
+		return 'Draw';
+	}
+	return 'Game has not completed';
+}
+
+var_dump($results);
+
+function checkLine($l)
+{
+	$X = str_replace('T', 'X', $l);
+	$O = str_replace('T', 'O', $l);
+	if ($X === 'XXXX') {
+		return 'X won';
+	} else if ($O === 'OOOO') {
+		return 'O won';
+	}
+	return FALSE;
+}

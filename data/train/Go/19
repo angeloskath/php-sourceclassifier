@@ -1,0 +1,110 @@
+package main
+
+import "fmt"
+
+var player = '.'
+var times = 0
+var notComplete = false
+
+func main() {
+	var cases int
+	var s string
+	fmt.Scanf("%d%s", &cases, &s)
+Case:
+	for i := 0; i < cases; i++ {
+		var row [4][4]rune
+		for j := 0; j < 4; j++ {
+			fmt.Scanf("%c%c%c%c%s", &row[j][0], &row[j][1], &row[j][2], &row[j][3], &s)
+		}
+
+		fmt.Scanf(" ")
+
+		resetGame()
+		for j := 0; j < 4; j++ {
+			r := row[j]
+			checkWinner(r[0])
+			checkWinner(r[1])
+			checkWinner(r[2])
+			checkWinner(r[3])
+			if checkWinner(0) {
+				fmt.Printf("Case #%d: %s won\n", i+1, string(player))
+				continue Case
+			}
+			resetCheck()
+		}
+
+		for j := 0; j < 4; j++ {
+			checkWinner(row[0][j])
+			checkWinner(row[1][j])
+			checkWinner(row[2][j])
+			checkWinner(row[3][j])
+			if checkWinner(0) {
+				fmt.Printf("Case #%d: %s won\n", i+1, string(player))
+				continue Case
+			}
+			resetCheck()
+		}
+
+		checkWinner(row[0][0])
+		checkWinner(row[1][1])
+		checkWinner(row[2][2])
+		checkWinner(row[3][3])
+		if checkWinner(0) {
+			fmt.Printf("Case #%d: %s won\n", i+1, string(player))
+			continue Case
+		}
+		resetCheck()
+
+		checkWinner(row[0][3])
+		checkWinner(row[1][2])
+		checkWinner(row[2][1])
+		checkWinner(row[3][0])
+		if checkWinner(0) {
+			fmt.Printf("Case #%d: %s won\n", i+1, string(player))
+			continue Case
+		}
+		resetCheck()
+
+		if notComplete {
+			fmt.Printf("Case #%d: Game has not completed\n", i+1)
+		} else {
+			fmt.Printf("Case #%d: Draw\n", i+1)
+		}
+
+		//fmt.Println(row)
+	}
+}
+
+func checkWinner(r rune) bool {
+	if times >= 4 {
+		return true
+	}
+	switch r {
+	case '.':
+		notComplete = true
+		return false
+	case 'T':
+		times++
+	case 'O', 'X':
+		if player == '.' {
+			player = r
+		}
+		if player == r {
+			times++
+		}
+	}
+	if times >= 4 {
+		return true
+	}
+	return false
+}
+
+func resetCheck() {
+	player = '.'
+	times = 0
+}
+
+func resetGame() {
+	resetCheck()
+	notComplete = false
+}

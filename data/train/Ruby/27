@@ -1,0 +1,89 @@
+class Board
+
+  attr_accessor :board, :winner, :has_dot
+
+  def initialize
+    @board = []
+    @winner = nil
+    @has_dot = false
+  end
+
+  def add_row(str)
+    str.strip!
+    board << str
+    if str =~ /[XT]{4}/
+      @winner = 'X'
+    elsif str =~ /[OT]{4}/
+      @winner = 'O'
+    end
+
+    @has_dot = true if !has_dot && str.include?('.')
+  end
+
+  def check_columns
+    [0,1,2,3].each do |i|
+      unless @winner
+        @winner = 'X' if check_col(i, 'X')
+        @winner = 'O' if check_col(i, 'O')
+      end
+    end
+  end
+
+  def check_diagonals
+    unless @winner
+      @winner = 'X' if check_diag_1('X') || check_diag_2('X')
+      @winner = 'O' if check_diag_1('O') || check_diag_2('O')
+    end
+  end
+
+  def check_col y, char
+    (@board[0][y] == char || @board[0][y] == 'T') &&
+    (@board[1][y] == char || @board[1][y] == 'T') &&
+    (@board[2][y] == char || @board[2][y] == 'T') &&
+    (@board[3][y] == char || @board[3][y] == 'T')
+  end
+
+  def check_diag_1(char)
+    (@board[0][0] == char || @board[0][0] == 'T') &&
+    (@board[1][1] == char || @board[1][1] == 'T') &&
+    (@board[2][2] == char || @board[2][2] == 'T') &&
+    (@board[3][3] == char || @board[3][3] == 'T')
+  end
+
+  def check_diag_2(char)
+    (@board[0][3] == char || @board[0][3] == 'T') &&
+    (@board[1][2] == char || @board[1][2] == 'T') &&
+    (@board[2][1] == char || @board[2][1] == 'T') &&
+    (@board[3][0] == char || @board[3][0] == 'T')
+  end
+
+  def message
+    if winner == 'X'
+      'X won'
+    elsif winner == 'O'
+      'O won'
+    elsif has_dot
+      'Game has not completed'
+    else
+      'Draw'
+    end
+  end
+
+end
+
+file = ARGV[0]
+File.open(file, 'r') do |f|
+  cases = f.readline.strip.to_i
+
+  File.open("#{file}.out", "w") do |out|
+    (1..cases).each do |c|
+      b = Board.new
+      4.times { b.add_row(f.readline) }
+      b.check_columns
+      b.check_diagonals
+      out.puts "Case ##{c}: #{b.message}"
+      f.readline unless f.eof?
+    end
+  end
+
+end

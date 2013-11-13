@@ -1,0 +1,67 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+import Control.Applicative
+import Data.List
+import Data.Monoid
+import Data.Text (Text, pack)
+import qualified Data.Text as T
+import Data.Text.IO as T
+import Data.Attoparsec.Text.Lazy
+
+
+data Field = X | O | T | Free deriving (Eq, Show)
+
+type Game = [[Field]] -- rows outermost
+
+data Status = Xwon | Owon | Draw | NotCompl deriving (Eq, Show)
+
+
+statusMsg :: Status -> Text
+statusMsg Xwon     = "X won"
+statusMsg Owon     = "O won"
+statusMsg Draw     = "Draw"
+statusMsg NotCompl = "Game has not completed"
+
+
+status :: Game -> Status
+status grid = case [ lineWinner | Just lineWinner <- map checkLine allLines ] of
+  s:_                         -> s         -- won a line, won the game
+  _ | Free `elem` concat grid -> NotCompl  -- field free? not completed
+  _                           -> Draw      -- all full and no winner? draw
+  where
+    diag g = [ (g !! i) !! i | i <- [0..length g-1] ]
+
+    allLines = -- All lines to for a winner: rows, cols, diags
+               grid ++ transpose grid ++ [diag grid] ++ [diag (map reverse grid)]
+
+    checkLine l -- Checks if somebody's won on that line
+      | all (`elem` [X, T]) l = Just Xwon
+      | all (`elem` [O, T]) l = Just Owon
+      | otherwise             = Nothing
+
+
+game :: Parser Game
+game = count 4 (count 4 field <* skipSpace)
+  where
+    field = do l <- anyChar
+               return $ case l of 'X' -> X
+                                  'O' -> O
+                                  'T' -> T
+                                  '.' -> Free
+                                  _   -> error "uknown field"
+
+problems :: Parser [Game]
+problems = do n <- decimal <* skipSpace
+              count n (game <* skipSpace)
+
+
+solve :: Game -> Text
+solve g = statusMsg (status g)
+
+
+main :: IO ()
+main = parseAndThen solve
+  where
+    parseAndThen f = T.interact (either pack (format . map f) . parseOnly problems)
+    format solutions = T.unlines [ "Case #" <> pack (show i) <> ": " <> s
+                                 | (i, s) <- zip [1..] solutions ]

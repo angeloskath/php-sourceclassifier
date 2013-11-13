@@ -1,0 +1,159 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TForm1 = class(TForm)
+    Button1: TButton;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.Button1Click(Sender: TObject);
+var slInput, slOutput: TStringList;
+    CaseCount, i: Integer;
+    StartTickCount: Cardinal;
+
+  function CmpCells(S1, S2: Char): Boolean;
+  begin
+    Result := (S1 = S2) or (S1 = 'T') or (S2 = 'T');
+  end;
+
+  function CmpElems(El1, El2, El3, El4: Char): ShortString;
+  begin
+    Result := '';
+
+    if (El1 = '.') or (El2 = '.') or (El3 = '.') or (El4 = '.')
+      then exit;
+
+    if CmpCells(El1, El2) and CmpCells(El2, El3) and CmpCells(El3, El4) and
+       CmpCells(El4, El1) then
+    begin
+      if El1 <> 'T'
+        then Result := El1
+        else Result := El2;
+
+      Result := Result + ' won';
+    end;
+  end;
+
+  function TestWon(StartLine: Integer; XTest: Boolean): ShortString;
+  var j, k: Integer;
+      S: ShortString;
+      NotCompleted: Boolean;
+  begin
+    Result := '';
+
+    // Check for not completed
+    NotCompleted := True;
+    for j := 0 to 3 do
+    if Pos('.', slInput[StartLine + j]) <> 0
+      then Continue
+      else
+        begin
+          NotCompleted := False;
+          break;
+        end;
+
+    if NotCompleted then
+    begin
+      Result := 'Game has not completed';
+      exit;
+    end;
+
+    // Check for Won
+    // Lines
+    for j := 0 to 3 do
+    begin
+      S := CmpElems(slInput[StartLine + j][1], slInput[StartLine + j][2],
+        slInput[StartLine + j][3], slInput[StartLine + j][4]);
+
+      if S <> '' then
+      begin
+        Result := S;
+        exit;
+      end;
+    end;
+
+    // Columns
+    for j := 1 to 4 do
+    begin
+      S := CmpElems(slInput[StartLine][j], slInput[StartLine + 1][j],
+        slInput[StartLine + 2][j], slInput[StartLine + 3][j]);
+
+      if S <> '' then
+      begin
+        Result := S;
+        exit;
+      end;
+    end;
+
+    // Main Diagonal
+    S := CmpElems(slInput[StartLine][1], slInput[StartLine + 1][2],
+      slInput[StartLine + 2][3], slInput[StartLine + 3][4]);
+
+    if S <> '' then
+    begin
+      Result := S;
+      exit;
+    end;
+
+    // Secondary Diagonal
+    S := CmpElems(slInput[StartLine][4], slInput[StartLine + 1][3],
+      slInput[StartLine + 2][2], slInput[StartLine + 3][1]);
+
+    if S <> '' then
+    begin
+      Result := S;
+      exit;
+    end;
+
+    //Check for Draw
+    if Pos('.', slInput[StartLine] + slInput[StartLine + 1] +
+         slInput[StartLine + 2] + slInput[StartLine + 3]) = 0 then
+    begin
+      Result := 'Draw';
+      exit;
+    end;
+
+    if S = ''
+      then Result := 'Game has not completed';
+  end;
+
+begin
+  StartTickCount := GetTickCount;
+
+  slInput := TStringList.Create;
+  slOutput := TStringList.Create;
+  try
+    slInput.LoadFromFile('input.txt');
+
+    CaseCount := StrToInt(slInput[0]);
+
+    for i := 0 to CaseCount - 1 do
+      slOutput.Add('Case #' + IntToStr(i + 1) + ': ' + TestWon(i * 5 + 1, true));
+
+    slOutput.SaveToFile('output.txt');
+
+    ShowMessage('Ready in ' + IntToStr(GetTickCount - StartTickCount) + ' msec.');
+  finally
+    slInput.Free;
+    slOutput.Free;
+  end;
+end;
+
+end.

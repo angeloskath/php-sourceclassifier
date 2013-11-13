@@ -1,0 +1,213 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+
+namespace TicTacToe
+{
+    internal enum potSoln
+    {
+        XWon,
+        OWon,
+        Draw,
+        NotOver
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            new Program().ParseInput();
+        }
+
+        public void ParseInput()
+        {
+            List<int> arrInputInt = new List<int>();
+
+            string filename = @"C:\playground\gcj2013\inputfiles\TicTacToe-real-large.in";
+
+            string[] lines = System.IO.File.ReadAllLines(filename);
+
+            Int32 lineNumber = 0;
+            Int32 numberOfTestCases = Convert.ToInt32(lines[0]);
+
+            char[] processingArray = new char[16];
+
+            Dictionary<Int32, potSoln> solutions = new Dictionary<Int32, potSoln>();
+
+            // Display the file contents by using a foreach loop.
+            for (Int32 i = 1; i < lines.Length; i++)
+            {
+                string line = lines[i];
+
+                if(((i-1) % 5) == 0) // line 1 of the test case
+                {
+                    // Debug.WriteLine(line);
+                    char[] tmp1 = new char[4];
+                    tmp1 = line.ToCharArray();
+
+                    for (int iter1 = 0; iter1 < 4; iter1++)
+                    {
+                        processingArray[iter1] = tmp1[iter1];
+                    }
+                }
+                else if (((i - 2) % 5) == 0) // line 2 of the test case
+                {
+                    // Debug.WriteLine(line);
+                    char[] tmp2 = new char[4];
+                    tmp2 = line.ToCharArray();
+
+                    for (int iter2 = 0; iter2 < 4; iter2++)
+                    {
+                        processingArray[iter2 + 4] = tmp2[iter2];
+                    }
+                }
+                else if (((i - 3) % 5) == 0) // line 3 of the test case
+                {
+                    // Debug.WriteLine(line);
+                    char[] tmp3 = new char[4];
+                    tmp3 = line.ToCharArray();
+
+                    for (int iter3 = 0; iter3 < 4; iter3++)
+                    {
+                        processingArray[iter3 + 8] = tmp3[iter3];
+                    }
+                }
+                else if (((i - 4) % 5) == 0) // line 4 of the test case
+                {
+                    // Debug.WriteLine(line);
+                    char[] tmp4 = new char[4];
+                    tmp4 = line.ToCharArray();
+
+                    for (int iter4 = 0; iter4 < 4; iter4++)
+                    {
+                        processingArray[iter4 + 12] = tmp4[iter4];
+                    }
+
+                    solutions.Add((((i - 4) / 5) + 1), ProcessSoln(processingArray));
+                }
+
+                // empty line case
+                if (String.IsNullOrEmpty(line))
+                {
+                    // the next 2 lines of code should be commented out
+                    // Debug.WriteLine(line);
+                    // continue;
+
+                    if ((i/5) == numberOfTestCases)
+                        break; // last empty line of file
+                    // Debug.WriteLine(line);
+                    processingArray = new char[16];
+                    continue;
+                }                
+            }
+
+            string testCaseSoln = string.Empty;
+
+            string[] outputArray = new string[numberOfTestCases];
+            Int32 outputCounter = 0;
+
+            foreach (KeyValuePair<Int32, potSoln> solution in solutions)
+            {
+                if(solution.Value == potSoln.XWon)
+                {
+                    testCaseSoln = string.Format("Case #{0}: X won", solution.Key);
+                    // Debug.WriteLine(testCaseSoln);
+                }
+                else if (solution.Value == potSoln.OWon)
+                {
+                    testCaseSoln = string.Format("Case #{0}: O won", solution.Key);
+                    // Debug.WriteLine(testCaseSoln);
+                }
+                else if (solution.Value == potSoln.Draw)
+                {
+                    testCaseSoln = string.Format("Case #{0}: Draw", solution.Key);
+                    // Debug.WriteLine(testCaseSoln);
+                }
+                else if (solution.Value == potSoln.NotOver)
+                {
+                    testCaseSoln = string.Format("Case #{0}: Game has not completed", solution.Key);
+                    // Debug.WriteLine(testCaseSoln);
+                }
+                outputArray[outputCounter] = testCaseSoln;
+                outputCounter++;
+            }
+            System.IO.File.WriteAllLines(@"C:\playground\gcj2013\outputfiles\TicTacToe-real-large-output.txt", outputArray);
+        }
+
+        public potSoln ProcessSoln(char[] inputArray)
+        {
+            if (DidCharWin(inputArray, 'X'))
+                return potSoln.XWon;
+            else if (DidCharWin(inputArray, 'O'))
+                return potSoln.OWon;
+
+            if(inputArray.Contains('.'))
+            {
+                return potSoln.NotOver;
+            }
+            return potSoln.Draw;
+        }
+
+        public bool DidCharWin(char[] processingArray, char girl)
+        {
+            if (processingArray.Length != 16)
+                throw new Exception();
+
+            char[] inputArray = new char[16];
+
+            Int32 indexOfT;
+
+            for(int i = 0; i < 16; i++)
+            {
+                if(processingArray[i] == 'T')
+                {
+                    inputArray[i] = girl;
+                }
+                else
+                {
+                    inputArray[i] = processingArray[i];
+                }
+            }
+
+            if(inputArray[0] == girl)
+            {
+                if(girl == inputArray[5] && inputArray[10] == inputArray[15] && inputArray[15] == girl)
+                    return true;
+                else if(girl == inputArray[4] && inputArray[8] == inputArray[12] && inputArray[12] == girl)
+                    return true;
+                else if(girl == inputArray[1] && inputArray[2] == inputArray[3] && inputArray[3] == girl)
+                    return true;
+            }
+
+            if(inputArray[9] == girl)
+            {
+                if(girl == inputArray[3] && inputArray[6] == inputArray[12] && inputArray[12] == girl)
+                    return true;
+                else if(girl == inputArray[1] && inputArray[5] == inputArray[13] && inputArray[13] == girl)
+                    return true;
+                else if(girl == inputArray[8] && inputArray[10] == inputArray[11] && inputArray[11] == girl)
+                    return true;
+            }
+
+            if(inputArray[14] == girl)
+            {
+                if(girl == inputArray[2] && inputArray[6] == inputArray[10] && inputArray[10] == girl)
+                    return true;
+                else if(girl == inputArray[12] && inputArray[13] == inputArray[15] && inputArray[15] == girl)
+                    return true;
+            }
+
+            if(inputArray[7] == girl)
+            {
+                if(girl == inputArray[3] && inputArray[11] == inputArray[15] && inputArray[15] == girl)
+                    return true;
+                else if(girl == inputArray[4] && inputArray[5] == inputArray[6] && inputArray[6] == girl)
+                    return true;
+            }
+
+            return false;
+        }
+    }
+}

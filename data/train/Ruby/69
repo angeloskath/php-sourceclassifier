@@ -1,0 +1,31 @@
+STDIN.gets.chomp.to_i.times do |c|
+  s = ""
+  4.times { s += STDIN.gets.chomp }
+  STDIN.gets
+  f = true
+
+  [[0, 1], [4, 1], [8, 1], [12, 1], [0, 4],
+   [1, 4], [2, 4], [3, 4], [0, 5],  [3, 3]].each do |d|
+    a = ""
+    4.times do
+      a += s[d[0]]
+      d[0] += d[1]
+    end
+    tc = a.count("T")
+    if f and tc + a.count("X") == 4
+      puts "Case \##{c+1}: X won"
+      f = false
+    elsif f and tc + a.count("O") == 4
+      puts "Case \##{c+1}: O won"
+      f = false
+    end
+  end
+
+  if f
+    if s.count(".") > 0
+      puts "Case \##{c+1}: Game has not completed"
+    else
+      puts "Case \##{c+1}: Draw"
+    end
+  end
+end

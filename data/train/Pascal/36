@@ -1,0 +1,95 @@
+program conapp_A_1;
+
+uses Windows, SysUtils;
+
+{$R *.RES}
+{$APPTYPE CONSOLE}
+
+type
+  TTestCount = 1..1000;
+  TLine = string[4];
+  TField = array[1..4] of TLine;
+  //TTable = array[1..4] of byte;
+  TTable = word;
+const
+  //FILE_IN = 'A-test.in.txt';
+  //FILE_OUT = 'A-test.out.wri';
+  //FILE_IN = 'A-small.in.txt';
+  //FILE_OUT = 'A-small.out.wri';
+  FILE_IN = 'A-large.in.txt';
+  FILE_OUT = 'A-large.out.wri';
+
+var T_Count: TTestCount;
+    T: TTestCount;
+    Field: TField;
+    tabX, tabO: TTable;
+    notFull: boolean;
+    winO, winX: boolean;
+    FileIn: TextFile;
+    FileOut: TextFile;
+
+procedure ReadTest;
+var i: byte;
+begin
+  for i:=1 to 4 do
+    ReadLn(FileIn, Field[i]);
+end;
+
+procedure Process;
+var i,j: byte;
+    c: char;
+    hX, hO: byte;
+    vX, vO: byte;
+begin
+  notFull := false;
+  winO := false; winX := false;
+  vX := $0F; vO := $0F;
+  tabX := 0; tabO := 0;
+  for i:=1 to 4 do begin
+    hX := 0; hO := 0;
+    for j:=1 to 4 do begin
+      case Field[i][j] of
+        '.': begin hX := hX*2; hO := hO*2; notFull := true; end;
+        'X': begin hX := hX*2 + 1; hO := hO*2 end;
+        'O': begin hX := hX*2; hO := hO*2 + 1 end;
+        'T': begin hX := hX*2 + 1; hO := hO*2 + 1 end;
+      end;
+    end;
+    if hX = $0F then begin winX := true; Exit end;
+    if hO = $0F then begin winO := true; Exit end;
+    //tabX[i] := hX; tabO[i] := hO;
+    tabX := tabX * 16 + hX;
+    tabO := tabO * 16 + hO;
+    vX := vX and hX; vO := vO and hO;
+  end;
+  if vX > 0 then begin winX := true; Exit end;
+  if vO > 0 then begin winO := true; Exit end;
+  WinX := (tabX and $8421 = $8421)or(tabX and $1248 = $1248);
+  WinO := (tabO and $8421 = $8421)or(tabO and $1248 = $1248);
+end;
+
+function Status: string;
+begin
+  if winX then Status := 'X won' else
+  if winO then Status := 'O won' else
+  if notFull then Status := 'Game has not completed' else
+  Status := 'Draw';
+end;
+
+begin
+  AssignFile(FileIn, FILE_IN);
+  AssignFile(FileOut, FILE_OUT);
+  try
+    Reset(FileIn);
+    Rewrite(FileOut);
+    ReadLn(FileIn, T_Count);
+    for T:=1 to T_Count do begin
+      ReadTest; Process;
+      WriteLn(FileOut, 'Case #'+IntToStr(T)+': '+Status);
+      if T<T_Count then ReadLn(FileIn);
+    end;
+  finally
+    CloseFile(FileOut);
+    CloseFile(FileIn);
+  end;
+end.

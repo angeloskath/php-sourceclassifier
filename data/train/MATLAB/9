@@ -1,0 +1,86 @@
+function Q1(filename)
+fid = fopen(filename, 'r');
+
+tline = fgetl(fid);
+dim = str2double(tline);
+data = cell(1, dim);
+str_mat = [];
+i = 1;
+while ischar(tline)
+    tline = fgetl(fid);
+    disp(tline)
+    if(~isempty(tline))
+        if(tline == -1)
+            data{i} = str_mat;
+            break;
+        end
+        str_mat= [str_mat; tline];
+    else
+        data{i} = str_mat;
+        str_mat = [];
+        i = i+1;
+        if(i > dim)
+            break;
+        end
+    end
+end
+fclose(fid);
+
+%% solve each board separately and report to a file
+fid = fopen('out2.txt', 'w');
+for ii = 1 : dim
+    board = data{ii};
+    report = solveboard(board);
+    fprintf(fid, 'Case #%d: %s\n',ii, report);
+end
+
+fclose(fid);
+end
+
+function report = solveboard(board)
+% convert the board to nums
+board_num = double(board);
+
+completed = (sum( sum( board_num == double('.'))) == 0);
+
+% convert 'T's to 1
+board_num(board_num == double('T')) = 1;
+
+% check if X has won
+isXwon = checkSingle(board_num, double('X'));
+isOwon = checkSingle(board_num, double('O'));
+
+if(~isXwon && ~isOwon && completed)
+    report = 'Draw';
+elseif(isXwon)
+    report = 'X won';
+elseif(isOwon)
+    report = 'O won';
+elseif(~completed)
+    report = 'Game has not completed';
+else
+     error('not supposed to be here');
+end
+
+end
+
+function isWon = checkSingle(board_num, num)
+
+% convet to 1 places with num
+board_num(board_num == num) = 1;
+
+% convert to 0 the rest
+board_num(board_num ~= 1) = 0;
+
+% check if the sum over the rows\cols\diags is 4
+
+diag2 = zeros(1,4);
+for ii=1:4
+    diag2(ii) = board_num(ii,5-ii);
+end
+
+resSums = [sum(board_num,1), sum(board_num,2)', sum(diag(board_num)), sum(diag2)];
+
+isWon =  sum(resSums == 4) > 0;
+
+end

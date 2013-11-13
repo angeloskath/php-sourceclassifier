@@ -1,0 +1,38 @@
+<?php
+$cases = fgets(STDIN);
+for ($case = 1; $case <= $cases; $case++) {
+    echo "Case #$case: ";
+    $found = array();
+    $x = $y = null;
+    for ($y = 0; $y < 4; $y++) {
+        $line = trim(fgets(STDIN));
+        for ($x = 0; $x < 4; $x++) {
+            $c = substr($line, $x, 1);
+            if ($c == 'T') {
+                add($found, 'O', $x, $y);
+                add($found, 'X', $x, $y);
+            } else {
+                add($found, $c, $x, $y);
+            }
+        }
+    }
+    if (isset($found['O']) && max($found['O']) == 4) {
+        echo "O won\n";
+    } elseif (isset($found['X']) && max($found['X']) == 4) {
+        echo "X won\n";
+    } elseif (isset($found['.']) && max($found['.']) != 0) {
+        echo "Game has not completed\n";
+    } else {
+        echo "Draw\n";
+    }
+    fgets(STDIN);
+}
+
+function add(&$found, $c, $x, $y) {
+    foreach (array("x$x", "y$y", "x+y".($x+$y), "x-y".($x-$y)) as $key) {
+        if (!isset($found[$c][$key])) {
+            $found[$c][$key] = 0;
+        }
+        $found[$c][$key]++;
+    }
+};

@@ -1,0 +1,111 @@
+<?php
+
+$f = fopen('input.txt', 'r');
+$n = intval(fgets($f));
+for($case = 1; $case <= $n; $case++) {
+    // Read Matrix
+    $matrix = array();
+    $T = array('row' => 0, 'col' => 0);
+    $dotCount = 0;
+    for($row = 1; $row <= 4; $row++) {
+        $line = fgets($f);
+        for($col = 1; $col <= 4; $col++) {
+            $matrix[$row][$col] = ($c = $line[$col - 1]);
+            if($c == 'T') {
+                $T['row'] = $row;
+                $T['col'] = $col;
+
+            } elseif($c == '.') {
+                $dotCount++;
+
+            }
+        }
+    }
+    fgets($f);
+
+    // Check state for X
+    if(isWin('X')) {
+        // Case #case: X won
+        echo "Case #$case: X won\n";
+
+    } elseif(isWin('O')) {
+        // Case #case: O won
+        echo "Case #$case: O won\n";
+
+    } elseif($dotCount > 0) {
+        // Case #case: Game has not completed
+        echo "Case #$case: Game has not completed\n";
+
+    } else {
+        // Case #case: Draw
+        echo "Case #$case: Draw\n";
+
+    }
+
+    unset($matrix);
+}
+
+function isWin($marker) {
+    global $matrix;
+    global $T;
+
+    if(($T['row'] > 0) && ($T['col'] > 0)) {
+        $matrix[$T['row']][$T['col']] = $marker;
+    }
+
+    // Check for row win
+    for($row = 1; $row <= 4; $row++) {
+        $all = true;
+        for($col = 1; $col <= 4; $col++) {
+            if($matrix[$row][$col] != $marker) {
+                $all = false;
+                break;
+            }
+        }
+
+        if($all) {
+            return true;
+        }
+    }
+
+    // Check for column win
+    for($col = 1; $col <= 4; $col++) {
+        $all = true;
+        for($row = 1; $row <= 4; $row++) {
+            if($matrix[$row][$col] != $marker) {
+                $all = false;
+                break;
+            }
+        }
+
+        if($all) {
+            return true;
+        }
+    }
+
+    // Check for main diagonal win
+    $all = true;
+    for($row = 1; $row <= 4; $row++) {
+        if($matrix[$row][$row] != $marker) {
+            $all = false;
+            break;
+        }
+    }
+    if($all) {
+        return true;
+    }
+
+    // Check for sub diagonal win
+    $all = true;
+    for($row = 1; $row <= 4; $row++) {
+        if($matrix[$row][4 - $row + 1] != $marker) {
+            $all = false;
+            break;
+        }
+    }
+    if($all) {
+        return true;
+    }
+
+    return false;
+}

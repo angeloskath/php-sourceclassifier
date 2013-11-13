@@ -1,0 +1,71 @@
+#              0000111100001111
+$match_row = 0b1111000000000000;
+$match_col = 0b1000100010001000;
+@match = (
+	$match_row,
+	$match_row >> 4,
+	$match_row >> 8,
+	$match_row >> 12,
+	$match_col,
+	$match_col >> 1,
+	$match_col >> 2,
+	$match_col >> 3,
+	0b1000010000100001,
+	0b0001001001001000
+);
+#printf "%016b\n", $_ for @match;
+
+$num = <>;
+
+for (1 .. $num)
+{
+	print "Case #$_: ";
+	$player1 = 0;
+	$player2 = 0;
+	# each row
+	for (1 .. 4)
+	{
+		chomp ($line = <>);
+		@char = split //, $line;
+		# each column
+		for (@char)
+		{
+			$player1 <<= 1;
+			$player2 <<= 1;
+			if ($_ eq 'X')
+			{
+				$player1 += 1;
+			}
+			elsif ($_ eq 'O')
+			{
+				$player2 += 1;
+			}
+			elsif ($_ eq 'T')
+			{
+				$player1 += 1;
+				$player2 += 1;
+			}
+		}
+	}
+	# match
+	if (grep {($player1 & $_) == $_} @match)
+	{
+		print "X won\n";
+	}
+	elsif (grep {($player2 & $_) == $_} @match)
+	{
+		print "O won\n";
+	}
+	else
+	{
+		if ( ($player1 | $player2) == ((1 << 16) - 1) )
+		{
+			print "Draw\n";
+		}
+		else
+		{
+			print "Game has not completed\n";
+		}
+	}
+	<>;
+}

@@ -1,0 +1,76 @@
+(ns gcj2013.tic-tac-toe-tomek
+  (:import java.io.BufferedReader)
+  (:require [clojure.string :as str])
+  (:use clojure.test))
+
+(defn- lines->testcase
+  [[acc lines]]
+  (let [[this other] (split-at 5 lines)]
+    [(conj acc (apply concat this)) other]))
+
+(defn- input
+  []
+  (->> [[] (-> *in* BufferedReader. line-seq next)]
+       (iterate lines->testcase)
+       (drop-while (comp seq second))
+       ffirst))
+
+(def ^:pritate row-idxs (->> (range 0 13 4)
+                             (map #(range % (+ 4 % )))))
+
+(def ^:private col-idxs (->> (range 4)
+                             (map #(range % (+ 13 %) 4))))
+
+(def ^:private diag-idxs [(range 0 16 5) (range 3 13 3)])
+
+(def ^:private line-idxs (concat row-idxs col-idxs diag-idxs))
+
+(with-test
+  (defn- board->lines
+    [board]
+    (let [idxs->line #(map (vec board) %)]
+      (map idxs->line line-idxs)))
+  (is (let [b (range 16)]
+        (= line-idxs (board->lines b)))))
+
+(def ^:private syms->winner {#{\X} :x, #{\X \T} :x
+                             #{\O} :o, #{\O \T} :o})
+
+(defn- board->winner
+  [board]
+  (->> board
+       board->lines
+       (keep (comp syms->winner set))
+       set))
+
+(defn- completed?
+  [board]
+  (not-any? #{\.} board))
+
+(with-test
+  (defn- solver
+    [board]
+    (if-let [winner (-> board board->winner seq)]
+      (cond (= [:x] winner) "X won"
+            (= [:o] winner) "O won"
+            :else "Draw")
+      (if (completed? board)
+        "Draw"
+        "Game has not completed")))
+  (is (= "X won" (solver "XXXT....OO......")))
+  (is (= "Draw"  (solver "XOXTXXOOOXOXXXOO")))
+  (is (= "Game has not completed" (solver "XOX.OX..........")))
+  (is (= "O won" (solver "OOXXOXXXOX.TO..O")))
+  (is (= "O won" (solver "XXXO..O..O..T...")))
+  (is (= "O won" (solver "OXXXXO....O....O"))))
+
+(defn- output
+  [results]
+  (doseq [line (map-indexed #(format "Case #%d: %s" (inc %) %2) results)]
+    (println line)))
+
+(defn -main
+  [& args]
+  (->> (input) (pmap solver) output)
+  (System/exit 0))
+

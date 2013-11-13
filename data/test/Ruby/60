@@ -1,0 +1,46 @@
+I =->{gets.split.map &:to_i}
+
+def f(x)
+	x == 'O' ? "O won" : "X won"
+end
+
+def gao
+	draw = true; a = []; 4.times{a << gets.chomp}
+	x, y = -1, 0; tt = 'a'
+	
+	0.upto(3){|i|
+		0.upto(3){|j|
+			tt.succ!
+			draw, a[i][j] = false, tt if a[i][j] == '.'
+			x, y = i, j if a[i][j] == 'T'
+			
+		}
+	}
+	
+	a[x][y] = 'X' if x != -1 
+	
+	0.upto(3){|i|
+		return f(a[i][0]) if (a[i][0] == a[i][1] && a[i][0] == a[i][2] && a[i][0] == a[i][3])
+		return f(a[0][i]) if (a[0][i] == a[1][i] && a[0][i] == a[2][i] && a[0][i] == a[3][i])	
+	}	
+	return f(a[0][0]) if (a[0][0] == a[1][1] && a[0][0] == a[2][2] && a[0][0] == a[3][3])
+	return f(a[0][3]) if (a[0][3] == a[1][2] && a[0][3] == a[2][1] && a[0][3] == a[3][0])
+	
+	a[x][y] = 'O' if x != -1 
+	
+	0.upto(3){|i|
+		return f(a[i][0]) if (a[i][0] == a[i][1] && a[i][0] == a[i][2] && a[i][0] == a[i][3])
+		return f(a[0][i]) if (a[0][i] == a[1][i] && a[0][i] == a[2][i] && a[0][i] == a[3][i])	
+	}	
+	return f(a[0][0]) if (a[0][0] == a[1][1] && a[0][0] == a[2][2] && a[0][0] == a[3][3])
+	return f(a[0][3]) if (a[0][3] == a[1][2] && a[0][3] == a[2][1] && a[0][3] == a[3][0])
+	
+	return draw ? "Draw" : "Game has not completed"
+	
+end
+
+1.upto(gets.to_i){|i|
+	printf("Case #%d: ", i);
+	puts gao(); gets
+}
+

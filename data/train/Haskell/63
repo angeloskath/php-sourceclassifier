@@ -1,0 +1,32 @@
+import Control.Monad (forM_, forM, when)
+
+winner :: Char -> [String] -> Bool
+winner c lines@[h1,h2,h3,h4] = any id $ map (all (==c)) [h1,h2,h3,h4,v1,v2,v3,v4,d1,d2]
+  where [v1,v2,v3,v4] = map (\n -> map (!!n) lines) [0..3]
+        d1 = map (\(l,c) -> (lines !! l) !! c) [(0,0),(1,1),(2,2),(3,3)]
+        d2 = map (\(l,c) -> (lines !! l) !! c) [(0,3),(1,2),(2,1),(3,0)]
+
+ticTacTomek :: [String] -> String
+ticTacTomek lines = if xwon
+                       then "X won"
+                       else if owon
+                               then "O won"
+                               else if any (=='.') $ concat lines
+                                       then "Game has not completed"
+                                       else "Draw"
+  where xlines = map (replaceTs 'X') lines
+        olines = map (replaceTs 'O') lines
+        xwon   = winner 'X' xlines
+        owon   = winner 'O' olines
+
+replaceTs :: Char -> String -> String
+replaceTs c [] = []
+replaceTs c ('T':xs) = c:replaceTs c xs
+replaceTs c (x:xs) = x:replaceTs c xs
+
+main = do
+      n <- readLn
+      forM_ [1..n] $ \n' -> do
+        lines <- forM [1..4] $ \_ -> getLine
+        when (n' /= n) (getLine >> return ())
+        putStrLn $ "Case #" ++ show n' ++ ": " ++ ticTacTomek lines

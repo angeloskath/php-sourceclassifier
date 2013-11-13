@@ -1,0 +1,43 @@
+using System;
+ class Program {
+  static void Main() {
+    int i, j, x, t;
+    bool complete;
+    string y;
+    string[] s = new string[4]; 
+    t = int.Parse(Console.ReadLine());
+    complete = true;
+    for (x = 1; x <= t; x++) {
+      complete = true;
+      for (i = 0; i < 4; i++) {
+        s[i] = Console.ReadLine();
+        for (j = 0; j < 4; j++)
+          if (s[i][j] == '.') complete = false;
+      }
+      Console.ReadLine();
+      if (complete) y = "Draw";
+      else y = "Game has not completed";
+      if (test('O', s)) y = "O won";
+      if (test('X', s)) y = "X won";
+      Console.WriteLine("Case #{0}: {1}", x, y);
+    }
+  }
+  static bool test(char p, string[] s) {
+    int i, j;
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++)
+        if (s[i][j] != 'T' && s[i][j] != p) break;
+      if (j >= 4) return true;
+      for (j = 0; j < 4; ++j)
+        if (s[j][i] != 'T' && s[j][i] != p) break;
+      if (j >= 4) return true;
+    }
+    for (i = 0; i < 4; i++)
+      if (s[i][i] != 'T' && s[i][i] != p) break;
+    if (i >= 4) return true;
+    for (i = 0; i < 4; i++)
+      if (s[i][3-i] != 'T' && s[i][3-i] != p) break;
+    return i >= 4;
+  }
+}
+

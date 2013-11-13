@@ -1,0 +1,25 @@
+for c in 1..gets.to_i
+  rows = []
+  4.times do
+    rows << gets.strip.split('')
+  end
+  gets
+  cols = rows.transpose
+  d1 = [rows[0][0],rows[1][1],rows[2][2],rows[3][3]]
+  d2 = [rows[3][0],rows[2][1],rows[1][2],rows[0][3]]
+  lines = rows.concat(cols).concat([d1,d2])
+  result = 'Draw'
+  for line in lines
+    s = line.join('')
+    if s.gsub('T','X') == 'XXXX'
+      result = 'X won'
+      break
+    elsif s.gsub('T','O') == 'OOOO'
+      result = 'O won'
+      break
+    elsif s =~ /\./ 
+      result = 'Game has not completed'
+    end
+  end
+  puts "Case ##{c}: #{result}" 
+end

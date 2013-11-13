@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+
+my $file = $ARGV[0];
+
+
+open (my $infh ,"<",$file) || die "Can't open file $!";
+
+my $index = 1;
+my $first_line = 1;
+my %col = ();
+my %diga = (); 
+my $e_count = 0;
+my $row_num = 0;
+my $find_win = 0;
+while (my $line = <$infh>){
+	chomp $line;	
+	if ($first_line){
+		$first_line = 0;
+		next;
+	}
+	if ($line){
+		next if ($find_win);
+		my @row = split ('',$line);
+		my %row_count = ();
+		for (my $i = 0 ; $i < scalar @row ; $i++){
+			
+			if ($row[$i] eq 'X'){
+				$row_count{X}++;
+				$col{$i}{X}++;
+				$diga{primer}{X}++ if ($i eq $row_num);
+				$diga{second}{X}++ if ($i eq (3-$row_num)); 
+			}
+			elsif ($row[$i] eq 'O'){
+				$row_count{O}++;
+				$col{$i}{O}++;
+				$diga{primer}{O}++ if ($i eq $row_num);
+				$diga{second}{O}++ if ($i eq (3-$row_num));
+			}
+			elsif ($row[$i] eq 'T'){
+				$row_count{X}++;
+				$row_count{O}++;
+				$col{$i}{X}++;
+				$col{$i}{O}++;
+				$diga{primer}{X}++ if ($i eq $row_num);
+				$diga{second}{X}++ if ($i eq (3-$row_num));
+				$diga{primer}{O}++ if ($i eq $row_num);
+				$diga{second}{O}++ if ($i eq (3-$row_num));
+			}
+			else{
+				$e_count++;
+			}
+		}
+		$row_num++;
+		
+		if ($row_count{X} eq 4){
+			print "Case #".$index.": X won\n";			
+			$find_win = 1;
+		}
+		if ($row_count{O} eq 4){
+			print "Case #".$index.": O won\n";			
+			$find_win = 1;
+		} 
+	}
+	else{
+		unless($find_win){
+			for (my $i = 0 ; $i < 4 ; $i++){
+		if (($col{$i}{X} eq 4) && !($find_win)){
+			print "Case #".$index.": X won\n";			
+			$find_win = 1;
+		}
+		if (($col{$i}{O} eq 4) && !($find_win)){
+			print "Case #".$index.": O won\n";			
+			$find_win = 1;
+		}
+	}
+	if (($diga{primer}{X} eq 4) && !($find_win)){
+		print "Case #".$index.": X won\n";			
+		$find_win = 1;
+	}
+	if (($diga{primer}{O} eq 4) && !($find_win)){
+		print "Case #".$index.": O won\n";			
+		$find_win = 1;
+	}
+	if (($diga{second}{X} eq 4)&& !($find_win)){
+		print "Case #".$index.": X won\n";			
+		$find_win = 1;
+	}
+	if (($diga{second}{O} eq 4) && !($find_win)){
+		print "Case #".$index.": O won\n";			
+		$find_win = 1;
+	}
+	unless ($find_win){			
+		if ($e_count > 0){
+			print "Case #".$index.": Game has not completed\n";
+		}
+		else{
+			print "Case #".$index.": Draw\n";
+		}
+	}
+		}
+		%col = ();
+		%diga = (); 
+		$e_count = 0;
+		$find_win = 0;
+		$row_num = 0;
+		$index++;
+	}	
+}
+if (scalar keys %diga > 0){
+	for (my $i = 0 ; $i < 4 ; $i++){
+		if (($col{$i}{X} eq 4) && !($find_win)){
+			print "Case #".$index.": X won\n";			
+			$find_win = 1;
+		}
+		if (($col{$i}{O} eq 4) && !($find_win)){
+			print "Case #".$index.": O won\n";			
+			$find_win = 1;
+		}
+	}
+	if (($diga{primer}{X} eq 4) && !($find_win)){
+		print "Case #".$index.": X won\n";			
+		$find_win = 1;
+	}
+	if (($diga{primer}{O} eq 4) && !($find_win)){
+		print "Case #".$index.": O won\n";			
+		$find_win = 1;
+	}
+	if (($diga{second}{X} eq 4)&& !($find_win)){
+		print "Case #".$index.": X won\n";			
+		$find_win = 1;
+	}
+	if (($diga{second}{O} eq 4) && !($find_win)){
+		print "Case #".$index.": O won\n";			
+		$find_win = 1;
+	}
+	unless ($find_win){			
+		if ($e_count > 0){
+			print "Case #".$index.": Game has not completed\n";
+		}
+		else{
+			print "Case #".$index.": Draw\n";
+		}
+	}	
+}
+

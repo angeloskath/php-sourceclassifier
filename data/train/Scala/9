@@ -1,0 +1,57 @@
+package codejam.qual2013.a
+
+import scala.io.Source
+import TicTacToeTomek._
+import java.io.FileWriter
+
+object TicTacToeTomekRunner extends App {
+  val fileLines: Iterator[String] = Source.fromFile(args(0)).getLines()
+  val outputFile = new FileWriter(args(1))
+  val numCases: Int = fileLines.next.toInt
+  
+  def readBoard(fileLines: Iterator[String]): Board = {
+    List.range(0, 4).map(i => fileLines.next.toList)
+  }
+  
+  List.range(1, numCases + 1).map(i => {
+    def board: Board = readBoard(fileLines)
+    outputFile.write("Case #" +  i + ": " + findWinner(board) + "\n")
+    
+    if (fileLines.hasNext) fileLines.next
+  })
+  
+  outputFile.close()
+}package codejam.qual2013.a
+
+object TicTacToeTomek {
+  type Board = List[List[Char]]
+  type Coordinate = Board => Char
+  
+  def coordinate(x: Int, y: Int)(board: Board): Char = board.apply(x).apply(y)
+
+  def winningLines: List[List[Coordinate]] = {
+    def points = List(0, 1, 2, 3)
+    
+    points.map(x => points.map(y => coordinate(x, y)_)) :::
+    points.map(y => points.map(x => coordinate(x, y)_)) :::
+    List(points.map(x => coordinate(x, x)_), points.map(((x => coordinate(x, 3 - x)_))))
+  } 
+    
+  def findLineWinner(board: Board, coordinates: List[Coordinate]): Option[Char] = {
+    def line: List[Char] = coordinates.map(coordinate => coordinate(board))
+    
+    if (line.contains('.')) None
+    else if (line.contains('O') && line.contains('X')) None
+    else line.find(x => (x == 'O' ||x == 'X'))
+  }
+  
+  def findWinner(board: Board) : String = {
+    def lineWinners: List[Char] = winningLines.map(line => findLineWinner(board, line)).flatten
+    
+    if (lineWinners.isEmpty) {
+      if (board.flatten.contains('.')) "Game has not completed" 
+      else "Draw"
+    }
+    else lineWinners.apply(0) + " won"
+  }
+}

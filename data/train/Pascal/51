@@ -1,0 +1,71 @@
+program cf1;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var i, j, k, l, m, n, x, y : integer;
+    s : array[1..4] of string;
+    a : string;
+
+begin
+    reset(input, 'input.txt');
+    rewrite(output, 'output.txt');
+    readln(n);
+    for i := 1 to n do
+    begin
+        readln(s[1]);
+        readln(s[2]);
+        readln(s[3]);
+        readln(s[4]);
+        readln(a);
+        l := 0;
+        for j := 1 to 4 do
+            for k := 1 to 4 do
+            begin
+                if s[j, k] = '.' then
+                    l := 1;
+                if s[j, k] = 'T' then
+                begin
+                    x := j;
+                    y := k;
+                    //a[j, k] := 'O';
+                end;
+            end;
+        m := 0;
+        for j := 1 to n do
+        begin
+            if ((s[1, j] = 'O') or (s[1, j] = 'T')) and ((s[2, j] = 'O') or (s[2, j] = 'T'))
+                and ((s[3, j] = 'O') or (s[3, j] = 'T')) and ((s[4, j] = 'O') or (s[4, j] = 'T')) then
+                m := 1;
+            if ((s[j, 1] = 'O') or (s[j, 1] = 'T')) and ((s[j, 2] = 'O') or (s[j, 2] = 'T'))
+                and ((s[j, 3] = 'O') or (s[j, 3] = 'T')) and ((s[j, 4] = 'O') or (s[j, 4] = 'T')) then
+                m := 1;
+            if ((s[1, j] = 'X') or (s[1, j] = 'T')) and ((s[2, j] = 'X') or (s[2, j] = 'T'))
+                and ((s[3, j] = 'X') or (s[3, j] = 'T')) and ((s[4, j] = 'X') or (s[4, j] = 'T')) then
+                m := 2;
+            if ((s[j, 1] = 'X') or (s[j, 1] = 'T')) and ((s[j, 2] = 'X') or (s[j, 2] = 'T'))
+                and ((s[j, 3] = 'X') or (s[j, 3] = 'T')) and ((s[j, 4] = 'X') or (s[j, 4] = 'T')) then
+                m := 2;
+        end;
+        if (((s[1, 1] = 'O') or (s[1, 1] = 'T')) and ((s[2, 2] = 'O') or (s[2, 2] = 'T')) and
+            ((s[3, 3] = 'O') or (s[3, 3] = 'T')) and ((s[4, 4] = 'O') or (s[4, 4] = 'T'))) or
+            (((s[4, 1] = 'O') or (s[4, 1] = 'T')) and ((s[3, 2] = 'O') or (s[3, 2] = 'T')) and
+            ((s[2, 3] = 'O') or (s[2, 3] = 'T')) and ((s[1, 4] = 'O') or (s[1, 4] = 'T'))) then
+            m := 1;
+        if (((s[1, 1] = 'X') or (s[1, 1] = 'T')) and ((s[2, 2] = 'X') or (s[2, 2] = 'T')) and
+            ((s[3, 3] = 'X') or (s[3, 3] = 'T')) and ((s[4, 4] = 'X') or (s[4, 4] = 'T'))) or
+            (((s[4, 1] = 'X') or (s[4, 1] = 'T')) and ((s[3, 2] = 'X') or (s[3, 2] = 'T')) and
+            ((s[2, 3] = 'X') or (s[2, 3] = 'T')) and ((s[1, 4] = 'X') or (s[1, 4] = 'T'))) then
+            m := 2;
+        if (m = 0) and (l = 1) then
+            writeln('Case #',i,': Game has not completed');
+        if (m = 0) and (l = 0) then
+            writeln('Case #',i,': Draw');
+        if (m = 1) then
+            writeln('Case #',i,': O won');
+        if (m = 2) then
+            writeln('Case #',i,': X won')
+    end;
+end.

@@ -1,0 +1,130 @@
+function[ res ] = decide_tttt(game)
+%Given a 4x4 array of X,O,T,. decides if
+%X has won: RETURNS 1
+%O has won  RETURNS -1
+%Game over, draw  RETURNS 0
+%Game incomplete	RETURNS 2
+%We ignore the possibility that X and O have both won (i.e. two disjoint rows)
+
+
+status = 0;
+
+%Check the rows one by one
+for rn = 1:4
+	if (is_XT(game(rn, 1)) && is_XT(game(rn, 2)) && is_XT(game(rn, 3)) && is_XT(game(rn, 4)))
+		status = 1;
+		%indicating that X has won
+	elseif (is_OT(game(rn, 1)) && is_OT(game(rn, 2)) && is_OT(game(rn, 3)) && is_OT(game(rn, 4)))
+		status = -1;
+		%indicating that O has won
+	end
+end
+
+%Check the columns
+for cn = 1:4
+	if (is_XT(game(1, cn)) && is_XT(game(2, cn)) && is_XT(game(3, cn)) && is_XT(game(4, cn)))
+		status = 1;
+		%indicating that X has won
+	elseif (is_OT(game(1, cn)) && is_OT(game(2, cn)) && is_OT(game(3, cn)) && is_OT(game(4, cn)))
+		status = -1;
+		%indicating that O has won
+	end
+end
+
+%Now the diagonals
+if (is_XT(game(1,1)) && is_XT(game(2,2)) && is_XT(game(3,3)) && is_XT(game(4,4)))
+	status = 1;
+elseif (is_OT(game(1,1)) && is_OT(game(2,2)) && is_OT(game(3,3)) && is_OT(game(4,4)))
+	status = -1;
+end
+
+if (is_XT(game(1,4)) && is_XT(game(2,3)) && is_XT(game(3,2)) && is_XT(game(4,1)))
+	status = 1;
+elseif (is_OT(game(1,4)) && is_OT(game(2,3)) && is_OT(game(3,2)) && is_OT(game(4,1)))
+	status = -1;
+end
+
+if (status == 0)
+%Neither side has won, need to check if it's a draw
+	for rn = 1:4
+		for cn = 1:4
+			if (game(rn, cn) == '.')
+				%indicating game unfinised
+				status = 2;
+			end
+		end
+	end
+end
+
+%Ok, silly:
+res = status;
+
+endfunction[ res ] = is_OT(char_input)
+
+if char_input == 'O'|char_input == 'T'
+	res = 1;
+else
+	res = 0;
+end
+
+endfunction[ res ] = play_tttt(textfile)
+%Loads a text file of required format and does all the games
+
+textstring = fileread(textfile);
+
+%Where are we going to output?
+file_id = fopen('play_tttt_output.txt','w');
+
+%Number of games.
+%So, ideally this would be read from the top of the file...
+T = 1000;
+
+%This is absolutely horrible.
+%To load the characters, we'll move this pointer along the string until we get
+%somewhere, and then fill up a 4x4 array.
+pointer = 2;
+
+for curr_case = 1:T
+	%Define an empty 4x4 character array
+	curr_game = char(zeros(4,4));
+	for rn = 1:4
+		for cn = 1:4
+			while (textstring(pointer) ~= 'X' && textstring(pointer) ~= 'O' && textstring(pointer) ~= 'T' && textstring(pointer) ~= '.')
+				pointer = pointer + 1;
+			end
+			curr_game(rn, cn) = textstring(pointer);
+			pointer = pointer + 1
+		end
+	end
+	curr_game
+	outcome = decide_tttt(curr_game);
+	if outcome == 1
+		%X wins
+		fprintf(file_id, "Case #%i: X won\n", curr_case)
+	elseif outcome == -1
+		%O wins
+		fprintf(file_id, "Case #%i: O won\n", curr_case)
+	elseif outcome == 2
+		%incomplete
+		fprintf(file_id, "Case #%i: Game has not completed\n", curr_case)
+	elseif outcome == 0
+		%Draw
+		fprintf(file_id, "Case #%i: Draw\n", curr_case)
+	end
+end
+
+fclose(file_id);
+
+res = 0;
+
+
+
+function[ res ] = is_XT(char_input)
+
+if char_input == 'X'|char_input == 'T'
+	res = 1;
+else
+	res = 0;
+end
+
+end

@@ -1,0 +1,100 @@
+package deiwin.jam.problem.a
+
+object ProblemA {
+
+  def solve(inputs: List[String]): List[String] = {
+    for {
+      group <- inputs.grouped(5).toList
+    } yield {
+      // Field is 4x4 matrix of chars
+      val field = for (row <- group.slice(0, 4)) yield row.toList
+
+      val columns = for (i <- 0 until 4) yield {
+        for (j <- 0 until 4) yield { field(j)(i) }
+      }
+
+      val diagonals = List(for (i <- 0 until 4) yield { field(i)(i) },
+        for (i <- 0 until 4) yield { field(i)(4 - i - 1) })
+
+      val toCheck = field ++ columns ++ diagonals
+
+      val checked = toCheck map { s => isSolution(s.toList) }
+
+      if (checked.contains(Outcome.X_WINS)) Outcome.X_WINS.toString
+      else if (checked.contains(Outcome.O_WINS)) Outcome.O_WINS.toString
+      else if (checked.contains(Outcome.INCOMPLETE)) Outcome.INCOMPLETE.toString
+      else Outcome.DRAW.toString
+    }
+  }
+
+  def isSolution(chars: List[Char]): Outcome.Value = {
+    if (chars.length != 4) {
+      throw new IllegalArgumentException("Expected 4 characters")
+    } else {
+      if (chars.contains('.')) Outcome.INCOMPLETE
+      else if (chars.forall(_ == 'X') || (chars.count(_ == 'X') == 3 && chars.contains('T'))) Outcome.X_WINS
+      else if (chars.forall(_ == 'O') || (chars.count(_ == 'O') == 3 && chars.contains('T'))) Outcome.O_WINS
+      else Outcome.DRAW
+    }
+  }
+}package deiwin.jam.utils
+
+import scala.io.Source
+import java.io.PrintWriter
+import java.io.File
+
+object FileUtil {
+  def read(fname: String): List[String] = {
+    val source = Source.fromFile(fname)
+    val lines = source.getLines.toList
+
+    val cases = lines.head.toInt
+
+    if (cases < 1) {
+      throw new IllegalArgumentException("Number of cases was " + cases)
+    }
+
+    val data = lines.tail
+
+    source.close
+    data
+  }
+
+  def write(fname: String, data: List[String]) = {
+    val fw = new PrintWriter(new File(fname))
+    try {
+      var i = 1
+      data.foreach { s =>
+        fw.println("Case #%d: %s".format(i, s))
+        i = i + 1
+      }
+    } finally { fw.close() }
+  }
+}package deiwin.jam.utils
+
+object CodeJam {
+
+  def processInputs(name: String, solveFunc: List[String] => List[String]): Unit = {
+    for (s <- List("-test.in", "-small-practice.in", "-large-practice.in").map(name + _)) yield {
+      processFile(name, solveFunc, s)
+    }
+  }
+  
+  def processFile(name: String, solveFunc: List[String] => List[String], s: String): Unit = {
+    val lines = FileUtil.read("Workspace/common/resources/input/" + name + "/" + s)
+    val result = solveFunc(lines)
+
+    println("=== > " + s + " ===============================================")
+    result.foreach(println(_))
+
+    FileUtil.write("Workspace/common/resources/output/" + name + "/" + s.replaceAll("in$", "out"), result)
+  }
+}package deiwin.jam.problem.a
+
+object Outcome extends Enumeration{
+  type Outcome = Value
+  val X_WINS = Value("X won")
+  val O_WINS = Value("O won")
+  val DRAW = Value("Draw")
+  val INCOMPLETE = Value("Game has not completed")
+}

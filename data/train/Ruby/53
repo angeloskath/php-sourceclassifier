@@ -1,0 +1,117 @@
+require_relative 'gcj_helper' # see https://github.com/jamesgary/gcj_helper
+
+input  = 'A-large.in'
+output = 'a.out'
+
+def check_horizontal_for(grid, player)
+  grid.each do |line|
+    return "#{ player } won" if line.all? { |i| i == player || i == 'T' }
+  end
+  false
+end
+
+def check_vertical_for(grid, player)
+  check_horizontal_for(
+    grid.dup.transpose.map(&:reverse),
+    player
+  )
+end
+
+def check_diagonal_for(grid, player)
+  arr = [
+    grid[0][0],
+    grid[1][1],
+    grid[2][2],
+    grid[3][3],
+  ]
+  return "#{ player } won" if arr.all? { |i| i == player || i == 'T' }
+  arr = [
+    grid[0][3],
+    grid[1][2],
+    grid[2][1],
+    grid[3][0],
+  ]
+  return "#{ player } won" if arr.all? { |i| i == player || i == 'T' }
+  nil
+end
+
+GCJ.solve(input, output, lines_at_a_time: 5) do |lines|
+  grid = lines.map { |line| line.split('') }
+  grid.slice!(-1)
+
+  result =
+    check_horizontal_for(grid, 'X') ||
+    check_horizontal_for(grid, 'O') ||
+    check_vertical_for(grid, 'X') ||
+    check_vertical_for(grid, 'O') ||
+    check_diagonal_for(grid, 'X') ||
+    check_diagonal_for(grid, 'O')
+  if !!result
+    result
+  elsif grid.flatten.include?('.')
+    'Game has not completed'
+  else
+    'Draw'
+  end
+end
+
+__END__
+
+4
+1 9
+10 40
+100 500
+1111 2222
+require 'benchmark'
+require 'jruby_threach' # gem install jruby_threach
+
+class GCJ
+  def self.solve(input, output, config = {}, &block)
+    config = {
+      show_progress: false,
+      show_output: true,
+      cores: 8,
+      lines_at_a_time: 1,
+    }.merge(config)
+
+    test_case_count = 1
+    first_line = true
+    lines_hash = {}
+    cases_hash = {}
+
+    line_num = 0
+    File.open(input, 'r').each_line do |line|
+      if first_line
+        first_line = false
+      else
+        line_num += 1
+        lines_hash[test_case_count] ||= []
+        lines_hash[test_case_count] << line.chomp
+        if line_num % config[:lines_at_a_time] == 0
+          test_case_count += 1
+        end
+      end
+    end
+
+    Benchmark.bm do |x|
+      x.report do
+        done_count = 0.0
+        #lines_hash.threach(8) do |num, line|
+        lines_hash.each do |num, line|
+          cases_hash[num] = "Case ##{ num }: #{ block.call(line) }"
+          done_count += 1
+          puts "#{ (done_count * 100) / test_case_count }% done, just finished ##{ num }" if config[:show_progress]
+        end
+      end
+    end
+
+    i = 1
+    File.open(output, 'w') do |out|
+      while i <= test_case_count
+        out.puts cases_hash[i]
+        puts cases_hash[i] if config[:show_output]
+        i += 1
+      end
+    end
+  end
+end

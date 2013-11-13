@@ -1,0 +1,76 @@
+var fs = require('fs');
+
+var cin = fs.readFileSync('A-large.in').toString().split('\n');
+var T = +cin.shift();
+var result = '';
+
+function checkStr (s) {
+	if (s.indexOf('.') === -1) {
+		if (s.indexOf('O') === -1) return 'X';
+		else if (s.indexOf('X') === -1) return 'O';
+		else return 'N';
+	} else return 'N';
+}
+
+for (var tt = 1; tt <= T; ++tt) {
+	var s = '';
+	var i, j;
+	var t = [];
+
+	for (i = 0; i < 4; ++i) t.push(cin.shift());
+	cin.shift();
+	
+	var somebodyWon = false;
+	var isThereDot = false;
+
+	(function () {
+	for (i = 0; i < 4; ++i) {
+		if (!isThereDot)
+			if (t[i].indexOf('.') !== -1) isThereDot = true;
+		var checked = checkStr(t[i]);
+		if (checked !== 'N') {
+			s = checked + ' won';
+			somebodyWon = true;
+			return;
+		}
+	}
+
+	var line = '';
+	for (i = 0; i < 4; ++i) {
+		line = '';
+		for (j = 0; j < 4; ++j) line += t[j][i];
+		var checked = checkStr(line);
+		if (checked !== 'N') {
+			s = checked + ' won';
+			somebodyWon = true;
+			return;
+		}	
+	}
+
+	line = '';
+	for (i = 0; i < 4; ++i) line += t[i][i];
+	var checked = checkStr(line);
+	if (checked !== 'N') {
+		s = checked + ' won';
+		somebodyWon = true;
+		return;
+	}
+
+	line = '';
+	for (i = 0; i < 4; ++i) line += t[3 - i][i];
+	var checked = checkStr(line);
+	if (checked !== 'N') {
+		s = checked + ' won';
+		somebodyWon = true;
+	}})();
+
+
+	if (!somebodyWon) {
+		if (isThereDot) s = 'Game has not completed';
+		else s = 'Draw';
+	}
+
+	result += 'Case #' + tt + ': ' + s + '\n';
+}
+
+fs.writeFile('test.out', result);

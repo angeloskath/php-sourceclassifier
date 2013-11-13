@@ -1,0 +1,70 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"net/textproto"
+	"os"
+	"strings"
+)
+
+var in *textproto.Reader
+
+func check(b, ch byte) byte {
+	if b == '.' {
+		return 'F'
+	}
+	if ch == 'T' || b == ch {
+		return b
+	}
+	if b == 'T' {
+		return ch
+	}
+	return 'F'
+}
+
+func process() string {
+	board := make([]string, 4)
+	empty := false
+	for idx := range board {
+		board[idx], _ = in.ReadLine()
+		empty = empty || strings.Contains(board[idx], ".")
+	}
+
+	di1, di2 := byte('T'), byte('T')
+	for i := 0; i < 4; i++ {
+		row, col := byte('T'), byte('T')
+		for j := 0; j < 4; j++ {
+			row = check(board[i][j], row)
+			col = check(board[j][i], col)
+		}
+		if row != 'F' {
+			return fmt.Sprintf("%c won", row)
+		}
+		if col != 'F' {
+			return fmt.Sprintf("%c won", col)
+		}
+		di1 = check(board[i][i], di1)
+		di2 = check(board[i][3-i], di2)
+	}
+	if di1 != 'F' {
+		return fmt.Sprintf("%c won", di1)
+	}
+	if di2 != 'F' {
+		return fmt.Sprintf("%c won", di2)
+	}
+	if empty {
+		return "Game has not completed"
+	}
+	return "Draw"
+}
+
+func main() {
+	in = textproto.NewReader(bufio.NewReader(os.Stdin))
+	var n int
+	fmt.Scanf("%d", &n)
+	for i := 0; i < n; i++ {
+		fmt.Printf("Case #%d: %s\n", i+1, process())
+		in.ReadLine()
+	}
+}

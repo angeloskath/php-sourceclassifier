@@ -1,0 +1,42 @@
+package qualification.a
+
+import java.util.Scanner
+import java.io.{PrintWriter, File}
+
+object A extends App {
+
+  val testName = "A-large"
+
+  val in = new Scanner(new File(testName + ".in"))
+  val out = new PrintWriter(new File(testName + ".out"))
+
+  val T = in.nextInt()
+  for (t <- 1 to T) {
+    assert(in.nextLine() == "")
+    val field = (1 to 4).map(_ => in.nextLine().toCharArray).toArray
+    val fieldT = field.transpose
+
+    def won(me: Char => Boolean) = {
+      (0 to 3).map(i => field(i).forall(me)).exists(_ == true) ||
+        (0 to 3).map(i => fieldT(i).forall(me)).exists(_ == true) ||
+        (0 to 3).map(i => field(i)(i)).forall(me) ||
+        (0 to 3).map(i => field(i)(3 - i)).forall(me)
+    }
+
+    if (won(x => x == 'X' || x == 'T')) {
+      out.println(s"Case #$t: X won")
+    }
+    else if (won(x => x == 'O' || x == 'T')) {
+      out.println(s"Case #$t: O won")
+    }
+    else if (field.exists(_.exists(_ == '.'))) {
+      out.println(s"Case #$t: Game has not completed")
+    } else {
+      out.println(s"Case #$t: Draw")
+    }
+  }
+
+  out.close()
+  in.close()
+
+}

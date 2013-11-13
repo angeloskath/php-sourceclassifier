@@ -1,0 +1,147 @@
+package com.aadebuger.googlecodecam
+
+import java.io.File
+/**
+ * @author ${user.name}
+ */
+object T4 {
+  var empty=false
+  def buildData(datav: Array[Char])=
+  {
+    val v0 = List(datav(0),datav(1),datav(2),datav(3))
+    val v1 = List(datav(4),datav(5),datav(6),datav(7))
+    val v2 = List(datav(8),datav(9),datav(10),datav(11))
+    
+    val v3 = List(datav(12),datav(13),datav(14),datav(15))
+    
+     val v4 = List(datav(0),datav(4),datav(8),datav(12))
+     
+    val v5 = List(datav(1),datav(4+1),datav(8+1),datav(12+1))
+     
+    
+    val v6 = List(datav(2),datav(4+2),datav(8+2),datav(12+2))
+     
+    val v7 = List(datav(3),datav(4+3),datav(8+3),datav(12+3))
+     
+    
+    val v8 = List(datav(0),datav(5),datav(10),datav(15))
+
+    val v9 = List(datav(3),datav(6),datav(9),datav(12))
+
+    List(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9)
+    
+  }
+  def process(inputv:List[List[Char]])=
+  {
+    empty=false
+    var win=2;
+    	inputv.foreach( input => {
+    	 val ret =  isWin(input)
+    	 ret match
+    	 {
+    	   case 1=>
+    	     win=1
+    	   case 0=>
+    	     win=0
+    	   case _=>
+    	     
+    	 }
+    	}
+    	)
+    if (win==2&&empty)
+        win =3
+     win
+  }
+  def isWin(input:List[Char])=
+  {
+    var  x1=0;
+    var o1 = 0 ;
+    var t1=0 ;
+    var empty1=0;
+    input.foreach(item => {
+    item match 
+    {
+      case 'O'=>
+        	o1=o1+1
+      case 'T'=>
+        	t1=t1+1
+      case 'X'=>
+        	x1=x1+1
+      case _=>
+        empty1=empty1+1
+    }
+    })
+    if ( empty1!=0)
+    	empty=true
+    if  ((x1+t1)==4)
+    	    0
+    	    else
+    if ( (o1+t1)==4)
+    		1
+    		else
+    		  2
+    	
+    
+  }
+  def StringtoChar(stringV:List[String])=
+  {
+     stringV.flatMap(str=>str.toList) 
+  }
+  def winToText(overv: List[Int])=
+  {
+    var i =0;
+    overv.map( win =>{
+      i=i+1
+     win match
+     {
+        case 0=>
+          "Case #%d: X won".format(i)
+        case 1=>
+          "Case #%d: O won".format(i)
+        case 2=>
+          "Case #%d: Draw".format(i)
+        case 3=>
+          "Case #%d: Game has not completed".format(i)
+     }
+    })
+  }
+    def getProblem1(s:String) =
+  {
+  val lines = scala.io.Source.fromFile(s).getLines.toList
+  println("lines="+lines);
+  var headline = lines.head
+  var mainlines = lines.tail
+  var inputv = mainlines.grouped(5).toList
+  println("inputv="+inputv)
+  var newinput = inputv.map(item => StringtoChar(item) )
+  println("newinput="+newinput)
+  var first = newinput.head.toArray
+  var newinput1 = buildData(first)
+  println("newinput1="+newinput1)
+  val over1 = newinput.map(item =>
+    {
+    val itemarray=item.toArray;  
+    val datav = buildData(itemarray)
+    process(datav)
+    })
+  println("over1="+over1)  
+  
+  val promptv =  winToText(over1)
+  println("promptv="+promptv)  
+  promptv.foreach(item=> println(item))
+  val filep = new java.io.PrintWriter(new File("over.txt"))
+  
+  promptv.foreach(item=> {filep.write(item) ;filep.write("\n")} )
+  filep.close()
+  }
+}
+object App {
+  
+  def foo(x : Array[String]) = x.foldLeft("")((a,b) => a + b)
+  
+  def main(args : Array[String]) {
+    println( "Hello World!" )
+    println("concat arguments = " + foo(args))
+  }
+
+}

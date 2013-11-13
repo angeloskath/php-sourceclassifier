@@ -1,0 +1,87 @@
+def gcj(&block)
+  n = gets.to_i
+  n.times do |i|
+    $stderr.puts "Calculating #{i + 1}..."
+    result = block.call
+    puts "Case \##{i + 1}: #{result}"
+  end
+end
+
+
+def search_row(a)
+  a.each do |line|
+    h = Hash.new{0}
+    line.each_char do |c|
+      h[c] += 1
+    end
+    next if h['.'] > 0
+    if h['X'] > 0
+      if h['O'] > 0
+        next
+      else
+        return 'X'
+      end
+    else
+      if h['O'] > 0
+        return 'O'
+      end
+    end
+  end
+  return false
+end
+
+def search_col(a)
+  t = a.map{|line| line.each_char.to_a}.transpose.map(&:join)
+  return search_row(t)
+end
+
+def search_diag(a)
+  d1 = []
+  d2 = []
+  a.size.times do |i|
+    d1.push(a[i][i])
+    d2.push(a[i][a.size - i - 1])
+  end
+  return search_row([d1.join, d2.join])
+end
+
+
+def calc(a)
+  res = search_row(a)
+  return res if res
+  res = search_col(a)
+  return res if res
+  res = search_diag(a)
+  return res if res
+
+  a.each do |line|
+    if line.index('.')
+      return :not_completed
+    end
+  end
+  return :draw
+end
+
+
+gcj {
+  a = (0...4).map do
+    s = readline
+    while s == "\n"
+      s = readline
+    end
+    s.chomp
+  end
+  res = calc(a)
+  case res
+  when 'X', 'O'
+    "#{res} won"
+  when :draw
+    'Draw'
+  when :not_completed
+    'Game has not completed'
+  else
+    raise 'Illegal'
+  end
+}
+
+#

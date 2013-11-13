@@ -1,0 +1,89 @@
+function SolveA(File)
+  clear
+  clc
+  
+  if ~exist('File', 'var')
+    %     File = 'ProbA_Sample.in';
+    %     File = 'A-small-attempt0.in';
+    File = 'A-large.in';
+  end
+  [Path, Name] = fileparts(File);
+  FileOut = fullfile(Path, [Name, '.out']);
+  
+  [X, O, nG] = openin(File);
+  
+  XWins = squeeze( any(all(X, 1), 2) | any(all(X, 2), 1) | ...
+    (X(1, 1, :) & X(2, 2, :) & X(3, 3, :) & X(4, 4, :)) | ... % Diagonals
+    (X(1, 4, :) & X(2, 3, :) & X(3, 2, :) & X(4, 1, :)) );
+  OWins = squeeze( any(all(O, 1), 2) | any(all(O, 2), 1) | ...
+    (O(1, 1, :) & O(2, 2, :) & O(3, 3, :) & O(4, 4, :)) | ...
+    (O(1, 4, :) & O(2, 3, :) & O(3, 2, :) & O(4, 1, :)) );
+
+  FullBoard = squeeze( all(all(X | O, 1), 2) );
+  
+  % Minimal check, otherwise we assume all games are valid.
+  if any(XWins(:) & OWins(:))
+    error('Invalid game.');
+  end
+  
+  Out = zeros(nG, 1);
+  for g = 1:nG
+    if XWins(g)
+      Out(g) = 1;
+    elseif OWins(g)
+      Out(g) = 2;
+    elseif FullBoard(g)
+      Out(g) = 3;
+    else
+      Out(g) = 4;
+    end
+  end
+  
+  saveout(FileOut, Out);
+  
+end
+
+
+% -----------------------
+% Input.
+function [X, O, nG] = openin(File)
+  
+  fid = fopen(File, 'r', 'n', 'US-ASCII');
+  if ~fid
+    error('Error opening input file: %s', File);
+  end
+  
+  nG = fscanf(fid, '%d', 1);
+  Char = fscanf(fid, '%*[ \r\n\t]%c%c%c%c', 16*nG); % Matlab must find at least 1 of the skipped characters or it will stop reading.
+  Char = uint8(Char);
+  Char = reshape(Char, [4, 4, nG]);
+  X = Char == uint8('X') | Char == uint8('T');
+  O = Char == uint8('O') | Char == uint8('T');
+  
+  fclose(fid);
+end
+
+
+
+% -----------------------
+% Output.
+function saveout(File, Out)
+  Results = {
+    'X won';
+    'O won';
+    'Draw';
+    'Game has not completed'};
+  
+  fid = fopen(File, 'w', 'n', 'US-ASCII');
+  if ~fid
+    error('Error opening output file: %s', File);
+  end
+  
+  for g = 1:numel(Out)
+    fprintf( fid, 'Case #%d: %s\n', g, Results{Out(g)} );
+    fprintf( 'Case #%d: %s\n', g, Results{Out(g)} );
+  end
+  fclose(fid);
+end
+
+

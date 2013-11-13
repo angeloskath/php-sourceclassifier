@@ -1,0 +1,72 @@
+var LineByLineReader = require('line-by-line');
+var lr = new LineByLineReader('A-large.in');
+
+var first = true;
+var games_count = 0;
+var game = "";
+var current = 0;
+
+var valid =[[0,1,2,3],
+			[4,5,6,7],
+			[8,9,10,11],
+			[12,13,14,15],
+			[0,5,10,15],
+			[3,6,9,12],
+			[0,4,8,12],
+			[1,5,9,13],
+			[2,6,10,14],
+			[3,7,11,15]];
+
+var processGame = function(player) {
+
+	for (var i = 0; i < valid.length; i++) {
+		for (var j = 0; j < 4; j++) {
+			if(game[valid[i][j]] != player && game[valid[i][j]] != "T")
+				break;
+			else if(j == 3) 
+				return true;
+		};
+	}
+		
+};
+
+var start = function() {
+	current++;
+
+	if(processGame("X")) {
+		console.log("Case #" + current + ": X won");
+	} else if(processGame("O")) {
+		console.log("Case #" + current + ": O won");
+	} else if(game.indexOf(".") != -1) {
+		console.log("Case #" + current + ": Game has not completed");
+	} else {
+		console.log("Case #" + current + ": Draw");
+	}
+
+	game = "";
+};
+
+lr.on('error', function (err) {
+	// 'err' contains error object
+});
+
+lr.on('line', function (line) {
+
+	if(line.length == 0) {
+
+		start();
+
+	} else if(!first) {
+		game += line;
+	}
+
+	if(first) {
+		first = false;
+		games_count = parseInt(line);		
+	}	
+});
+
+lr.on('end', function () {
+	// All lines are read, file is closed now.
+	//start();
+});

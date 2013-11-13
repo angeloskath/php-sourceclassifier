@@ -1,0 +1,77 @@
+var problem01 = {
+	isAlpha: function(inputChar) {
+		return inputChar.search("[A-Za-z]") >= 0;
+	},
+
+	createMatrix: function (inputString) {
+		var map = [[]];
+		for(var i = 0, j = 0, k = 0; i < inputString.length; i++) {
+			var character = inputString[i];
+			character = character.toUpperCase();
+			if(character == '\n') { j++; k = 0; map[j] = []}
+			else map[j][k++] = character;
+		}
+
+		return map;
+	},
+
+	getBoard: function (inputString, nCase) {
+		nCase--;
+		var firstCaseIndex = inputString.indexOf('\n') + 1;
+		var startIndex = firstCaseIndex + 21*nCase;
+		var finishIndex = startIndex + 20;
+		return inputString.substring(startIndex, finishIndex);
+	},
+
+	getChar: function(board, x, y) {
+		return board[x*5 + y];
+	},
+
+	checkLine: function (board, startX, startY, incX, incY) {
+		var c = this.getChar(board, startX, startY);
+		if (c != '.') {
+			for(var i = 1; i < 4; i++) {
+				var nextC = this.getChar(board, startX+incX*i, startY+incY*i);
+				if(c == 'T') c = nextC;
+				if(nextC == '.') return '.';
+				if(nextC != c && nextC != 'T') return undefined;
+			}
+		}
+		return c;
+	},
+
+	solveCase: function (inputCase, inputString) {
+		var board = this.getBoard(inputString, inputCase);
+		var caseResult = this.checkLine(board, 0, 0, 0, 1);
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 0, 0, 1, 0) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 0, 0, 1, 1) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 0, 1, 1, 0) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 0, 2, 1, 0) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 0, 3, 1, 0) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 1, 0, 0, 1) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 2, 0, 0, 1) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 3, 0, 0, 1) || caseResult;
+		if(!caseResult || caseResult == '.') caseResult = this.checkLine(board, 3, 0, -1, 1) || caseResult;
+		return this.caseOutput(inputCase, caseResult);
+	},
+
+	caseOutput: function (inputCase, caseResult) {
+		var resultString = '';
+		if(!caseResult) resultString = 'Draw';
+		else if(caseResult == 'X') resultString = 'X won';
+		else if(caseResult == 'O') resultString = 'O won';
+		else if(caseResult == '.') resultString = 'Game has not completed';
+		return 'Case #' + inputCase + ': ' + resultString + '\n';
+	},
+
+	solve: function () {
+		var inputString = document.getElementById("inputText").value;
+		var testCases = parseInt(inputString.substring(0, inputString.indexOf('\n')));
+		var result = "";
+		for(var i = 1; i <= testCases; i++) {
+			result += this.solveCase(i, inputString);
+		}
+
+		document.getElementById("outputText").value = result;
+	}
+}

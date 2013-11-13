@@ -1,0 +1,62 @@
+import Control.Monad
+import Control.Applicative
+import Data.Maybe
+import Data.List
+
+main :: IO ()
+main = do
+  n <- readLn
+  forM_ [1..n] $ \i -> do
+    board <- readBoard
+    putStr $ "Case #" ++ show i ++ ": "
+    print $ analyzeBoard board
+    getLine
+
+data BoardStatus = XWon | OWon | Draw | InProgress
+
+instance Show BoardStatus where
+  show XWon = "X won"
+  show OWon = "O won"
+  show Draw = "Draw"
+  show InProgress = "Game has not completed"
+
+data Square = X | O | Blank | T deriving (Eq, Show)
+
+readBoard :: IO [[Square]]
+readBoard = replicateM 4 (replicateM 4 readSquare <* getLine)
+-- We clear the rest of the line after reading the first 4 characters.
+
+readSquare :: IO Square
+readSquare = do
+  c <- getChar
+  return $ case c of
+    'X' -> X
+    'O' -> O
+    '.' -> Blank
+    'T' -> T
+
+justIf :: a -> Bool -> Maybe a
+justIf x b = if b then Just x else Nothing
+
+rowOf :: [[a]] -> (a -> Bool) -> Bool
+rowOf xss p = any (all p) xss
+
+diagonal :: [[a]] -> [a]
+diagonal xss = map (\i -> xss !! i !! i) [0..length xss - 1]
+
+lineOf :: [[a]] -> (a -> Bool) -> Bool
+lineOf xss p = or [
+  xss `rowOf` p,
+  transpose xss `rowOf` p,
+  all p . diagonal $ xss,
+  all p . diagonal . reverse $ xss]
+
+wins :: Square -> [[Square]] -> Bool
+wins c xss = xss `lineOf` (\x -> x == c || x == T)
+
+analyzeBoard :: [[Square]] -> BoardStatus
+analyzeBoard b = head $ catMaybes [
+  XWon `justIf` wins X b,
+  OWon `justIf` wins O b,
+  Draw `justIf` all (all (/= Blank)) b,
+  Just InProgress]

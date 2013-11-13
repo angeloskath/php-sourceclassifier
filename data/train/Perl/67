@@ -1,0 +1,61 @@
+﻿# Google Code Jam 2013  problem A
+use strict;use warnings;
+use Data::Dumper;
+my $num_of_tc = <>;
+# Read Input
+foreach my $tc (1..$num_of_tc){
+    my $line_in = "";
+    while(<>){
+        chomp;
+        last if ($_ eq "");
+        $line_in .= $_; 
+    }
+    my $result = play($line_in);
+    print "Case #$tc: ";
+    if   ($result == 0){ print "O won\n";                 }
+    elsif($result == 1){ print "X won\n";                 }
+    elsif($result == 2){ print "Draw\n";                  }
+    elsif($result == 3){ print "Game has not completed\n";}
+    else               { print "Error\n";}
+#    exit;
+}
+# @return : 0: O won 1: X won 2: Draw 3: Game has not completed
+sub play {
+    my $line_s = shift;
+    my $bj = [
+        [[ 0, 1, 2, 3], [ 4, 5, 6, 7], [ 8, 9,10,11] , [12,13,14,15]],# yoko
+        [[ 0, 4, 8,12], [ 1, 5, 9,13], [ 2, 6,10,14] , [ 3, 7,11,15]],# tate
+        [[ 0, 5,10,15], [ 3, 6, 9,12]] # naname
+        ];
+    my $judge = -1;
+    foreach my $bj_e (@$bj){
+        foreach my $player("O", "X"){
+            $judge = scan($line_s , $bj_e , $player);
+            #            print "Judge: $judge (player: $player)\n";
+            if($judge == 1){
+                if   ($player eq "O") {return 0;}
+                elsif($player eq "X") {return 1;}
+            }
+        }
+    }
+    # draw or not completed
+    if($line_s =~ /\./) { return 3;}
+    else                { return 2;}
+}
+# judge 0: no win 1: win
+sub scan {
+    my ($line_s, $scanline , $turn) = @_;
+    my ($now , $next);
+    my @line = split//,$line_s;
+    foreach my $t (@$scanline){
+        my $ev_l;
+        map {$ev_l .= $line[$_];}@$t;
+        if($turn eq "O"){$now = 'O'; $next = 'X';}
+        else            {$now = 'X'; $next = 'O';}
+        $ev_l =~ s/[$now|T]/1/g;
+        $ev_l =~ s/[$next|\.]/0/g;
+#        print $ev_l."\n";
+        if($ev_l eq "1111") {return 1;}; # judge
+    }
+    return 0;
+}

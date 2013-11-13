@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+
+use Data::Dumper;
+
+open(fid, $ARGV[0]);
+
+my $cases = <fid>; # test cases
+chomp $cases;
+
+my $c = 1;
+
+for my $c (1..$cases) {
+    my @l = ();
+    for (1..4) {
+        my $line = <fid>;
+        chomp $line;
+        #print "$line\n";
+        $line = [split //, $line];
+        push @l, $line;
+    }
+    <fid>; # grab the last empty line.
+
+    my @checks = ();
+    for my $v (0..3) {
+        push @checks, $l[0][$v] . $l[1][$v] . $l[2][$v] . $l[3][$v];
+    }
+
+    for my $h (0..3) {
+        push @checks, $l[$h][0] . $l[$h][1] . $l[$h][2] . $l[$h][3];
+    }
+
+    push @checks, $l[0][0] . $l[1][1] . $l[2][2] . $l[3][3];
+    push @checks, $l[0][3] . $l[1][2] . $l[2][1] . $l[3][0];
+
+    print "Case #$c: ";
+    $won = 0;
+    foreach my $t (@checks) {
+        if ($t =~ /[XT]{4}/) {
+            print "X won";
+            $won++;
+            last;
+        } elsif ($t =~ /[OT]{4}/) {
+            print "O won";
+            $won++;
+            last;
+        }
+    }
+
+    if (!$won) {
+        my $completed = 1;
+        for my $i (0..3) {
+            for my $j (0..3) {
+                $completed = 0 if $l[$i][$j] eq "."
+            }
+        }
+        if ($completed) {
+            print "Draw";
+        } else {
+            print "Game has not completed";
+        }
+    }
+
+    print "\n";
+    $c++;
+}
+
+

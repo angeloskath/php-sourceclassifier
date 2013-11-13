@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<input id="fileinput" type="file">
+<script>
+function readSingleFile(evt) {
+	//Retrieve the first (and only!) File from the FileList object
+	var f = evt.target.files[0];
+
+	if (f) {
+		var r = new FileReader();
+		r.onload = function(e) {
+			var contents = e.target.result;
+			processInput(contents)
+		}
+		r.readAsText(f);
+	} else {
+		alert("Failed to load file");
+	}
+}
+
+
+var currentState = "init";
+var currentLine = 0;
+var totLines, totTestCases, currentGame, scoredGames;
+
+function processInput(content) {
+	console.log("processing...");
+	var contentLinesArray = content.split("\n");
+	var totLines = contentLinesArray.length;
+	for (currentLine = 0; currentLine <= totLines; currentLine++) {
+		var line = contentLinesArray[currentLine];
+
+		// evaluate for end state
+		if (currentLine === totLines) 
+			currentState = "solution";
+
+		// execute state
+		console.log("processing line#", currentLine, currentState);
+		switch (currentState) {
+			case "init":
+				initState(line);
+				break;
+			case "readGame":
+				readGame(line);
+				break;
+			case "scoreGame":
+				scoreGame(line);
+				break;
+			case "solution":
+				// scoreGame(line);
+				showSolution();
+				break;
+		}
+	}
+}
+
+
+function initState(line) {
+
+	var totTestCases = line;
+	scoredGames = [];
+	currentGame = [];
+	currentState = "readGame";
+}
+
+var currentTestCase = 0;
+
+function readGame(line) {
+	currentGame.push(line);
+	if (currentGame.length === 4) currentState = "scoreGame";
+}
+
+// game scoring states
+var STATE_INCOMPLETE = "Game has not completed";
+var STATE_X_WON = "X won";
+var STATE_O_WON = "O won";
+var STATE_DRAW = "Draw";
+
+var WIN_REGEX = "((X|T){4}|(O|T){4})";
+function scoreGame(line) {
+	var gameToScore = currentGame;
+
+	// check for incomplete or row-wins
+	var gameState = null;
+	var winner = null;
+	var movesLeft = false;
+	var curLine;
+	for(i=0;i<gameToScore.length;i++)
+	{
+		curLine = gameToScore[i];
+		console.log("checking row:",i,curLine)
+		
+		if(curLine.match('\\.') !== null )
+		{
+			movesLeft = true;
+			
+		}
+		
+		if(curLine.match(WIN_REGEX) !== null )
+		{
+			if(curLine.match("O") !== null)
+				winner = "O";
+			else
+				winner = "X";
+
+		}
+		else{
+			gameToScore[i] = curLine.split('');
+		}
+	}
+
+	// check for col wins
+	if(winner === null)
+	for(i=0;i<4;i++){
+		var curRow = gameToScore[0][i]+gameToScore[1][i]+gameToScore[2][i]+gameToScore[3][i];
+		console.log("checking col:",i,curRow)
+		if(curRow.match(WIN_REGEX) !== null )
+		{
+			if(curRow.match("O")!==null)
+				winner = "O"
+			else
+				winner = "X"
+
+			break;
+		}
+	}
+
+	// check for diag wins
+	var diag1 = gameToScore[0][0]+gameToScore[1][1]+gameToScore[2][2]+gameToScore[3][3];
+	var diag2 = gameToScore[0][3]+gameToScore[1][2]+gameToScore[2][1]+gameToScore[3][0];
+	if(diag1.match(WIN_REGEX) !== null )
+	{
+			if(diag1.match("O")!==null)
+				winner = "O"
+			else
+				winner = "X"
+
+			
+	}
+	else if(diag2.match(WIN_REGEX) !== null )
+	{
+			if(diag2.match("O")!==null)
+				winner = "O"
+			else
+				winner = "X"
+
+	}
+
+
+
+	if(!movesLeft && winner === null)
+		gameState = STATE_DRAW;
+	else if(movesLeft && winner === null)
+		gameState = STATE_INCOMPLETE;
+	else if(winner === "O")
+		gameState = STATE_O_WON;
+	else if(winner === "X")
+		gameState = STATE_X_WON;
+
+	console.log("DONE SCORING: ",scoredGames.length,gameToScore,gameState,movesLeft,winner);
+	scoredGames.push(gameState);
+	currentGame = [];
+	currentState = "readGame";
+}
+
+
+function showSolution() {
+	for (var i = 0; i < scoredGames.length; i++) {
+		var solution = scoredGames[i];
+		document.write("Case #" + parseInt(parseInt(i)+1)
+		+": " + solution + "<br>");
+	}
+}
+
+
+
+document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+</script>
+
+</html>

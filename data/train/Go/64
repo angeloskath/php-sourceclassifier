@@ -1,0 +1,89 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"runtime"
+)
+
+func bail(err error) {
+	_, _, line, ok := runtime.Caller(1)
+
+	if ok {
+		fmt.Fprintf(os.Stderr, "Error at line %d: %v\n", line, err)
+	} else {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	}
+
+	os.Exit(1)
+}
+
+func main() {
+	var numCases int
+	_, err := fmt.Scanf("%d", &numCases)
+
+	if err != nil {
+		bail(err)
+	}
+
+	var (
+		playerX uint16
+		playerO uint16
+		winner  string
+		draw    bool
+	)
+
+	winningPositions := []uint16{
+		0xf000, 0x0f00, 0x00f0, 0x000f, // rows
+		0x8888, 0x4444, 0x2222, 0x1111, // cols
+		0x8421, 0x1248, // diags
+	}
+
+	for casei := 1; casei <= numCases; casei++ {
+		playerX, playerO, winner, draw = 0, 0, "", true
+
+		for i := uint(0); i < 4; i++ {
+			var line string
+
+			_, err := fmt.Scanln(&line)
+
+			if err != nil {
+				bail(err)
+			}
+
+			for j := uint(0); j < 4; j++ {
+				switch line[j] {
+				case 'X':
+					playerX |= 1 << (4*i + j)
+				case 'O':
+					playerO |= 1 << (4*i + j)
+				case 'T':
+					playerX |= 1 << (4*i + j)
+					playerO |= 1 << (4*i + j)
+				case '.':
+					draw = false
+				}
+			}
+		}
+
+		for _, pos := range winningPositions {
+			if playerX&pos == pos {
+				winner = "X"
+				break
+			} else if playerO&pos == pos {
+				winner = "O"
+				break
+			}
+		}
+
+		if winner != "" {
+			fmt.Printf("Case #%d: %v won\n", casei, winner)
+		} else if draw {
+			fmt.Printf("Case #%d: Draw\n", casei)
+		} else {
+			fmt.Printf("Case #%d: Game has not completed\n", casei)
+		}
+
+		fmt.Scanln()
+	}
+}

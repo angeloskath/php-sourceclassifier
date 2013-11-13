@@ -1,0 +1,132 @@
+package main
+
+import (
+  "bufio"
+  "fmt"
+  "os"
+  "strconv"
+  "strings"
+)
+
+type Row struct {
+  Value string
+}
+
+func (r *Row)Is_row_win(player string) bool {
+  cnt := strings.Count(r.Value, player)
+  t_cnt := strings.Count(r.Value, "T")
+  return cnt == 4 || (cnt == 3 && t_cnt == 1)
+}
+
+type Board struct {
+  Rows []Row
+}
+
+func (b *Board) Is_win(player string) bool {
+
+  //check for row win
+  for _, row := range b.Rows {
+    if row.Is_row_win(player) {
+      return true
+    }
+  }
+
+  for x:=0; x<4;x++ {
+    var r Row
+    for y:=0; y<4; y++ {
+      r.Value = r.Value + string(b.Rows[y].Value[x])
+      if r.Is_row_win(player) {
+        return true
+      }
+    }
+  }
+
+  //check for diagonal win
+  var backslash_row Row
+  for i:=0; i<4; i++ {
+    backslash_row.Value = backslash_row.Value + string(b.Rows[i].Value[i])
+  }
+  if backslash_row.Is_row_win(player) {
+    return true
+  }
+
+  var forwardslash_row Row
+  for i:=0; i<4; i++ {
+    forwardslash_row.Value = forwardslash_row.Value + string(b.Rows[3-i].Value[i])
+  }
+  if forwardslash_row.Is_row_win(player) {
+    return true
+  }
+
+  return false
+}
+
+func (b *Board) Is_draw() bool {
+  for _, row := range b.Rows {
+    if strings.Contains(row.Value, ".") {
+      return false
+    }
+  }
+  return true
+}
+
+type Inputs struct {
+  N int
+  Boards []Board
+}
+
+func readLineParseInt(r *bufio.Reader) (int, error) {
+  s, err := r.ReadString('\n')
+  if err==nil {
+    n, e := strconv.ParseInt(strings.Trim(s, "\n"), 10, 0)
+    if e != nil {
+      return -1, e
+    }
+    return int(n), nil
+  } else {
+    fmt.Println(err)
+  }
+  return -1, err
+}
+
+func readInputs() Inputs {
+  rdr := bufio.NewReader(os.Stdin)
+  inputs := Inputs{}
+
+  inputs.N, _ = readLineParseInt(rdr)
+
+  for i := 0; i < inputs.N; i++ {
+    var board Board
+    for row:=0; row < 4; row++ {
+      var row Row
+      s, _ := rdr.ReadString('\n')
+      row = Row{s}
+      board.Rows = append(board.Rows, row)
+    }
+    inputs.Boards = append(inputs.Boards, board)
+    rdr.ReadString('\n')
+  }
+
+  return inputs
+}
+
+func GetResult(b *Board) string {
+  if b.Is_win("X") {
+    return "X won"
+  } else if b.Is_win("O") {
+    return "O won"
+  } else if b.Is_draw() {
+    return "Draw"
+  }
+
+  return "Game has not completed"
+}
+
+func main() {
+  inputs := readInputs()
+
+  for i, board := range inputs.Boards{
+    result := GetResult(&board)
+    fmt.Println( fmt.Sprintf("Case #%d: %s ", i+1, result) )
+  }
+}

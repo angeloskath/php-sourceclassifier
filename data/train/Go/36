@@ -1,0 +1,98 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+const (
+	X byte = 88
+	O byte = 79
+	T byte = 84
+	E byte = 46
+)
+
+func checkWin(line string) byte {
+	if noE := strings.Replace(line, string(E), "", -1); len(noE) != 4 {
+		return 0
+	}
+	noT := strings.Replace(line, string(T), "", -1)
+	if len(noT) == 0 {
+		return 0
+	}
+	tLine := strings.Replace(line, string(T), string(noT[0]), -1)
+	if tLine == string([]byte { X, X, X, X }) {
+		return X
+	}
+	if tLine == string([]byte { O, O, O, O }) {
+		return O
+	}
+	return 0
+}
+
+func main() {
+	var cases uint32
+	fmt.Scanln(&cases)
+	for caseNo := uint32(1); caseNo <= cases; caseNo++ {
+		var (
+			board             [4][4]byte
+			ddown, dup, line  string
+			xWin, oWin, space bool
+		)
+		for i := 0; i < 4; i++ {
+			fmt.Scanln(&line)
+			for j := 0; j < 4; j++ {
+				board[i][j] = line[j]
+			}
+		}
+		fmt.Scanln(&line)
+		
+		for i := 0; i < 4; i++ {
+			var across, down string
+			for j := 0; j < 4; j++ {
+				if board[i][j] == E {
+					space = true
+				}
+				across += string(board[i][j])
+				down += string(board[j][i])
+			}
+			switch checkWin(across) {
+				case X:
+					xWin = true
+				case O:
+					oWin = true
+			}
+			switch checkWin(down) {
+				case X:
+					xWin = true
+				case O:
+					oWin = true
+			}
+			ddown += string(board[i][i])
+			dup += string(board[3 - i][i])
+		}
+		switch checkWin(ddown) {
+			case X:
+				xWin = true
+			case O:
+				oWin = true
+		}
+		switch checkWin(dup) {
+			case X:
+				xWin = true
+			case O:
+				oWin = true
+		}
+		if xWin && oWin {
+			fmt.Printf("Case #%d: Fail\n", caseNo) 
+		} else if xWin {
+			fmt.Printf("Case #%d: X won\n", caseNo) 
+		} else if oWin {
+			fmt.Printf("Case #%d: O won\n", caseNo) 
+		} else if space {
+			fmt.Printf("Case #%d: Game has not completed\n", caseNo) 
+		} else {
+			fmt.Printf("Case #%d: Draw\n", caseNo) 
+		}
+	}
+}

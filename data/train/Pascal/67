@@ -1,0 +1,141 @@
+program TEMPLATE;
+{$APPTYPE CONSOLE}
+{$O-,Q+,R+,M+,I+}
+
+uses
+  SysUtils;
+
+const
+  Problem = 'A';
+  CN = 2500;
+
+var
+  INFILE: String;
+  OUTFILE: String;
+  T: longint;
+  i, j, k: longint;
+  a: array [1 .. 4, 1 .. 4] of char;
+  ob: char;
+  test: boolean;
+  isDotExists: boolean;
+
+BEGIN
+  INFILE := Problem + '-small-attempt.in';
+  OUTFILE := Problem + '-small.out';
+  // INFILE :=Problem+'-large.in';  OUTFILE :=Problem+'-large.out';
+
+  reset(input, INFILE);
+  rewrite(output, OUTFILE);
+  // ========================
+
+  readln(T);
+  for i := 1 to T do
+  begin
+    isDotExists := false;
+    for j := 1 to 4 do
+    begin
+      for k := 1 to 4 do
+      begin
+        read(a[j, k]);
+        if not isDotExists then
+          isDotExists := a[j, k] = '.';
+      end;
+      readln;
+    end;
+    readln;
+    test := false;
+    // ---------------row
+    for j := 1 to 4 do
+      if not test then
+      begin
+        ob := a[j, 1];        
+        for k := 2 to 4 do
+        begin
+          test := ((a[j, k] = ob) or ((a[j, k] = 'T')))and(a[j, k] <> '.');
+          if not test then
+            break;
+          ob := a[j, k];
+        end;
+
+        if test then
+        begin
+          if ob = 'T' then
+            ob := a[j, 1];
+          writeln('Case #', i, ': ', ob, ' won');
+        end;
+      end;
+
+    // -----------------column
+    if not test then
+    begin
+      for j := 1 to 4 do
+        if not test then
+        begin
+          ob := a[1, j];
+          for k := 2 to 4 do
+          begin
+            test := ((a[k, j] = ob) or ((a[k, j] = 'T')))and(a[k, j] <> '.');;
+            if not test then
+              break;
+            ob := a[k, j];
+          end;
+
+          if test then
+          begin
+            if ob = 'T' then
+              ob := a[1, j];
+            writeln('Case #', i, ': ', ob, ' won');
+          end;
+        end;
+    end;
+    // ----------------diognal1
+    if not test then
+    begin
+      ob := a[1, 1];
+      for k := 2 to 4 do
+      begin
+        test := ((a[k, k] = ob) or ((a[k, k] = 'T')))and(a[k, k] <> '.');;
+        if not test then
+          break;
+        ob := a[k, k];
+      end;
+
+      if test then
+      begin
+        if ob = 'T' then
+          ob := a[1, 1];
+        writeln('Case #', i, ': ', ob, ' won');
+      end;
+    end;
+    // ----------------diognal2
+    if not test then
+    begin
+      ob := a[1, 4];
+      for k := 2 to 4 do
+      begin
+        test := ((a[k, 5 - k] = ob) or ((a[k, 5 - k] = 'T')))and(a[k, 5-k] <> '.');;
+        if not test then
+          break;
+        ob := a[k, 5 - k];
+      end;
+
+      if test then
+      begin
+        if ob = 'T' then
+          ob := a[1, 4];
+        writeln('Case #', i, ': ', ob, ' won');
+      end;
+    end;
+    if not test then
+      if isDotExists then
+        writeln('Case #', i, ': Game has not completed')
+      else
+        writeln('Case #', i, ': Draw');
+    // writeln('Case #', i, ': Game has not completed');
+  end;
+
+  // ========================
+  CloseFile(input);
+  CloseFile(output);
+
+END.

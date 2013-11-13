@@ -1,0 +1,200 @@
+﻿Imports System.IO
+
+Module Module1
+
+    Public Class BoardClass
+        Private _board(,) As Char
+        Public Property Board As Char(,)
+            Get
+                Return _board
+            End Get
+            Set(value As Char(,))
+                _board = value
+            End Set
+        End Property
+
+        Public Property State As Integer
+
+        Public ReadOnly Property Result() As String
+            Get
+                If State = 1 Then
+                    Return "X won"
+                ElseIf State = 2 Then
+                    Return "O won"
+                ElseIf State = 3 Then
+                    Return "Draw"
+                Else
+                    Return "Game has not completed"
+                End If
+            End Get
+        End Property
+
+        Public Sub New()
+            _board = Array.CreateInstance(Type.GetType("System.Char"), 4, 4)
+            State = 4
+        End Sub
+    End Class
+
+    Sub Main()
+        Dim game() As BoardClass = ReadInputFile()        
+        For Each g As BoardClass In game
+            FindWinner(g)
+        Next
+        WriteOutputFile(game)
+    End Sub
+
+    Public Function ReadInputFile() As BoardClass()
+        Dim game(0) As BoardClass
+        Dim line As String
+        Dim numberOfGames As Integer = 0
+        Dim lineNumber As Integer = 0
+        Dim gameNumber As Integer = 0
+        Using _reader As New StreamReader("A-large" & ".in")
+            While Not _reader.EndOfStream
+                line = _reader.ReadLine
+                If IsNumeric(line) Then
+                    numberOfGames = line
+                    Array.Resize(game, numberOfGames)
+                    For i As Integer = 0 To game.Length - 1
+                        game(i) = New BoardClass
+                    Next
+                ElseIf line = String.Empty Then
+                    lineNumber = 0
+                    gameNumber += 1
+                Else
+                    For i As Integer = 0 To line.Length - 1
+                        game(gameNumber).Board(lineNumber, i) = line.ToUpper.Chars(i)
+                    Next
+                    lineNumber += 1
+                End If
+            End While
+        End Using
+        Return game
+    End Function
+
+    Public Sub WriteOutputFile(ByRef game() As BoardClass)
+        Using _writer As New StreamWriter("output.out")
+            Dim i As Integer = 1
+            For Each b As BoardClass In game
+                _writer.WriteLine("Case #" & (i).ToString & ": " & b.Result)
+                i += 1
+            Next
+        End Using
+    End Sub
+
+    Public Sub FindWinner(ByRef b As BoardClass)
+        Dim winner As Boolean = False
+        Dim charWinning As String = String.Empty
+        For i As Integer = 0 To 3
+            If Not winner Then
+                charWinning = String.Empty
+                For j As Integer = 0 To 2
+                    If Not AreEquals(b.Board(i, j), b.Board(i, j + 1)) Then
+                        Exit For
+                    Else
+                        If charWinning = String.Empty Then
+                            charWinning = GetCharWinning(b.Board(i, j), b.Board(i, j + 1))
+                        End If
+                        If j = 2 AndAlso charWinning = GetCharWinning(b.Board(i, j), b.Board(i, j + 1)) Then
+                            winner = True
+                        End If
+                    End If
+                Next
+            End If
+        Next
+        If Not winner Then
+            charWinning = String.Empty
+            For i As Integer = 0 To 3
+                If Not winner Then
+                    charWinning = String.Empty
+                    For j As Integer = 0 To 2
+                        If Not AreEquals(b.Board(j, i), b.Board(j + 1, i)) Then
+                            Exit For
+                        Else
+                            If charWinning = String.Empty Then
+                                charWinning = GetCharWinning(b.Board(j, i), b.Board(j + 1, i))
+                            End If
+                            If j = 2 AndAlso charWinning = GetCharWinning(b.Board(j, i), b.Board(j + 1, i)) Then
+                                winner = True
+                            End If
+                        End If
+                    Next
+                End If
+            Next
+        End If
+        If Not winner Then
+            charWinning = String.Empty
+            For i As Integer = 0 To 2
+                If Not AreEquals(b.Board(i, i), b.Board(i + 1, i + 1)) Then
+                    Exit For
+                Else
+                    If charWinning = String.Empty Then
+                        charWinning = GetCharWinning(b.Board(i, i), b.Board(i + 1, i + 1))
+                    End If                    
+                    If i = 2 AndAlso charWinning = GetCharWinning(b.Board(i, i), b.Board(i + 1, i + 1)) Then
+                        winner = True
+                    End If
+                End If
+            Next
+        End If
+        If Not winner Then
+            charWinning = String.Empty
+            For i As Integer = 3 To 1 Step -1
+                If Not AreEquals(b.Board(3 - i, i), b.Board(3 - i + 1, i - 1)) Then
+                    Exit For
+                Else
+                    If charWinning = String.Empty Then
+                        charWinning = GetCharWinning(b.Board(3 - i, i), b.Board(3 - i + 1, i - 1))
+                    End If                    
+                    If i = 1 AndAlso charWinning = GetCharWinning(b.Board(3 - i, i), b.Board(3 - i + 1, i - 1)) Then
+                        winner = True
+                    End If
+                End If
+            Next
+        End If
+        If winner Then
+            If charWinning = "X" Then
+                b.State = 1
+            Else
+                b.State = 2
+            End If
+        Else
+            SetIsDrawn(b)
+        End If
+    End Sub
+
+    Public Function AreEquals(ByRef c1 As Char, ByRef c2 As Char) As Boolean
+        Dim result As Boolean = False
+        If (c1 = c2 OrElse c1 = "T" OrElse c2 = "T") AndAlso Not (c1 = "T" AndAlso c2 = "T") AndAlso Not (c1 = "." OrElse c2 = ".") Then
+            result = True
+        End If
+        Return result
+    End Function
+
+    Public Function GetCharWinning(ByRef c1 As Char, ByRef c2 As Char) As String
+        If c1 = "X" OrElse c2 = "X" Then
+            Return "X"
+        ElseIf c1 = "O" OrElse c2 = "O" Then
+            Return "O"
+        Else
+            Return String.Empty
+        End If
+    End Function
+
+    Public Sub SetIsDrawn(ByRef b As BoardClass)
+        Dim drawn As Boolean = True
+        For i As Integer = 0 To 3
+            If drawn Then
+                For j As Integer = 0 To 3
+                    If b.Board(i, j) = "." Then
+                        drawn = False
+                        Exit For
+                    End If
+                Next
+            End If
+        Next
+        If drawn Then
+            b.State = 3
+        End If
+    End Sub
+End Module

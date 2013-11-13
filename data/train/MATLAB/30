@@ -1,0 +1,86 @@
+fid = fopen('d:\a.in');
+fid2 = fopen('d:\output.txt','w');
+tline = fgets(fid);
+index=0;
+max=str2num(tline);
+while(index<max)
+    index=index+1;
+ line='';
+ line = fgets(fid);
+ line = strcat(line,fgets(fid));
+ line = strcat(line,fgets(fid));
+ line = strcat(line,fgets(fid));
+ xline = strrep(line,'T','X');
+ xline = strrep(xline,'O','.');
+ oline = strrep(line,'T','O');
+ oline = strrep(oline,'X','.');
+ leave = fgets(fid);
+xwon=0;
+owon=0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+i=1;
+iindex=1;
+while(iindex<5)
+ if(xline(i)=='X' && xline(i+1)=='X' && xline (i+2)=='X' && xline(i+3)=='X')
+     xwon=1;
+     break;
+ end
+ if(xline(iindex)=='X' && xline(iindex+4)=='X' && xline (iindex+8)=='X' && xline(iindex+12)=='X')
+     xwon=1;
+     break;
+ end
+ i=i+4;
+ iindex=iindex+1;
+end
+if(xline(1)=='X' && xline(6)=='X' && xline (11)=='X' && xline(16)=='X')
+     xwon=1;
+ end
+if(xline(4)=='X' && xline(7)=='X' && xline (10)=='X' && xline(13)=='X')
+     xwon=1;
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+i=1;
+iindex=1;
+while(iindex<5 && xwon==0)
+ if(oline(i)=='O' && oline(i+1)=='O' && oline (i+2)=='O' && oline(i+3)=='O')
+     owon=1;
+     break;
+ end
+ if(oline(iindex)=='O' && oline(iindex+4)=='O' && oline (iindex+8)=='O' && oline(iindex+12)=='O')
+     owon=1;
+     break;
+ end
+ i=i+4;
+ iindex=iindex+1;
+end
+if(oline(1)=='O' && oline(6)=='O' && oline (11)=='O' && oline(16)=='O')
+     owon=1;
+ end
+if(oline(4)=='O' && oline(7)=='O' && oline (10)=='O' && oline(13)=='O')
+     owon=1;
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if(xwon==1)
+     fprintf(fid2,'Case #%s: X won\n',num2str(index));
+     continue;
+end
+
+if(owon==1)
+fprintf(fid2,'Case #%s: O won\n',num2str(index));
+    continue;
+end
+
+if(owon==0 && xwon==0)
+ x=strfind(line,'.');
+ if(length(x)==0)
+   fprintf(fid2,'Case #%s: Draw\n',num2str(index));
+   continue;
+ else
+   fprintf(fid2,'Case #%s: Game has not completed\n',num2str(index));
+   continue;   
+ end
+end  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+end 
+fclose(fid);
+fclose(fid2);

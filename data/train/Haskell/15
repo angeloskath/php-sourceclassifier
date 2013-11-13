@@ -1,0 +1,33 @@
+import Data.List
+import Data.List.Split
+
+data Winner = X | O | Draw | None deriving (Ord,Read,Eq)
+
+instance Show Winner where
+  show X = "X won"
+  show O = "O won"
+  show Draw = "Draw"
+  show None = "Game has not completed"
+
+parse :: String -> [[[Char]]]
+parse str = splitOn [""] $ init $ tail $ lines str
+
+winner :: [[Char]] -> Winner
+winner grid = let
+  lines = map (grid!!) [0..3] ++ map (\x -> map (!!x) grid) [0..3] ++ [map (\x -> grid!!x!!x) [0..3], map (\x -> grid!!(3-x)!!x) [0..3]]
+  lineWinners = map testLine lines
+  in if X `elem` lineWinners then X
+     else if O `elem` lineWinners then O
+     else if '.' `notElem` concat grid then Draw
+     else None
+
+testLine :: String -> Winner
+testLine line
+  | (all (\x -> x=='X' || x=='T') line) = X
+  | (all (\x -> x=='O' || x=='T') line) = O
+  | otherwise = None
+
+main = do
+  input <- readFile "input"
+  let winners = map winner $ parse input
+  mapM_ (\x -> putStrLn $ "Case #"++show (x+1)++": "++show (winners!!x)) [0..(length winners-1)]

@@ -1,0 +1,54 @@
+function ticTacToe(file)
+fh = fopen(file, 'r');
+line = fgetl(fh);
+board = zeros(4, 4);
+fh2 = fopen('output.txt', 'w');
+j = 0;
+while ischar(line)
+    j = j + 1;
+    
+    for i = 1:4
+        line = fgetl(fh);
+        if(~ischar(line))
+            return;
+        end
+        board(i, 1) = 0+line(1);
+        board(i, 2) = 0+line(2);
+        board(i, 3) = 0+line(3);
+        board(i, 4) = 0+line(4);
+    end
+    fprintf(fh2, 'Case #%d: %s\n', j, solve(board));
+    line = fgetl(fh);
+end
+
+
+
+
+end
+
+function out = solve(board)
+Xbool = board == 'X' | board == 'T';
+Obool = board == 'O' | board == 'T';
+if check(Xbool)
+    out = 'X won';
+elseif check(Obool)
+    out = 'O won';
+elseif any(board == '.')
+    out = 'Game has not completed';
+else
+    out = 'Draw';
+end
+
+
+
+
+
+end
+
+function won = check(bool)
+won = false;
+for i = 1:4
+    won = won || all(bool(:, i)) || all(bool(i, :));
+end
+won = won || all(diag(bool)) || all(diag(fliplr(bool)));
+end

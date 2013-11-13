@@ -1,0 +1,44 @@
+import Data.List (transpose)
+import Control.Applicative ((<$>))
+import Control.Monad (forM_, replicateM)
+import Text.Printf (printf)
+
+type TestCase = [String]
+data Answer = X_Won | O_Won | Draw | NotCompleted
+
+instance Show Answer where
+  show X_Won        = "X won"
+  show O_Won        = "O won"
+  show Draw         = "Draw"
+  show NotCompleted = "Game has not completed"
+
+readTestCase :: IO TestCase
+readTestCase = do
+  t <- replicateM 4 getLine
+  _ <- getLine
+  return t
+
+solve :: TestCase -> Answer
+solve t | any ((==)  8) crits || any ((==) 16) crits = X_Won
+        | any ((==) 27) crits || any ((==) 81) crits = O_Won
+        | any ((==)  0) crits                        = NotCompleted
+        | otherwise                                  = Draw
+  where
+    rows  = t
+    cols  = transpose t
+    diags = [[t !! y !! x | (x,y) <- zip [0..3] [0..3]],
+             [t !! y !! x | (x,y) <- zip [3,2..0] [0..3]]]
+    lines = rows ++ cols ++ diags
+    f     = product . map g
+    g '.' = 0
+    g 'T' = 1
+    g 'X' = 2
+    g 'O' = 3
+    crits = map f lines
+
+main :: IO ()
+main = do
+  n  <- read <$> getLine :: IO Int
+  ts <- replicateM n readTestCase
+  forM_ (zip ([1..] :: [Int]) ts) $ \(i,t) -> 
+    printf "Case #%d: %s\n" i (show $ solve t)

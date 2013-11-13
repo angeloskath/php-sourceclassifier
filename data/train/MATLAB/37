@@ -1,0 +1,32 @@
+function ans = analyze_board(no_game, board)
+
+board_O = (board=='O' | board=='T');
+board_X = (board=='X' | board=='T');
+board_dot = (board=='.');
+if  sum(sum(board_O)==4)>0 || sum(sum(board_O')==4)>0 || ...
+    sum(diag(board_O(:,end:-1:1)))==4 || sum(diag(board_O))==4,
+    message = 'O won';
+elseif  sum(sum(board_X)==4)>0 || sum(sum(board_X')==4)>0 || ...
+    sum(diag(board_X(:,end:-1:1)))==4 || sum(diag(board_X))==4,
+    message = 'X won';
+elseif sum(board_dot(:)) > 0,
+    message = 'Game has not completed';
+else
+    message = 'Draw';
+end;
+ans = sprintf('Case #%d: %s',no_game, message);function output = test_file(fname)
+output = '';
+fid = fopen(fname,'r');
+no_games = fread(fid,4,'uchar')-'0';
+no_games = sum(no_games.*[1000;100;10;1]);
+for ng = 1:no_games,
+    board = char(fread(fid,4*5,'uchar'));
+    board = reshape(board,[5,4])';
+    board(:,1) = [];
+    output = [output, sprintf('%s\n', analyze_board(ng,board))];
+    char(fread(fid,1,'uchar'));
+end;
+fclose(fid)
+fid = fopen([fname,'_out'],'w');
+fprintf(fid,'%s',output);
+fclose(fid)

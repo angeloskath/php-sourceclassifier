@@ -1,0 +1,90 @@
+object Appl {
+
+  import scala.io.Source._
+
+  def main(args: Array[String]) {
+
+    //store input file into lines var
+    val (lines, _) = fromFile("input.file").getLines.toList.partition(_ != "")
+    val numPuzzles = lines(0).toInt
+
+    //create array
+    val gameBoards: IndexedSeq[GameBoard] = (0 to numPuzzles).map { i => new GameBoard(lines.slice(i * 4 + 1, i * 4 + 5)) }
+   // println(gameBoards(0))
+
+    (1 to numPuzzles) map { i => println("Case #" + i + ": "+ gameBoards(i-1).gameResult) }    
+    
+    
+    
+    
+  }
+  
+}class GameBoard(stringList: List[String]) {
+
+  val gameboard: List[List[Char]] = stringList.map { _.toCharArray().toList }
+
+  override def toString() = stringList.tail.foldLeft(stringList.head)(_ + '\n' + _)
+
+ 
+  /*
+   * algorithm:
+   * 
+   * Firstly; we need to check all rows, cols, and diags.
+   * 
+   * Add the intermediateValues in a valid 4-tuple to determine if winner: 3 or 4 means X win, -3 or -4 means O win
+   * If a win or  
+   */
+  
+  def gameResult(): String = {
+    
+    val rowResults = gameboard.foldLeft(0)( _ + GameBoard.tuple4Result(_))
+    val colResults = gameboard.transpose.foldLeft(0)( _ + GameBoard.tuple4Result(_))
+    val diag1Results = GameBoard.tuple4Result( ((0 to 3).map{ i => gameboard(i)(i)}).toList )
+    val diag2Results = GameBoard.tuple4Result( ((0 to 3).map{ i => gameboard(3-i)(i)}).toList )
+    
+    val gameResult = colResults + rowResults + diag1Results + diag2Results
+    
+    if (gameResult == 0)
+      if(blankSquareExists())
+        "Game has not completed"
+      else
+        "Draw"
+    else
+      if( gameResult > 0)
+        "X won"
+      else
+        "O won"
+      
+  }
+
+  def blankSquareExists(): Boolean = {
+    gameboard.foldLeft(false)(_ || _.foldLeft(false)( _ || _ == '.' ))
+        
+  }
+}
+
+object GameBoard{
+  
+    def intermediateValue(element: Char): Int = {
+    element match {
+      case 'X' => 1
+      case 'O' => -1
+      case '.' => -10
+      case 'T' => 0
+    }
+  }
+  
+  /**
+   * 1 if X win, -1 if O win, 0 if neither
+   */
+  def tuple4Result(row: List[Char]) ={
+    val winSum = row.foldLeft(0)( _ + intermediateValue(_))
+    
+    winSum match{
+      case 3 | 4 => 1
+      case -3 | -4 => -1
+      case _ => 0
+    }
+  }
+}
+

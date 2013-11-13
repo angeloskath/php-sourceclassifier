@@ -1,0 +1,145 @@
+<?php
+
+	$files = scandir(".");
+
+	foreach($files As $filename)
+	{
+		if(fnmatch("*.in", $filename) === true)
+			break;
+	}
+	function readturn($inphand)
+	{
+		$turnarr = array();
+		for($i = 0; $i < 4; $i++)
+		{
+			$line = fgets($inphand);
+			$line = trim($line);
+			$turnarr[] = str_split($line);
+		}
+		return $turnarr;
+	}
+	function evaluateturn($turnarr)
+	{
+		$cptO = 0;
+		$cptX = 0;
+		for ($i = 0; $i < 4; $i++)
+		{
+			for ($j = 0; $j < 4; $j++)
+			{
+				if($turnarr[$i][$j] == "O" || $turnarr[$i][$j] == "T")
+				{
+					$cptO++;
+				}
+				if($turnarr[$i][$j] == "X" || $turnarr[$i][$j] == "T")
+				{
+					$cptX++;
+				}
+			}
+			
+
+			if ($cptO == 4)
+				return 1;
+			if ($cptX == 4)
+				return 2;
+			$cptO = 0;
+			$cptX = 0;
+		}
+		$cptO = 0;
+		$cptX = 0;
+		for ($j = 0; $j < 4; $j++)
+		{
+			for ($i = 0; $i < 4; $i++)
+			{
+				if($turnarr[$i][$j] == "O" || $turnarr[$i][$j] == "T")
+				{
+					$cptO++;
+				}
+				if($turnarr[$i][$j] == "X" || $turnarr[$i][$j] == "T")
+				{
+					$cptX++;
+				}
+			}
+		
+			if ($cptO == 4)
+				return 1;
+			if ($cptX == 4)
+				return 2;
+			$cptO = 0;
+			$cptX = 0;
+		}
+		$cptO = 0;
+		$cptX = 0;
+		for ($j = 0; $j < 4; $j++)
+		{
+			if($turnarr[$j][$j] == "O" || $turnarr[$j][$j] == "T")
+			{
+				$cptO++;
+			}
+			if($turnarr[$j][$j] == "X" || $turnarr[$j][$j] == "T")
+			{
+				$cptX++;
+			}
+		}
+		if ($cptO == 4)
+			return 1;
+		if ($cptX == 4)
+			return 2;
+		$cptO = 0;
+		$cptX = 0;
+		for ($j = 0; $j < 4; $j++)
+		{
+			if($turnarr[3 - $j][$j] == "O" || $turnarr[3 - $j][$j] == "T")
+			{
+				$cptO++;
+			}
+			if($turnarr[3 - $j][$j] == "X" || $turnarr[3 - $j][$j] == "T")
+			{
+				$cptX++;
+			}
+		}
+			
+		if ($cptO == 4)
+			return 1;
+		if ($cptX == 4)
+			return 2;
+		$draw = 1;
+		for ($j = 0; $j < 4; $j++)
+		{
+			for ($i = 0; $i < 4; $i++)
+			{
+				if($turnarr[$i][$j] == ".")
+				{
+					$draw = 0;
+					break;
+				}
+			}
+		
+		}
+		if ($draw === 0)
+			return 3;
+		else
+			return 4;
+	}
+	
+	$inphand  = fopen($filename, "r");
+	$line = fgets($inphand);
+	$nbturn = trim($line);
+	$outhand = fopen("output.out", "w");
+	for($i = 0; $i < $nbturn; $i++)
+	{
+		$turnarr = readturn($inphand);
+		$res = evaluateturn($turnarr);
+		if($res == 1)
+			fwrite($outhand, "Case #" . ($i + 1) . ": O won" . PHP_EOL);
+		if($res == 2)
+			fwrite($outhand,"Case #" . ($i + 1) . ": X won" .  PHP_EOL);
+		if($res == 3)
+			fwrite($outhand,"Case #" . ($i + 1) . ": Game has not completed" . PHP_EOL);
+		if($res == 4)
+			fwrite($outhand,"Case #" . ($i + 1) . ": Draw" . PHP_EOL);
+		fgets($inphand);
+	}
+	fclose($inphand);
+	fclose($outhand);
+?>
+

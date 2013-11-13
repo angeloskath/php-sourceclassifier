@@ -1,0 +1,79 @@
+/*jshint node: true, debug: true */
+"use strict";
+var fs = require("fs");
+
+var getInput = function(filename) {
+	var file = fs.readFileSync(filename, "utf8");
+	return file.split("\n");
+};
+
+var getCases = function (filename) {
+	var lines = getInput(filename),
+		line = 0,
+		caseCount = parseInt(lines[line++], 10),
+		cases = [];
+
+	for(var i = 0; i < caseCount; i++) {
+		cases.push(lines.slice(1 + (i * 5), (1 + i) * 5));
+	}
+
+	return cases;
+};
+
+var isWin = function (board, points) {
+	var counts = {
+		O: 0,
+		X: 0,
+		T: 0,
+		".": 0
+	};
+
+	points.forEach(function (point) {
+		counts[board[point]]++;
+	});
+
+	if (counts.O + counts.T === 4) {
+		return "O";
+	} else if (counts.X + counts.T === 4) {
+		return "X";
+	} else {
+		return false;
+	}
+};
+
+var lines = [
+	[0, 1, 2, 3],
+	[4, 5, 6, 7],
+	[8, 9, 10, 11],
+	[12, 13, 14, 15],
+
+	[0, 4, 8, 12],
+	[1, 5, 9, 13],
+	[2, 6, 10, 14],
+	[4, 7, 11, 15],
+
+	[0, 5, 10, 15],
+	[3, 6, 9, 12]
+];
+
+var getState = function (board) {
+	for(var i = 0; i < lines.length; i++) {
+		var line = lines[i];
+		if (isWin(board, line)) {
+			return isWin(board, line) + " won";
+		}
+	}
+
+	if (board.indexOf(".") === -1) {
+		return "Draw";
+	}
+
+	return "Game has not completed";
+};
+
+var reportState = function (board, caseId) {
+	console.log("Case #" + (caseId + 1) + ": " + getState(board.join("")));
+	//console.log(board, caseId);
+};
+
+getCases(process.argv[2]).forEach(reportState);

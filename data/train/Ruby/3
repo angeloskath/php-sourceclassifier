@@ -1,0 +1,14 @@
+dir=[0,4,8,12].map{|i|(i..i+3).to_a}+
+    [0,1,2,3].map{|i|i.step(15,4).to_a}+
+    [0.step(15,5).to_a, 3.step(14,3).to_a]
+XWON=3;OWON=2;NOT_COMPLETED=1;DRAW=0
+msg=["Draw","Game has not completed","O won","X won"]
+readline.to_i.times do |c|
+    b=4.times.collect{readline.chop}.join;readline
+    score=dir.map do |dir|
+        pat=dir.map{|i|b[i]}
+        pat.include?(".") ?  NOT_COMPLETED :
+        pat.include?("X") ?  (pat.include?("O") ? DRAW : XWON) : OWON
+    end.max
+    puts "Case ##{c+1}: #{msg[score]}"
+end

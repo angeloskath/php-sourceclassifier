@@ -1,0 +1,85 @@
+var io = require('../utils.js');
+
+var file = io.file("0-1teste.in");
+
+var game = [];
+
+var winner=0;
+
+for (var i=1; i <= parseInt(file[0]); i++) {
+  var game = [];
+  for (var j = 1+5*(i-1); j < 5*i; j++) {
+    if (file[j].search(/[XT][XT][XT][XT]/)!=-1){
+      console.log("Case #"+i+": X won");
+      winner=1;
+      break;
+    }
+    else if (file[j].search(/[OT][OT][OT][OT]/)!=-1){
+      console.log("Case #"+i+": O won");
+      winner=1;
+      break;
+    }
+    else {
+      game.push(file[j].replace("\r", "").split(""));
+    }
+  };
+  if (!winner) {
+    console.log("Case #"+i+gameon(game));    
+  }
+  else {
+    winner=0;
+  }
+}
+
+function gameon(game){
+  var all=""
+  var res = 0;
+  //CHECK COLLUMNS
+  for (var i = 0; i < game.length; i++) {
+    var col="";
+    col+=game[0][i];
+    col+=game[1][i];
+    col+=game[2][i];
+    col+=game[3][i];
+    all+=col;
+    if (col.search(/[OT][OT][OT][OT]/)!=-1){
+      res=1;
+    }
+    if (col.search(/[XT][XT][XT][XT]/)!=-1){
+      res=2;
+    }
+  };
+
+  var dig="";
+  dig+=game[0][0];
+  dig+=game[1][1];
+  dig+=game[2][2];
+  dig+=game[3][3];
+  if (dig.search(/[OT][OT][OT][OT]/)!=-1){
+    res=1;
+  }
+  else if (dig.search(/[XT][XT][XT][XT]/)!=-1){
+    res=2;
+  }
+  else {
+    dig=game[3][0];
+    dig+=game[2][1];
+    dig+=game[1][2];
+    dig+=game[0][3];
+    if (dig.search(/[OT][OT][OT][OT]/)!=-1){
+      res=1;
+    }
+    else if (dig.search(/[XT][XT][XT][XT]/)!=-1){
+      res=2;
+    }
+  }
+
+  if (res==0){
+    if (all.search(/[.]/)==-1) res=-1;
+  }
+
+  if (res==1) return ": O won";
+  else if (res==2) return ": X won";
+  else if (res==-1) return ": Draw";
+  else return ": Game has not completed";
+}

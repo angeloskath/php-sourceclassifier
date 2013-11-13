@@ -1,0 +1,93 @@
+import java.io._
+
+
+object TickTackToeTomek{
+  
+  def main(args: Array[String]){
+  
+    var lineNumber = 0
+  
+    val inputLines = scala.io.Source.fromFile(args(0)).getLines.toArray;
+    val headerLine = inputLines(lineNumber)
+    val T : Int = headerLine.toString().toInt;
+    
+    var board = new Array[Array[Char]](4);
+    for (i <- 0 until 4) board(i) = new Array[Char](4)
+    var state : String = ""
+    
+    lineNumber += 1
+    
+    val writer = new PrintWriter(new File ("output.in"))
+    
+    for (i <- 1 to T){
+      for(j <- 0 until 4){
+        board(j) = inputLines(lineNumber).toArray
+        lineNumber += 1
+      }
+      
+      lineNumber += 1 // empty line
+      
+      state = checkState(board)
+      
+      writer.println("Case #" + i + ": " + state)
+    }
+    writer.close
+    
+  }
+  
+  def checkState(board : Array[Array[Char]]) : String = {
+  
+     //HELPER FUNCTIONS
+    
+    def checkColumn(baord : Array[Array[Char]], i : Int) : Char ={
+      if (board(i).forall( x => x == 'O' || x == 'T') ) return 'O'
+      else if (board(i).forall( x => x == 'X' || x == 'T') ) return 'X'
+      else return '.'
+    }
+    
+    def checkRow(baord : Array[Array[Char]], i : Int) : Char = {
+      if (board.forall( row => row(i) == 'O' || row(i) == 'T') ) return 'O'
+      else if (board.forall( row => row(i) == 'X' || row(i) == 'T') ) return 'X'
+      else return '.'
+    }
+    
+    def checkDiagonal1(board : Array[Array[Char]]) : Char = {
+      val values  = for (i <- 0 until 4) yield board(i)(i)
+      if (values.toArray.forall( x => x == 'O' || x == 'T') ) return 'O'
+      else if (values.toArray.forall( x => x == 'X' || x == 'T') ) return 'X'
+      else return '.'
+    }
+    
+    def checkDiagonal2(board : Array[Array[Char]]) : Char = {
+      val values  = for (i <- 0 until 4) yield board(i)(3-i)
+      if (values.toArray.forall( x => x == 'O' || x == 'T') ) return 'O'
+      else if (values.toArray.forall( x => x == 'X' || x == 'T') ) return 'X'
+      else return '.'
+    }
+    
+    //CHECKSTATE BODY
+    var state = ""
+    var winner = '.'
+    for(i <- 0 until 4){
+      winner = checkColumn(board, i)
+      if (winner != '.') return winner + " won"
+    }
+    
+    for(i <- 0 until 4){
+      winner = checkRow(board, i)
+      if (winner != '.') return winner + " won"
+    }
+    
+    winner = checkDiagonal1(board)
+    if (winner != '.') return winner + " won"
+    
+    winner = checkDiagonal2(board)
+    if (winner != '.') return winner + " won"
+    
+    if( board.forall(row => row.forall(_ !='.'))) return "Draw" else return "Game has not completed"
+    
+ 
+  }
+      
+}
+    

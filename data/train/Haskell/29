@@ -1,0 +1,208 @@
+
+{- 
+
+Google Code Jam 2013, qualification round, "tic-tac-toe" problem
+
+It can be compiled with GHC (http://haskell.org/ghc):
+$ ghc -O --make A.hs
+
+It can be run like this:
+$ ./A sample.in sample.out
+
+-}
+
+{-# LANGUAGE BangPatterns, PackageImports #-}
+module Main where
+
+--------------------------------------------------------------------------------
+
+import Control.Monad
+import Control.Applicative hiding (many)
+
+import Data.Array
+-- import Data.Array.MArray
+-- import Data.Array.ST
+import Control.Monad.ST
+
+import Data.Bits
+import Data.Char
+import Data.List
+import Data.Ord
+import Data.Maybe
+
+import "parsec2" Text.ParserCombinators.Parsec hiding (parse)
+import Text.Printf
+
+import Data.Map (Map)
+import qualified Data.Map as Map
+
+import System.Environment
+
+-- import Misc
+
+import Debug.Trace
+
+--------------------------------------------------------------------------------
+
+debug x y = trace (show x) y
+
+--------------------------------------------------------------------------------
+
+type Table = Array (Int,Int) Cell -- [[Cell]]
+type Problem = Table
+
+-- E is empty
+data Cell = X | O | T | E deriving (Eq,Ord,Show)    
+
+type Player = Cell  -- X or O
+
+
+parseCell :: Char -> Cell
+parseCell c = case c of
+  'X' -> X
+  'O' -> O
+  'T' -> T
+  '.' -> E
+
+data Solution 
+  = XWon
+  | OWon
+  | Draw
+  | NotComplete
+  deriving (Eq) --,Show)
+  
+prettySol :: Solution -> String  
+prettySol s = case s of
+  XWon -> "X won" -- (the game is over, and X won)
+  OWon -> "O won" -- (the game is over, and O won)
+  Draw -> "Draw" -- (the game is over, and it ended in a draw)
+  NotComplete -> "Game has not completed"
+  
+--type Solution = String
+-- newtype Solution = Sol String
+
+instance Show Solution where show = prettySol -- (Sol x) = x
+
+--------------------------------------------------------------------------------
+
+natP :: Parser Int
+natP = liftM read (many1 digit)
+
+intP :: Parser Int    
+intP = do
+  sc <- option '+' (oneOf "+-") 
+  i <- natP
+  return $ case sc of
+    '+' ->   i
+    '-' -> (-i)     
+
+endline :: Char -> Bool
+endline '\n' = True
+endline '\r' = True
+endline _ = False
+
+problemP :: Parser Problem
+problemP = tableP
+
+lineP :: Parser [Cell]
+lineP = do
+  xs <- replicateM 4 (oneOf "XOT." >>= \c -> return (parseCell c))
+  spaces
+  return xs
+  
+tableP :: Parser Problem -- [[Cell]]
+tableP = do
+  xs <- replicateM 4 lineP
+  return $ listArray ((1,1),(4,4)) $ concat xs   
+      
+testFileP :: Parser [Problem]
+testFileP = do
+  spaces
+  t <- natP ; spaces
+  replicateM t problemP       
+       
+parse :: String -> [Problem]
+parse = fromRight . runParser testFileP () "input"        
+
+--------------------------------------------------------------------------------
+
+check4 :: Cell -> [Cell] -> Bool 
+check4 player series = case ( player , sort series ) of
+  ( X , [ X,X,X,X ] ) -> True
+  ( X , [ X,X,X,T ] ) -> True
+  ( O , [ O,O,O,O ] ) -> True
+  ( O , [ O,O,O,T ] ) -> True
+  _ -> False
+
+checkVertical :: Player -> Table -> Int -> Bool
+checkVertical player arr col = check4 player $ [ arr!(i,col) | i<-[1..4] ] 
+
+checkHorizontal :: Player -> Table -> Int -> Bool
+checkHorizontal player arr row = check4 player $ [ arr!(row,j) | j<-[1..4] ]
+
+checkDiagMain :: Player -> Table -> Bool
+checkDiagMain player arr = check4 player $ [ arr!(j,j) | j<-[1..4] ]
+
+checkDiagOff :: Player -> Table -> Bool
+checkDiagOff player arr = check4 player $ [ arr!(5-j,j) | j<-[1..4] ]
+  
+checkX :: Table -> Bool
+checkX table 
+  = or  ( [ checkHorizontal X table i | i<-[1..4] ]
+       ++ [ checkVertical   X table j | j<-[1..4] ]
+       ++ [ checkDiagMain   X table 
+          , checkDiagOff    X table 
+          ] )
+          
+checkO :: Table -> Bool
+checkO table 
+  = or ( [ checkHorizontal O table i | i<-[1..4] ]
+      ++ [ checkVertical   O table j | j<-[1..4] ] 
+      ++ [ checkDiagMain   O table 
+         , checkDiagOff    O table 
+         ] )
+
+-- only valid if checkX and O is false
+checkDraw :: Table -> Bool
+checkDraw arr = and [ x /= E | x <- elems arr ]
+
+--------------------------------------------------------------------------------
+    
+solve :: Problem -> Solution
+solve input 
+  = if checkX input 
+      then XWon
+      else if checkO input 
+        then OWon
+        else if checkDraw input
+          then Draw
+          else NotComplete
+
+--------------------------------------------------------------------------------
+    
+solveIO :: Problem -> IO Solution
+solveIO problem = do
+  putStrLn "---------------------------------------"
+  print problem
+  putStrLn "---------------------------------------"
+  let sol = solve problem
+  print sol
+  return $ sol
+
+--------------------------------------------------------------------------------
+
+main = do
+  [inpfn,outfn] <- getArgs
+  text <- readFile inpfn
+  let problem = parse text
+  sol <- mapM solveIO problem
+  let soltext = concat [ "Case #" ++ show i ++ ": " ++ show xxx ++ "\n" | (i,xxx) <- zip [1..] sol ]
+  writeFile outfn soltext        
+  
+--------------------------------------------------------------------------------
+
+fromRight :: Show a => Either a b -> b
+fromRight ei = case ei of
+  Left  x -> error ("fromRight: " ++ show x)
+  Right y -> y
+

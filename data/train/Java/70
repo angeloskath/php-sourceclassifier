@@ -1,0 +1,131 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+
+public class P1 {
+
+
+	public static void main(String[] args) throws IOException {
+
+		FileInputStream fstream = new FileInputStream("A-large.in");
+		DataInputStream in = new DataInputStream(fstream);
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		FileWriter fwstream = new FileWriter("out.txt");
+		BufferedWriter out = new BufferedWriter(fwstream);
+
+
+		int cases = Integer.parseInt(br.readLine());
+
+		for (int i = 0; i < cases; i++) {
+			char[][] board = new char[4][4];
+			for (int j = 0; j < 4; j++) {
+				String line = br.readLine();
+				//System.out.println(line);
+				for (int k = 0; k < 4; k++) {
+					board [j][k] = line.charAt(k);
+				}		
+			}
+			//System.out.println();
+			out.write("Case #"+(i+1)+": "+returnWinner(board)+"\n");
+			br.readLine();
+		}
+
+		in.close();
+		out.close();
+
+	}
+
+	public static String returnWinner(char[][] board) throws IOException {
+
+		boolean gameOver = true;
+		for (int j = 0; j < 4; j++) {
+			boolean XWon = true;
+			boolean OWon = true;
+			for (int k = 0; k < 4; k++) {
+				if (board[j][k] != 'X' && board[j][k] != 'T') {
+					XWon = false;
+				}
+				if (board[j][k] != 'O' && board[j][k] != 'T') {
+					OWon = false;
+				}
+				if (board[j][k] == '.') {
+					gameOver = false;
+				}
+			}
+			if (XWon) {
+				return "X won";
+			}
+			else if (OWon) {
+				return "O won";
+			}
+		}
+
+		for (int j = 0; j < 4; j++) {
+			boolean XWon = true;
+			boolean OWon = true;
+			for (int k = 0; k < 4; k++) {
+				if (board[k][j] != 'X' && board[k][j] != 'T') {
+					XWon = false;
+				}
+				if (board[k][j] != 'O' && board[k][j] != 'T') {
+					OWon = false;
+				}
+			}
+			if (XWon) {
+				return "X won";
+			}
+			else if (OWon) {
+				return "O won";
+			}
+		}
+		boolean XWon = true;
+		boolean OWon = true;
+		for (int j = 0; j < 4; j++) {
+			if (board[j][j] != 'X' && board[j][j] != 'T') {
+				XWon = false;
+			}
+			if (board[j][j] != 'O' && board[j][j] != 'T') {
+				OWon = false;
+			}
+
+		}
+		if (XWon) {
+			return "X won";
+		}
+		else if (OWon) {
+			return "O won";
+		}
+		XWon = true;
+		OWon = true;
+		for (int j = 0; j < 4; j++) {
+			if (board[j][3-j] != 'X' && board[j][3-j] != 'T') {
+				XWon = false;
+			}
+			if (board[j][3-j] != 'O' && board[j][3-j] != 'T') {
+				OWon = false;
+			}
+
+		}
+		if (XWon) {
+			return "X won";
+		}
+		else if (OWon) {
+			return "O won";
+		}
+		else if (!gameOver) {
+			return "Game has not completed";
+		}
+		else {
+			return "Draw";
+		}
+	}
+
+
+
+}

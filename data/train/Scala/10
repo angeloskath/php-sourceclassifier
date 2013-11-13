@@ -1,0 +1,116 @@
+import java.io.FileInputStream
+import java.io.InputStream
+import java.util.Scanner
+
+sealed trait Piece
+case class X extends Piece
+case class O extends Piece
+case class T extends Piece
+case class Empty extends Piece
+
+object XOXO extends App {
+  val searchLines = List(
+    ((0, 0), (0, 1)),
+    ((1, 0), (0, 1)),
+    ((2, 0), (0, 1)),
+    ((3, 0), (0, 1)),
+
+    ((0, 0), (1, 0)),
+    ((0, 1), (1, 0)),
+    ((0, 2), (1, 0)),
+    ((0, 3), (1, 0)),
+
+    ((0, 0), (1, 1)),
+    ((3, 0), (-1, 1)))
+
+  type Coord = (Int, Int)
+
+  def getLine(b: Board, start: Coord, dir: Coord, length: Int = 4): List[Piece] =
+    if (length == 0) Nil
+    else {
+      val newStart = (start._1 + dir._1, start._2 + dir._2)
+      b.data(start._1)(start._2) :: getLine(b, newStart, dir, length - 1)
+    }
+
+  // def isWinLine(start:Coord, dir:Coord): Option[Piece] = {
+
+  //}  
+
+  sealed trait Verdict
+  case class Win(piece: Piece) extends Verdict
+  case class Draw() extends Verdict
+  case class Ongoing() extends Verdict
+
+  def calculateVerdict(b: Board): String = {
+    val lines = for ((start, dir) <- searchLines) yield getLine(b, start, dir)
+
+    val lineVerdict = for (line <- lines) yield {
+      val sums = line.groupBy { p => p } map { case (piece, lst) => (piece, lst.size) }
+
+      def get(p: Piece) = sums.getOrElse(p, 0)
+
+      if (get(Empty()) == 0 && get(X()) == 0) {
+        Win(O())
+      } else if (get(Empty()) == 0 && get(O()) == 0) {
+        Win(X())
+      } else if (get(Empty()) != 0) {
+        Ongoing()
+      } else {
+        Draw()
+      }
+    }
+
+    def win(piece: Piece)(v: Verdict) = v match {
+      case Win(`piece`) => true
+      case _ => false
+    }
+    def ongoing(v: Verdict) = v match {
+      case Ongoing() => true
+      case _ => false
+    }
+
+    if (lineVerdict exists win(X())) "X won"
+    else if (lineVerdict exists win(O())) "O won"
+    else if (lineVerdict exists ongoing) "Game has not completed"
+    else "Draw"
+  }
+
+  import Board._
+
+//  val in = new Scanner(new FileInputStream("data.in"))
+  val in = new Scanner(System.in)
+  val caseCount = in.nextInt()
+
+  val boards = for (i <- 1 to caseCount) yield readBoard(in)
+
+  val verdicts = boards map calculateVerdict
+  
+  for (i <- 1 to verdicts.size)	  println( "Case #%s: %s".format(i,verdicts(i-1)))
+  
+}import java.util.Scanner
+
+object Board {
+
+  def pieceToChar(p: Piece): Char = p match {
+    case X() => 'X'
+    case O() => 'O'
+    case T() => 'T'
+    case Empty() => '.'
+  }
+
+  def charToPiece(c: Char): Piece = c match {
+    case 'X' => X()
+    case 'O' => O()
+    case 'T' => T()
+    case '.' => Empty()
+  }
+
+  def readBoard(in: Scanner): Board =
+    Board(for (row <- 1 to 4) yield { in.next() map charToPiece })
+
+}
+
+case class Board(data: IndexedSeq[IndexedSeq[Piece]]) {
+  override def toString() =
+    (for (row <- data) yield (row map Board.pieceToChar mkString)) mkString "\n"
+}

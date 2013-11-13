@@ -1,0 +1,126 @@
+<?php
+$filename = 'A-large.in';
+$out_filename = 'A-large.out.txt';
+$contents = file_get_contents($filename);
+$lines = explode("\n", $contents);
+
+$cases = array_shift($lines);
+
+$output = '';
+
+for($case = 1; $case <= $cases; $case++) {
+	$cells = array();
+	for($l = 0; $l < 4; $l++) {
+		$line = array_shift($lines);
+		echo $line;
+		$cells[$l] = str_split(substr($line, 0, 4));
+	}
+		
+	$found_winner = false;
+	$winner = '';
+	
+	for($y = 0; $y < 4; $y++) {
+		//rows
+		if($cells[$y][0] != '.' && $cells[$y][1] != '.') {
+			if($cells[$y][0] != 'T') {
+				$target = $cells[$y][0];
+			}
+			else {
+				$target = $cells[$y][1];
+			}
+			if(($cells[$y][0] == $target || $cells[$y][0] == 'T') && 
+			   ($cells[$y][1] == $target || $cells[$y][1] == 'T') && 
+			   ($cells[$y][2] == $target || $cells[$y][2] == 'T') &&
+			   ($cells[$y][3] == $target || $cells[$y][3] == 'T'))
+			{
+				$winner = $target;
+				$found_winner = true;
+				break;
+			}
+		}
+		
+		//Column
+		if($cells[0][$y] != '.' && $cells[1][$y] != '.') {
+			if($cells[0][$y] != 'T') {
+				$target = $cells[0][$y];
+			}
+			else {
+				$target = $cells[1][$y];
+			}
+			if(($cells[0][$y] == $target || $cells[0][$y] == 'T') && 
+			   ($cells[1][$y] == $target || $cells[1][$y] == 'T') && 
+			   ($cells[2][$y] == $target || $cells[2][$y] == 'T') &&
+			   ($cells[3][$y] == $target || $cells[3][$y] == 'T'))
+			{
+				$winner = $target;
+				$found_winner = true;
+				break;
+			}
+		}
+	}
+	
+	//Diagnal 1
+	if($cells[0][0] != '.' && $cells[1][1] != '.') {
+		if($cells[0][0] != 'T') {
+			$target = $cells[0][0];
+		}
+		else {
+			$target = $cells[1][1];
+		}
+		if(($cells[0][0] == $target || $cells[0][0] == 'T') && 
+		   ($cells[1][1] == $target || $cells[1][1] == 'T') && 
+		   ($cells[2][2] == $target || $cells[2][2] == 'T') &&
+		   ($cells[3][3] == $target || $cells[3][3] == 'T'))
+		{
+			$winner = $target;
+			$found_winner = true;
+		}
+	}
+	
+	//Diagnal 2
+	if($cells[0][3] != '.' && $cells[1][2] != '.') {
+		if($cells[0][3] != 'T') {
+			$target = $cells[0][3];
+		}
+		else {
+			$target = $cells[1][2];
+		}
+		if(($cells[0][3] == $target || $cells[0][3] == 'T') && 
+		   ($cells[1][2] == $target || $cells[1][2] == 'T') && 
+		   ($cells[2][1] == $target || $cells[2][1] == 'T') &&
+		   ($cells[3][0] == $target || $cells[3][0] == 'T'))
+		{
+			$winner = $target;
+			$found_winner = true;
+		}
+	}
+	
+	//is the game over
+	$game_finished = true;
+	if(!$found_winner) {
+		for($y = 0; $y < 4; $y++) {
+			for($x = 0; $x < 4; $x++) {
+				if($cells[$y][$x] == '.') {
+					$game_finished = false;
+				}
+			}
+		}
+	}
+	
+	if($found_winner) {
+		$output .= "Case #".$case.": ".$winner." won\n";
+	}
+	else if($game_finished) {
+		$output .= "Case #".$case.": Draw\n";
+	}
+	else {
+		$output .= "Case #".$case.": Game has not completed\n";
+	}
+	
+	//empty line
+	$line = array_shift($lines);
+}
+
+echo $output;
+file_put_contents($out_filename, $output);
+?>

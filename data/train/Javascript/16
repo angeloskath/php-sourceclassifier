@@ -1,0 +1,52 @@
+var fs = require('fs');
+
+/* Some people, when confronted with a problem, think "I know, I'll use regular expressions." Now they have two problems. */
+/* Some people think "I know, I'll solve this with javascript". Now they're waiting for the heat
+   death of the universe */
+
+var file = fs.readFileSync('in.txt').toString();
+
+var lines = file.split('\n');
+lines.splice(0, 1);
+
+
+function solveCase(num, l) {
+   for(var i=0;i<4;i++) {
+      if(/[XT]{4}/.test(l[i])) return console.log("Case #"+num+": X won");
+      if(/[OT]{4}/.test(l[i])) return console.log("Case #"+num+": O won");
+   }
+   var vertLines = [];
+   for(var i=0;i<4;i++) {
+      var line = "";
+      for(var j=0;j<4;j++) {
+         line+=l[j][i];
+      }
+      vertLines.push(line);
+   }
+   for(var i=0;i<4;i++) {
+      if(/[XT]{4}/.test(vertLines[i])) return console.log("Case #"+num+": X won");
+      if(/[OT]{4}/.test(vertLines[i])) return console.log("Case #"+num+": O won");
+   }
+   var diag1 = "";
+   var diag2 = "";
+   for(var i=0;i<4;i++) {
+      diag1 += l[i][i];
+      diag2 += l[i][3-i];
+   }
+   if(/[XT]{4}/.test(diag1)) return console.log("Case #"+num+": X won");
+   if(/[OT]{4}/.test(diag1)) return console.log("Case #"+num+": O won");
+   if(/[XT]{4}/.test(diag2)) return console.log("Case #"+num+": X won");
+   if(/[OT]{4}/.test(diag2)) return console.log("Case #"+num+": O won");
+
+   for(var i=0;i<4;i++) {
+      if(/\./.test(l[i])) return console.log("Case #"+num+": Game has not completed");
+   }
+   return console.log("Case #"+num+": Draw");
+
+}
+
+for(var i=1;lines.length >= 4;i++) {
+   var toParse = lines.splice(0, 4);
+   lines.splice(0,1);
+   solveCase(i, toParse);
+}

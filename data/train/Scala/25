@@ -1,0 +1,53 @@
+import java.io.{FileWriter, File}
+import java.util.Scanner
+
+object TicTacTomek extends App {
+
+  val s = new Scanner(new File("A-large.in"))
+
+  val T = s.nextInt()
+
+  for (p <- 1 to T) {
+    s.nextLine()
+    val b = Array.tabulate[String](4)(i => s.nextLine())
+
+    val out = (isWin(b, 'X'), isWin(b, 'O')) match {
+      case (false, true)  => "O won"
+      case (true, false)  => "X won"
+      case (false, false) => if (b.reduce(_ + _) contains '.') "Game has not completed" else "Draw"
+      case (true, true)   => assert(false, "Both players cannot win!")
+    }
+
+    println(s"Case #$p: $out")
+  }
+
+  def isWin(b: Array[String], c: Char): Boolean = {
+    val rowWin = b exists isWin(c)
+
+    if(rowWin) {
+      return true
+    }
+
+    val colWin = b.indices exists {col => isWin(c)(b(0)(col) + "" + b(1)(col) + b(2)(col) + "" + b(3)(col))}
+
+    if(colWin) {
+      return true
+    }
+
+    val diag1Win = isWin(c)(b(0)(0) + "" + b(1)(1) + b(2)(2) + "" + b(3)(3))
+
+    if(diag1Win) {
+      return true
+    }
+
+    val diag2Win = isWin(c)(b(3)(0) + "" + b(2)(1) + b(1)(2) + "" + b(0)(3))
+
+    if(diag2Win) {
+      return true
+    }
+
+    return false
+  }
+
+  def isWin(c: Char)(cells: String): Boolean = cells forall {i => i == 'T' || i == c}
+}

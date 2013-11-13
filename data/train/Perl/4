@@ -1,0 +1,71 @@
+#! perl
+
+use strict;
+use warnings;
+use v5.10; #say
+
+my $cases = <>;
+chomp $cases;
+
+for( my $i = 0; $i < $cases; $i++ )
+{
+	my @lines;
+	
+	# 4 rows
+	for( my $j = 0; $j < 4; $j++ )
+	{
+		$lines[$j] = <>;
+		chomp $lines[$j];
+		
+	}
+	<>; # blank line
+	
+	# 4 cols
+	for( my $j = 0; $j < 4; $j++ )
+	{
+		my $line;
+					
+		for( my $k = 0; $k < 4; $k++ )
+		{
+			$line .= substr($lines[$k],$j,1); 
+		}
+		
+		push @lines, $line;
+	}	
+	
+	# 2 diagonals
+	for( my $j = 0; $j < 2; $j++ )
+	{
+		my $line;
+		
+		my $idx = $j ? 3 : 0;
+			
+		for( my $k = 0; $k < 4; $k++ )
+		{
+			$line .= substr($lines[$k],$idx,1); 
+			$j ? $idx-- : $idx++;
+		}	
+		
+		push @lines, $line;
+	}	
+	
+	print "Case #", $i + 1, ": ";	
+	
+	my ($xwin, $owin, $draw);	
+	$draw = 1;	
+	
+	for (@lines)
+	{ 		
+		$xwin = 1 if /[XT]{4}/;
+		$owin = 1 if /[OT]{4}/;
+		$draw = 0 if /\./;		
+	}
+	
+	if( $xwin ){ say "X won"; }
+	elsif( $owin ) { say "O won"; }
+	elsif( $draw ) { say "Draw"; }
+	else { say "Game has not completed"; }	
+}
+
+
+

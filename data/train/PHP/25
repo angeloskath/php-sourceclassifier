@@ -1,0 +1,356 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Description of K
+ *
+ * @author maciekmp
+ */
+class K {
+
+    var $fname;
+    var $content;
+    var $lines;
+    var $w, $k, $matrix;
+    var $ans;
+
+    /**
+     * Otwiera plik i tworzy macierz z danych
+     * @param type $fname 
+     */
+    function fileopen($fname) {
+
+        //open file
+        $this->fname = $fname;
+        $this->content = file_get_contents($fname);
+
+        //get lines from file
+        $lines = array();
+        $lines = explode("\n", $this->content);
+        $this->lines = $lines;
+
+        //pobiera liczbę wierszy z pierwszej lini
+        $temp = explode(' ', $lines[0]);
+        $this->w = $temp[0];
+//        $this->k = $temp[1];
+        //tworzy macierz z danych
+        $this->matrix = array();
+
+        for ($i = 1; $i < count($lines); $i++) {
+
+            if (!empty($lines[$i])) {
+                $this->matrix[$i] = array();
+                $this->matrix[$i] = explode(' ', trim($lines[$i]));
+//                array_pop($this->matrix[$i]);
+            }
+        }
+    }
+
+    
+    /**
+     * Z podanych danych tworzy macierz i zapisuje ją w klasie.
+     * @param type $data 
+     */
+    function data2matrix($data) {
+        $lines = array();
+        $lines = explode("\n", $data);
+        $this->lines = $lines;
+
+        $this->matrix = array();
+
+        for ($i = 1; $i < count($lines); $i++) {
+            if (!empty($lines[$i])) {
+                $this->matrix[$i] = array();
+                $this->matrix[$i] = explode(' ', trim($lines[$i]));
+            }
+        }
+    }
+
+    /**
+     * Drukuje dane z pliku (bez obróbki) 
+     */
+    function fileprint() {
+        echo $this->content;
+    }
+
+    /**
+     * Drukuje macierz print_r 
+     */
+    function print_matrix() {
+        print_r($this->matrix);
+    }
+
+    /**
+     * Zamienia tablicę tablicę na string z spacjami
+     * @param type $array
+     * @return type 
+     */
+    function array2line($array) {
+        return implode(' ', $array);
+    }
+
+    /**
+     * Zapisuje dane oddzielając nową linią
+     * @param type $array
+     * @return type 
+     */
+    function array2lines($array) {
+        return implode("\n", $array);
+    }
+
+    /**
+     * Zapis odpowiedzi. Nazwa pliku taka sama ze zeminionym rozszerzeniem na .ans
+     * @param type $ans 
+     */
+    function write_ans($ans, $extension = '.ans') {
+        $fname = explode('.', $this->fname);
+        $fname = $fname[0];
+        $fname .= $extension;
+
+        file_put_contents($fname, $ans);
+        echo 'Zapisano do ' . $fname . "\n";
+    }
+
+}
+
+?>
+<?php
+
+include "K.php";
+
+$k = new K;
+
+/*
+ * Task 1
+ */
+
+$k->fileopen('A-large.in');
+
+print_r($k->lines);
+
+$cases = array();
+$tmp = array();
+
+for ($i = 1; $i < count($k->lines); $i++) {
+    $line = $k->lines[$i];
+    if ($line == '') {
+        if(!empty($tmp))
+            array_push($cases, $tmp);
+        $tmp = array();
+    } else {
+        array_push($tmp, str_split($line));
+    }
+}
+if(!empty($tmp))
+    array_push($cases, $tmp);
+
+//print_r($cases);
+//die;
+
+function allcheck($case) {
+    $n = 0;
+    for ($i = 0; $i < 4; $i++) {
+        for ($j = 0; $j < 4; $j++) {
+            if ($case[$i][$j] != '.')
+                $n++;
+        }
+    }
+    return $n;
+}
+
+function horizontalwin($case) {
+    $symbol = '';
+    ;
+
+
+    for ($i = 0; $i < 4; $i++) {
+        $n = 0;
+        $isT = false;
+        $X = 0;
+        $O = 0;
+
+        for ($j = 0; $j < 4; $j++) {
+            $char = $case[$i][$j];
+
+            if ($char == '.')
+                continue;
+            if ($char == 'T')
+                $isT = true;
+
+            if ($char == 'X')
+                $X++;
+            if ($char == 'O')
+                $O++;
+            
+//            if($j<3 && $char == 'T') $X=$O=0;
+
+            if ($isT) {
+                if ($X == 3)
+                    return 'X';
+                if ($O == 3)
+                    return 'O';
+            }else {
+                if ($X == 4)
+                    return 'X';
+                if ($O == 4)
+                    return 'O';
+            }
+        }
+    }
+    return false;
+}
+
+function verticalwin($case) {
+    $symbol = '';
+
+    for ($i = 0; $i < 4; $i++) {
+        $isT = false;
+        $X = 0;
+        $O = 0;
+
+        for ($j = 0; $j < 4; $j++) {
+            $char = $case[$j][$i];
+
+            if ($char == '.')
+                continue;
+            if ($char == 'T')
+                $isT = true;
+
+            if ($char == 'X')
+                $X++;
+            if ($char == 'O')
+                $O++;
+            
+//            if($j<3 && $char == 'T') $X=$O=0;
+
+            if ($isT) {
+                if ($X == 3)
+                    return 'X';
+                if ($O == 3)
+                    return 'O';
+            }else {
+                if ($X == 4)
+                    return 'X';
+                if ($O == 4)
+                    return 'O';
+            }
+        }
+    }
+    return false;
+}
+
+function diagonalwin($case) {
+    $symbol = '';
+    $n = 0;
+    $isT = false;
+    $X = 0;
+    $O = 0;
+
+
+    for ($i = 0; $i < 4; $i++) {
+
+        $char = $case[$i][$i];
+
+        if ($char == '.')
+            continue;
+        if ($char == 'T')
+            $isT = true;
+
+        if ($char == 'X')
+            $X++;
+        if ($char == 'O')
+            $O++;
+        
+//        if($i<3 && $char == 'T') $X=$O=0;
+
+        if ($isT) {
+            if ($X == 3)
+                return 'X';
+            if ($O == 3)
+                return 'O';
+        }else {
+            if ($X == 4)
+                return 'X';
+            if ($O == 4)
+                return 'O';
+        }
+    }
+    $n = 0;
+    $isT = false;
+    $X = 0;
+    $O = 0;
+    for ($i = 0; $i < 4; $i++) {
+
+        $char = $case[$i][3 - $i];
+        
+        if ($char == '.')
+            continue;
+        if ($char == 'T')
+            $isT = true;
+
+        if ($char == 'X')
+            $X++;
+        if ($char == 'O')
+            $O++;
+        
+//        if($i<3 && $char == 'T') $X=$O=0;
+
+        if ($isT) {
+            if ($X == 3)
+                return 'X';
+            if ($O == 3)
+                return 'O';
+        }else {
+            if ($X == 4)
+                return 'X';
+            if ($O == 4)
+                return 'O';
+        }
+    }
+
+    return false;
+}
+function win($case){
+    $status='';
+    if(allcheck($case) == 16)
+        $status = 'Draw';
+    else
+        $status = 'Game has not completed';
+    
+    
+   if(horizontalwin($case))
+       $status = horizontalwin($case).' won';
+   if(verticalwin($case))
+       $status = verticalwin($case).' won';
+   if(diagonalwin($case))
+       $status = diagonalwin($case).' won';
+   
+   return $status;
+}
+
+$ans = '';
+foreach ($cases as $key => $case) {
+    $key = $key+1;
+    $ans .=  "Case #$key: ".win($case)."\n";
+    echo  "Case #$key: ".win($case)."\n";
+}
+$k->write_ans($ans, '.out');
+
+
+//$k->data2matrix($data);
+//
+//$lines = $k->lines;
+//$ans = '';
+//
+//foreach($lines as $id => $line){
+//    $id = $id+1;
+//    $ans .= "Case #$id: ".trans($line, $letters)."\n";
+//}
+//
+//$k->fname = "A.in";
+//$k->write_ans($ans, '.out');
+?>

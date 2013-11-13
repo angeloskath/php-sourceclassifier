@@ -1,0 +1,41 @@
+
+(defn diagonals [board]
+	[(for [x (range 4)] (get-in board [x x]))
+	 (for [x (range 4)] (get-in board [x (- 3 x)]))])
+
+(defn columns [board]
+	(for [x (range 4)]
+		(map #(get % x) board)))
+
+(defn rows [board]
+	board)
+
+(defn lines [board]
+	(concat (rows board) (columns board) (diagonals board)))
+
+(defn x-won? [symbols]
+	(#{#{\X} #{\X \T}} symbols))
+
+(defn o-won? [symbols]
+	(#{#{\O} #{\O \T}} symbols))
+
+(defn incomplete? [symbols]
+	(contains? symbols \.))
+
+(defn solve [board]
+	(let [symbols (map set (lines board))]
+		(cond
+			(some x-won? symbols) "X won"
+			(some o-won? symbols) "O won"
+			(some incomplete? symbols) "Game has not completed"
+			:else "Draw")))
+
+(defn parse [board]
+	(mapv (partial mapv identity) board))
+
+(with-open [reader (clojure.java.io/reader *in*)]
+	(doseq [[i board] (->> reader line-seq rest (partition 5) (map butlast) (map-indexed vector))]
+		(println (format "Case #%s: %s" (inc i) (-> board parse solve)))))
+
+
+

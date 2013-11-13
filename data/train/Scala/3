@@ -1,0 +1,20 @@
+object GCJQ2013A {
+  def main(args:Array[String]){
+    val n = readLine.toInt;
+    (1 to n).foreach(tc =>{
+      printf("Case #%d: ",tc)
+      val board = (1 to 4).map(_ => readLine.toCharArray()); readLine()
+      var res = "Draw";
+      if(board.exists(xs => xs.forall(x => x=='X' || x=='T')) ||
+      (0 until 4).exists(i => (0 until 4).forall(j => board(j)(i) == 'X' || board(j)(i) == 'T')) ||
+      (0 until 4).forall(i => (board(i)(i) == 'X' || board(i)(i) == 'T')) ||
+      (0 until 4).forall(i => (board(i)(3-i) == 'X' || board(i)(3-i) == 'T'))) res = "X won"
+      if(board.exists(xs => xs.forall(x => x=='O' || x=='T')) ||
+      (0 until 4).exists(i => (0 until 4).forall(j => board(j)(i) == 'O' || board(j)(i) == 'T')) ||
+      (0 until 4).forall(i => (board(i)(i) == 'O' || board(i)(i) == 'T')) ||
+      (0 until 4).forall(i => (board(i)(3-i) == 'O' || board(i)(3-i) == 'T'))) res = "O won"
+      if(res =="Draw" && board.exists(xs => xs.exists(_ == '.'))) res = "Game has not completed"
+      println(res)
+    })
+  }
+}

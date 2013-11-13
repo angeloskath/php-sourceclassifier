@@ -1,0 +1,205 @@
+(ns code-jam-2013.quala
+  (:gen-class :main true)
+  (:use [code-jam-2013 core cases utils])
+  (:require [clojure.string :as string]))
+
+; Problem Qualification
+
+(defn not-T [val]
+  (if(= val \T)
+    false
+    true))
+
+(defn win? [in-pos]
+  (let [pos (set (filter not-T in-pos))]
+    (if (not (contains? pos \.))
+      (if (= 1 (count pos)) 
+        (first pos)
+        false)
+      false)))
+
+(defn column [col case]
+  (vector (nth (:row1 case) col)
+          (nth (:row2 case) col)
+          (nth (:row3 case) col)
+          (nth (:row4 case) col)))
+
+(defn diag [left case]
+  (if left
+    (vector 
+      (nth (:row1 case) 0)
+      (nth (:row2 case) 1)
+      (nth (:row3 case) 2)
+      (nth (:row4 case) 3))
+    (vector 
+      (nth (:row1 case) 3)
+      (nth (:row2 case) 2)
+      (nth (:row3 case) 1)
+      (nth (:row4 case) 0))))
+
+(defn row-win? [case]
+  (let [row1 (win? (seq (:row1 case)))
+        row2 (win? (seq (:row2 case)))
+        row3 (win? (seq (:row3 case)))
+        row4 (win? (seq (:row4 case)))]
+    (if row1
+      row1
+      (if row2
+        row2
+        (if row3 
+          row3
+          (if row4
+            row4
+            false))))))
+
+(defn col-win? [case]
+  (let [col1 (win? (column 0 case))
+        col2 (win? (column 1 case))
+        col3 (win? (column 2 case))
+        col4 (win? (column 3 case))]
+    (if col1
+      col1
+      (if col2
+        col2
+        (if col3 
+          col3
+          (if col4
+            col4
+            false))))))
+
+(defn diag-win? [case]
+  (let [left (win? (diag true case))
+        right (win? (diag false case))]
+    (if left
+      left
+      (if right
+        right
+        false))))
+
+(defn draw? [case]
+  (if (or (contains-str? "." (:row1 case))
+          (contains-str? "." (:row2 case))
+          (contains-str? "." (:row3 case))
+          (contains-str? "." (:row4 case)))
+    false
+    true))
+
+(defn check-win [case]
+  (let [row-win (row-win? case)
+        col-win (col-win? case)
+        diag-win (diag-win? case)
+        draw (draw? case)]
+  (if row-win
+    (str row-win " won") 
+    (if col-win 
+      (str col-win " won")
+      (if diag-win
+        (str diag-win " won")
+        (if draw
+          "Draw"
+          "Game has not completed"))))))
+
+(defn solve-case [case]
+  (check-win case))
+
+(defn output-format [case i]
+  (str "Case #" i ": " case))
+
+(defn -main [infile outfile & args] 
+  (jam infile [:row1 :row2 :row3 :row4 :space] 
+     solve-case 
+     output-format outfile))(ns code-jam-2013.cases)
+
+(defn group-lines [n input]
+  (partition n n nil input))
+
+(defn group-var-lines 
+  ([labels inseq] 
+    (lazy-seq (group-var-lines labels inseq [])))
+  ([labels inseq cases]  
+    (let [vals-count (dec (count labels))]
+      (if (empty? inseq)
+        cases
+        (let [var-count (Integer/parseInt (last (take vals-count inseq)))
+              read-count (+ vals-count var-count)]
+          (lazy-seq
+            (group-var-lines labels (drop read-count inseq) (conj cases (take read-count inseq)))))))))
+
+(defn create-case [labels lines]
+  (if (vector? (last labels))
+    (let [vals-count (dec (count labels))
+          case (create-case (take vals-count labels) (take vals-count lines))
+          var-name (first (last labels))]
+      (assoc case var-name (drop vals-count lines)))
+    (zipmap labels lines)))
+
+(defn get-cases [labels input]
+  (map #(create-case labels %) 
+    (if (vector? (last labels))
+      (group-var-lines labels input)
+      (group-lines (count labels) input))))
+
+(defn solve-cases [solve cases]
+  (map solve cases))
+(ns code-jam-2013.core
+  (:use [clojure.java.io :only [reader writer]]
+   			[code-jam-2013.cases :only [get-cases]]
+        [code-jam-2013.utils :only [string-to-int-seq]]))
+
+
+(defn process-data [infile solver labels]
+  (map solver (->> infile line-seq next (get-cases labels))))
+
+(defn writeln [data wrtr]
+  (.write wrtr data)
+  (.newLine wrtr))
+
+(defn gen-output [solved-cases out-format wrtr]
+  (let [i (atom 0)]
+    (doseq [case solved-cases]
+      (swap! i inc)
+      (-> case (out-format @i) (writeln wrtr)))))
+
+(defn jam [infile case-format solver out-format outfile]
+  (with-open [input (reader infile)
+              wrtr (writer outfile)]
+		(-> 
+     	input 
+      (process-data solver case-format) 
+      (gen-output out-format wrtr))))(ns code-jam-2013.utils
+  (:require [clojure.string :as string]))
+
+(defn split-on-space [s]
+  (string/split s #"\s"))
+
+(defn to-int-seq [items]
+  (map 
+    #(Integer/parseInt %) items))
+
+(defn to-float-seq [items]
+  (map 
+    #(Float/parseFloat %) items))
+
+(defn string-to-float-seq [s]
+  (to-float-seq (split-on-space s)))
+
+(defn string-to-int-seq [s]
+  (to-int-seq (split-on-space s)))
+
+(defn in? [inseq x]
+  (some #(= x %) inseq))
+
+(defn combinations [vals n]
+  (loop [combs [[]]
+         i 0]
+    (if (= i n)
+      combs
+      (recur 
+        (for [c combs
+              b vals]
+          (cons b c)) (inc i)))))
+
+(defn contains-str? [sub super]
+  (if (>= (.indexOf super sub) 0)
+    true
+    false))

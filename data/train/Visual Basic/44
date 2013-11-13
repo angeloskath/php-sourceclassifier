@@ -1,0 +1,105 @@
+﻿Module Module1
+
+    Sub Main(args() As String)
+        Dim l() As String = My.Computer.FileSystem.ReadAllText(args(0)).Trim.Split(CChar(vbLf))
+        Dim tc As Integer = CInt(l(0))
+
+
+        Dim b(3) As String
+
+        Dim c As Integer = 1
+        For i As Integer = 1 To tc
+            Dim j As Integer = 0
+            While j < 4
+                If l(c).Trim.Length > 0 Then
+                    b(j) = l(c).Trim.ToUpper
+                    j += 1
+                End If
+                c += 1
+            End While
+
+            Console.WriteLine("Case #" & i & ": " & Process(b))
+        Next
+
+        If Debugger.IsAttached Then
+            Console.ReadLine()
+        End If
+    End Sub
+
+    Private Function Process(b() As String) As String
+        'x won
+        Dim xwon As Boolean = False
+        Dim owon As Boolean = False
+        Dim hasempty As Boolean = False
+
+        'lines
+        For Each l As String In b
+            If l.Contains(".") Then
+                hasempty = True
+            ElseIf Not l.Contains("X") Then
+                owon = True
+            ElseIf Not l.Contains("O") Then
+                xwon = True
+            End If
+        Next
+
+        'columns
+        Dim c As String = ""
+        For x As Integer = 0 To b(0).Length - 1
+            c = ""
+            For y As Integer = 0 To b.Length - 1
+                c &= b(y)(x)
+            Next
+            If c.Contains(".") Then
+                hasempty = True
+            ElseIf Not c.Contains("X") Then
+                owon = True
+            ElseIf Not c.Contains("O") Then
+                xwon = True
+            End If
+        Next
+
+        Dim d As String = ""
+        For x As Integer = 0 To b(0).Length - 1
+            d &= b(x)(x)
+        Next
+        If d.Contains(".") Then
+            hasempty = True
+        ElseIf Not d.Contains("X") Then
+            owon = True
+        ElseIf Not d.Contains("O") Then
+            xwon = True
+        End If
+
+        d = ""
+        For x As Integer = 0 To b(0).Length - 1
+            d &= b(x)(b(0).Length - 1 - x)
+        Next
+        If d.Contains(".") Then
+            hasempty = True
+        ElseIf Not d.Contains("X") Then
+            owon = True
+        ElseIf Not d.Contains("O") Then
+            xwon = True
+        End If
+
+        If xwon AndAlso owon Then
+            Return "Draw"
+        End If
+
+        If xwon Then
+            Return "X won"
+        End If
+
+        If owon Then
+            Return "O won"
+        End If
+
+        If hasempty Then
+            Return "Game has not completed"
+        End If
+
+        Return "Draw"
+    End Function
+
+End Module

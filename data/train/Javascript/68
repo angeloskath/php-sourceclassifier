@@ -1,0 +1,104 @@
+var fs = require('fs');
+
+var data = fs.readFileSync('input.in','utf8').split("\n");
+
+var allFilled = function (map) {
+  for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
+     if (map[i][j] == '.') {
+       return false;
+     }
+    }
+  }
+  return true;
+}
+
+var solution = function (map, test) {
+  for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
+      if (i == 0 || j == 0) {
+        sol = 0;
+        for (var k = 0; k <= 3; k++) {
+          try {
+            if (map[i][j+k] == test || map[i][j+k] == 'T') {
+              sol++;
+            }    
+          } catch (e) {
+          }
+          if (sol == 4) {
+            return test;
+          }
+        }
+        sol = 0;
+        for (var k = 0; k <= 3; k++) {
+          //console.log('y='+(i+k),'y='+j);
+          try {
+            if (map[i+k][j] == test || map[i+k][j] == 'T') {
+              sol++;
+            }    
+          } catch (e) {
+          }
+          if (sol == 4) {
+            return test;
+          }
+        }
+        sol = 0;
+        for (var k = 0; k <= 3; k++) {
+          try {
+            if (map[i+k][j+k] == test || map[i+k][j+k] == 'T') {
+              sol++;
+            }    
+          } catch (e) {
+          }
+          if (sol == 4) {
+            return test;
+          }
+        }
+        sol = 0;
+        for (var k = 0; k <= 3; k++) {
+          try {
+            if (map[i+k][j-k] == test || map[i+k][j-k] == 'T') {
+              sol++;
+            }    
+          } catch (e) {
+          }
+          if (sol == 4) {
+            return test;
+          }
+        }
+      }
+    }
+  }
+
+
+}
+
+var test = function (map) {
+  if (solution(map, 'X') == 'X') {
+    return "X won";
+  } else if (solution(map, 'O') == 'O') {
+    return "O won";
+  } else if (allFilled(map)) {
+    return "Draw";
+  } else {
+    return "Game has not completed";
+  }
+}
+
+var N = data.splice(0,1)[0];
+var cnt = 1;
+while (data.length > 0) {
+  var map = data.splice(0,4);
+  try {
+   var throwaway = data.splice(0,1);
+  } catch (e) {
+  }
+  console.log("Case #"+cnt+": "+test(map));
+  cnt++;
+}
+
+var map = ["XXXT",
+"....",
+"OO..",
+"...."];
+

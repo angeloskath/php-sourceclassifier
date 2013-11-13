@@ -1,0 +1,179 @@
+<?php
+
+	$in = fopen('A_large.in', 'r');
+	$out = fopen('A_large.out', 'w');
+	
+	$cases = fgets($in);
+
+	for ($c = 1; $c <= $cases; $c++) {
+	
+		$brd[0] = str_split(rtrim(fgets($in)));
+		$brd[1] = str_split(rtrim(fgets($in)));
+		$brd[2] = str_split(rtrim(fgets($in)));
+		$brd[3] = str_split(rtrim(fgets($in)));
+		$el = fgets($in);
+		/* 
+		print_r($line[0]);
+		echo "<br>";
+		print_r($line[1]);
+		echo "<br>";
+		print_r($line[2]);
+		echo "<br>";
+		print_r($line[3]);
+		echo "<br>";
+		echo "<br>"; */
+		
+		$result = "";
+		
+		for($l = 0; $l < 4; $l++)
+		{
+			if($result=="")
+				$result = checkithr($brd[$l][0],$l);
+		}
+		for($l = 0; $l < 4; $l++)
+		{
+			if($result=="")
+				$result = checkitvr($brd[0][$l],$l);
+		}
+		
+		if($result=="")
+			$result = checkitd($brd[0][0]);
+		if($result=="")
+			$result = checkitdi($brd[3][0]);
+		
+		
+		for($l = 0; $l < 4; $l++)
+		{
+			if($result=="")
+				$result = checkithr($brd[$l][1],$l);
+		}
+		for($l = 0; $l < 4; $l++)
+		{
+			if($result=="")
+				$result = checkitvr($brd[1][$l],$l);
+		}
+		
+		if($result=="")
+			$result = checkitd($brd[1][1]);
+		if($result=="")
+			$result = checkitdi($brd[2][1]);
+		
+		if($result=="")
+		{
+			foreach ($brd as $v1) {
+				if(in_array(".",$v1))
+						$result = "Game has not completed";
+			}
+		}
+		if($result=="")
+			$result = "Draw";
+			
+		echo "Case #".$c.": ".$result."<br><br>";
+
+		fputs($out, "Case #".$c.": ".$result."\n");
+	}
+
+	fclose($in);
+	fclose($out);
+	
+	function checkithr($s,$i){
+		echo "$s  $i<br>";
+				
+		if($s=="T" || $s==".")
+			return "";
+
+		for($j = 0; $j < 4; $j++) {
+			global $brd;
+			$ns = $brd[$i][$j];
+			echo "$ns,";
+			
+			if ($s==$ns || $ns=="T")
+			{
+				if($j==3)
+				{
+					echo "$s won<br><br>";
+					return "$s won";
+				}
+			}else{
+				echo "<br>";
+				return "";
+			}		
+		}
+	}
+	
+	function checkitvr($s,$i){
+		echo "$s  $i<br>";
+				
+		if($s=="T" || $s==".")
+			return "";
+
+		for($j = 0; $j < 4; $j++) {
+			global $brd;
+			$ns = $brd[$j][$i];
+			echo "$ns,";
+			
+			if ($s==$ns || $ns=="T")
+			{
+				if($j==3)
+				{
+					echo "$s won<br><br>";
+					return "$s won";
+				}
+			}else{
+				echo "<br>";
+				return "";
+			}		
+		}
+	}
+	
+	function checkitd($s){
+		echo "$s<br>";
+				
+		if($s=="T" || $s==".")
+			return "";
+
+		for($j = 0; $j < 4; $j++) {
+			global $brd;
+			$ns = $brd[$j][$j];
+			echo "$ns,";
+			
+			if ($s==$ns || $ns=="T")
+			{
+				if($j==3)
+				{
+					echo "$s won<br><br>";
+					return "$s won";
+				}
+			}else{
+				echo "<br>";
+				return "";
+			}		
+		}
+	}
+	
+	function checkitdi($s){
+		echo "$s<br>";
+				
+		if($s=="T" || $s==".")
+			return "";
+
+		for($j = 0; $j < 4; $j++) {
+			global $brd;
+			$ns = $brd[$j][3-$j];
+			echo "$ns,";
+			
+			if ($s==$ns || $ns=="T")
+			{
+				if($j==3)
+				{
+					echo "$s won<br><br>";
+					return "$s won";
+				}
+			}else{
+				echo "<br>";
+				return "";
+			}		
+		}
+	}
+
+?>

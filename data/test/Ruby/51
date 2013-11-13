@@ -1,0 +1,112 @@
+
+def get_board
+  4.times.map { gets.chomp }
+end
+
+
+n = gets.to_i
+
+1.upto(n) do |case_no|
+  board = get_board
+  gets
+
+  space = nil
+  won = false
+
+  # rows
+  4.times do |i|
+    x = o = t = 0
+
+    4.times do |j|
+      case board[i][j]
+      when 'X' then x += 1
+      when 'O' then o += 1
+      when 'T' then t += 1
+      when '.' then space = true
+      end
+    end
+
+    if x == 4 or x + t == 4
+      puts "Case \##{case_no}: X won"
+      won = true
+      break
+    elsif o == 4 or o + t == 4
+      puts "Case \##{case_no}: O won"
+      won = true
+      break
+    end
+  end
+  next if won
+
+  # columns
+  4.times do |i|
+    x = o = t = 0
+
+    4.times do |j|
+      case board[j][i]
+      when 'X' then x += 1
+      when 'O' then o += 1
+      when 'T' then t += 1
+      when '.' then space = true
+      end
+    end
+
+    if x == 4 or x + t == 4
+      puts "Case \##{case_no}: X won"
+      won = true
+      break
+    elsif o == 4 or o + t == 4
+      puts "Case \##{case_no}: O won"
+      won = true
+      break
+    end
+  end
+  next if won
+
+
+  # diagonals
+  x = o = t = 0
+  4.times do |i|
+    x += board[i][i] == 'X' ? 1 : 0
+    o += board[i][i] == 'O' ? 1 : 0
+    t += board[i][i] == 'T' ? 1 : 0
+
+    if x == 4 or x + t == 4
+      puts "Case \##{case_no}: X won"
+      won = true
+      break
+    elsif o == 4 or o + t == 4
+      puts "Case \##{case_no}: O won"
+      won = true
+      break
+    end
+  end
+  next if won
+
+
+  # diagonals
+  x = o = t = 0
+  4.times do |i|
+    x += board[i][3-i] == 'X' ? 1 : 0
+    o += board[i][3-i] == 'O' ? 1 : 0
+    t += board[i][3-i] == 'T' ? 1 : 0
+
+    if x == 4 or x + t == 4
+      puts "Case \##{case_no}: X won"
+      won = true
+      break
+    elsif o == 4 or o + t == 4
+      puts "Case \##{case_no}: O won"
+      won = true
+      break
+    end
+  end
+  next if won
+
+  if space
+    puts "Case \##{case_no}: Game has not completed"
+  else
+    puts "Case \##{case_no}: Draw"
+  end
+
+end

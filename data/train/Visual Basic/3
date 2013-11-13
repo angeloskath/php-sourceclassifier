@@ -1,0 +1,130 @@
+﻿Imports System.IO
+
+Module Module1
+
+    Sub Main(args() As String)
+        If args.Length = 0 Then
+            Console.WriteLine("No input file")
+            Console.ReadKey()
+        ElseIf args.Length = 1 Then
+            Dim strFile As String = args(0)
+            Dim fileInfo As New FileInfo(strFile)
+            Dim strOutput As String = fileInfo.DirectoryName + "\output.txt"
+            If fileInfo.Exists Then
+                ReadFile(strFile, strOutput)
+            End If
+        End If
+    End Sub
+
+    Private Sub ReadFile(strFile As String, Optional strOutput As String = "")
+        Dim SR As New StreamReader(strFile)
+        Dim SW As New StreamWriter(strOutput)
+        Dim intTestCases As Integer = SR.ReadLine
+        Dim game As clsGame
+        For i As Integer = 1 To intTestCases
+            Dim strLines As String = ""
+            For intLine As Integer = 0 To 3
+                strLines += SR.ReadLine
+            Next
+            SR.ReadLine()
+            game = New clsGame(strLines)
+            Select Case game.Winner
+                Case "X"
+                    SW.WriteLine(String.Format("Case #{0}: X won", i))
+                Case "O"
+                    SW.WriteLine(String.Format("Case #{0}: O won", i))
+                Case "."
+                    SW.WriteLine(String.Format("Case #{0}: Game has not completed", i))
+                Case "D"
+                    SW.WriteLine(String.Format("Case #{0}: Draw", i))
+            End Select
+        Next
+        SW.Flush()
+        SW.Close()
+        Console.WriteLine("Finished processing")
+        Console.ReadKey()
+    End Sub
+
+    Private Class clsGame
+
+        Dim strLines As String
+        Dim board(4, 4) As Char
+        Dim symbol() As Char = {"X", "O"}
+
+        Public Sub New(strLines As String)
+            Me.strLines = strLines
+            For i As Integer = 0 To 15
+                Dim x, y As Integer
+                x = i Mod 4
+                y = (i - x) / 4
+                board(x, y) = strLines(i)
+            Next
+        End Sub
+
+        Public Function Winner() As String
+            Winner = ""
+            'Check X first and then check Y
+            For i As Integer = 0 To 1
+                If RowWinner(symbol(i)) Then
+                    Winner = symbol(i)
+                    Exit For
+                ElseIf columnWinner(symbol(i)) Then
+                    Winner = symbol(i)
+                    Exit For
+                ElseIf diagonalWinner(symbol(i)) Then
+                    Winner = symbol(i)
+                    Exit For
+                End If
+            Next 'i
+            If Winner = "" Then
+                If EmptySpaces() Then Winner = "." Else Winner = "D"
+            End If
+        End Function
+
+        Private Function EmptySpaces() As Boolean
+            If strLines.Contains(".") Then Return True Else Return False
+        End Function
+
+        Private Function RowWinner(symbol As Char) As Boolean
+            For y As Integer = 0 To 3
+                Dim blnRowPossible As Boolean = True
+                For x As Integer = 0 To 3
+                    If board(x, y) <> symbol And board(x, y) <> "T" Then
+                        blnRowPossible = False
+                        Exit For
+                    End If
+                Next
+                If blnRowPossible = True Then Return True
+            Next
+            Return False
+        End Function
+
+        Private Function columnWinner(symbol As Char) As Boolean
+            For x As Integer = 0 To 3
+                Dim blnColumnPossible As Boolean = True
+                For y As Integer = 0 To 3
+                    If board(x, y) <> symbol And board(x, y) <> "T" Then
+                        blnColumnPossible = False
+                        Exit For
+                    End If
+                Next
+                If blnColumnPossible = True Then Return True
+            Next
+            Return False
+        End Function
+
+        Private Function diagonalWinner(symbol As Char) As Boolean
+            Dim blnDiag1Possible As Boolean = True
+            Dim blnDiag2Possible As Boolean = True
+            For x As Integer = 0 To 3
+                If board(x, x) <> symbol And board(x, x) <> "T" Then blnDiag1Possible = False
+                If board(x, 3 - x) <> symbol And board(x, 3 - x) <> "T" Then blnDiag2Possible = False
+            Next
+            If blnDiag1Possible = True Then Return True
+            If blnDiag2Possible = True Then Return True
+            Return False
+        End Function
+
+    End Class
+
+End Module

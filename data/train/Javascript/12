@@ -1,0 +1,123 @@
+
+var LINES = [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7],
+    [8, 9, 10, 11],
+    [12, 13, 14, 15],
+    [0, 4, 8, 12],
+    [1, 5, 9, 13],
+    [2, 6, 10, 14],
+    [3, 7, 11, 15],
+    [0, 5, 10, 15],
+    [3, 6, 9, 12]
+];
+
+var TOKEN_EMPTY = ".";
+var TOKEN_TOMEK = "T";
+
+
+function checkCells(a1, a2, a3, tomek) {
+    return (a1 === a2) && (a2 === a3) && ((tomek === a3) || (tomek === TOKEN_TOMEK));
+}
+
+
+function checkLine(cells, line) {
+    var a = cells[line[0]];
+    var b = cells[line[1]];
+    var c = cells[line[2]];
+    var d = cells[line[3]];
+
+    if((a === TOKEN_EMPTY) || (b === TOKEN_EMPTY) || (c === TOKEN_EMPTY) || (d === TOKEN_EMPTY)) {
+        return false;
+    }
+
+    if(checkCells(a, b, c, d)) {
+        return a;
+    }
+    if(checkCells(a, b, d, c)) {
+        return a;
+    }
+    if(checkCells(a, c, d, b)) {
+        return a;
+    }
+    if(checkCells(b, c, d, a)) {
+        return b;
+    }
+
+    return false;
+}
+
+
+function checkLines(cells) {
+    var i = 0;
+    var curr;
+
+    for(; i < LINES.length; i += 1) {
+        curr = checkLine(cells, LINES[i]);
+        if(curr) {
+            return curr;
+        }
+    }
+
+    return false;
+}
+
+
+function findResult(cells) {
+    var result;
+
+    result = checkLines(cells);
+    if(result) {
+        return result + " won";
+    }
+
+    if(cells.indexOf(TOKEN_EMPTY) > -1) {
+        return "Game has not completed";
+    }
+
+    return "Draw";
+}
+
+
+function buildCells(rows) {
+    var cells = [];
+    var row;
+    var col;
+
+    for(row = 0; row < rows.length; row += 1) {
+        for(col = 0; col < rows[row].length; col += 1) {
+            cells.push(rows[row][col]);
+        }
+    }
+
+    return cells;
+}
+
+
+function handleCase(i, rows) {
+    console.log("Case #%d: %s", i + 1, findResult(buildCells(rows)));
+}
+
+
+function main() {
+    var fs = require("fs");
+    var input;
+    var T;
+    var index;
+    var i;
+
+    if(process.argv.length < 3) {
+        throw "missing file argument";
+    }
+
+    input = fs.readFileSync(process.argv[2], "utf8").split("\n");
+    T = parseInt(input.shift());
+
+    index = 0;
+    for(i = 0; i < T; i += 1) {
+        handleCase(i, input.slice(index, index + 4));
+        index += 5;
+    }
+}
+
+main();

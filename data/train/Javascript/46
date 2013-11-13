@@ -1,0 +1,172 @@
+var Calc = Class.extend({
+  init: function() {
+    var self = this;
+    $("#inputButton").on("click", function() {
+      self.parseInput();
+    });
+  },
+
+  parseInput: function() {
+    this.rawInput = $("#input").html().split("\n");
+    console.log(this.rawInput);
+
+    this.parsedInput = [];
+    var num = 0;
+    for (var i = 1; i < this.rawInput.length; i+=5) {
+      if (this.rawInput[i][0] != " ") {
+        this.parsedInput[num] = [];
+        for (var j = 0; j < 4; j++) {
+          this.parsedInput[num][j] = [];
+          for (var k = 0; k < 4; k++) {
+            this.parsedInput[num][j][k] = this.rawInput[i+j][k];
+          }
+        }
+      }
+      num+=1;
+    }
+    console.log(this.parsedInput);
+    var output = [];
+    for (i = 0; i < this.parsedInput.length; i++) {
+      var out = this.findPattern(this.parsedInput[i]);
+      if (out)
+        output.push(out);
+      else {
+        if (this.checkFinished(this.parsedInput[i]))
+          output.push("Draw");
+        else
+          output.push("Game has not completed");
+      }
+    }
+
+    var html = "";
+    for (i = 0; i < output.length; i++) {
+      html += "Case #" + (i+1) + ": " + output[i] + "<br/>";
+    }
+    $("#output").html(html);
+    // this.findPattern(this.parsedInput[0]);
+  },
+
+  checkFinished: function(a) {
+    for (var i = 0; i < a.length; i++) {
+      for (var j = 0; j < a[i].length; j++) {
+        if (a[i][j] == ".")
+          return false;
+      }
+    }
+    return true;
+  },
+
+  // 8 types of patterns
+  // 4 x O horizontal, 4 x X horizontal
+  // 4 x O vertical, 4 x X vertical
+  // O diagonal from left to right, X diagonal from left to right
+  // O diagonal from right to left, X diagonal from right to left
+  findPattern: function(arr) {
+    var xo = "T";
+    var patternNames = ["horizontal", "horizontal", "horizontal", "horizontal", "vertical", "vertical","vertical","vertical","diagonal1", "diagonal2"];
+    var patterns = [
+      [
+        ["T", "T", "T", "T"],
+        [".", ".", ".", "."],
+        [".", ".", ".", "."],
+        [".", ".", ".", "."]
+      ],
+      [
+        [".", ".", ".", "."],
+        ["T", "T", "T", "T"],
+        [".", ".", ".", "."],
+        [".", ".", ".", "."]
+      ],
+      [
+        [".", ".", ".", "."],
+        [".", ".", ".", "."],
+        ["T", "T", "T", "T"],
+        [".", ".", ".", "."]
+      ],
+      [
+        [".", ".", ".", "."],
+        [".", ".", ".", "."],
+        [".", ".", ".", "."],
+        ["T", "T", "T", "T"]
+      ],
+      [
+        ["T", ".", ".", "."],
+        ["T", ".", ".", "."],
+        ["T", ".", ".", "."],
+        ["T", ".", ".", "."]
+      ],
+      [
+        [".", "T", ".", "."],
+        [".", "T", ".", "."],
+        [".", "T", ".", "."],
+        [".", "T", ".", "."]
+      ],
+      [
+        [".", ".", "T", "."],
+        [".", ".", "T", "."],
+        [".", ".", "T", "."],
+        [".", ".", "T", "."]
+      ],
+      [
+        [".", ".", ".", "T"],
+        [".", ".", ".", "T"],
+        [".", ".", ".", "T"],
+        [".", ".", ".", "T"]
+      ],
+      [
+        ["T", ".", ".", "."],
+        [".", "T", ".", "."],
+        [".", ".", "T", "."],
+        [".", ".", ".", "T"]
+      ],
+      [
+        [".", ".", ".", "T"],
+        [".", ".", "T", "."],
+        [".", "T", ".", "."],
+        ["T", ".", ".", "."]
+      ]
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var p = patterns[i];
+      if (this.compareArray(arr, p, "X")) {
+        console.log("compare with X succesful on " + patternNames[i]);
+        console.log(arr, p);
+        return "X won";
+      } else if (this.compareArray(arr, p, "O")) {
+        console.log("compare with O succesful on " + patternNames[i]);
+        console.log(arr, p);
+        return "O won";
+      } else
+        console.log("no hit");
+    }
+    return false;
+  },
+
+  prepareInputArray: function(a, xo) {
+    var returnArray = [];
+    for (var i = 0; i < a.length; i++) {
+      returnArray[i] = [];
+      for (var j = 0; j < a[i].length; j++) {
+        returnArray[i][j] = a[i][j];
+        if (a[i][j] != xo && a[i][j] != "T") returnArray[i][j] = ".";
+        if (a[i][j] == xo) returnArray[i][j] = "T";
+      }
+    }
+    return returnArray;
+  },
+
+  compareArray: function(a, b, xo) {
+    var count = 0;
+    a = this.prepareInputArray(a, xo);
+    // go through each cell of a
+    for (var i = 0; i < a.length; i++) {
+        for (var j = 0; j < a[i].length; j++) {
+            // return false if cell of a is not equal cell of b
+            if (a[i][j] == b[i][j] && a[i][j] != ".")
+                count+=1;
+        }
+    }
+    // console.log(a,b, count)
+    return (count == 4);
+  }
+});

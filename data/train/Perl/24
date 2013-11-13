@@ -1,0 +1,140 @@
+#!/usr/bin/perl
+@userinput = <STDIN>;
+$boardcount = 1;
+$blanks = 0;
+shift(@userinput);
+while (@userinput != 0){
+	for($i = 0; $i < 4; $i ++){
+		$temp = shift(@userinput);
+		$temp =~s/\n//;
+		@chars = split('', $temp);
+		for ($j = 0; $j < 4; $j ++){
+			$board[$i][$j] = shift(@chars);
+		}	
+	}
+	shift(@userinput);
+	if (!checkState(checkVerticals(@board))){
+		if (!checkState(checkHorizontals(@board))){
+			if(!checkState(checkDiagonals(@board))){
+				if ($blanks == 1){
+					print "Case #$boardcount: Game has not completed\n";
+				} else {
+					print "Case #$boardcount: Draw\n";
+				}
+			}
+		}
+	}
+	$boardcount ++;
+	$blanks = 0;
+}
+
+sub checkState(){
+	my $state = $_[0];
+	if ($state == -1){
+		$blanks = 1;
+	}elsif ($state == 1){
+		print "Case #$boardcount: X won\n";
+		return 1;
+	}elsif ($state == 2){
+		print "Case #$boardcount: O won\n";
+		return 1;
+	}
+	return 0;
+}
+
+sub checkHorizontals(){
+	my @temp = @_;
+	my $x;
+	my $o;
+	my $state = 0;
+	for(my $p = 0; $p < 4; $p ++){
+		$x = 0;
+		$o = 0;
+		for (my $q = 0; $q < 4; $q ++){
+			my $char = $temp[$p][$q];
+			if ($char =~ /X/){
+				$x ++;
+			} elsif($char =~ /O/){
+				$o ++;
+			} elsif($char =~/T/) {
+				$x ++;
+				$o ++;
+			} else {
+				$state = -1;
+			}
+		}
+		#
+		if ($x == 4){
+			#solved by x
+			$state = 1;
+			last;
+		} elsif ($o == 4){
+			#solved by o
+			$state = 2;
+			last;
+		}
+	}
+	return $state;
+}
+
+sub checkDiagonals(){
+	my @temp = @_;
+	my @diags;
+	my $state = 0;
+	push (@diags,$temp[0][0].$temp[1][1].$temp[2][2].$temp[3][3]);
+	push (@diags, $temp[0][3].$temp[1][2].$temp[2][1].$temp[3][0]);
+	while(@diags != 0){
+		my $otest = pop(@diags);
+		my $xtest = $otest;
+		$otest =~s/T/O/;
+		$xtest =~s/T/X/;
+		if ($otest=~m/O{4}/){
+			$state = 2;
+			return $state;
+		} elsif ($otest =~m/\./){
+			$state = -1;
+		}
+		if ($xtest=~m/X{4}/){
+			$state = 1;
+			return $state;
+		} elsif ($xtest =~m/\./){
+			$state = -1; 
+		}
+	}
+	return $state;
+}
+
+sub checkVerticals(){
+	my @temp = @_;
+	my $x;
+	my $o;
+	my $state = 0;
+	for(my $p = 0; $p < 4; $p ++){
+		$x = 0;
+		$o = 0;
+		for (my $q = 0; $q < 4; $q ++){
+			my $char = $temp[$q][$p];
+			if ($char =~ /X/){
+				$x ++;
+			} elsif($char =~ /O/){
+				$o ++;
+			} elsif($char =~/T/) {
+				$x ++;
+				$o ++;
+			} else {
+				$state = -1;
+			}
+		}
+		#
+		if ($x == 4){
+			#solved by x
+			$state = 1;
+			last;
+		} elsif ($o == 4){
+			#solved by o
+			$state = 2;
+			last;
+		}
+	}
+	return $state;
+}

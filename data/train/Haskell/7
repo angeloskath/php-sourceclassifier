@@ -1,0 +1,42 @@
+{-# LANGUAGE FlexibleInstances #-}
+
+import Data.Monoid
+import Data.Maybe
+import Control.Monad
+import Data.List
+
+instance Monoid Char where
+    mempty = 'a'
+    mappend = const
+
+whoWon :: [String] -> Maybe Char
+whoWon list = rows list <> rows (transpose list) <> diagonals list
+    where
+      rows = mconcat . map solveRow
+      solveRow row = let n = nub row in
+                     case (length n) of
+                       1 -> forhead n
+                       2 -> let without = filter ((/=) 'T') n in
+                            case length without of
+                              1 -> forhead without
+                              2 -> Nothing
+                       _ -> Nothing
+      diagonals l = d1 <> d2
+      d1 = solveRow $ map (\n -> ((list !! n) !! n)) [0..3]
+      d2 = solveRow $ map (\n -> ((list !! n) !! (3 - n))) [0..3]
+      forhead l = case (head l) of
+                  'X' -> Just 'X'
+                  'O' -> Just 'O'
+                  _   -> Nothing
+
+main = do
+  num <- liftM read getLine
+  forM_ [1..num] $ \num -> do
+         putStr ("Case #" ++ (show num) ++ ": ")
+         lines <- forM [1..4] $ \_ -> getLine
+         getLine
+         putStrLn $ case whoWon lines of
+           Just c -> (c:[]) ++ " won"
+           Nothing -> case (any ((==) '.') $ join lines) of
+                        True -> "Game has not completed"
+                        False -> "Draw"

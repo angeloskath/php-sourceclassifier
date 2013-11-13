@@ -1,0 +1,114 @@
+program bbb;
+
+var 	f,f1:text;
+	t11,i11,i,n,m,j,t:longint;
+	s:string;
+	a:array[1..4,1..4] of longint;	
+
+begin
+assign(f,'input.in'); reset(f);
+assign(f1,'output.out'); rewrite(f1);
+readln(f,t11);
+for i11:=1 to t11 do
+	begin
+	for i:=1 to 4 do
+		begin
+		readln(f,s);
+		for j:=1 to 4 do
+			begin
+			case s[j] of
+			'.':a[i,j]:=0;
+			'X':a[i,j]:=1;
+			'O':a[i,j]:=3;
+			'T':a[i,j]:=2;
+			end;
+			end;
+		end;
+	m:=0;
+	for i:=1 to 4 do
+		begin
+		n:=a[i,1];
+		if n=2 then
+			n:=a[i,2];
+		t:=1;
+		if n=0 then
+			t:=0;
+		for j:=1 to 4 do
+			begin
+			if (a[i,j]<>2) and (a[i,j]<>n) then
+				t:=0;
+			end;
+		if t=1 then
+			m:=n;
+		end;
+	for i:=1 to 4 do
+		begin
+		n:=a[1,i];
+		if n=2 then
+			n:=a[2,i];
+		t:=1;
+		if n=0 then
+			t:=0;
+		for j:=1 to 4 do
+			begin
+			if (a[j,i]<>2) and (a[j,i]<>n) then
+				t:=0;
+			end;
+		if t=1 then
+			m:=n;
+		end;
+	n:=a[1,1];
+		if n=2 then
+			n:=a[2,2];
+		t:=1;
+		if n=0 then
+			t:=0;
+		for i:=1 to 4 do
+			begin
+			if (a[i,i]<>2) and (a[i,i]<>n) then
+				t:=0;
+			end;
+		if t=1 then
+			m:=n;
+	n:=a[1,4];
+		if n=2 then
+			n:=a[2,3];
+		t:=1;
+		if n=0 then
+			t:=0;
+		for i:=1 to 4 do
+			begin
+			if (a[i,5-i]<>2) and (a[i,5-i]<>n) then
+				t:=0;
+			end;
+		if t=1 then
+			m:=n;
+	
+	write(f1,'Case #',i11,': ');
+	if m>0 then
+		begin
+		if m=1 then
+			writeln(f1,'X won')
+		else
+			writeln(f1,'O won');
+		end
+	else
+		begin
+		t:=0;
+		for i:=1 to 4 do
+			for j:=1 to 4 do
+				begin
+				if a[i,j]=0 then
+					t:=1;
+				end;
+		if t=0 then
+			writeln(f1,'Draw')
+		else
+			writeln(f1,'Game has not completed');
+		end;
+	
+	if i11<>t11 then
+		readln(f);
+	end;
+close(f1);
+end.

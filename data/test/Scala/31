@@ -1,0 +1,72 @@
+import scala.io.Source
+
+object TicTacToe extends App {
+  
+  val size = 4
+  
+  def read(input: Iterator[String]) = {
+    val board = Array.ofDim[Char](4, 4)
+    
+    for (i <- 0 to 3) {
+      board(i) = input.next.toCharArray()
+    }
+    assert(!input.hasNext || input.next.isEmpty())
+    board
+  }
+  
+  def getLineWinner(line: Seq[Char]): Char = {
+    val xCount = line.count(_ == 'X')
+    val oCount = line.count(_ == 'O')
+    val tCount = line.count(_ == 'T')
+    
+    if (xCount + tCount == 4) 'X'
+    else if (oCount + tCount == 4) 'O'
+    else '.'
+  }
+  
+  def getBoardWinner(board: Array[Array[Char]]): Char = {
+    
+    for (i <- 0 to 3) {
+      
+      val byRow = getLineWinner(board(i))
+      if (byRow != '.') return byRow
+      
+      val byColumn = getLineWinner(board.map(_(i)))
+      if (byColumn != '.') return byColumn
+    }
+    
+    val byDiagA = getLineWinner((0 to 3).map(i => board(i)(i)))
+    if (byDiagA != '.') return byDiagA
+    
+    val byDiagB = getLineWinner((0 to 3).map(i => board(i)(3 - i)))
+    if (byDiagB != '.') return byDiagB
+    
+    '.'
+  }
+
+  def solve(board: Array[Array[Char]]): String = {
+    
+    val winner = getBoardWinner(board)
+    
+    if (winner != '.') winner + " won"
+    else if(board.forall(_.forall(_ != '.'))) "Draw"
+    else "Game has not completed"
+   }
+  
+  override def main(args: Array[String]): Unit = {
+    
+    val input = Source.fromFile("data/A-large.in").getLines()
+    val output = new java.io.PrintWriter("data/output.txt")
+    
+    val testCount = input.next.toInt
+    
+    for (testCase <- 1 to testCount) {
+    	val board = read(input)
+    	val result = solve(board);
+    	output.println(s"Case #$testCase: $result")
+    }
+    
+    output.close()    
+  }
+  
+}

@@ -1,0 +1,50 @@
+require 'matrix'
+
+filename = ARGV[0] || 'sample.in'
+
+m1 = Matrix[[1, 1, 1, 1]] #[[1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+m2 = m1.t
+
+def output(test_case, result)
+  results = ["Unknown", "X won", "O won", "Game has not completed", "Draw"]
+  puts "Case ##{test_case + 1}: #{results[result.to_i]}"
+end
+
+File.open(filename) do |input|
+  input.gets.to_i.times do |test_case|
+    a = 4.times.map do |row|
+      input.gets.split(//).first(4).map do |char|
+        case char
+        when 'X' then 1
+        when 'O' then -1
+        when '.' then 0
+        when 'T' then 10
+        else raise 'unknown char'
+        end
+      end
+    end
+
+    input.gets
+
+    m = Matrix.columns(a)
+    #puts m
+    #puts m1 * m
+    #puts m * m2
+
+    res = (m1 * m).to_a.flatten + (m * m2).to_a.flatten + [m.trace, m[0, 3] + m[1, 2] + m[2, 1] + m[3, 0]]
+
+    result =
+      if res.include?(4) || res.include?(13)
+        1
+      elsif res.include?(-4) || res.include?(7)
+        2
+      elsif m.to_a.flatten.include?(0)
+        3
+      else
+        4
+      end
+
+      #puts res.inspect
+    output(test_case, result)
+  end
+end

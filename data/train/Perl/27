@@ -1,0 +1,42 @@
+use strict;
+use warnings;
+
+my $t = <STDIN>;
+chomp $t;
+my $case = 1;
+while ($t--) {
+read4($case++);
+<STDIN>;
+}
+
+sub read4 {
+    my $case = shift;
+    $case = "Case #$case: ";
+
+    #read 4 lines and compute
+    my @r = ( 0, 0, 0, 0 );
+    my @c = ( 0, 0, 0, 0 );
+    my @d = ( 0, 0 );
+    my $dot = 0;
+
+    foreach my $row ( 0 .. 3 ) {
+        my $line = <STDIN>;
+        chomp $line;
+        my @cols = split //, $line;
+        foreach my $col ( 0 .. 3 ) {
+            my $n = $cols[$col] eq 'X' ? 1 : ( $cols[$col] eq 'O' ? -1 : ( $cols[$col] eq 'T' ? 0 : 100 ) );
+            $dot = 1 if $n == 100;
+            $r[$row] += $n;
+            $c[$col] += $n;
+            $d[0] += $n if $row == $col;
+            $d[1] += $n if ( $row + $col == 3 );
+        }
+    }
+
+    my @res = grep { $_ == 3 || $_ == 4 || $_ == -3 || $_ == -4 } ( @r, @c, @d );
+    if (@res) {
+        $res[0] > 0 ? print $case . "X won\n" : print $case . "O won\n";
+        return;
+    }
+    $dot ? print $case . "Game has not completed\n" : print $case . "Draw\n";
+}

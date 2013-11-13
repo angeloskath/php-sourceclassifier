@@ -1,0 +1,135 @@
+var lazy     = require("lazy"),
+	fs       = require("fs"),
+	fileName = process.argv[2],
+	num      = 0,
+	linesRead,
+	rowsX, rowsO,
+	colsX, colsO,
+	diagX, diagO,
+	tie, total;
+
+resetVals();
+
+new lazy(fs.createReadStream(fileName)).lines.forEach(function (line) {
+	line = line.toString();
+
+	// Read the number of boards left
+	if (num === undefined) {
+		total = parseInt(line, 10);
+		return;
+	}
+
+	// Stop if we are out of puzzles
+	if (num <= total) {
+		return;
+	}
+
+	// If this line is short, skip it
+	if (line.length < 4) {
+		return;
+	}
+
+	// Read characters
+	for (var i = 0; i < 4; i++) {
+		var char = line.charAt(i);
+		switch (char) {
+		case "X":
+			rowsX[i] += 1;
+			colsX[linesRead] += 1;
+			if (i === linesRead) {
+				diagX[0] += 1;
+			}
+			if ((3 - i) === linesRead) {
+				diagX[1] += 1;
+			}
+			break;
+		case "O":
+			rowsO[i] += 1;
+			colsO[linesRead] += 1;
+			if (i === linesRead) {
+				diagO[0] += 1;
+			}
+			if ((3 - i) === linesRead) {
+				diagO[1] += 1;
+			}
+			break;
+		case "T":
+			rowsX[i] += 1;
+			rowsO[i] += 1;
+			colsX[linesRead] += 1;
+			colsO[linesRead] += 1;
+			if (i === linesRead) {
+				diagX[0] += 1;
+				diagO[0] += 1;
+			}
+			if ((3 - i) === linesRead) {
+				diagX[1] += 1;
+				diagO[1] += 1;
+			}
+			break;
+		default:
+			tie = false;
+			break
+		}
+	}	
+
+	// If we read 4 lines, evaluate, and reset
+	if (linesRead === 3) {
+		num += 1;
+		
+		// Check X
+		if (checkWonAll(rowsX, colsX, diagX)) {
+			console.log('Case #' + num + ': X won');
+			resetVals();
+			return;
+		}
+		
+		// Check O
+		if (checkWonAll(rowsO, colsO, diagO)) {
+			console.log('Case #' + num + ': O won');
+			resetVals();
+			return;
+		}
+		
+		// Check tie
+		if (tie) {
+			console.log('Case #' + num + ': Draw');
+			resetVals();
+			return;
+		}
+		
+		console.log('Case #' + num + ': Game has not completed');		
+		resetVals();
+		
+		return;
+	}
+
+	// Increment line count
+	linesRead += 1;
+});
+
+function resetVals() {
+	linesRead = 0;
+	count = 0;
+	tie = true;
+	
+	rowsX = [0,0,0,0];
+	rowsO = [0,0,0,0];
+	colsX = [0,0,0,0];
+	colsO = [0,0,0,0];
+	diagX = [0,0];
+	diagO = [0,0];
+}
+
+function checkWonAll() {
+	var arg;
+	for (var i = 0; i < arguments.length; i++) {
+		arg = arguments[i];
+		for (var j = 0; j < arg.length; j++) {
+			if (arg[j] === 4) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

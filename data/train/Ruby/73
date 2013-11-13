@@ -1,0 +1,38 @@
+DIAGS = [[[0,0], [1,1], [2,2], [3,3]], [[0,3], [1,2], [2,1], [3,0]]]
+
+def solve(input)
+  board = []
+  4.times do |i|
+    board << input.readline.strip.chars
+  end
+
+  ['O', 'X'].each do |player|
+    board.each do |row|
+      return "#{player} won" if row.all? { |c| [player, 'T'].include?(c) }
+    end
+
+    4.times do |i|
+      return "#{player} won" if board.all? { |row| [player, 'T'].include?(row[i]) }
+    end
+
+    return "#{player} won" if DIAGS.any? { |diag| diag.all? { |c| [player, 'T'].include?(board[c[0]][c[1]]) } }
+  end
+
+  board.each do |row|
+    return 'Game has not completed' if row.any? { |c| c == '.' }
+  end
+
+  return 'Draw'
+end
+
+if __FILE__ == $0
+  input = File.open(ARGV[0], 'r')
+  n = input.readline.strip.to_i
+
+  File.open(ARGV[0].sub(/in$/, 'out'), 'w') do |out|
+      n.times do |i|
+        out << "Case ##{i + 1}: #{solve(input)}\n"
+        input.readline
+      end
+  end
+end

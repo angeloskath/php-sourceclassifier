@@ -1,0 +1,99 @@
+module Driver where
+import Parse
+import System.Environment
+import System.IO
+import Control.Monad
+solveAll :: Show a => (a -> String) -> Int -> [a] -> Bool -> IO ()
+solveAll _ _ [] _ = return ()
+solveAll solveOne n (h:t) x =
+  do when x (print h)
+     putStrLn $ "Case #" ++ (show n) ++ ": " ++ solveOne h
+     solveAll solveOne (n+1) t x
+
+readAll readTest = do
+  count <- readObj
+  readFlatList count readTest
+
+_main :: (Show a) => RO a -> (a -> String) -> IO ()
+_main readTest solveTest = do
+  args <- getArgs
+  str <- case args of
+    [] -> getContents
+    [file] -> readFile file
+  let test = readit (readAll readTest) str
+  solveAll solveTest 1 test False
+
+_main_spew readTest solveTest = do
+  args <- getArgs
+  str <- case args of
+    [] -> getContents
+    [file] -> readFile file
+  let test = readit (readAll readTest) str
+  solveAll solveTest 1 test Truemodule Parse where
+class ReadObj a where
+  readobj :: [String] -> (a, [String])
+newtype RO a = RO ([String] -> (a, [String]))
+roX (RO a) = a
+instance Monad RO where
+  RO a >>= f = RO (\ l -> let (x, l') = a l in (roX (f x)) l')
+  return a = RO (\l -> (a,l))
+
+instance ReadObj Integer where
+  readobj (h:t) = (read h, t)
+
+instance ReadObj Char where
+  readobj ([x]:t) = (x,t)
+  readobj ((h:t'):t) = (h, t':t)
+
+instance (ReadObj a, ReadObj b) => ReadObj (a,b) where
+  readobj = roX $ do
+    aa <- readObj
+    bb <- readObj
+    return (aa,bb)
+
+readObj :: ReadObj a => RO a
+readObj = RO readobj
+
+readObjList :: ReadObj a => Integer -> RO [a]
+readObjList 0 = return []
+readObjList n =
+  do h <- readObj
+     t <- readObjList (n-1)
+     return (h:t)
+
+readFlatList :: Integer -> RO a -> RO [a]
+readFlatList 0 _ = return []
+readFlatList n reader =
+  do h <- reader
+     t <- readFlatList (n-1) reader
+     return (h:t)
+
+readit reader string =
+  fst $ (roX reader) (words string)import Data.List
+import Data.Maybe
+import Driver
+import Parse
+import Control.Monad
+readTest = do
+  readFlatList 4 (readObjList 4 :: RO String)
+
+allSubs ll =
+  ll ++ [[ll!!y!!x | y <- [0..3]] | x <- [0..3]] ++ [[ll!!i!!i | i <- [0..3]],[ll!!i!!(3-i) | i <- [0..3]]]
+
+isWin row =
+  if all (\x -> x == 'X' || x == 'T') row then  
+    Just "X won"
+  else if all (\x -> x == 'T' || x == 'O') row then
+         Just "O won"
+       else
+         Nothing
+
+isIncomplete ll = if any (=='.') (concat ll) then 
+                    Just "Game has not completed"
+                  else
+                    Nothing
+
+solve ll =
+  fromJust (msum (map isWin (allSubs ll)) `mplus` isIncomplete ll `mplus` Just "Draw")
+
+main = _main readTest solve

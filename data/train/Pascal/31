@@ -1,0 +1,75 @@
+program PrA;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+var a : array[1..10,1..10] of char;
+    num,i,j,t : longint;
+    ans : char;
+procedure check;
+var i : longint;
+begin
+ for i:=1 to 4 do
+  begin
+   if (a[i,1]=a[i,2]) and (a[i,2]=a[i,3]) and (a[i,3]=a[i,4]) and ((a[i,1]='X') or (a[i,1]='O')) then ans:=a[i,1];
+   if (a[1,i]=a[2,i]) and (a[2,i]=a[3,i]) and (a[3,i]=a[4,i]) and ((a[1,i]='X') or (a[1,i]='O')) then ans:=a[1,i];
+  end;
+ if (a[1,1]=a[2,2]) and (a[2,2]=a[3,3]) and (a[3,3]=a[4,4]) and ((a[1,1]='X') or (a[1,1]='O')) then ans:=a[1,1];
+ if (a[4,1]=a[3,2]) and (a[3,2]=a[2,3]) and (a[2,3]=a[1,4]) and ((a[4,1]='X') or (a[4,1]='O')) then ans:=a[4,1];
+end;
+procedure print(ans : char);
+begin
+ if ans='X' then writeln('Case #',num,': X won');
+ if ans='O' then writeln('Case #',num,': O won');
+ if ans='D' then writeln('Case #',num,': Draw');
+ if ans='N' then writeln('Case #',num,': Game has not completed');
+end;
+procedure solve;
+var i,j,it,jt : longint;
+    f : boolean;
+begin
+ f:=false;
+ ans:='$';
+ it:=0;
+ jt:=0;
+ for i:=1 to 4 do
+  for j:=1 to 4 do if a[i,j]='T' then
+   begin
+    it:=i;
+    jt:=j;
+   end else if a[i,j]='.' then f:=true;
+ if it=0 then
+  begin
+   check;
+   if ans<>'$' then print(ans) else if not f then print('D') else print('N');
+  end else
+  begin
+   a[it,jt]:='X';
+   check;
+   if ans<>'$' then begin print(ans); exit; end;
+   a[it,jt]:='O';
+   check;
+   if ans<>'$' then print(ans) else if not f then print('D') else print('N');
+  end;
+end;
+begin
+ assign(input,'A-large.in');
+ assign(output,'A-large.out');
+ reset(input);
+ rewrite(output);
+ readln(t);
+ for num:=1 to t do
+  begin
+   for i:=1 to 4 do
+    begin
+     for j:=1 to 4 do read(a[i,j]);
+     readln;
+    end;
+   solve;
+   readln;
+  end;
+ close(input);
+ close(output);
+end.
+ 

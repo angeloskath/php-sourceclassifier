@@ -1,0 +1,102 @@
+use strict;
+use warnings;
+
+# my $find_this = 'a';
+
+# my $scan = 'b a d';
+# print 'yes 1' if $scan =~ /a/;
+# print 'yes 2' if $scan =~ /$find_this/;
+# $scan =~ s/a/X/;
+# print "\n$scan\n";
+
+# exit 0;
+
+my $data_in = '.\input.txt';
+my $data_out = '.\output.txt';
+
+open FILE, $data_in || die "cannot open $data_in\n";
+open OUT, ">$data_out" || die "cannot open for write: $data_out\n";
+
+my @input = <FILE>;
+chomp @input;
+my @output;
+
+my $case_count = shift @input;
+my $case_number = 1;
+
+for( my $i = 1 ; $i < $case_count+1 ; $i++ )
+{
+  my @board;
+  push @board, shift @input;
+  push @board, shift @input;
+  push @board, shift @input;
+  push @board, shift @input;
+  shift @input;
+
+  my $winner = '';
+  my $dot_found = 0;
+  my $result = "Draw";
+
+  my @stripes = prepare_lines( \@board );
+
+  $winner = 'X' if check_winner( \@stripes, 'X' );
+  $winner = 'O' if check_winner( \@stripes, 'O' );
+
+  $result = "$winner won" if $winner;
+  $result = "Game has not completed" if !$winner && "@stripes" =~ /\./;
+  print OUT "Case #$i: $result\n";
+  print "Case #$i: $result\n";
+  # print @board;
+}
+
+exit 0;
+
+sub prepare_lines
+{
+  my $b = shift;
+  my @board = @$b;
+
+  my @lines;
+
+  $lines[0] = $board[0];
+  $lines[1] = $board[1];
+  $lines[2] = $board[2];
+  $lines[3] = $board[3];
+  my $up = 0;
+  my $down = 3;
+  for my $l ( @board )
+  {
+    $lines[4] .= substr $l, 0, 1;
+    $lines[5] .= substr $l, 1, 1;
+    $lines[6] .= substr $l, 2, 1;
+    $lines[7] .= substr $l, 3, 1;
+
+    $lines[8] .= substr $l, $up, 1;
+    $lines[9] .= substr $l, $down, 1;
+    $up++;
+    $down--;
+  }
+  return @lines;
+}
+
+sub check_winner
+{
+  my $b = shift;
+  my $x = shift;
+  my @board = @$b;
+
+  #print "board in:\n";
+  #print @board;
+
+  for my $r( @board )
+  {
+    # print "$r\n";
+    #$r =~ s/T/$x/;
+    if( $r =~ /^[T$x]+$/ )
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+

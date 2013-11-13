@@ -1,0 +1,82 @@
+<?php
+$name = isset($argv[1]) ? $argv[1] : null;
+$in = fopen($name . '.in', 'r');
+$out = fopen($name . '.out', 'w');
+
+$t = fgets($in);
+
+$statuses = array(
+        'X' => 'X won',
+        'O' => 'O won',
+        'draw' => 'Draw',
+        '.' => 'Game has not completed',
+
+);
+
+for($i = 1; $i <= $t; $i++) {
+        $result = 'draw';
+        //init board
+        $board = array();
+        for($j = 1; $j <= 4; $j++) {
+                $board[$j] = array();
+                $line = fgets($in);
+                for($k = 1; $k <= 4; $k++) {
+                        $symbol = $line[$k - 1];
+                        if ($symbol == '.') {
+                            $result = $symbol;
+                        }
+                        $board[$j][$k] = $symbol;
+                }
+        }
+        $winner = solve($board);
+        if ($winner) {
+            $result = $winner;
+        }
+        fwrite($out, "Case #$i: " . $statuses[$result] . PHP_EOL);
+        //consume empty line
+        fgets($in);
+}
+fclose($in);
+fclose($out);
+
+function solve($board)
+{
+    $d1 = '';
+    $d2 = '';
+    for ($i = 1; $i <= 4; $i++) {
+        $row = '';
+        $column = '';
+        for ($j = 1; $j <= 4; $j++) {
+            $row .= $board[$i][$j];
+            $column .= $board[$j][$i];
+        }
+        $result = checkLine($row);
+        if ($result) {
+            return $result;
+        }
+        $result = checkLine($column);
+        if ($result) {
+            return $result;
+        }
+        $d1 .= $board[$i][$i];
+        $d2 .= $board[$i][4 - $i + 1];
+    }
+    $result = checkLine($d1);
+    if ($result) {
+        return $result;
+    }
+    $result = checkLine($d2);
+    if ($result) {
+        return $result;
+    }
+}
+
+function checkLine($line)
+{
+    if (str_replace('T', 'X', $line) == 'XXXX') {
+        return 'X';
+    }
+    if (str_replace('T', 'O', $line) == 'OOOO') {
+        return 'O';
+    }
+}

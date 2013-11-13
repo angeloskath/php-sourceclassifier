@@ -1,0 +1,580 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace CodeJam2013Qualification1
+{
+    static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+    }
+}
+﻿namespace CodeJam2013Qualification1
+{
+    partial class Form1
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.pbrStatus = new System.Windows.Forms.ProgressBar();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnSaveFile = new System.Windows.Forms.Button();
+            this.btnOpenFile = new System.Windows.Forms.Button();
+            this.btnGenerate = new System.Windows.Forms.Button();
+            this.lblOutputFile = new System.Windows.Forms.Label();
+            this.txtOutputFile = new System.Windows.Forms.TextBox();
+            this.lblInputFile = new System.Windows.Forms.Label();
+            this.txtInputFile = new System.Windows.Forms.TextBox();
+            this.ofdOpenFile = new System.Windows.Forms.OpenFileDialog();
+            this.sfdSaveFile = new System.Windows.Forms.SaveFileDialog();
+            this.bckProcess = new System.ComponentModel.BackgroundWorker();
+            this.SuspendLayout();
+            // 
+            // pbrStatus
+            // 
+            this.pbrStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbrStatus.Location = new System.Drawing.Point(12, 59);
+            this.pbrStatus.Name = "pbrStatus";
+            this.pbrStatus.Size = new System.Drawing.Size(434, 23);
+            this.pbrStatus.Step = 1;
+            this.pbrStatus.TabIndex = 17;
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Enabled = false;
+            this.btnCancel.Location = new System.Drawing.Point(371, 30);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 16;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // btnSaveFile
+            // 
+            this.btnSaveFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveFile.Location = new System.Drawing.Point(290, 30);
+            this.btnSaveFile.Name = "btnSaveFile";
+            this.btnSaveFile.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveFile.TabIndex = 15;
+            this.btnSaveFile.Text = "Save As...";
+            this.btnSaveFile.UseVisualStyleBackColor = true;
+            this.btnSaveFile.Click += new System.EventHandler(this.btnSaveFile_Click);
+            // 
+            // btnOpenFile
+            // 
+            this.btnOpenFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenFile.Location = new System.Drawing.Point(290, 4);
+            this.btnOpenFile.Name = "btnOpenFile";
+            this.btnOpenFile.Size = new System.Drawing.Size(75, 23);
+            this.btnOpenFile.TabIndex = 11;
+            this.btnOpenFile.Text = "Open...";
+            this.btnOpenFile.UseVisualStyleBackColor = true;
+            this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
+            // 
+            // btnGenerate
+            // 
+            this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGenerate.Location = new System.Drawing.Point(371, 4);
+            this.btnGenerate.Name = "btnGenerate";
+            this.btnGenerate.Size = new System.Drawing.Size(75, 23);
+            this.btnGenerate.TabIndex = 12;
+            this.btnGenerate.Text = "Generate";
+            this.btnGenerate.UseVisualStyleBackColor = true;
+            this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
+            // 
+            // lblOutputFile
+            // 
+            this.lblOutputFile.AutoSize = true;
+            this.lblOutputFile.Location = new System.Drawing.Point(12, 35);
+            this.lblOutputFile.Name = "lblOutputFile";
+            this.lblOutputFile.Size = new System.Drawing.Size(61, 13);
+            this.lblOutputFile.TabIndex = 13;
+            this.lblOutputFile.Text = "Output File:";
+            // 
+            // txtOutputFile
+            // 
+            this.txtOutputFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtOutputFile.Location = new System.Drawing.Point(79, 32);
+            this.txtOutputFile.Name = "txtOutputFile";
+            this.txtOutputFile.ReadOnly = true;
+            this.txtOutputFile.Size = new System.Drawing.Size(205, 20);
+            this.txtOutputFile.TabIndex = 14;
+            // 
+            // lblInputFile
+            // 
+            this.lblInputFile.AutoSize = true;
+            this.lblInputFile.Location = new System.Drawing.Point(12, 9);
+            this.lblInputFile.Name = "lblInputFile";
+            this.lblInputFile.Size = new System.Drawing.Size(53, 13);
+            this.lblInputFile.TabIndex = 9;
+            this.lblInputFile.Text = "Input File:";
+            // 
+            // txtInputFile
+            // 
+            this.txtInputFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtInputFile.Location = new System.Drawing.Point(79, 6);
+            this.txtInputFile.Name = "txtInputFile";
+            this.txtInputFile.ReadOnly = true;
+            this.txtInputFile.Size = new System.Drawing.Size(205, 20);
+            this.txtInputFile.TabIndex = 10;
+            // 
+            // bckProcess
+            // 
+            this.bckProcess.WorkerReportsProgress = true;
+            this.bckProcess.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bckProcess_DoWork);
+            this.bckProcess.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bckProcess_ProgressChanged);
+            this.bckProcess.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bckProcess_RunWorkerCompleted);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(458, 88);
+            this.Controls.Add(this.pbrStatus);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnSaveFile);
+            this.Controls.Add(this.btnOpenFile);
+            this.Controls.Add(this.btnGenerate);
+            this.Controls.Add(this.lblOutputFile);
+            this.Controls.Add(this.txtOutputFile);
+            this.Controls.Add(this.lblInputFile);
+            this.Controls.Add(this.txtInputFile);
+            this.Name = "Form1";
+            this.Text = "Form1";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.ProgressBar pbrStatus;
+        private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Button btnSaveFile;
+        private System.Windows.Forms.Button btnOpenFile;
+        private System.Windows.Forms.Button btnGenerate;
+        private System.Windows.Forms.Label lblOutputFile;
+        protected System.Windows.Forms.TextBox txtOutputFile;
+        private System.Windows.Forms.Label lblInputFile;
+        protected System.Windows.Forms.TextBox txtInputFile;
+        protected System.Windows.Forms.OpenFileDialog ofdOpenFile;
+        protected System.Windows.Forms.SaveFileDialog sfdSaveFile;
+        protected System.ComponentModel.BackgroundWorker bckProcess;
+    }
+}
+
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DC19C70F-20E8-4C9D-9DE2-926CFDB2E9BC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CodeJam2013Qualification1</RootNamespace>
+    <AssemblyName>CodeJam2013Qualification1</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace CodeJam2013Qualification1
+{
+    public partial class Form1 : Form
+    {
+        #region Constants
+
+        private static string XWON = "X won";
+        private static string OWON = "O won";
+        private static string DRAW = "Draw";
+        private static string INCOMPLETE = "Game has not completed";
+
+        private static char X = 'X';
+        private static char O = 'O';
+        private static char EMPTY = '.';
+        private static char T = 'T';
+
+        #endregion
+
+        #region Fields
+
+        private int numCases = 0;
+        private static List<string> lines = new List<string>();
+        private int currentCase = 1;
+        private int contline = 0;
+
+        #endregion
+
+        #region Constructor
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        #endregion
+
+        #region Events
+
+        #region Button Events
+
+        /// <summary>
+        /// Event occurs when the button open file is clicked
+        /// </summary>
+        /// <param name="sender">Sender of the event (btnOpenFile)</param>
+        /// <param name="e">Click parameters</param>
+        private void btnOpenFile_Click(object sender, EventArgs e)
+        {
+            if (ofdOpenFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                txtInputFile.Text = ofdOpenFile.FileName;
+                txtOutputFile.Text = txtInputFile.Text.Replace("in", "out");
+            }
+            else
+            {
+                txtInputFile.Text = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Event occurs when the button save file is clicked
+        /// </summary>
+        /// <param name="sender">Sender of the event (btnSaveFile)</param>
+        /// <param name="e">Click parameters</param>
+        private void btnSaveFile_Click(object sender, EventArgs e)
+        {
+            if (sfdSaveFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                txtOutputFile.Text = sfdSaveFile.FileName;
+            }
+            else
+            {
+                txtOutputFile.Text = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Event occurs when the button generate is clicked
+        /// </summary>
+        /// <param name="sender">Sender of the event (btnGenerate)</param>
+        /// <param name="e">Click parameters</param>
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtInputFile.Text) &&
+                !string.IsNullOrEmpty(txtOutputFile.Text))
+            {
+                if (bckProcess.IsBusy != true)
+                {
+                    pbrStatus.Value = 0;
+                    EnableDisableControls(false);
+                    bckProcess.RunWorkerAsync();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event occurs when the button cancel is clicked
+        /// </summary>
+        /// <param name="sender">Sender of the event (btnCancel)</param>
+        /// <param name="e">Click parameters</param>
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            if (bckProcess.WorkerSupportsCancellation == true)
+            {
+                bckProcess.CancelAsync();
+            }
+        }
+
+        #endregion
+
+        #region BackgroundWorker Events
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bckProcess_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = (BackgroundWorker)sender;
+            int currentLine = 1;
+            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(txtOutputFile.Text))
+            {
+                string[] lines = System.IO.File.ReadAllLines(txtInputFile.Text);
+                foreach (string line in lines)
+                {
+                    if (worker.CancellationPending == true)
+                    {
+                        e.Cancel = true;
+                        break;
+                    }
+                    if (ProcessLine(line, currentLine, outputfile) == false)
+                    {
+                        break;
+                    }
+                    worker.ReportProgress(currentLine * 100 / lines.Length);
+                    currentLine++;
+                }
+                outputfile.Close();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bckProcess_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            pbrStatus.Value = e.ProgressPercentage;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bckProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled == true)
+            {
+                MessageBox.Show("Process Cancelled!");
+            }
+            else if (e.Error != null)
+            {
+                MessageBox.Show("Error: " + e.Error.Message);
+            }
+            else
+            {
+                MessageBox.Show("Process Complete!");
+            }
+            EnableDisableControls(true);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Disable/Enable the controls of the form, except of button Cancel
+        /// </summary>
+        /// <param name="enabled"></param>
+        private void EnableDisableControls(bool enabled)
+        {
+            foreach (Control control in this.Controls)
+            {
+                if (control.Name == "btnCancel")
+                {
+                    control.Enabled = !enabled;
+                }
+                else
+                {
+                    control.Enabled = enabled;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process the current line
+        /// </summary>
+        /// <param name="line">Line which is processing</param>
+        /// <param name="numLine">Number of the line</param>
+        /// <param name="outputfile">Stream write of the output file</param>
+        /// <returns>Returns if the line is processed</returns>
+        protected bool ProcessLine(string line,
+                                   int numLine,
+                                   System.IO.StreamWriter outputfile)
+        {
+            if (numLine == 1)
+            {
+                numCases = Convert.ToInt32(line);
+                currentCase = 1;
+                contline = 0;
+                lines = new List<string>();
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(line))
+                {
+                    lines.Add(line);
+                    contline++;
+                    if (contline >= 4)
+                    {
+                        // Todo result
+                        outputfile.WriteLine("Case #" + (currentCase).ToString() + ": " + ProcessCase(lines));
+                        lines = new List<string>();
+                        currentCase++;
+                        contline = 0;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public string ProcessCase(List<string> lines)
+        {
+            List<string> rows = new List<string>();
+            List<string> diagonals = new List<string>();
+
+            rows.Add(string.Concat(lines[0][0],lines[1][0],lines[2][0],lines[3][0]));
+            rows.Add(string.Concat(lines[0][1],lines[1][1],lines[2][1],lines[3][1]));
+            rows.Add(string.Concat(lines[0][2],lines[1][2],lines[2][2],lines[3][2]));
+            rows.Add(string.Concat(lines[0][3],lines[1][3],lines[2][3],lines[3][3]));
+
+            diagonals.Add(string.Concat(lines[0][0],lines[1][1],lines[2][2],lines[3][3]));
+            diagonals.Add(string.Concat(lines[0][3],lines[1][2],lines[2][1],lines[3][0]));
+
+            if (lines.Exists(line => !line.Contains(EMPTY) && !line.Contains(O)) ||
+                rows.Exists(line => !line.Contains(EMPTY) && !line.Contains(O)) ||
+                diagonals.Exists(line => !line.Contains(EMPTY) && !line.Contains(O)))
+            {
+                return XWON;
+            }
+            else if (
+                lines.Exists(line => !line.Contains(EMPTY) && !line.Contains(X)) ||
+                rows.Exists(line => !line.Contains(EMPTY) && !line.Contains(X)) ||
+                diagonals.Exists(line => !line.Contains(EMPTY) && !line.Contains(X)))
+            {
+                return OWON;
+            }
+            else if(
+                !lines.Exists(line => line.Contains(EMPTY)))
+            {
+                return DRAW;
+            }
+
+
+            return INCOMPLETE;
+        }
+
+        #endregion
+    }
+}
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" />

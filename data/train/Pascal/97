@@ -1,0 +1,30 @@
+program feres;
+uses wincrt;
+var 
+i,j,s,a,g:integer;
+
+ ch,c,b:string;
+begin
+read(a);
+b:='1';
+for j:=1 to a do
+begin
+
+
+for i:=1 to 9 do
+begin
+s:=0;
+s:=s+i;
+str(s,ch);
+c:=c+ch;
+end;
+end;
+for g:=1 to a do
+begin
+ b:= copy(c,1,g);
+ writeln(b);
+ delete(c,1,g);
+
+  end;
+
+end.

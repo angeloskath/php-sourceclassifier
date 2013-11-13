@@ -1,0 +1,104 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * A very simple executable script to train and use the LanguageDetector
+ * class. For now it will not use a more complex (and better) structure like
+ * Symfony\Console\Application but it will be a self contained little script.
+ */
+
+include(dirname(__DIR__)."/vendor/autoload.php");
+
+/**
+ * Just echo a simple help message
+ */
+function help()
+{
+    echo <<<HELP
+
+A simple executable script to train and use the LanguageDetector class.
+The following is the list of commands and is self explanatory.
+
+Commands:
+    help
+    train    [training_dir       ] [output_model default is 'model']
+    evaluate [test_dir           ] [input_model default is 'model' ]
+    classify [file or - for stdin] [input_model default is 'model' ]
+
+
+HELP;
+}
+
+/**
+ * Train a model and save it to a file.
+ */
+function train($argv)
+{
+    if (!isset($argv[2]))
+        throw new RuntimeException("train command requires at least one argument\n{$argv[0]} train [training_dir] [output_model default is 'model']");
+
+    $training_dir = $argv[2];
+    $output_model = (isset($argv[3])) ? $argv[3] : "model";
+
+    $lang_detect = new LanguageDetector();
+    $lang_detect->train($training_dir);
+    LanguageDetector::saveToFile($lang_detect, $output_model);
+}
+
+/**
+ * Evaluate the model and report its accuracy.
+ */
+function evaluate($argv)
+{
+    if (!isset($argv[2]))
+        throw new RuntimeException("evaluate command requires at least one argument\n{$argv[0]} evaluate [test_dir] [input_model default is 'model']");
+
+    $test_dir = $argv[2];
+    $input_model = (isset($argv[3])) ? $argv[3] : "model";
+
+    $lang_detect = LanguageDetector::loadFromFile($input_model);
+    $accuracy = $lang_detect->evaluate($test_dir);
+    echo $accuracy,PHP_EOL;
+}
+
+/**
+ * Classify a file or the standard input
+ */
+function classify($argv)
+{
+    if (!isset($argv[2]))
+        throw new RuntimeException("classify command requires at least one argument\n{$argv[0]} classify [file or - for stdin] [input_model default is 'model']");
+
+    $input_model = (isset($argv[3])) ? $argv[3] : "model";
+    $lang_detect = LanguageDetector::loadFromFile($input_model);
+
+    if ($argv[2] == "-") {
+        $language = $lang_detect->classify(file_get_contents("php://stdin"));
+    } else {
+        $language = $lang_detect->classifyFile($argv[2]);
+    }
+
+    echo $language,PHP_EOL;
+}
+
+try {
+    $command = (isset($argv[1])) ? $argv[1] : "";
+    switch ($command)
+    {
+        case "train":
+            train($argv);
+            break;
+        case "evaluate":
+            evaluate($argv);
+            break;
+        case "classify":
+            classify($argv);
+            break;
+        case "help":
+        default:
+            help();
+            break;
+    }
+} catch (Exception $e) {
+    echo PHP_EOL,$e->getMessage(),PHP_EOL,PHP_EOL;
+}

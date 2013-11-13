@@ -1,0 +1,83 @@
+var x = 0;
+var n = 4;
+
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', function (chunk) {
+  var cases = chunk.slice(chunk.indexOf('\n')).trim().split('\n\n').map(function (testCase) {
+    return testCase.split('\n').map(function (line) {
+      return line.split("");
+    });
+  });
+  cases.forEach(function (testCase) {
+    process.stdout.write("Case #" + ++x + ": " + solve(testCase) + '\n');
+  });
+});
+
+function solve(board) {
+  for (var i = 0; i < n; ++i) {
+    var row = board[i];
+    var player = row[0] !== 'T' ? row[0] : row[1];
+    if (player === '.') {
+      continue;
+    }
+    if (row.every(function (cell) {
+      return cell === player || cell === 'T';
+    })) {
+      return player + " won";
+    }
+  }
+
+  board = transpose(board);
+
+  for (var i = 0; i < n; ++i) {
+    var row = board[i];
+    var player = row[0] !== 'T' ? row[0] : row[1];
+    if (player === '.') {
+      continue;
+    }
+    if (row.every(function (cell) {
+      return cell === player || cell === 'T';
+    })) {
+      return player + " won";
+    }
+  }
+
+  var player = board[0][0] !== 'T' ? board[0][0] : board[1][1];
+  if (player !== '.') {
+    for (var i = 0; i < n; ++i) {
+      if (board[i][i] !== player && board[i][i] !== 'T') {
+        break;
+      }
+      if (i === n-1) {
+        return player + " won";
+      }
+    }
+  }
+
+  var player = board[n-1][0] !== 'T' ? board[n-1][0] : board[n-2][1];
+  if (player !== '.') {
+    for (var i = 0; i < n; ++i) {
+      if (board[n-1-i][i] !== player && board[n-1-i][i] !== 'T') {
+        break;
+      }
+      if (i === n-1) {
+        return player + " won";
+      }
+    }
+  }
+
+  if (board.every(function (row) {
+    return row.every(function (cell) {
+      return cell !== '.';
+    })
+  })) {
+    return "Draw";
+  }
+
+  return "Game has not completed";
+}
+
+function transpose(a) {
+  return Object.keys(a[0]).map(function (c) { return a.map(function (r) { return r[c] }) });
+}

@@ -1,0 +1,101 @@
+#include <stdio.h>
+
+int c[10][4] = 
+{
+    {0, 1, 2, 3}, {4, 5, 6, 7}, {8, 9, 10, 11}, {12, 13, 14, 15},
+    {0, 4, 8, 12}, {1, 5, 9, 13}, {2, 6, 10, 14}, {3, 7, 11, 15},
+    {0, 5, 10, 15}, {3, 6, 9, 12}
+};
+
+char m[20];
+
+inline bool equal(char a, char b)
+{
+    if (a == 'T' || b == 'T')
+    {
+        return true;
+    }
+    else
+    {
+        return a == b;
+    }
+}
+
+inline int charge(int a[])
+{
+    if (m[a[0]] == 'T')
+    {
+        if (m[a[1]] == m[a[2]] && m[a[2]] == m[a[3]])
+        {
+            return m[a[1]];
+        }
+    }
+    else
+    {
+        if (equal(m[a[0]], m[a[1]]) && equal(m[a[0]], m[a[2]]) && equal(m[a[0]], m[a[3]]))
+        {
+            return m[a[0]];
+        }
+    }
+
+    return 0;
+}
+
+bool check()
+{
+    for (int i = 0; i < 16; i++)
+    {
+        if (m[i] == '.')
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int main()
+{
+    int t;
+    scanf("%d", &t);
+    for (int k = 1; k <= t; k++)
+    {
+        for (int i = 0; i < 16; i += 4)
+        {
+            scanf("%s", m + i);
+        }
+
+        bool flag = false;
+        int res;
+        for (int i = 0; i < 10; i++)
+        {
+            res = charge(c[i]);
+            if (res != 0 && res != '.')
+            {
+                break;
+            }
+        }
+
+        if (res == 0 || res == '.')
+        {
+            if (check())
+            {
+                printf("Case #%d: Draw\n", k);
+            }
+            else
+            {
+                printf("Case #%d: Game has not completed\n", k);
+            }
+        }
+        else if (res == 'X')
+        {
+            printf("Case #%d: X won\n", k);
+        }
+        else
+        {
+            printf("Case #%d: O won\n", k);
+        }
+    }
+
+    return 0;
+}

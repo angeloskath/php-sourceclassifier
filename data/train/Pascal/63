@@ -1,0 +1,68 @@
+program project1;
+
+{$mode objfpc}{$H+}
+{$APPTYPE CONSOLE}
+var
+  N,b,c,k,M,j,i,a,Xt,Yt:integer;
+  h,vih:boolean;
+  fi,fo:text;
+  ar:array [1..4,1..4] of char;
+begin
+assign(fi,'input.txt');
+assign(fo,'output.txt');
+reset(fi);
+rewrite(fo);
+readln(fi,N);
+for M:=1 to N do begin
+write(fo,'Case #',M,': ');
+ vih:=false;
+ h:=false;
+for i:=1 to 4 do
+begin
+for j:=1 to 3 do
+  read(fi,ar[i,j]);
+  readln(fi,ar[i,j+1]);
+end;
+
+for i:=1 to 4 do
+  for j:=1 to 4 do
+    if ar[j,i]='T' then begin Xt:=j;Yt:=i;end;
+
+for i:=1 to 4 do
+  for j:=1 to 4 do
+    if ar[j,i]='.' then h:=true;
+
+ar[Xt,Yt]:='O';
+
+if (ar[1,1]='O') and (ar[1,2]='O') and (ar[1,3]='O') and (ar[1,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[2,1]='O') and (ar[2,2]='O') and (ar[2,3]='O') and (ar[2,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[3,1]='O') and (ar[3,2]='O') and (ar[3,3]='O') and (ar[3,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[4,1]='O') and (ar[4,2]='O') and (ar[4,3]='O') and (ar[4,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,1]='O') and (ar[2,1]='O') and (ar[3,1]='O') and (ar[4,1]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,2]='O') and (ar[2,2]='O') and (ar[3,2]='O') and (ar[4,2]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,3]='O') and (ar[2,3]='O') and (ar[3,3]='O') and (ar[4,3]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,4]='O') and (ar[2,4]='O') and (ar[3,4]='O') and (ar[4,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,1]='O') and (ar[2,2]='O') and (ar[3,3]='O') and (ar[4,4]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end else
+if (ar[1,4]='O') and (ar[2,3]='O') and (ar[3,2]='O') and (ar[4,1]='O') and(NOT vih)then begin writeln(fo,'O won'); vih:=true; end;
+
+ar[Xt,Yt]:='X';
+
+if (ar[1,1]='X') and (ar[1,2]='X') and (ar[1,3]='X') and (ar[1,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[2,1]='X') and (ar[2,2]='X') and (ar[2,3]='X') and (ar[2,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[3,1]='X') and (ar[3,2]='X') and (ar[3,3]='X') and (ar[3,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[4,1]='X') and (ar[4,2]='X') and (ar[4,3]='X') and (ar[4,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,1]='X') and (ar[2,1]='X') and (ar[3,1]='X') and (ar[4,1]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,2]='X') and (ar[2,2]='X') and (ar[3,2]='X') and (ar[4,2]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,3]='X') and (ar[2,3]='X') and (ar[3,3]='X') and (ar[4,3]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,4]='X') and (ar[2,4]='X') and (ar[3,4]='X') and (ar[4,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,1]='X') and (ar[2,2]='X') and (ar[3,3]='X') and (ar[4,4]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end else
+if (ar[1,4]='X') and (ar[2,3]='X') and (ar[3,2]='X') and (ar[4,1]='X') and(NOT vih)then begin writeln(fo,'X won'); vih:=true; end;
+
+if (NOT vih) and (h) then begin writeln(fo,'Game has not completed');vih:=true; end else
+if (NOT vih) then writeln(fo,'Draw');
+readln(fi);
+end;
+
+close(fo);
+end.
+

@@ -1,0 +1,80 @@
+package qual.a
+
+import io.Source
+import scala.util.control.Breaks._
+
+object TTTT {
+
+  def win (line: Array[Char]): Char = {
+    if (line.contains('.')) '.'
+    else if (!line.contains('O')) 'X'
+    else if (!line.contains('X')) 'O'
+    else '.'
+  }
+
+  def main(args: Array[String]) {
+    val input = Source fromFile "C:\\Users\\mcyalcin\\Desktop\\untitled\\src\\qual\\a\\A-large.in" getLines()
+    val caseCount = Integer parseInt(input next())
+
+    for (caseNumber <- 1 to caseCount) {
+      val board = Array.ofDim[Char](4,4)
+      var ended = true
+      for (i <- 0 until 4) {
+        val line = input next()
+        if (line.contains('.')) ended = false
+        for (j <- 0 until 4) {
+          board(i)(j) = line(j)
+        }
+      }
+
+      var winner = '.'
+
+      breakable {
+        for (i <- 0 until 4) {
+          if (win(board(i)) != '.') {
+            winner = win(board(i))
+            break()
+          }
+          val vert = new Array[Char](4)
+          vert(0) = board(0)(i)
+          vert(1) = board(1)(i)
+          vert(2) = board(2)(i)
+          vert(3) = board(3)(i)
+          if (win(vert) != '.') {
+            winner = win(vert)
+            break()
+          }
+        }
+        val diag = new Array[Char](4)
+        diag(0) = board(0)(0)
+        diag(1) = board(1)(1)
+        diag(2) = board(2)(2)
+        diag(3) = board(3)(3)
+        if (win(diag) != '.') {
+          winner = win(diag)
+          break()
+        }
+        diag(0) = board(0)(3)
+        diag(1) = board(1)(2)
+        diag(2) = board(2)(1)
+        diag(3) = board(3)(0)
+        if (win(diag) != '.') {
+          winner = win(diag)
+          break()
+        }
+      }
+
+      val result = if (winner != '.') {
+                     winner + " won"
+                   } else if (ended) {
+                     "Draw"
+                   } else {
+                     "Game has not completed"
+                   }
+
+      println("Case #" + caseNumber + ": " + result)
+
+      if (caseNumber < caseCount) input next()
+    }
+  }
+}

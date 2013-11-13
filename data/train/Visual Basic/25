@@ -1,0 +1,300 @@
+Attribute VB_Name = "Module1"
+Public InFileHandle, OutFileHandle
+Public XScore, OScore
+Public a As String
+Public b As String
+Public c As String
+Public d As String
+Public SquaresCompleted As Integer
+Public CountSquaresLatch As Boolean
+
+VERSION 5.00
+Begin VB.Form frmMain 
+   Caption         =   "Form1"
+   ClientHeight    =   915
+   ClientLeft      =   120
+   ClientTop       =   450
+   ClientWidth     =   2370
+   LinkTopic       =   "Form1"
+   ScaleHeight     =   915
+   ScaleWidth      =   2370
+   StartUpPosition =   3  'Windows Default
+   Begin VB.CommandButton Command1 
+      Caption         =   "Run"
+      Height          =   495
+      Left            =   120
+      TabIndex        =   0
+      Top             =   120
+      Width           =   1215
+   End
+End
+Attribute VB_Name = "frmMain"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private Sub Command1_Click()
+
+    ' Call Init() to set up file handles etc
+    Init
+    Dim LineOfText$
+    Dim x, y, n, ch$, out$
+    Dim LineCounter As Integer
+    Dim NumberOfTestCases As Integer
+    Dim ThisTestCase As Integer
+    Dim ThisTestCaseOutput$
+    Dim Row As Integer
+    Dim Column As Integer
+    Dim BoardArray(9999, 5, 5)
+    Dim XWonText$
+    Dim OWonText$
+    Dim DrawOutput$
+    Dim IncompleteOutput$
+    Dim OutputPreamble$
+    Dim void$
+    Dim XWon As Boolean
+    Dim OWon As Boolean
+    Dim Drawn As Boolean
+    Dim Incomplete As Boolean
+    Dim FoundResult As Boolean
+    
+    OutputPreamble$ = "Case #"
+    XWonText$ = ": X won"
+    OWonText$ = ": O won"
+    DrawOutput$ = ": Draw"
+    IncompleteOutput$ = ": Game has not completed"
+    LineCounter = 1
+    Input #InFileHandle, ch$
+    LineCounter = 2
+    NumberOfTestCases = Val(ch$)
+    'Debug.Print "Test cases expected:"; NumberOfTestCases
+    For ThisTestCase = 1 To NumberOfTestCases
+    'Debug.Print " Processing Test Case "; ThisTestCase
+        For Row = 1 To 4
+            Input #InFileHandle, LineOfText$
+            'Debug.Print "  Row:"; LineOfText$
+            For Column = 1 To 4
+                BoardArray(ThisTestCase, Column, Row) = Mid$(LineOfText$, Column, 1)
+            Next Column
+            LineCounter = LineCounter + 1
+        Next Row
+        If ThisTestCase <> NumberOfTestCases Then
+            Input #InFileHandle, void$
+        End If
+    Next ThisTestCase
+    
+    'At this stage the BoardArray is loaded with all the turns.
+    'Process...
+    For ThisTestCase = 1 To NumberOfTestCases
+    'Debug.Print "Test case:"; ThisTestCase
+        XWon = False
+        OWon = False
+        Draw = False
+        Incomplete = False
+        SquaresCompleted = 0
+        
+        
+        'Do row checks:
+        'Debug.Print "Row checks..."
+        CountSquaresLatch = True
+        
+        For Column = 1 To 4
+            a = BoardArray(ThisTestCase, 1, Column)
+            b = BoardArray(ThisTestCase, 2, Column)
+            c = BoardArray(ThisTestCase, 3, Column)
+            d = BoardArray(ThisTestCase, 4, Column)
+            TestFour
+            If XScore = 4 Then XWon = True
+            If OScore = 4 Then OWon = True
+        Next Column
+        'At this stage we have scanned all the squares so we can check for game incomplete:
+        If SquaresCompleted < 16 Then Incomplete = True
+        CountSquaresLatch = False
+        
+        
+        'Now column checks
+        'Debug.Print "Column checks..."
+        For Row = 1 To 4
+            a = BoardArray(ThisTestCase, Row, 1)
+            b = BoardArray(ThisTestCase, Row, 2)
+            c = BoardArray(ThisTestCase, Row, 3)
+            d = BoardArray(ThisTestCase, Row, 4)
+            TestFour
+            If XScore = 4 Then XWon = True
+            If OScore = 4 Then OWon = True
+        Next Row
+        'Diagonals...
+        a = BoardArray(ThisTestCase, 1, 1)
+        b = BoardArray(ThisTestCase, 2, 2)
+        c = BoardArray(ThisTestCase, 3, 3)
+        d = BoardArray(ThisTestCase, 4, 4)
+        TestFour
+        If XScore = 4 Then XWon = True
+        If OScore = 4 Then OWon = True
+        a = BoardArray(ThisTestCase, 1, 4)
+        b = BoardArray(ThisTestCase, 2, 3)
+        c = BoardArray(ThisTestCase, 3, 2)
+        d = BoardArray(ThisTestCase, 4, 1)
+        TestFour
+        If XScore = 4 Then XWon = True
+        If OScore = 4 Then OWon = True
+        
+    'Debug.Print "XWon: "; XWon
+    'Debug.Print "OWon: "; OWon
+    'Debug.Print "Incomplete: "; Incomplete
+    'Debug.Print "SquaresCompleted: "; SquaresCompleted
+    
+    'Tidy ThisTestCase integer to a pretty string:
+    
+    'Debug.Print "ThisTestCase:>"; ThisTestCase; "<"
+    ThisTestCaseOutput$ = Str$(ThisTestCase)
+    ThisTestCaseOutput$ = Right(ThisTestCaseOutput$, Len(ThisTestCaseOutput$) - 1)
+    
+    'Debug.Print "ThisTestCaseOutput$:>"; ThisTestCaseOutput$; "<"
+    
+    
+    'Flag used to determine if we foud the result yet
+    FoundResult = False
+    
+    'Has X won?
+    If XWon Then
+        Print #OutFileHandle, OutputPreamble; ThisTestCaseOutput$; XWonText$
+        Debug.Print OutputPreamble; ThisTestCaseOutput$; XWonText$
+        FoundResult = True
+    End If
+    'Has O won?
+    If OWon Then
+        Print #OutFileHandle, OutputPreamble; ThisTestCaseOutput$; OWonText$
+        Debug.Print OutputPreamble; ThisTestCaseOutput$; OWonText$
+        FoundResult = True
+    End If
+    'Did we complete less then 16 squares?
+    If Incomplete Then
+        'Remember this can happen if someone won early...
+        'Check we have't already had a winner:
+        If Not FoundResult Then
+            Print #OutFileHandle, OutputPreamble; ThisTestCaseOutput$; IncompleteOutput$
+            Debug.Print OutputPreamble; ThisTestCaseOutput$; IncompleteOutput$
+            FoundResult = True
+        End If
+    End If
+    'If we still have no result...
+    If Not FoundResult Then
+        '... must be a draw.
+        Print #OutFileHandle, OutputPreamble; ThisTestCaseOutput$; DrawOutput$
+        Debug.Print OutputPreamble; ThisTestCaseOutput$; DrawOutput$
+    End If
+    
+   
+   
+    Next ThisTestCase
+    
+    
+    
+    'Close files
+    Close
+End Sub
+Sub TestFour()
+    XScore = 0
+    OScore = 0
+    'SquaresCompleted = 0
+    
+'Debug.Print a; " "; b; " "; c; " "; d;
+'Debug.Print
+
+
+    Select Case a
+        Case "X"
+            XScore = XScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "O"
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "T"
+            XScore = XScore + 1
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+    End Select
+    Select Case b
+        Case "X"
+            XScore = XScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "O"
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "T"
+            XScore = XScore + 1
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+    End Select
+    Select Case c
+        Case "X"
+            XScore = XScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "O"
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "T"
+            XScore = XScore + 1
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+    End Select
+    Select Case d
+        Case "X"
+            XScore = XScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "O"
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+        Case "T"
+            XScore = XScore + 1
+            OScore = OScore + 1
+            If CountSquaresLatch Then SquaresCompleted = SquaresCompleted + 1
+    End Select
+    'Debug.Print "Xscore / OScore"; XScore; "/"; OScore
+    'Debug.Print "SquaresCompleted (countfour)"; SquaresCompleted
+    
+    
+End Sub
+Sub Init()
+    'Input File - find next free handle...
+    InFileHandle = FreeFile()
+    ' ... and open the file for input.
+    Open "C:\Users\Jonathan\Code\QualA\Input.txt" For Input As #InFileHandle
+    'Output file - find next free handle...
+    OutFileHandle = FreeFile()
+    '... and open the file for output.
+    Open "C:\Users\Jonathan\Code\QualA\Output.txt" For Output As #OutFileHandle
+End Sub
+
+Type=Exe
+Form=Form1.frm
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\Windows\SysWOW64\stdole2.tlb#OLE Automation
+Module=Module1; Module1.bas
+Startup="frmMain"
+HelpFile=""
+Command32=""
+Name="CodeJamQualA"
+HelpContextID="0"
+CompatibleMode="0"
+MajorVer=1
+MinorVer=0
+RevisionVer=0
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionCompanyName="Groves Systems Ltd"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1

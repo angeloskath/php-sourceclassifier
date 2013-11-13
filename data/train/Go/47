@@ -1,0 +1,209 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+const (
+	x    = "X won"
+	o    = "O won"
+	draw = "Draw"
+	nc   = "Game has not completed"
+)
+
+var gameState [][]rune
+var results []string
+var fTitle string
+
+func main() {
+	gameState = make([][]rune, 4)
+	for i := 0; i < len(gameState); i++ {
+		gameState[i] = make([]rune, 4)
+	}
+
+	fmt.Println(gameState)
+
+	fTitle = "A-large"
+	f, err := os.Open("./" + fTitle + ".in")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+	r := bufio.NewReader(f)
+
+	line, err := r.ReadSlice('\n')
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+
+	line = line[:len(line)-1]
+	TStr := string(line)
+	T, _ := strconv.Atoi(TStr)
+	results = make([]string, T)
+
+	// fmt.Println(T)
+
+	// Do this T times
+	for i := 0; i < T; i++ {
+		readGameState(r)
+		results[i] = status()
+		fmt.Println(results[i])
+	}
+
+	output()
+}
+
+// Determines the status of the current game state.
+func status() string {
+	Xs, Os, Ts, dots := 0, 0, 0, 0 // number of X's and O's in the current sweep
+
+	// Scan the rows
+	for i := 0; i < len(gameState); i++ {
+		for j := 0; j < len(gameState[i]); j++ {
+			switch gameState[i][j] {
+			case 'X':
+				Xs++
+			case 'O':
+				Os++
+			case 'T':
+				Ts++
+			case '.':
+				dots++
+			}
+		}
+		if Ts > 0 {
+			if Xs == 3 {
+				return x
+			} else if Os == 3 {
+				return o
+			}
+		} else if Xs == 4 {
+			return x
+		} else if Os == 4 {
+			return o
+		}
+		Xs = 0
+		Os = 0
+		Ts = 0
+		// don't reset dots
+	}
+
+	// Scan the columns
+	for i := 0; i < len(gameState); i++ {
+		for j := 0; j < len(gameState[i]); j++ {
+			switch gameState[j][i] {
+			case 'X':
+				Xs++
+			case 'O':
+				Os++
+			case 'T':
+				Ts++
+			case '.':
+				dots++
+			}
+		}
+		if Ts > 0 {
+			if Xs == 3 {
+				return x
+			} else if Os == 3 {
+				return o
+			}
+		} else if Xs == 4 {
+			return x
+		} else if Os == 4 {
+			return o
+		}
+		Xs = 0
+		Os = 0
+		Ts = 0
+		// don't reset dots
+	}
+
+	// Scan diagonals. Dots are all scanned, so no need to count again
+	for i, j := 0, 0; i < len(gameState); i++ {
+		switch gameState[j][i] {
+		case 'X':
+			Xs++
+		case 'O':
+			Os++
+		case 'T':
+			Ts++
+		}
+		j++
+	}
+
+	if Ts > 0 {
+		if Xs == 3 {
+			return x
+		} else if Os == 3 {
+			return o
+		}
+	} else if Xs == 4 {
+		return x
+	} else if Os == 4 {
+		return o
+	}
+
+	Xs = 0
+	Os = 0
+	Ts = 0
+
+	for i, j := 0, 3; i < len(gameState); i++ {
+		switch gameState[j][i] {
+		case 'X':
+			Xs++
+		case 'O':
+			Os++
+		case 'T':
+			Ts++
+		}
+		j--
+	}
+
+	if Ts > 0 {
+		if Xs == 3 {
+			return x
+		} else if Os == 3 {
+			return o
+		}
+	} else if Xs == 4 {
+		return x
+	} else if Os == 4 {
+		return o
+	}
+
+	if dots > 0 {
+		return nc
+	}
+
+	return draw
+}
+
+func readGameState(r *bufio.Reader) {
+	for i := 0; i < 4; i++ {
+		line, _ := r.ReadSlice('\n')
+		line = line[:len(line)-1]
+		for j := 0; j < len(line); j++ {
+			gameState[i][j] = rune(line[j])
+		}
+	}
+	r.ReadSlice('\n') // read intermediate line
+}
+
+func output() {
+	outFile, err := os.Create(fTitle + ".out")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+	w := bufio.NewWriter(outFile)
+	for i := 0; i < len(results); i++ {
+		out := fmt.Sprintf("Case #%d: %s\n", i+1, results[i])
+		w.WriteString(out)
+	}
+	w.Flush()
+}

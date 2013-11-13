@@ -1,0 +1,138 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+#########################
+#* File Name : a_qual.pl
+
+#* Purpose :
+
+#* Creation Date : 12-04-2013
+
+#* Last Modified :
+
+#* Created By :  
+
+#########################
+
+my $name = shift;
+chomp($name);
+open FILE, "<$name";
+my @lines = <FILE>;
+close FILE;
+my $cases = shift(@lines);
+
+for(my $i = 1; $i <= $cases; $i++) {
+  my @board;
+  for(my $row = 1; $row <= 4; $row++) {
+    my @temp = split(//, shift(@lines));
+    push(@board, \@temp);
+  }
+  my $result = get_state(@board);
+  if($result eq 'X') {
+    print "Case #$i: X won\n";
+  }
+  elsif($result eq 'O') {
+    print "Case #$i: O won\n";
+  }
+  elsif($result eq 'nc') {
+    print "Case #$i: Game has not completed\n";
+  }
+  else {
+    print "Case #$i: Draw\n";
+  }
+  shift(@lines);
+  
+}
+
+sub get_state {
+    my @board = @_;
+    check_diagonals(@board);
+    my $result;
+    $result = check_diagonals(@board);
+    return "X" if($result eq 'X');
+    return "O" if($result eq 'O');
+    $result = check_rows(@board);
+    return "X" if($result eq 'X');
+    return "O" if($result eq 'O');
+    $result = check_cols(@board);
+    return "X" if($result eq 'X');
+    return "O" if($result eq 'O');
+    $result = check_complete(@board);
+    return "nc" if($result eq 'nc');
+    return "draw";
+}
+
+
+sub check_diagonals {
+  my @board = @_;
+  my $x = 0;
+  my $o = 0;
+  my $t = 0;
+  for(my $i = 0; $i < 4; $i++) {
+    $x++ if($board[$i][$i] eq 'X');
+    $o++ if($board[$i][$i] eq 'O');
+    $t++ if($board[$i][$i] eq 'T');
+  }
+  if($x + $t == 4) { return "X"; }
+  if($o+$t == 4) { return "O"; }
+  $x = 0;
+  $o = 0;
+  $t = 0;
+  my $i = 3;
+  my $j = 0;
+  for(my $diff = 0 ; $diff < 4; $diff++) {
+    $x++ if($board[$i-$diff][$j+$diff] eq 'X');
+    $o++ if($board[$i-$diff][$j+$diff] eq 'O');
+    $t++ if($board[$i-$diff][$j+$diff] eq 'T');
+  }
+  #print "x = $x ... o = $o ... t = $t\n";
+  if($x + $t == 4) { return "X"; }
+  elsif($o+$t == 4) { return "O"; }
+  else { return "nc"; }
+
+}
+
+sub check_cols {
+  my @board = @_;
+  for(my $i = 0 ; $i < 4; $i++) {
+    my $x = 0;
+    my $o = 0;
+    my $t = 0;
+    for(my $j = 0; $j < 4; $j++) {
+      $x++ if($board[$i][$j] eq 'X');
+      $o++ if($board[$i][$j] eq 'O');
+      $t++ if($board[$i][$j] eq 'T');
+    }
+    if($x + $t == 4) { return "X"; }
+    if($o + $t == 4) { return "O"; }
+  }
+  return "nc";
+}
+
+sub check_rows {
+  my @board = @_;
+  for(my $i = 0 ; $i < 4; $i++) {
+    my $x = 0;
+    my $o = 0;
+    my $t = 0;
+    for(my $j = 0; $j < 4; $j++) {
+      $x++ if($board[$j][$i] eq 'X');
+      $o++ if($board[$j][$i] eq 'O');
+      $t++ if($board[$j][$i] eq 'T');
+    }
+    if($x + $t == 4) { return "X"; }
+    if($o + $t == 4) { return "O"; }
+  }
+  return "nc";
+}
+
+sub check_complete {
+  my @board = @_;
+  for(my $i = 0 ; $i < 4; $i++) {
+    for(my $j = 0; $j < 4; $j++) {
+      return "nc" if($board[$j][$i] eq '.');
+    }
+  }
+  return "draw";
+}

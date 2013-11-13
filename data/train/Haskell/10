@@ -1,0 +1,61 @@
+import Data.List
+import Data.Monoid
+
+data GameStatus = XWon | OWon | Draw | Incomplete
+instance Show GameStatus where
+  show XWon = "X won"
+  show OWon = "O won"
+  show Draw = "Draw"
+  show Incomplete = "Game has not completed"
+
+instance Monoid GameStatus where
+  mempty = Draw
+
+  mappend XWon _ = XWon
+  mappend _ XWon = XWon
+  mappend OWon _ = OWon
+  mappend _ OWon = OWon
+  mappend Incomplete _ = Incomplete
+  mappend _ Incomplete = Incomplete
+  mappend _ _ = Draw
+
+fourStatus withT =
+  let row = filter (/= 'T') withT
+  in if all (== 'X') row
+     then XWon
+     else if all (== 'O') row
+          then OWon
+          else if any (== '.') row
+               then Incomplete
+               else Draw
+
+tlbrDiagonal state = map (\i -> state!!i!!i) [0..3]
+trblDiagonal state = map (\(r,c) -> state!!r!!c) $ zip [0..3] (reverse [0..3])
+
+type C = Char
+type Row = [C]
+type GameState = [Row]
+
+gameStatus :: GameState -> GameStatus
+gameStatus state =
+  mconcat (
+       fourStatus (tlbrDiagonal state)
+    :  fourStatus (trblDiagonal state)
+    :  map fourStatus state
+    ++ map fourStatus (transpose state)
+  )
+
+formatCase :: Show a => Int -> a -> String
+formatCase i a = "Case #" ++ show i ++ ": " ++ show a
+
+main = interact pureMain
+pureMain input =
+  let (nStr:wordStrs) = words input
+      n = read nStr
+      cases = by4 $ map (head . by4) $ take (4*n) $ wordStrs
+  in intercalate "\n" $
+     map (uncurry formatCase) $ zip [1..] $
+     map gameStatus cases
+
+by4 (a:b:c:d:xs) = [a,b,c,d] : by4 xs
+by4 [] = []

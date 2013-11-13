@@ -1,0 +1,116 @@
+#!/usr/bin/env perl
+
+use utf8;
+use warnings;
+use strict;
+
+my $nbRow = 4;
+my $nbColumn = 4;
+my @game;
+
+open FILE, "<inputA.in" or die "Couldn't open inputA.in : $!\n";
+
+chomp(my $nbCase = <FILE>);
+
+sub convert{
+	my $char = shift;
+	if($char eq "X"){
+		return 1;
+	}
+	if($char eq "O"){
+		return 2;
+	}
+	if($char eq "T"){
+		return 10;
+	}
+
+	return -1;
+}
+
+sub evaluate{
+	my @toEval = @_;
+	my $existEmpty = 0;
+
+	foreach(@toEval){
+		if ($_ == 4 || $_ == 13) {
+			return "X won\n";
+		}
+		if ($_ == 8 || $_ == 16) {
+			return "O won\n";
+		}
+		if ($_ == -1){
+			$existEmpty = -1;
+		}
+	}
+	if ($existEmpty == -1) {
+		return "Game has not completed\n";
+	}else{
+		return "Draw\n";
+	}
+}
+
+sub process {
+	my ($case, @gameToProcess) = @_;
+	my @result;
+
+	for (my $i = 0; $i < $nbRow; $i++) {
+		$result[$i] = 0;
+		for (my $j = 0; $j < $nbColumn; $j++) {
+			if ($gameToProcess[$i][$j] eq "."){
+				$result[$i] = -1;
+				last;
+			}else{
+				$result[$i] += convert($gameToProcess[$i][$j]);
+			}
+		}
+	}
+
+	for (my $i = 0; $i < $nbColumn; $i++) {
+		$result[$nbRow + $i] = 0;
+		for (my $j = 0; $j < $nbRow; $j++) {
+			if ($gameToProcess[$j][$i] eq "."){
+				$result[$nbRow + $i] = -1;
+				last;
+			}else{
+				$result[$nbRow + $i] += convert($gameToProcess[$j][$i]);
+			}
+		}
+	}
+
+	$result[$nbRow + $nbColumn] = 0;
+	for (my $i = 0; $i < $nbColumn; $i++) {
+		if ($gameToProcess[$i][$i] eq "."){
+			$result[$nbRow + $nbColumn] = -1;
+			last;
+		}else{
+			$result[$nbRow + $nbColumn] += convert($gameToProcess[$i][$i]);
+		}
+	}
+
+	$result[$nbRow + $nbColumn + 1] = 0;
+	for (my $i = 0; $i < $nbColumn; $i++) {
+		if ($gameToProcess[$i][$nbRow-1-$i] eq "."){
+			$result[$nbRow + $nbColumn + 1] = -1;
+			last;
+		}else{
+			$result[$nbRow + $nbColumn + 1] += convert($gameToProcess[$i][$nbRow-1-$i]);
+		}
+	}
+
+	return "Case #$case: " . evaluate(@result);
+}
+
+open OUTP, ">outputA.ou" or die "Couldn't open outputA.ou : $!\n";
+
+for (my $iter = 1; $iter <= $nbCase; $iter++) {
+	@game = ();
+	for (my $row = 0; $row < $nbRow; $row++) {
+		push @game, [split(//, <FILE>)];
+	}
+	print OUTP process($iter, @game);
+
+	<FILE>;
+}
+
+close FILE;
+close OUTP;

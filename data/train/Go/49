@@ -1,0 +1,89 @@
+package main
+
+import (
+	"fmt"
+)
+
+type Player struct {
+	R []int
+	C []int
+	D []int
+}
+
+func NewPlayer() (p *Player) {
+	p = new(Player)
+	p.R = make([]int, 4)
+	p.C = make([]int, 4)
+	p.D = make([]int, 2)
+	return p
+}
+
+func (p *Player) Add(r, c int) {
+	p.R[r]++
+	p.C[c]++
+	if r == c {
+		p.D[0]++
+	}
+	if r + c == 3 {
+		p.D[1]++
+	}
+}
+
+func (p *Player) IsWon() bool {
+	for _, n := range p.R {
+		if n == 4 {
+			return true
+		}
+	}
+	for _, n := range p.C {
+		if n == 4 {
+			return true
+		}
+	}
+	for _, n := range p.D {
+		if n == 4 {
+			return true
+		}
+	}
+	return false
+}
+
+func main() {
+	var T int
+	fmt.Scan(&T)
+
+	for t := 1; t <= T; t++ {
+		var s string
+		X := NewPlayer()
+		O := NewPlayer()
+		notOver := false
+
+		for row := 0; row < 4; row++ {
+			fmt.Scan(&s)
+			for col, c := range s {
+				switch c {
+				case 'X':
+					X.Add(row, col)
+				case 'O':
+					O.Add(row, col)
+				case 'T':
+					X.Add(row, col)
+					O.Add(row, col)
+				case '.':
+					notOver = true
+				}
+			}
+		}
+
+		if X.IsWon() {
+			fmt.Printf("Case #%d: X won\n", t)
+		} else if O.IsWon() {
+			fmt.Printf("Case #%d: O won\n", t)
+		} else if notOver {
+			fmt.Printf("Case #%d: Game has not completed\n", t)
+		} else {
+			fmt.Printf("Case #%d: Draw\n", t)
+		}
+	}
+}
+

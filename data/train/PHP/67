@@ -1,0 +1,157 @@
+<?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+header('Content-type: text/plain');
+$start = time(true);
+
+/* Load data */
+$lines = file('A-large.in');
+$pos = 0;
+$cases = array();
+$numcases = trim($lines[$pos++]);
+for ($casenum = 1; $casenum <= $numcases; $casenum++) {
+    $cases[$casenum] = array(
+        'row1' => str_split(trim($lines[$pos++])),
+        'row2' => str_split(trim($lines[$pos++])),
+        'row3' => str_split(trim($lines[$pos++])),
+		'row4' => str_split(trim($lines[$pos++])),
+		'empty' => trim($lines[$pos++])
+        );
+}
+
+/* Do the work */
+$output = '';
+
+foreach ($cases as $casenum => $case) {
+
+	$draw = 0;
+	$semaforo = 0;
+	unset ($col1);
+	unset ($col2);
+	unset ($col3);
+	unset ($col4);
+	unset ($diagonal1);
+	unset ($diagonal2);
+    
+	for ($i = 1; $i < 5; $i++) {
+		$col1[$i] = $cases[$casenum]["row$i"][0];
+		$col2[$i] = $cases[$casenum]["row$i"][1];
+		$col3[$i] = $cases[$casenum]["row$i"][2];
+		$col4[$i] = $cases[$casenum]["row$i"][3];
+		
+		$diagonal1[$i] = $cases[$casenum]["row$i"][$i-1];
+		$diagonal2[$i] = $cases[$casenum]["row$i"][4-$i];
+		
+		$aux = ($cases[$casenum]["row$i"]);
+		$result = array_count_values($aux);
+		
+		if($result["."]>0)
+			$draw = 1;
+		
+		if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+			$semaforo = 1;
+			$output .= sprintf("Case #%d: X won\n", $casenum);
+			continue;
+		}
+		if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+			$semaforo = 1;
+			$output .= sprintf("Case #%d: O won\n", $casenum);
+			continue;
+		}
+		if( $i == 4 AND $semaforo == 0){
+		
+			$aux = ($col1);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			$aux = ($col2);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			$aux = ($col3);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			$aux = ($col4);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			$aux = ($diagonal1);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			$aux = ($diagonal2);
+			$result = array_count_values($aux);
+			
+			if(($result["X"]==3 AND $result["T"]==1) OR ($result["X"]==4) ){
+				$output .= sprintf("Case #%d: X won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			if(($result["O"]==3 AND $result["T"]==1) OR ($result["O"]==4) ){
+				$output .= sprintf("Case #%d: O won\n", $casenum);
+				$semaforo = 1;continue;
+			}
+			
+			if($draw  AND $semaforo == 0){
+				$output .= sprintf("Case #%d: Game has not completed\n", $casenum);
+			}else{
+				$output .= sprintf("Case #%d: Draw\n", $casenum);
+			}
+		}
+		
+    }
+	
+	
+	echo "############################";
+	echo "TIME: ".(time(true) - $start) * 1000 . " ms";
+	echo "############################";
+	
+  
+}
+
+file_put_contents('output.txt', $output);
+echo $output;
+
+
+echo sprintf("\n%dms", (time(true) - $start));

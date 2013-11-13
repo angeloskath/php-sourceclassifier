@@ -1,0 +1,106 @@
+var fs = require('fs');
+var filename = process.argv[2];
+
+fs.readFile(filename, 'utf8', function (err,data) {
+  var outputBuffer = '';
+  if (err) {
+    return console.log(err);
+  }
+  var str = '';
+  n = 0;
+  while(data[n] != "\n"){
+    str += data[n];
+    n++;
+  }
+  var T = parseInt(str);
+  var pointer = 0;
+  pointer += n+1;
+  for(var i = n+1; i <T+n+1; i++){
+    var testCase = [
+      [],[],[],[],
+    ];
+    for(var j = 0; j<4; j++){
+      for(var l = 0; l<4; l++){
+        testCase[j][l] = data[pointer++];
+        if (l == 3)pointer++;
+      }
+    }
+    outputBuffer += checkSolution(testCase, i-n);
+    pointer++;
+  }
+  //write output:
+  //console.log(outputBuffer);
+  fs.writeFile('output.txt', outputBuffer)
+});
+
+var checkSolution = function(c, caseNumber){
+  //checkby row
+  var winBit = 0;
+  
+  for (var i = 0; i < 4; i++) {
+    //checkby row
+    winBit = winBit | whoWon(c[i]);
+    //check by columns
+    winBit = winBit | whoWon([c[0][i],c[1][i],c[2][i],c[3][i]]);
+  };
+
+  //check by diagonal
+  winBit = winBit | whoWon([c[0][0],c[1][1],c[2][2],c[3][3]]);
+
+  //check by other diagonal
+  winBit = winBit | whoWon([c[0][3],c[1][2],c[2][1],c[3][0]]);
+
+  //solution
+  var answer = "Case #"+caseNumber+": ";
+  switch(winBit)
+  {
+  case 8: case 9: case 10:
+    answer += "X won"+"\n";
+    break;
+  case 4: case 5: case 6:
+    answer += "O won"+"\n";
+    break;
+  case 0: case 2: case 3: case 7: case 12: case 13: case 15:
+    answer += "Draw"+"\n";
+    break;
+  case 1:
+    answer += "Game has not completed"+"\n";
+    break;
+  default:
+    //How Did i get here!?
+    console.log('what the duck!');
+    console.log('winbit: '+winBit);
+  }
+  return answer;
+}
+
+var whoWon = function(line){
+  var containsX = contains(line, 'X');
+  var containsO = contains(line, 'O');
+  var containsT = contains(line, 'T');
+  //nobody can win this one/
+  if(contains(line, '.')){
+    return 0x1;
+  }
+  //draw
+  if(containsT && !containsO && !containsX){
+    return 0x2;
+  }
+  //X won here
+  if((containsX || containsT) && !containsO){
+    return 0x8;
+  }
+  //O won here
+  if((containsO || containsT) && !containsX){
+    return 0x4;
+  }
+  //X, O and T present
+  return 0;
+}
+
+var contains = function(line, ch) {
+  for (var i = 0; i < line.length; i++) {
+    if (line[i] === ch)return true;
+  }
+  return false;
+}

@@ -1,0 +1,153 @@
+
+package main
+
+import "os"
+import "bufio"
+import "strconv"
+import "fmt"
+
+func (r *bufio.Reader) ReadWholeLine() (buffer []byte, err error) {
+	// Read line
+	buffer, err = r.ReadBytes('\n')
+
+	// If empty, return as is
+	if len(buffer) == 0 {return}
+
+	// Remove delimiter
+	if buffer[len(buffer) - 1] == '\n' {
+		buffer = buffer[:len(buffer) - 1]
+	}
+
+	return
+}
+
+func bopen(path string) *bufio.Reader {
+	file, err := os.Open(path)
+	if err != nil {panic("Could not open file: " + path)}
+	return bufio.NewReader(file)
+}
+
+func extractNumber(r *bufio.Reader) int {
+	line, err := r.ReadWholeLine()
+	if err != nil {panic("Could not extract number")}
+
+	num, err2 := strconv.Atoi(string(line))
+	if err2 != nil {panic(fmt.Sprintf("Bad number format: '%s'", line))}
+
+	return num
+}
+
+type Board [4][4]byte
+
+func (f *bufio.Reader) ReadBoard() *Board {
+	result := &Board{}
+
+	for i := range result {
+		// Get line
+		line, _ := f.ReadWholeLine()
+
+		// Copy characters
+		for j := range result[i] {
+			result[i][j] = line[j]
+		}
+	}
+
+	// Read empty line
+	_,_ = f.ReadWholeLine()
+
+	return result
+}
+
+func (b *Board) isDone() bool {
+	for i := range b {
+		for j := range b[i] {
+			if b[i][j] == '.' {return false}
+		}
+	}
+
+	return true
+}
+
+func (b *Board) wins(c byte) bool {
+	// Go over rows
+	for row := range b {
+		won := true
+		for col := range b[row] {
+			if b[row][col] != c && b[row][col] != 'T' {
+				won = false
+				break
+			}
+		}
+
+		// Check if won
+		if won {return true}
+	}
+
+	// Go over columns
+	for col := range b[0] {
+		won := true
+		for row := range b {
+			if b[row][col] != c && b[row][col] != 'T' {
+				won = false
+				break
+			}
+		}
+
+		// Check if won
+		if won {return true}
+	}
+
+	// Go over diagonals
+	won1 := true
+	won2 := true
+	for row := range b {
+		if b[row][row] != c && b[row][row] != 'T' {
+			won1 = false
+		}
+		if b[3-row][row] != c && b[3-row][row] != 'T' {
+			won2 = false
+		}
+	}
+
+	if won1 || won2 {return true}
+
+	return false
+}
+
+func (b *Board) status() string {
+	// Check if there is a winner
+	if b.wins('X') {
+		return "X won"
+	}
+
+	if b.wins('O') {
+		return "O won"
+	}
+
+	// Check if done
+	if !b.isDone() {
+		return "Game has not completed"
+	}
+
+	return "Draw"
+}
+
+func main() {
+	// Reader for stdin
+	f := bufio.NewReader(os.Stdin)
+
+	// Extract first number
+	num := extractNumber(f)
+
+	// Go over instances
+	for i := 0; i < num; i++ {
+		b := f.ReadBoard()
+		fmt.Printf("Case #%d: %s\n", i+1, b.status())
+	}
+}
+
+
+
+
+
+

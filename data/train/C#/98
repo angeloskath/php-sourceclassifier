@@ -1,0 +1,98 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace GCJ
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string inFile = "data/a-large.in";
+            string outFile = "data/a-large.out";
+
+            StreamReader reader = new StreamReader(inFile);
+            StreamWriter writer = new StreamWriter(outFile);
+
+            int cc = int.Parse(reader.ReadLine());
+            for (int cid = 1; cid <= cc; cid++)
+            {
+                List<string> board = new List<string>();
+                for (int r = 0; r < 4; r++)
+                {
+                    board.Add(reader.ReadLine());
+                }
+                reader.ReadLine();
+                writer.WriteLine("Case #{0}: {1}", cid, GetAns(board));
+            }
+            reader.Close();
+            writer.Close();
+        }
+
+        static string GetAns(List<string> board)
+        {
+            bool emp = false;
+            int Xd = 0, Od = 0, Td = 0;
+            int Xd2 = 0, Od2 = 0, Td2 = 0;
+
+            for (int i = 0; i < 4; i++)
+            {
+                int Xr = 0, Or = 0, Tr = 0;
+                int Xc = 0, Oc = 0, Tc = 0;
+
+                for (int j = 0; j < 4; j++)
+                {
+                    // row
+                    switch(board[i][j])
+                    {
+                        case 'X': Xr++; break;
+                        case 'O': Or++; break;
+                        case 'T': Tr++; break;
+                        default: emp = true; break;
+                    }
+
+                    // column
+                    switch (board[j][i])
+                    {
+                        case 'X': Xc++; break;
+                        case 'O': Oc++; break;
+                        case 'T': Tc++; break;
+                    }
+                }
+
+                if (Xr + Tr == 4 || Xc + Tc == 4) return "X won";
+                else if (Or + Tr == 4 || Oc + Tc == 4) return "O won";
+
+                // dia
+                switch (board[i][i])
+                {
+                    case 'X': Xd++; break;
+                    case 'O': Od++; break;
+                    case 'T': Td++; break;
+                }
+
+                // dia2
+                switch (board[i][3 - i])
+                {
+                    case 'X': Xd2++; break;
+                    case 'O': Od2++; break;
+                    case 'T': Td2++; break;
+                }
+            }
+
+            if (Xd + Td == 4 || Xd2 + Td2 == 4) return "X won";
+            else if (Od + Td == 4 || Od2 + Td2 == 4) return "O won";
+
+            if (emp)
+            {
+                return "Game has not completed";
+            }
+            else
+            {
+                return "Draw";
+            }
+        }
+    }
+}

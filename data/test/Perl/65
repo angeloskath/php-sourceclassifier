@@ -1,0 +1,82 @@
+use strict;
+use warnings;
+use Data::Dumper;
+my $T = <>;
+for my $x (1..$T) {
+  my @board = ();
+  for my $i (1..4) {
+    my @line = split //, <>;
+    push @board, \@line;
+  }
+  my $line = <>;
+  
+  my @h = qw/T T T T T T T T T T/;
+  for my $i (0..3) {
+    for my $j (0..3) {
+      $h[$i  ] = check_h($h[$i  ], $board[$i]->[$j]);
+      $h[$i+4] = check_h($h[$i+4], $board[$j]->[$i]);
+    }
+    $h[8] = check_h($h[8], $board[$i]->[$i]);
+    $h[9] = check_h($h[9], $board[$i]->[3-$i]);
+  }
+  
+  my $f = 'T';
+  for my $i (0..9) {
+    $f = check_f($f, $h[$i]);
+  }
+  
+  my $y;
+  if($f eq '.') {
+    $y = "Game has not completed"
+  }
+  elsif($f eq '-') {
+    $y = "Draw"
+  }
+  else {
+    $y = "$f won"
+  }
+  
+  print "Case #$x: $y\n";
+}
+
+sub check_h {
+  my $i = shift;
+  my $c = shift;
+  my $f;
+  
+  if($i eq 'T' || $i eq $c) {
+    $f = $c;
+  }
+  elsif($c eq 'T') {
+    $f = $i;
+  }
+  elsif($i eq '.' || $c eq '.') {
+    $f = '.';
+  }
+  else {
+    $f = '-';
+  }
+  
+  return $f;
+}
+
+sub check_f {
+  my $i = shift;
+  my $c = shift;
+  my $f;
+  
+  if($i eq 'O' || $c eq 'O') {
+    $f = 'O';
+  }
+  elsif($i eq 'X' || $c eq 'X') {
+    $f = 'X';
+  }
+  elsif($i eq '.' || $c eq '.') {
+    $f = '.';
+  }
+  else {
+    $f = '-';
+  }
+  
+  return $f;
+}

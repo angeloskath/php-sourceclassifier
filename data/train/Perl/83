@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+# Paul Anderson
+# TicTacTomek
+# 4/12/2013
+
+#use strict;
+
+open(IN,'A-small-attempt0.in');
+open(OUT,'>output.txt');
+my $lineNum 	= 1;
+my $caseNum 	= '';
+my @gameBoard;
+my @players		= ('X','O');
+
+my $totCases	= 0;
+my $gameLines;
+my $rowCount	= 0;
+my $output		= '';
+my $caseCount 	= 1;
+while(<IN>)
+{
+
+	my $line = $_;
+	chomp($line);
+	
+	if($lineNum == 1)
+	{
+		$totCases = $line;
+	}
+	elsif($line =~ /^\s*$/g)
+	{
+		$rowCount = 0;
+	}
+	else
+	{
+		#print "$line\n";
+		
+		
+		my @tmpRow = split(//,$line);
+		foreach my $char (@tmpRow)
+		{
+			if($char !~ /^\s*$/)
+			{
+				
+				push(@gameBoard, $char);
+			}
+		}
+		
+		$rowCount++;
+		
+		#print "row Count is $rowCount\n";
+		
+		
+		if($rowCount == 4)
+		{
+			#@gameBoard = split(//,$gameLines);
+		
+			
+			#$gameLines = '';
+			$output = checkWin();
+			
+			print OUT "Case #$caseCount: $output\n";
+			@gameBoard = ();
+			$rowCount = 0;
+			$caseCount ++;
+		}
+	}
+	
+	$lineNum++;
+}
+close(OUT);
+close(IN);
+
+sub checkWin()
+{
+	my @tmpGB 		= @gameBoard;
+	
+	my $xWin = 0;
+	my $oWin = 0;
+	my $tmpWinFlag = 0;
+	#print "$tmpGB[0] $tmpGB[1] $tmpGB[2] $tmpGB[3]\n";
+	foreach my $letter ( @players )
+	{
+		
+		#horizontal wins
+		if(($tmpGB[0] =~ /T|$letter/i) and ($tmpGB[1] =~ /T|$letter/i) and ($tmpGB[2] =~ /T|$letter/i) and ($tmpGB[3] =~ /T|$letter/i))
+		{
+			
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[4] =~ /T|$letter/i) and ($tmpGB[5] =~ /T|$letter/i) and ($tmpGB[6] =~ /T|$letter/i) and ($tmpGB[7] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[8] =~ /T|$letter/i) and ($tmpGB[9] =~ /T|$letter/i) and ($tmpGB[10] =~ /T|$letter/i) and ($tmpGB[11] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[12] =~ /T|$letter/i) and ($tmpGB[13] =~ /T|$letter/i) and ($tmpGB[14] =~ /T|$letter/i) and ($tmpGB[15] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		
+		#veritcal wins
+		if(($tmpGB[0] =~ /T|$letter/i) and ($tmpGB[4] =~ /T|$letter/i) and ($tmpGB[8] =~ /T|$letter/i) and ($tmpGB[12] =~ /T|$letter/i))
+		{
+			
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[1] =~ /T|$letter/i) and ($tmpGB[5] =~ /T|$letter/i) and ($tmpGB[9] =~ /T|$letter/i) and ($tmpGB[13] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[2] =~ /T|$letter/i) and ($tmpGB[6] =~ /T|$letter/i) and ($tmpGB[10] =~ /T|$letter/i) and ($tmpGB[14] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[3] =~ /T|$letter/i) and ($tmpGB[7] =~ /T|$letter/i) and ($tmpGB[11] =~ /T|$letter/i) and ($tmpGB[15] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		
+		#diagonal wins
+		if(($tmpGB[0] =~ /T|$letter/i) and ($tmpGB[5] =~ /T|$letter/i) and ($tmpGB[10] =~ /T|$letter/i) and ($tmpGB[15] =~ /T|$letter/i))
+		{
+			
+			$tmpWinFlag 	= 1;
+		}
+		if(($tmpGB[3] =~ /T|$letter/i) and ($tmpGB[6] =~ /T|$letter/i) and ($tmpGB[9] =~ /T|$letter/i) and ($tmpGB[12] =~ /T|$letter/i))
+		{
+			$tmpWinFlag 	= 1;
+		}
+		
+		
+		if($tmpWinFlag == 1)
+		{
+				#print "win flag triggered by $letter\n";
+				if($letter eq 'X')
+				{
+					#print "x wins\n";
+					$xWin = 1;
+				}
+				elsif($letter eq 'O')
+				{
+					#print "o wins\n";
+					$oWin = 1;
+				}
+		}
+		$tmpWinFlag = 0;
+	}
+	
+	if(($xWin == 1) and ($oWin == 0))
+	{
+		return "X won";
+	}
+	elsif($oWin == 1 and $xWin == 0)
+	{
+		return "O won";
+	}
+	elsif($oWin == 1 and $xWin == 1)
+	{
+		print "somehow draw\n";
+		return "Draw";
+	}
+	elsif($xWin == 0 and $oWin == 0)
+	{
+		for my $letter (@tmpGB)
+		{
+			if($letter=~ /\./)
+			{
+				return "Game has not completed";
+			}
+		}
+		return "Draw";
+	}
+	
+}

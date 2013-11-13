@@ -1,0 +1,76 @@
+package uk.me.jamespic.codejam
+
+import scala.io.Source
+import java.io.FileWriter
+
+object TicTacToe {
+  type Row = IndexedSeq[Char]
+  type Grid = IndexedSeq[Row]
+
+  def wins(player: Char)(row: Row) = {
+      row.forall(c => (c == player) || (c == 'T'))
+  }
+
+  def handle(infile: String, outfile: String) = {
+    val inf = Source.fromFile(infile, "UTF-8").getLines
+    val outf = new FileWriter(outfile)
+      val tests = inf.next().toInt
+
+      for (i <- 1 to tests) {
+        val grid = for (_ <- 0 until 4) yield {
+          inf.next().toIndexedSeq
+        }
+        if (i != tests) inf.next() // blank line
+
+        val game = new TicTacToe(grid)
+
+        val result = s"Case #$i: ${game.winner}\n"
+
+        println(result)
+        outf.write(result)
+      }
+    try {
+
+    } finally {
+      outf.close()
+    }
+  }
+}
+
+class TicTacToe(grid: TicTacToe.Grid) {
+  import TicTacToe._
+
+  lazy val transposed = {
+    for (row <- 0 until 4) yield {
+      for (col <- 0 until 4) yield {
+        grid(col)(row)
+      }
+    }
+  }
+
+  lazy val diag1 = IndexedSeq(grid(0)(0), grid(1)(1), grid(2)(2), grid(3)(3))
+  lazy val diag2 = IndexedSeq(grid(0)(3), grid(1)(2), grid(2)(1), grid(3)(0))
+
+  def win(player: Char) = {
+    grid.exists (wins(player)) ||
+      transposed.exists(wins(player)) ||
+      wins(player)(diag1) ||
+      wins(player)(diag2)
+  }
+
+  def full = {
+    !grid.exists(_ contains '.')
+  }
+
+  def winner = {
+    if (win('X')) {
+      "X won"
+    } else if (win('O')) {
+      "O won"
+    } else if (full) {
+      "Draw"
+    } else {
+      "Game has not completed"
+    }
+  }
+}

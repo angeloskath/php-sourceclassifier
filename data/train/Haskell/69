@@ -1,0 +1,133 @@
+-- Author: Caleb Thorsteinson
+-- Title: Tik-Tak-Toe-Tomek
+-- Date: 2013-04-12
+-- Description: Solves problem A for the google code jam qualification
+-- round 2013.
+
+import qualified Data.Vector as V
+import Data.List (transpose)
+import Text.ParserCombinators.Parsec
+import System.Environment
+import Control.Monad
+
+data GameState = Incomplete | Draw | Won
+data Tile = X | O | T deriving (Eq)
+type Board = V.Vector (V.Vector (Maybe Tile))
+
+-- Retrieves the tile at a given position on the board.  Numbering
+-- begins at zero of course.
+(!) :: Board -> (Int, Int) -> Maybe Tile
+v ! (x, y) = (V.!) (v V.! x) y
+
+
+-- Board functions:  These look at the board and retrieve the views
+-- asked for, so we can evaluate whether any of those positions are
+-- considered to be winning
+
+diagnols :: Board -> [[Maybe Tile]]
+diagnols b = [rightDiag 0 b, leftDiag 0 b]
+
+leftDiag :: Int  -> Board -> [Maybe Tile]
+leftDiag n b | n >= V.length b = []
+             | otherwise = b ! (n, n) : leftDiag (n + 1) b
+
+rightDiag :: Int -> Board -> [Maybe Tile]
+rightDiag n b | n >= len = []
+              | otherwise = b ! (len - n - 1, n) : rightDiag (n + 1) b
+              where len = V.length b
+
+rows :: Board -> [[Maybe Tile]]
+rows b = map (V.toList) (V.toList b)
+
+columns :: Board -> [[Maybe Tile]]
+columns = transpose . rows
+
+-- Given a list of tiles and a player tile, checks whether that sequence
+-- is considered a winning tile sequence.
+winning :: Tile -> [Maybe Tile] -> Bool
+winning T _ = False
+winning player ts = all (\x -> x == Just player || x == Just T) ts
+
+-- Returns whether a player has won.  Note, T can never win, because
+-- it's not a player.
+winner :: Tile -> Board -> Bool
+winner player b = diagnolWin || rowWin || columnWin
+  where diagnolWin = or $ map (winning player) (diagnols b)
+        rowWin     = or $ map (winning player) (rows b)
+        columnWin  = or $ map (winning player) (columns b)
+
+-- Returns whether or not the game was a draw
+draw :: Board -> Bool
+draw b = not (incomplete b) && winner X b && winner O b
+
+-- Returns whether or not the game is finished
+incomplete :: Board -> Bool
+incomplete b = V.or $ V.map (V.any (== Nothing)) b
+
+-- Parsing functions:  Here we use parsec to disect the input file, and
+-- turn it morph it into the data structures we just created so we can
+-- then process it.
+
+readTile :: Char -> Maybe Tile
+readTile 'T' = Just T
+readTile 'X' = Just X
+readTile 'O' = Just O
+readTile '.' = Nothing
+
+inputFile = do
+    many1 digit
+    newline
+    board `endBy1` newline
+board = do
+    tss <- many1 tileLine
+    return $ V.fromList tss
+tileLine = do
+    ts <- many1 tile
+    newline
+    return $ V.fromList ts
+tile = do
+    t <- oneOf "TXO."
+    return $ readTile t
+
+parseFile :: String -> Either ParseError [Board]
+parseFile input = parse inputFile "(parseFile function)" input
+
+testBoards =  "...O\n"
+           ++ "...O\n"
+           ++ "...O\n"
+           ++ "...O\n"
+           ++ "\n"
+           ++ "XOOO\n"
+           ++ "OXXO\n"
+           ++ "OOXO\n"
+           ++ "XOXT\n"
+           ++ "\n"
+
+main = do
+    args <- getArgs
+    case args of
+        [] -> putStrLn "Argument Error: File input name required"
+        _ -> do
+            inputFile <- readFile $ head args
+            let parsedBoards = parseFile inputFile
+            case parsedBoards of
+                Left e       -> do putStrLn "Error parsing input:"
+                                   print e
+                Right boards -> do zipWithM_ printCase boards [1..] 
+
+tests :: Board -> IO ()
+tests b = do
+    putStrLn $ "O is a winner: " ++ show (winner O b)
+    putStrLn $ "X is a winner: " ++ show (winner X b)
+    putStrLn $ "There is a draw: " ++ show (draw b)
+    putStrLn $ "Game incomplete: " ++ show (incomplete b)
+
+analyzeBoard :: Board -> String
+analyzeBoard b
+    | winner X b   = "X won"
+    | winner O b   = "O won"
+    | incomplete b = "Game has not completed"
+    | otherwise    = "Draw"
+
+printCase :: Board -> Int -> IO ()
+printCase b n = putStrLn $ "Case #" ++ show n ++ ": " ++ analyzeBoard b

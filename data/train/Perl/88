@@ -1,0 +1,76 @@
+#! /usr/bin/perl -w
+use strict;
+open(FILE,$ARGV[0])||die $!;
+my $T=<FILE>;
+for(my $i=1; $i<=$T; $i++){
+	my $l1=<FILE>;
+	my $l2=<FILE>;
+	my $l3=<FILE>;
+	my $l4=<FILE>;
+	my $empty=<FILE>;
+	my $result=&getStatus($l1,$l2,$l3,$l4);
+	print "Case #$i: $result\n";
+}
+
+sub getStatus{
+	my @lines=@_;
+	my @dx;
+	my @do;
+	my @de;
+	foreach(@lines){
+		s/\n//;
+		my @c=split(//,$_);
+		foreach(@c){
+			if(m/X|T/){
+				push @dx,1;
+			}else{
+				push @dx,0;
+			}
+			if(m/O|T/){
+				push @do,1;
+			}else{
+				push @do,0;
+			}
+			if(m/\./){
+				push @de,1;
+			}else{
+				push @de,0;
+			}
+		}
+	}
+	my @xwin;
+	my @owin;
+	for(my $i=0; $i<=3; $i++){
+		push @xwin,$dx[$i*4]+$dx[$i*4+1]+$dx[$i*4+2]+$dx[$i*4+3];
+		push @owin,$do[$i*4]+$do[$i*4+1]+$do[$i*4+2]+$do[$i*4+3];
+		push @xwin,$dx[$i]+$dx[$i+4]+$dx[$i+8]+$dx[$i+12];
+		push @owin,$do[$i]+$do[$i+4]+$do[$i+8]+$do[$i+12];
+	}
+	my $xdiag1=$dx[0]+$dx[5]+$dx[10]+$dx[15];
+	my $xdiag2=$dx[3]+$dx[6]+$dx[9]+$dx[12];
+	my $odiag1=$do[0]+$do[5]+$do[10]+$do[15];
+	my $odiag2=$do[3]+$do[6]+$do[9]+$do[12];
+	push @xwin,$xdiag1;
+	push @xwin,$xdiag2;
+	push @owin,$odiag1;
+	push @owin,$odiag2;
+	foreach(@xwin){
+		if($_==4){
+			return "X won";
+		}
+	}
+	foreach(@owin){
+		if($_==4){
+			return "O won";
+		}
+	}
+	my $emptyMoves=0;
+	foreach(@de){
+		$emptyMoves+=$_;
+	}	
+	if($emptyMoves==0){
+		return "Draw";
+	}else{
+		return "Game has not completed";
+	}
+}

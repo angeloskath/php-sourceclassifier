@@ -1,0 +1,41 @@
+Array.prototype.remove_empty = function() {
+	for (var i = 0; i < this.length; i++)
+		if (this[i] == '')
+			this.splice(i--, 1);
+	return this;
+};
+var cin = require('fs').readFileSync('/dev/stdin').toString().split('\n').remove_empty();
+var rets = ['X won', 'O won', 'Game has not completed', 'Draw'];
+var winX = ['XXXX', 'TXXX'], winO = ['OOOO', 'OOOT'];
+var T = +cin.shift();
+for (var test = 1; test <= T; test++) {
+	var board = [cin.shift().split(''), cin.shift().split(''), cin.shift().split(''), cin.shift().split('')];
+	var ret = '', containsEmpty = false;
+	var diag1 = [], diag2 = [];
+	for (var i = 0; i < 4; i++) {
+		diag1.push(board[i][i]);
+		diag2.push(board[i][3 - i]);
+		var arr1 = [], arr2 = [];
+		for (var j = 0; j < 4; j++) {
+			arr1.push(board[i][j]);
+			arr2.push(board[j][i]);
+			containsEmpty |= (board[i][j] == '.');
+		}
+		ret = ret || checkIt(arr1);
+		ret = ret || checkIt(arr2);
+	}
+	ret = ret || checkIt(diag1);
+	ret = ret || checkIt(diag2);
+	ret = containsEmpty ? (ret || rets[2]) : (ret || rets[3]);
+	console.log('Case #' + test+ ': ' + ret);
+}
+
+function checkIt(arr) {
+	var joined = arr.sort().join('');
+	var ret = '';
+	if (winX.indexOf(joined) + 1)
+			ret = ret || rets[0];
+	if (winO.indexOf(joined) + 1)
+			ret = ret || rets[1];
+	return ret;
+}

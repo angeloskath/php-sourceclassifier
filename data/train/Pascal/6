@@ -1,0 +1,74 @@
+program t1(input,output);
+type
+    sq=array[1..4,1..4]of char;
+var
+   i,j,k,t:longint;
+   c:sq;
+function try(cc:sq;ff:char):longint;
+         var
+            i,j,ans,tot:longint;
+         begin
+              ans:=0;
+              tot:=0;
+              for i:=1 to 4 do
+                  for j:=1 to 4 do
+                  begin
+                      if cc[i,j]='T'
+                         then cc[i,j]:=ff;
+                      if cc[i,j]='.'
+                         then inc(tot);
+                  end;
+              for i:=1 to 4 do
+              begin
+                   if(cc[i,1]=ff)and(cc[i,2]=ff)and(cc[i,3]=ff)and(cc[i,4]=ff)
+                      then ans:=1;
+                   if(cc[1,i]=ff)and(cc[2,i]=ff)and(cc[3,i]=ff)and(cc[4,i]=ff)
+                      then ans:=1;
+              end;
+              if(cc[1,1]=ff)and(cc[2,2]=ff)and(cc[3,3]=ff)and(cc[4,4]=ff)
+                      then ans:=1;
+              if(cc[1,4]=ff)and(cc[2,3]=ff)and(cc[3,2]=ff)and(cc[4,1]=ff)
+                      then ans:=1;
+              try:=ans;
+              if (tot=0)and(ans=0)
+                 then try:=2;
+         end;
+
+begin
+
+     assign(input,'1.txt');
+     reset(input);
+     readln(input,t);
+     assign(output,'1.out');
+     rewrite(output);
+     for i:=1 to t do
+     begin
+          write('Case #',i,': ');
+          for j:=1 to 4 do
+          begin
+               for k:=1 to 4 do
+               begin
+                    read(input,c[j,k]);
+               end;
+               readln(input);
+          end;
+          readln(input);
+          if try(c,'X')=1
+             then begin
+                       writeln('X won');
+                       continue;
+                  end;
+          if try(c,'O')=1
+             then begin
+                       writeln('O won');
+                       continue;
+                  end;
+          if try(c,'O')=2
+             then begin
+                       writeln('Draw');
+                       continue;
+                  end;
+          writeln('Game has not completed');
+     end;
+     close(output);
+end.

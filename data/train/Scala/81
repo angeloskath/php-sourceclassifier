@@ -1,0 +1,42 @@
+import java.io.{FileWriter, FileReader, PrintWriter}
+import java.util.Scanner
+
+class SolverQA(in: Scanner, out: PrintWriter) {
+  def solve(): String = {
+    in.nextLine
+    val board = 0.to(3).map(_ => in.nextLine())
+    val columns = 0.to(3).toList.map{ i =>
+      board.map(_.charAt(i)).mkString
+    }
+    val diagonal1 = 0.to(3).toList.map{ i => board(i).charAt(i) }.mkString
+    val diagonal2 = 0.to(3).toList.map{ i => board(i).charAt(3 - i) }.mkString
+    val winner = (List(diagonal1, diagonal2) ++ board ++ columns).flatMap(getWinner)
+    winner.headOption.getOrElse{
+      if (board.exists(_.contains("."))) "Game has not completed" else "Draw"
+    }
+  }
+
+  def getWinner(column: String) = {
+    if (column.replace("T", "X") == "XXXX")
+      Some("X won")
+    else if (column.replace("T", "O") == "OOOO")
+      Some("O won")
+    else
+      None
+  }
+
+  def solveAll() {
+    for (i <- 1.to(in.nextInt)) {
+      val solution = "Case #" + i + ": " + solve()
+      println(solution)
+      out.println(solution)
+    }
+    out.flush()
+  }
+}
+
+object SolverQA {
+  def main(args: Array[String]) {
+    new SolverQA(new Scanner(System.in), new PrintWriter(System.out))
+  }
+}

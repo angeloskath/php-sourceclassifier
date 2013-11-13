@@ -1,0 +1,139 @@
+{$R-,S-,Q-,I-,O+}
+{$M 32000000}
+
+{$APPTYPE CONSOLE}
+
+uses Math;
+const
+inf = round(1e9);
+maxn = round(1e5) + 200;
+md = round(1e9) + 7;
+var
+Test,it : longint;
+
+i,j : longint;
+g : array [1..4,1..4] of char;
+
+procedure Answer(id : longint);
+var
+phrase : string;
+begin
+ phrase:='';
+ case id of
+  0 : phrase:='X won';
+  1 : phrase:='O won';
+  2 : phrase:='Draw';
+  3 : phrase:='Game has not completed';
+ end;
+
+ writeln('Case #',it,': ',phrase);
+end;
+
+procedure check();
+var
+i,j,cnt : longint;
+begin
+  for i:=1 to 4 do
+  begin
+   cnt:=0;
+   for j:=1 to 4 do
+   if (g[i][j] = 'X') or (g[i][j] = 'T') then inc(cnt);
+   if cnt = 4 then
+   begin
+    Answer(0);
+    exit;
+   end;
+
+   cnt:=0;
+   for j:=1 to 4 do
+   if (g[i][j] = 'O') or (g[i][j] = 'T') then inc(cnt);
+   if cnt = 4 then
+   begin
+    Answer(1);
+    exit;
+   end;
+  end;
+
+  for j:=1 to 4 do
+  begin
+   cnt:=0;
+   for i:=1 to 4 do
+   if (g[i][j] = 'X') or (g[i][j] = 'T') then inc(cnt);
+   if cnt = 4 then
+   begin
+    Answer(0);
+    exit;
+   end;
+
+   cnt:=0;
+   for i:=1 to 4 do
+   if (g[i][j] = 'O') or (g[i][j] = 'T') then inc(cnt);
+   if cnt = 4 then
+   begin
+    Answer(1);
+    exit;
+   end;
+  end;
+
+  cnt:=0;
+  for i:=1 to 4 do
+  if (g[i][i] = 'X') or (g[i][i] = 'T') then inc(cnt);
+  if cnt = 4 then
+  begin
+   Answer(0);
+   exit;
+  end;
+
+  cnt:=0;
+  for i:=1 to 4 do
+  if (g[i][i] = 'O') or (g[i][i] = 'T') then inc(cnt);
+  if cnt = 4 then
+  begin
+   Answer(1);
+   exit;
+  end;
+
+  cnt:=0;
+  for i:=1 to 4 do
+  if (g[i][4 - i + 1] = 'X') or (g[i][4 - i + 1] = 'T') then inc(cnt);
+  if cnt = 4 then
+  begin
+   Answer(0);
+   exit;
+  end;
+
+  cnt:=0;
+  for i:=1 to 4 do
+  if (g[i][4 - i + 1] = 'O') or (g[i][4 - i + 1] = 'T') then inc(cnt);
+  if cnt = 4 then
+  begin
+   Answer(1);
+   exit;
+  end;
+
+  cnt:=0;
+  for i:=1 to 4 do
+   for j:=1 to 4 do
+   if g[i][j] = '.' then inc(cnt);
+  if cnt = 0 then Answer(2)
+             else Answer(3);
+end;
+
+begin
+ reset (input,'input.txt');
+ rewrite (output,'output.txt');
+ randomize;
+ readln(test);
+ for it:=1 to Test do
+ begin
+  for i:=1 to 4 do
+  begin
+   for j:=1 to 4 do read(g[i][j]);
+   readln;
+  end;
+  readln;
+
+  check();
+ end;
+end.
+

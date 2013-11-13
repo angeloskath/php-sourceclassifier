@@ -1,0 +1,233 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * Qualification Round
+ * Problem A
+ *
+ * @package Google Code Jam 2013
+ * @author Roland Eckert "romax" <roland.eckert@gmail.com>
+ *
+ */
+
+error_reporting(E_ALL|E_STRICT);
+ini_set('display_errors', true);
+date_default_timezone_set('Europe/Berlin');
+
+class GoogleCodeJam {
+
+	var $time_start = null;
+	var $time_end = null;
+
+	var $ifh = '';
+	var $ofh = '';
+
+	var $debug = false;
+
+	var $case = 0;
+	var $total_cases = 0;
+
+	function __construct($input) {
+
+		$this->time_start = microtime(true);
+
+		if (!file_exists($input)) {
+			$this->e('input file doesn\'t exist');
+		} else {
+			$this->ifh = fopen($input, 'r') or $this->e('can\'t open input file '.$input);
+
+		}
+
+		// output file
+		$output = str_replace('.in', '.out', $input);
+		$this->d('Writing output to file: '.$output);
+		$this->ofh = fopen($output, 'w') or $this->e('can\'t open output file '.$output);
+
+	}
+
+	function init() {
+	}
+
+
+	function process() {
+
+		$line = 0;
+		if ($this->ifh) {
+
+			$c = 0;
+
+			while (($buffer = fgets($this->ifh, 4096)) !== false) {
+
+				$buffer = trim($buffer);
+				if (!$buffer) {
+					continue;
+				}
+
+				$line++;
+				$this->d('Input: '.$buffer);
+				if($line==1) {
+					$total_cases = $buffer;
+					continue;
+				}
+
+				// read five lines in buffer
+				if ($c==0) {
+					$block = array();
+				}
+				$block[] = $buffer;
+				$c++;
+
+				if ($c==4) {
+					$c = 0;
+					$this->parse($block);
+				}
+
+			}
+			if (!feof($this->ifh)) {
+				$this->e('unexpected fgets() fail');
+			}
+			fclose($this->ifh);
+		}
+	}
+
+	/**
+	 * output solution
+	 */
+	function output($o) {
+		$this->m('Case #'.$this->case.': '.$o);
+	}
+
+	function check_line($line) {
+		if (preg_match('/^[XT]{4}$/', $line)) {
+			return 'X won';
+		}
+		if (preg_match('/^[OT]{4}$/', $line)) {
+			return 'O won';
+		}
+		return '';
+	}
+
+	function check_lines($buffer) {
+
+		foreach($buffer as $line) {
+			if ($output = $this->check_line($line)) {
+				return $output;
+			}
+		}
+
+		return '';
+	}
+
+
+	/**
+	 * parse input line
+	 */
+	function parse($buffer) {
+
+		$this->case++;
+
+		// hrizontal check - reformat array
+		$output = $this->check_lines($buffer);
+
+		if ($output) {
+			$this->output($output);
+			return;
+		}
+
+		// reformat array
+		$flip = array('AAAA','AAAA','AAAA','AAAA');
+		$c = 0;
+		foreach($buffer as $line) {
+			$flip[0][$c] = $line[0];
+			$flip[1][$c] = $line[1];
+			$flip[2][$c] = $line[2];
+			$flip[3][$c] = $line[3];
+			$c++;
+		}
+
+		// vertical check
+		$output = $this->check_lines($flip);
+
+		if ($output) {
+			$this->output($output);
+			return;
+		}
+
+		// diagonal check I
+		$d1 = '';
+		for ($i=0; $i<4; $i++) {
+			$d1.= $buffer[$i][$i];
+		}
+
+		if ($output = $this->check_line($d1)) {
+			$this->output($output);
+			return;
+		}
+
+		// diagonal check II
+		$d2= '';
+		for ($i=0; $i<4; $i++) {
+			$d2.= $buffer[3-$i][$i];
+		}
+
+		if ($output = $this->check_line($d2)) {
+			$this->output($output);
+			return;
+		}
+
+		// draw or game unfinished?
+		foreach($buffer as $line) {
+			if (preg_match('/\./', $line)) {
+				$this->output('Game has not completed');
+				return;
+			}
+		}
+
+		$this->output('Draw');
+
+	}
+
+	function m($msg) {
+		// write output to output file
+		fwrite($this->ofh, $msg."\n");
+		echo $msg . "\n";
+	}
+
+	function d($msg) {
+		if ($this->debug) {
+			echo $msg . "\n";
+		}
+	}
+
+	function e($msg) {
+		echo 'Error: '.$msg . "\n";
+		die();
+	}
+
+	function __destruct() {
+
+		$this->time_end = microtime(true);
+		$time = $this->time_end - $this->time_start;
+		$this->d("Finished after $time seconds");
+
+		// close output file
+		if ($this->ofh) {
+			fclose($this->ofh);
+		}
+	}
+
+}
+
+$argv = $_SERVER['argv'];
+$argc = $_SERVER['argc'];
+if( $argc == 1 ) {
+	die("Error: input file not specified\n");
+} else {
+	$input = $argv[1];
+}
+
+$o = new GoogleCodeJam($input);
+$o->init();
+$o->process();
+
+?>

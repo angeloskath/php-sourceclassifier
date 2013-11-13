@@ -1,0 +1,84 @@
+lines = []
+file = File.new("A-large.in", "r")
+while (line = file.gets)
+	lines << line
+end
+file.close
+
+results = []
+
+case_amount = lines[0].to_i
+arr = []
+(1..case_amount*5).each do |i|
+	line = lines[i]
+	
+	if line.to_s.strip.empty?
+		if arr.size != 0
+			case_no = i/5
+			
+			# do question logic
+			
+			# check win horizontal & vertical & diagonal
+			x_d1, o_d1, x_d2, o_d2 = 0, 0, 0, 0
+			4.times do |m|
+				x_h, o_h, x_v, o_v = 0, 0, 0, 0
+				4.times do |n|
+					# puts arr[m][n] horizontal
+					# puts arr[n][m] vertical
+					
+					x_h += 1 if arr[m][n] == "X" || arr[m][n] == "T"
+					o_h += 1 if arr[m][n] == "O" || arr[m][n] == "T"
+												
+					x_v += 1 if arr[n][m] == "X" || arr[n][m] == "T"
+					o_v += 1 if arr[n][m] == "O" || arr[n][m] == "T"
+				end
+					
+				results[case_no] = "Case ##{case_no}: X won" if x_h == 4 || x_v == 4
+				results[case_no] = "Case ##{case_no}: O won" if o_h == 4 || o_v == 4
+			
+				x_d1 += 1 if arr[m][m] == "X" || arr[m][m] == "T"
+				o_d1 += 1 if arr[m][m] == "O" || arr[m][m] == "T"
+												
+				x_d2 += 1 if arr[m][3-m] == "X" || arr[m][3-m] == "T"
+				o_d2 += 1 if arr[m][3-m] == "O" || arr[m][3-m] == "T"
+			end
+			
+			results[case_no] = "Case ##{case_no}: X won" if x_d1 == 4 || x_d2 == 4
+			results[case_no] = "Case ##{case_no}: O won" if o_d1 == 4 || o_d2 == 4			
+			
+			# check for draw or incomplete
+			is_incomplete = false
+			4.times do |m|
+				4.times do |n|
+					if arr[m][n] == "."
+						is_incomplete = true
+						break
+					end
+				end
+				break if is_incomplete
+			end
+			
+			if is_incomplete
+				results[case_no] = "Case ##{case_no}: Game has not completed" if results[case_no].nil?
+			else
+				results[case_no] = "Case ##{case_no}: Draw" if results[case_no].nil?
+			end
+		end
+		
+		arr = []
+	else
+		arr_ind = (i-1)%5
+		arr[arr_ind] ||= []
+		
+		4.times do |j|
+			arr[arr_ind] << line[j]
+		end
+	end
+end
+
+results.delete_if{|e| e.nil? || e.to_s.strip.empty?}
+results.each{|e| puts e}
+
+File.open("output_large1", 'w') do |file|
+	file.puts results
+end

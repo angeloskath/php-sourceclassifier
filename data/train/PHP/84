@@ -1,0 +1,65 @@
+<?php
+
+$f = file('A-small-attempt0.in');
+
+$p = 0;
+$t = (int) $f[$p];
+for ($i = 1; $i <= $t; $i++) {
+    $p++;
+    $m = array();
+    $dotaFlag = false;
+
+    $m[0] = str_split(trim($f[$p++]));
+    $m[1] = str_split(trim($f[$p++]));
+    $m[2] = str_split(trim($f[$p++]));
+    $m[3] = str_split(trim($f[$p++]));
+
+    $r = array('', '', '', '', '', '', '', '', '', '');
+    for ($a = 0; $a < 4; $a++) {
+        for ($b = 0; $b < 4; $b++) {
+            if ($m[$a][$b] === 'T') {
+                // do nothing
+            } elseif ($m[$a][$b] === '.') {
+                $r[$a] = '.';
+                $r[4 + $b] = '.';
+                if ($a === $b)
+                    $r[8] = '.';
+                if ($a === 3 - $b)
+                    $r[9] = '.';
+            } else {
+                $r[$a] = $r[$a] === '' ? $m[$a][$b] : (($r[$a] !== $m[$a][$b]) ? false : $m[$a][$b]);
+                $r[4 + $b] = $r[4 + $b] === '' ? $m[$a][$b] : (($r[4 + $b] !== $m[$a][$b]) ? false : $m[$a][$b]);
+                if ($a === $b)
+                    $r[8] = $r[8] === '' ? $m[$a][$b] : (($r[8] !== $m[$a][$b]) ? false : $m[$a][$b]);
+                if ($a === 3 - $b)
+                    $r[9] = $r[9] === '' ? $m[$a][$b] : (($r[9] !== $m[$a][$b]) ? false : $m[$a][$b]);
+            }
+        }
+    }
+
+    $draw = true;
+    $notFinished = false;
+    $win = '';
+    foreach ($r as $answer) {
+		if ($answer === '.') $notFinished = true;
+		elseif ($answer !== false) {
+			$draw = false;
+
+			$win = $answer;
+			break;
+		}
+    }
+
+    if ($win !== '') {
+    	$a = $win . ' won';
+    } elseif ($notFinished) {
+    	$a = 'Game has not completed';
+    } else {
+    	$a = 'Draw';
+    }
+
+    $out .= "Case #$i: $a\n";
+}
+
+file_put_contents('a.out', $out);
+?>

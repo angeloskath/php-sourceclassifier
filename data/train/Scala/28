@@ -1,0 +1,52 @@
+/**
+  * Google Code Jam solution: http://code.google.com/codejam/contest/2270488/dashboard
+  * 2013 Pkkm.
+  */
+
+object Main {
+  def main(args: Array[String]): Unit = {
+    val numCases = readLine.toInt
+
+    for (caseNum <- 1 to numCases) {
+      val board = Array.tabulate(4)( _ => readLine.seq.toSeq ) // The board is accessed by: board(y)(x).
+        readLine
+
+      def didPlayerWin(player: Char) = {
+        def wonHorizontally =
+          (0 to 3).exists{ checkedY =>
+            (0 to 3).forall{ checkedX =>
+              board(checkedY)(checkedX) == player || board(checkedY)(checkedX) == 'T' }}
+
+        def wonVertically =
+          (0 to 3).exists{ checkedX =>
+            (0 to 3).forall{ checkedY =>
+              board(checkedY)(checkedX) == player || board(checkedY)(checkedX) == 'T' }}
+
+        def wonSlash =
+          (0 to 3).forall{ checkedXY =>
+            board(checkedXY)(checkedXY) == player || board(checkedXY)(checkedXY) == 'T' }
+
+        def wonBackslash =
+          (0 to 3).forall{ checkedY =>
+            val checkedX = 3 - checkedY
+            board(checkedX)(checkedY) == player || board(checkedX)(checkedY) == 'T' }
+
+        wonHorizontally || wonVertically || wonSlash || wonBackslash }
+
+      def areThereEmptyPoints =
+        board.exists{
+          boardLine => boardLine.exists{
+            _ == '.' }}
+
+      val winStr =
+        if (didPlayerWin('X'))
+          "X won"
+        else if (didPlayerWin('O'))
+          "O won"
+        else if (areThereEmptyPoints)
+          "Game has not completed"
+        else
+          "Draw"
+
+
+      println("Case #" + caseNum.toString + ": " + winStr) }}}

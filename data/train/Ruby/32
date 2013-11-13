@@ -1,0 +1,48 @@
+def check_field(field)
+	completed = true
+	field.each do |line|
+		if line.include?(".")
+			completed = false
+		else
+			return "X won" if !line.include?("O")
+			return "O won" if !line.include?("X")
+		end
+	end
+	(0...4).each do |i|
+		line = []
+		(0...4).each do |j|
+			line.push field[j][i]
+		end
+		return "X won" if !line.include?("O") && !line.include?(".")
+		return "O won" if !line.include?("X") && !line.include?(".")
+	end
+	line = []
+	(0...4).each do |i|
+		line.push field[i][i]
+	end
+	return "X won" if !line.include?("O") && !line.include?(".")
+	return "O won" if !line.include?("X") && !line.include?(".")
+	line = []
+	(0...4).each do |i|
+		line.push field[i][3-i]
+	end
+	return "X won" if !line.include?("O") && !line.include?(".")
+	return "O won" if !line.include?("X") && !line.include?(".")
+	if completed 
+		return "Draw"
+	else
+		return "Game has not completed"
+	end
+end
+
+file = File.open("input.in", "r")
+out = File.open("output.txt", "w")
+lines = file.read.split("\n")
+lines.delete("")
+count = lines.shift.to_i
+(1..count).each do |i|
+	field = []
+	(1..4).each{field.push(lines.shift.split(""))}
+	out.write "Case ##{i}: #{check_field(field)}\n"
+end
+out.close

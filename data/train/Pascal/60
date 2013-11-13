@@ -1,0 +1,167 @@
+uses sysutils;
+var t,tt,n,m,a,b,d,nn,xc,sc,yc,j,i,e,mc,ms,mci,msi:longint;
+    aa,bb:array[1..4,1..4] of char;
+
+procedure x1;
+var rx1,rx2,rx3,rx4,cx1,cx2,cx3,cx4,dx1,dx2,
+    ro1,ro2,ro3,ro4,co1,co2,co3,co4,do1,do2,c00:byte;
+    cc:char;
+
+begin
+rx1:=0;cx1:=0;ro1:=0;co1:=0;
+rx2:=0;cx2:=0;ro2:=0;co2:=0;
+rx3:=0;cx3:=0;ro3:=0;co3:=0;
+rx4:=0;cx4:=0;ro4:=0;co4:=0;
+dx1:=0;dx2:=0;do1:=0;do2:=0;
+c00:=0;
+
+ for i:=1 to 4 do
+   for j:=1 to 4 do
+    begin
+    repeat
+    read(cc)
+    until (cc='.')or(cc='X')or(cc='O')or(cc='T');
+    aa[i,j]:=cc
+    end;
+for i:=1 to 4 do
+  begin
+   cc:=aa[i,1];
+   case cc of
+        'X':inc(rx1);
+        'O':inc(ro1);
+        '.':inc(c00);
+        'T':begin
+             inc(rx1);
+             inc(ro1);
+            end;
+
+    end;
+
+   cc:=aa[i,2];
+   case cc of
+        'X':inc(rx2);
+        'O':inc(ro2);
+        '.':inc(c00);
+        'T':begin
+             inc(rx2);
+             inc(ro2);
+            end;
+
+    end;
+
+   cc:=aa[i,3];
+   case cc of
+        'X':inc(rx3);
+        'O':inc(ro3);
+        '.':inc(c00);
+        'T':begin
+             inc(rx3);
+             inc(ro3);
+            end;
+
+    end;
+
+   cc:=aa[i,4];
+   case cc of
+        'X':inc(rx4);
+        'O':inc(ro4);
+        '.':inc(c00);
+        'T':begin
+             inc(rx4);
+             inc(ro4);
+            end;
+
+    end;
+
+   cc:=aa[1,i];
+   case cc of
+        'X':inc(cx1);
+        'O':inc(co1);
+        '.':inc(c00);
+        'T':begin
+             inc(cx1);
+             inc(co1);
+            end;
+
+    end;
+
+   cc:=aa[2,i];
+   case cc of
+        'X':inc(cx2);
+        'O':inc(co2);
+        '.':inc(c00);
+        'T':begin
+             inc(cx2);
+             inc(co2);
+            end;
+
+    end;
+
+   cc:=aa[3,i];
+   case cc of
+        'X':inc(cx3);
+        'O':inc(co3);
+        '.':inc(c00);
+        'T':begin
+             inc(cx3);
+             inc(co3);
+            end;
+
+    end;
+
+   cc:=aa[4,i];
+   case cc of
+        'X':inc(cx4);
+        'O':inc(co4);
+        '.':inc(c00);
+        'T':begin
+             inc(cx4);
+             inc(co4);
+            end;
+
+    end;
+
+   cc:=aa[i,i];
+   case cc of
+        'X':inc(dx1);
+        'O':inc(do1);
+        '.':inc(c00);
+        'T':begin
+             inc(dx1);
+             inc(do1);
+            end;
+
+    end;
+
+   cc:=aa[i,5-i];
+   case cc of
+        'X':inc(dx2);
+        'O':inc(do2);
+        '.':inc(c00);
+        'T':begin
+             inc(dx2);
+             inc(do2);
+            end;
+
+    end;
+  end;
+if (rx1=4)or(rx2=4)or(rx3=4)or(rx4=4)or(cx1=4)or(cx2=4)
+    or(cx3=4)or(cx4=4)or(dx1=4)or(dx2=4) then writeln('Case #',tt,': X won')
+else
+if (ro1=4)or(ro2=4)or(ro3=4)or(ro4=4)or(co1=4)or(co2=4)
+    or(co3=4)or(co4=4)or(do1=4)or(do2=4) then writeln('Case #',tt,': O won')
+else
+if c00=0 then writeln('Case #',tt,': Draw')
+else writeln('Case #',tt,': Game has not completed')
+;
+
+
+end;
+
+
+
+begin
+read(t);
+ for tt:=1 to t do x1;
+end.
+

@@ -1,0 +1,91 @@
+import java.io.{File, PrintWriter}
+import scala.io.Source
+
+object TicTacToeTomek extends App   {
+	val X = 'X'
+	val O = 'O'
+	val T = 'T'
+	val NONE = '.'
+	val DRAW = '-'
+
+	val file = args(0)
+	val out = file + ".out"
+
+	val lines: Iterator[String] = Source.fromFile(file).getLines()
+	val output = new PrintWriter(new File(out))
+
+	val cases = lines.next().toInt
+
+	1.to(cases).foreach { x =>
+		val current: Array[String] = new Array(4)
+		lines.copyToArray(current)
+		if(lines.hasNext)
+			lines.next()
+		val result = assess(current)
+
+		val res: String = result match {
+			case NONE => "Case #" + x + ": Game has not completed\n"
+			case DRAW => "Case #" + x + ": Draw\n"
+			case r => "Case #" + x + ": " + r + " won\n"
+		}
+		output.write(res)
+	}
+
+	output.close()
+
+	def assess(currentCase: Array[String]): Char = {
+		var emptyCells = false;
+
+		val rows = Array(new Line, new Line, new Line, new Line)
+		val cols = Array(new Line, new Line, new Line, new Line)
+
+		val diag1 = new Line
+		val diag2 = new Line
+
+		0 until 4 foreach { x =>
+			0 until 4 foreach { y =>
+				val col = y
+				val c: Char = currentCase(x)(y)
+				rows(x)(c)
+				cols(y)(c)
+
+				if(x == y)
+					diag1(c)
+				if(x == 3-y)
+					diag2(c)
+			}
+		}
+
+		((rows ++ cols) ++ Array(diag1, diag2)) foreach { line =>
+			if(line.hasEmpty)
+				emptyCells = true
+			if(line.current != NONE)
+				return line.current
+		}
+
+		if(emptyCells)
+			return NONE
+		else
+			return DRAW
+	}
+}
+
+class Line  {
+	import TicTacToeTomek._
+	var current: Char = DRAW
+	var hasEmpty = false
+
+	def apply(c: Char)  {
+		if(current == NONE)
+			return
+		c match {
+			case NONE => current = NONE
+						 hasEmpty = true
+			case O if current == X => current = NONE
+			case X if current == O => current = NONE
+			case O => current = O
+			case X => current = X
+			case _ =>
+		}
+	}
+}

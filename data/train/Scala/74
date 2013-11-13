@@ -1,0 +1,108 @@
+package tictactoe
+
+object TicTacToeResolver extends App {
+
+  def read(lines: String): List[List[List[Char]]] = read(lines.split("\n+"))
+  def read(lines: Seq[String]): List[List[List[Char]]] = {
+    lines.tail.grouped(4).map(_.map(_.toCharArray.toList).toList).toList
+  }
+
+  def x = "X won"
+  def o = "O won"
+  def draw = "Draw"
+  def notfinished = "Game has not completed"
+
+  def X = 'X'.toInt
+  def O = 'O'.toInt
+  def T = 'T'.toInt
+
+  def xwins(i: Int) = (i == 4*X || i == (3*X + T))
+  def owins(i: Int) = (i == 4*O || i == (3*O + T))
+
+  def sum(i: List[Char]): Int = {
+    i.foldLeft(0)( (i, j) => i+j )
+  }
+
+  def winner(cas: List[List[Char]]): String = {
+
+    def _winner(cas: List[List[Char]], notfinish: Boolean): String = {
+      cas match {
+        case h::t =>
+          val s = sum(h)
+          // println(h.mkString + " " + s + " " + (4*X) + " " + (3*X + T) + " " + (4*O) + " " + (3*O + T) + " " + X + " " + O + " " + T)
+          if(xwins(s)) x else if(owins(s)) o else _winner(t, notfinish || h.contains('.'))
+        case _ => if(notfinish) notfinished else draw
+      }
+    }
+
+    def diagonale(cas: List[List[Char]]): List[List[Char]] = {
+      val firstdiag = for{
+        x <- 0 until cas.size
+      } yield cas(x)(x)
+      val seconddiag = for{
+        x <- 0 until cas.size
+      } yield cas(cas.size-x-1)(x)
+      List(firstdiag.toList, seconddiag.toList)
+    }
+
+    val compleCase = cas ++ List.transpose(cas) ++ diagonale(cas)
+    //println(cas)
+    //println(compleCase.map(_.mkString).mkString("\n"))
+    val result = _winner(compleCase, false)
+    // println(result + "\n")
+    result
+  }
+
+
+
+
+
+  val input = """6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O
+"""
+  // println(read(input).zipWithIndex.map{
+  //   case (cas, i) => cas.map(_.mkString).mkString("\n") + "\nCase #%d: %s".format(i, winner(cas))
+  // }.mkString("\n"))
+
+  override def main(args: Array[String]) = {
+    val file = args(0)
+    val source = scala.io.Source.fromFile(file)
+    val lines = source.mkString
+    source.close ()
+    val content = read(lines).zipWithIndex.map{
+      case (cas, i) =>
+        "Case #%d: %s".format(i+1, winner(cas))
+    }.mkString("\n")
+    val outputfile = new java.io.FileWriter("output.txt")
+    outputfile.write(content)
+    outputfile.close()
+  }
+}

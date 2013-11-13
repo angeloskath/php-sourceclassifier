@@ -1,0 +1,138 @@
+(ns google-code-jam-2013.clojure.tic-tac-toe-tomek
+  (:refer-clojure :exclude [==])
+  (:use [clojure.core.logic.protocols]
+        [clojure.core.logic :exclude [is] :as l]
+        [clojure.test])
+  (:require [clojure.core.logic.fd :as fd])
+  (:import [java.io BufferedReader FileReader]))
+
+(defn- select-all [item coll]
+  (filter #(= item %) (flatten coll)))
+
+(defn- select-not [item coll]
+  (remove #(= item %) (flatten coll)))
+
+(defn- every-item-is?
+  "Returns a predicate that returns true if every item passes to is matches item."
+  [item]
+  (fn [coll]
+    (= (count (concat (select-all :T coll) (select-all item coll))) 4)))
+
+(defn- rows-to-columns
+  "Turns rows to columns in a square 2d array.
+
+   The array must be square."
+  [grid]
+  (apply map list grid))
+
+(defn- nested-array-is-square [coll]
+  (apply = (count coll) (map count coll)))
+
+; Private, specific.
+
+(defn- next-mover
+  "Figures out whose turn it is."
+  [board]
+  (if (> (count (select-all :X board))
+         (count (select-all :O board)))
+    :O
+    :X))
+
+(defn- empty-board? [board] (empty? (select-not :_ board)))
+(defn- full-board?  [board] (empty? (select-all :_ board)))
+
+; Win checks.
+(defn- horizontal-win? [player board]
+  (->> board
+       (map (every-item-is? player))
+       (some true?)))
+
+(defn- vertical-win? [player board]
+  (horizontal-win? player (rows-to-columns board)))
+
+(defn- diagonal-win-left? [player board]
+    ((every-item-is? player)
+       (map get board (range))))
+
+(defn- diagonal-win-right? [player board]
+  (diagonal-win-left? player (reverse board)))
+
+; Simply combine the above.
+(defn- win-for? [player board]
+  (or (horizontal-win?     player board)
+      (vertical-win?       player board)
+      (diagonal-win-left?  player board)
+      (diagonal-win-right? player board)))
+
+; Public
+
+(def empty-board [[:_ :_ :_ :_]
+                  [:_ :_ :_ :_]
+                  [:_ :_ :_ :_]
+                  [:_ :_ :_ :_]])
+
+(defn valid-board [board]
+  (and (every? #{:_ :X :O :T} (set (flatten board)))
+       (nested-array-is-square board)
+       (let [x-count (count (select-all :X board))
+             o-count (count (select-all :O board))
+             t-count (count (select-all :T board))]
+         (or (= x-count o-count)
+             (= x-count (inc o-count))
+             (= t-count 1)))))
+
+(defn move
+  "Make the next move at the named position."
+  [board row column]
+
+  {:pre ((valid-board board))}
+
+  (update-in board
+             [row column]
+             (fn [current]
+               (assert (= :_ current) "Square not empty.")
+               (next-mover board))))
+
+(defn status
+  "Returns the state of the game."
+  [board]
+
+  {:pre ((valid-board board))}
+
+  (cond (win-for? :X board) "X won"
+
+        (win-for? :O board) "O won"
+
+        (empty-board? board) "Game has not completed"
+
+        (full-board?  board) "Draw"
+
+        :else "Game has not completed"))
+
+(def file "/Users/maxtuno/Desktop/A-large.in")
+
+(def br (new BufferedReader (new FileReader file)))
+		
+(def cases (Integer/parseInt (.readLine br)))
+
+(def board empty-board);
+
+(defn convert-to-board
+  []         
+  (let [line1 (.replace (.replace (.replace (.replace (.readLine br) "X" ":X ") "O" ":O ") "T" ":T ") "." ":_ ")
+        line2 (.replace (.replace (.replace (.replace (.readLine br) "X" ":X ") "O" ":O ") "T" ":T ") "." ":_ ")
+        line3 (.replace (.replace (.replace (.replace (.readLine br) "X" ":X ") "O" ":O ") "T" ":T ") "." ":_ ")
+        line4 (.replace (.replace (.replace (.replace (.readLine br) "X" ":X ") "O" ":O ") "T" ":T ") "." ":_ ")
+        ]
+    (.readLine br)
+    [(read-string (str "["line1"]"))
+     (read-string (str "["line2"]"))
+     (read-string (str "["line3"]"))
+     (read-string (str "["line4"]"))]))
+
+(doseq [case (range 1 (inc cases))]
+  (def board (convert-to-board))
+   
+  (println (str "Case #" case ": " (status board))))
+
+(.close br)

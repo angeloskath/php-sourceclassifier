@@ -1,0 +1,203 @@
+Imports System.IO
+Public Class Form1
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        ' read first line
+        Dim file1 As String = OpenFile()
+        Dim count2 As Integer = 0
+        Dim count As Integer = 1
+        Dim lineamount As Integer
+        lineamount = countlines(file1)
+        Dim limit As Integer = ReadSpecifiedLine(file1, 0) - 1
+        'Dim array1(limit, 3) As String
+        'For x = 1 To lineamount Step 1
+        'If count < 5 Then
+        'array1(count2, count - 1) = ReadSpecifiedLine(file1, x)
+        'count += 1
+        'ElseIf count = 5 Then
+        'count = 1
+        'count2 += 1
+        ' 'End If
+        'Next
+        Dim testarray(3) As String
+        For x = 0 To limit Step 1
+            For y = 0 To 3 Step 1
+                testarray(y) = ReadSpecifiedLine(file1, x * 5 + y + 1)
+            Next
+            TextBox1.AppendText("Case #" & x + 1 & ": " & testgames(testarray) & Environment.NewLine)
+        Next
+        'My.Computer.FileSystem.WriteAllText("c:\value1.txt", TextBox1.Text, False)
+    End Sub
+    Public Function testgames(array1() As String) As String
+        'test for lines
+        Dim test As String
+        ' Dim testlines() As Boolean = {False, False, False, False}
+        Dim count As String = 0
+        'Horizontal
+        For y = 0 To 3 Step 1
+            test = array1(y).Substring(0, 1)
+            If test = "T" Then
+                test = array1(y).Substring(1, 1)
+            End If
+            If test <> "." Then
+                For x = 0 To 3 Step 1
+                    If (array1(y).Substring(x, 1) = test Or array1(y).Substring(x, 1) = "T") Then
+                        count += 1
+                    End If
+                Next
+            End If
+            If count = 4 Then
+                Return test & " won"
+            End If
+            count = 0
+            test = ""
+        Next
+        'Vertical
+        Dim fliparray(3) As String
+        fliparray(0) = array1(0).Substring(0, 1) & array1(1).Substring(0, 1) & array1(2).Substring(0, 1) & array1(3).Substring(0, 1)
+        fliparray(1) = array1(0).Substring(1, 1) & array1(1).Substring(1, 1) & array1(2).Substring(1, 1) & array1(3).Substring(1, 1)
+        fliparray(2) = array1(0).Substring(2, 1) & array1(1).Substring(2, 1) & array1(2).Substring(2, 1) & array1(3).Substring(2, 1)
+        fliparray(3) = array1(0).Substring(3, 1) & array1(1).Substring(3, 1) & array1(2).Substring(3, 1) & array1(3).Substring(3, 1)
+        For y = 0 To 3 Step 1
+            test = fliparray(y).Substring(0, 1)
+            If test = "T" Then
+                test = fliparray(y).Substring(1, 1)
+            End If
+            If test <> "." Then
+                For x = 0 To 3 Step 1
+                    If (fliparray(y).Substring(x, 1) = test Or fliparray(y).Substring(x, 1) = "T") Then
+                        count += 1
+                    End If
+                Next
+            End If
+            If count = 4 Then
+                Return test & " won"
+            End If
+            count = 0
+            test = ""
+        Next
+        'test diagonal right
+        test = array1(0).Substring(0, 1)
+        If test = "T" Then
+            test = array1(1).Substring(1, 1)
+        End If
+        If test <> "." Then
+            For x = 0 To 3 Step 1
+                If (array1(x).Substring(x, 1) = test Or array1(x).Substring(x, 1) = "T") Then
+                    count += 1
+                End If
+                If count = 4 Then
+                    Return test & " won"
+                End If
+            Next
+            count = 0
+            test = ""
+        End If
+        'test diagonal left
+        test = array1(3).Substring(0, 1)
+        If test = "T" Then
+            test = array1(2).Substring(1, 1)
+        End If
+        If test <> "." Then
+            For x = 3 To 0 Step -1
+                If array1(x).Substring(3 - x, 1) = test Or array1(x).Substring(3 - x, 1) = "T" Then
+                    count += 1
+                End If
+                If count = 4 Then
+                    Return test & " won"
+                End If
+            Next
+            count = 0
+            test = ""
+        End If
+        Dim selector As Boolean = True
+        For x = 1 To 3 Step 1
+            For y = 0 To 3 Step 1
+                If array1(x).Substring(y, 1) = "." Then
+                    selector = False
+                End If
+            Next
+        Next
+        If selector Then
+            Return "Draw"
+        End If
+        Return "Game has not completed"
+    End Function
+    Public Function OpenFile() As String
+        'declare a string, this is will contain the filename that we return
+        Dim strFileName = ""
+        'declare a new open file dialog
+        Dim fileDialogBox As New OpenFileDialog()
+
+        'add file filters, this step is optional, but if you notice the screenshot
+        'above it does not look clean if you leave it off, I explained in further
+        'detail on my site how to add/modify these values
+        fileDialogBox.Filter = "Rich Text Format (*.rtf)|*.rtf|" _
+            & "Text Files (*.txt)|*.txt|" _
+            & "Word Documents (*.doc;*.docx)|*.doc;*.docx|" _
+            & "Image Files (*.bmp;*.jpg;*.gif)|*.bmp;*.jpg;*.gif|" _
+            & "All Files(*.*)|"
+        'this sets the default filter that we created in the line above, if you don't 
+        'set a FilterIndex it will automatically default to 1
+        fileDialogBox.FilterIndex = 3
+        'this line tells the file dialog box what folder it should start off in first
+        'I selected the users my document folder
+        fileDialogBox.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal)
+
+        'Check to see if the user clicked the open button
+        If (fileDialogBox.ShowDialog() = DialogResult.OK) Then
+            strFileName = fileDialogBox.FileName
+            'Else
+            '   MsgBox("You did not select a file!")
+        End If
+
+        'return the name of the file
+        Return strFileName
+    End Function
+    Public Function readtext(location As String) As String()
+        Try
+            ' Create an instance of StreamReader to read from a file.
+            Dim sr As StreamReader = New StreamReader(location)
+            Dim line As String
+            ' Read and display the lines from the file until the end 
+            ' of the file is reached.
+            Do
+                line = sr.ReadLine()
+                Console.WriteLine(line)
+            Loop Until line Is Nothing
+            sr.Close()
+        Catch E As Exception
+            ' Let the user know what went wrong.
+            Console.WriteLine("The file could not be read:")
+            Console.WriteLine(E.Message)
+        End Try
+    End Function
+    Public Shared Function ReadSpecifiedLine(file As String, lineNum As Integer) As String
+        Dim contents As String = String.Empty
+        Try
+            Using stream As New StreamReader(file)
+                contents = stream.ReadToEnd()
+                Dim linesArray As String() = contents.Split(New Char() {ControlChars.Lf})
+
+                If linesArray.Length > 1 Then
+                    If Not lineNum > linesArray.Length AndAlso Not lineNum < 0 Then
+                        Return linesArray(lineNum)
+                    Else
+                        Return linesArray(0)
+                    End If
+                Else
+                    Return contents
+                End If
+            End Using
+        Catch ex As Exception
+            Return ex.ToString()
+        End Try
+    End Function
+    Public Function countlines(filename As String) As Integer
+        Dim sr As New StreamReader(filename)
+
+        Dim lineCount As Integer = System.Text.RegularExpressions.Regex.Split(sr.ReadToEnd(), Environment.NewLine).Length
+        sr.Close()
+        Return lineCount
+    End Function
+End Class

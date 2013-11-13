@@ -1,0 +1,99 @@
+(ns tictac.core)
+
+(defn transpose [m]
+  (apply mapv vector m))
+
+(defn X?
+  [char]
+  (or (= char \X) (= char \T)))
+
+(defn O?
+  [char]
+  (or (= char \O) (= char \T)))
+
+(defn winning-line?
+  [pred coll]
+  (every? identity (map pred coll)))
+
+(defn X-winning-line?
+  [coll]
+  (winning-line? X? coll))
+
+(defn O-winning-line?
+  [coll]
+  (winning-line? O? coll))
+
+(defn horizontal-win?
+  [pred case]
+  (or (pred (first case))
+      (pred (second case))
+      (pred (nth case 2))
+      (pred (nth case 3))))
+
+(defn vertical-win?
+  [pred case]
+  (let [case (transpose case)]
+    (horizontal-win? pred case)))
+
+(defn diag-win?
+  [pred case]
+  (let [line (list (-> (first case) first)
+                   (-> (second case) second)
+                   (-> (nth case 2) (nth 2))
+                   (-> (nth case 3) (nth 3)))]
+    (pred line)))
+
+(defn opp-diag-win?
+  [pred case]
+  (let [line (list (-> (first case) (nth 3))
+                   (-> (second case) (nth 2))
+                   (-> (nth case 2) second)
+                   (-> (nth case 3) first))]
+    (pred line)))
+
+(defn win?
+  [pred case]
+  (or (horizontal-win? pred case)
+      (vertical-win? pred case)
+      (diag-win? pred case)
+      (opp-diag-win? pred case)))
+
+(defn X-win?
+  [case]
+  (win? X-winning-line? case))
+
+(defn O-win?
+  [case]
+  (win? O-winning-line? case))
+
+(defn end-game?
+  [case]
+  (empty? (filter #(= % \.) (flatten case))))
+
+(defn solve-case
+  [case]
+  (cond
+   (X-win? case) "X won"
+   (O-win? case) "O won"
+   (end-game? case) "Draw"
+   :else "Game has not completed"))
+
+(defn solve-cases
+  [{:keys [num-cases cases]}]
+  (map #(str "Case #" %1 ": " (solve-case %2)) (range 1 (inc num-cases)) cases))
+
+(defn read-input
+  [filename]
+  (let [content (clojure.string/split (slurp filename) #"\n")
+        num-cases (-> (first content) (Integer/parseInt))
+        cases (partition 4 (map seq (filter #(not (= "" %)) (rest content))))]
+    {:num-cases num-cases :cases cases}))
+
+(defn main
+  [filename]
+  (let [input (read-input filename)
+        solutions (solve-cases input)
+        output (clojure.string/join "\n" solutions)]
+    (spit "/Users/sunilabraham/cs/codejam/tictac/resources/A-large-output.txt" output)))
+
+(main "/Users/sunilabraham/cs/codejam/tictac/resources/A-large.in")

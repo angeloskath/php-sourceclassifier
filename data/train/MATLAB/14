@@ -1,0 +1,65 @@
+clear all
+close all
+
+%fstring = 'testinput.txt';
+%fstring = 'A-small-attempt0.in';
+fstring = 'A-large.in';
+f = fopen(fstring);
+
+data = textscan(f,'%s','Delimiter','\n','BufSize',1000000);
+data = data{1};
+
+output = fopen('output.txt','w');
+l_index = 2;
+for c = 1:str2double(data{1})
+    answer = 0;
+    board = data(l_index:l_index+3);
+    b = [];
+    for i = 1:numel(board)
+        b(i,:) = board{i};
+    end
+    %Check X, Check O, Check cats
+    bx = b;
+    bo = b;
+    bx(bx==84) = 88;
+    bo(bo==84) = 79;
+    
+    sumcolsbx = sum(bx==88,1);
+    sumrowsbx = sum(bx==88,2);
+    sumcolsbo = sum(bo==79,1);
+    sumrowsbo = sum(bo==79,2);
+    if sum(sumcolsbx==4)>0
+        answer = 'X won';
+    elseif sum(sumrowsbx==4)>0
+        answer = 'X won';
+    elseif sum(diag(bx)==88)==4
+        answer = 'X won';
+    elseif sum(diag(flipud(bx))==88)==4
+        answer = 'X won';
+    elseif sum(sumcolsbo==4)>0
+        answer = 'O won';
+    elseif sum(sumrowsbo==4)>0
+        answer = 'O won';
+    elseif sum(diag(bo)==79)==4
+        answer = 'O won';
+    elseif sum(diag(flipud(bo))==79)==4
+        answer = 'O won';
+    else
+        if sum(sum(b==46))>0
+            answer = 'Game has not completed';
+        else
+            answer = 'Draw';
+        end
+    end
+    
+
+    
+    l_index = l_index + 5;
+    fprintf(output,['Case #' num2str(c) ': ' answer]);
+    if c~=str2double(data{1})
+        fprintf(output,'\n');
+    end
+end
+
+fclose(output);
+fclose(f);

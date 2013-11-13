@@ -1,0 +1,130 @@
+package main
+
+import (
+    "fmt"
+    "bufio"
+    "os"
+    "strings"
+)
+
+func checkSame(a rune, b rune) bool {
+    if a == '.' || b == '.' {
+        return false
+    }
+    if a == b {
+        return true
+    }
+    if a == 'T' || b == 'T' {
+        return true
+    }
+    return false
+}
+
+func getNonT(a rune, b rune) (rune, bool) {
+    if a == 'X' || a == 'O' {
+        return a, true
+    } else if b == 'X' || b == 'O' {
+        return b, true
+    }
+    return 0, false
+}
+
+func solve(board [4][4]rune) string {
+    var flag bool
+    var p    rune
+    var ok   bool
+
+    // row check
+    for row := 0; row < 4; row++ {
+        flag = true
+        p, ok = getNonT(board[row][0], board[row][1])
+        if ok {
+            for column := 0; column < 4; column++ {
+                if !checkSame(board[row][column], p) {
+                    flag = false
+                    break
+                }
+            }
+            if flag == true {
+                return string(p) + " won"
+            }
+        }
+    }
+
+    // column check
+    for column := 0; column < 4; column++ {
+        flag = true
+        p, ok = getNonT(board[0][column], board[1][column])
+        if ok {
+            for row := 0; row < 4; row++ {
+                if !checkSame(board[row][column], p) {
+                    flag = false
+                    break
+                }
+            }
+            if flag == true {
+                return string(p) + " won"
+            }
+        }
+    }
+
+    // diagonal check 1
+    flag = true
+    p, ok = getNonT(board[0][0], board[1][1])
+    if ok {
+        for i := 0; i < 4; i++ {
+            if !checkSame(board[i][i], p) {
+                flag = false
+                break
+            }
+        }
+        if flag == true {
+            return string(p) + " won"
+        }
+    }
+
+    // diagonal check 2
+    flag = true
+    p, ok = getNonT(board[0][3], board[1][2])
+    if ok {
+        for i := 0; i < 4; i++ {
+            if !checkSame(board[i][3 - i], p) {
+                flag = false
+                break
+            }
+        }
+        if flag == true {
+            return string(p) + " won"
+        }
+    }
+
+    flag = true
+    for row := 0; row < 4; row++ {
+        for column := 0; column < 4; column++ {
+            if board[row][column] == '.' {
+                return "Game has not completed"
+            }
+        }
+    }
+
+    return "Draw"
+}
+
+func main() {
+    N := 0
+    fmt.Scanf("%d", &N)
+    reader := bufio.NewReader(os.Stdin)
+    var board [4][4]rune
+    for n := 1; n <= N; n++ {
+        for row := 0; row < 4; row++ {
+            str, _ := reader.ReadString('\n')
+            reader := strings.NewReader(str)
+            for column := 0; column < 4; column++ {
+                board[row][column], _, _ = reader.ReadRune()
+            }
+        }
+        sol := solve(board)
+        fmt.Printf("Case #%d: %s\n", n, sol)
+        reader.ReadString('\n')
+    }
+}

@@ -1,0 +1,69 @@
+O_WINS = -1
+DRAW = 0
+X_WINS = 1
+IN_PROGRESS = 2
+
+def findWinner(game)
+	# Check rows
+	game.each do |row|
+		str = row.join
+		t = str.count("T")
+		
+		return X_WINS if str.count("X") == (4 - t)
+		return O_WINS if str.count("O") == (4 - t)
+	end
+	
+	# Check columns
+	game.transpose.each do |col|
+		str = col.join
+		t = str.count("T")
+		
+		return X_WINS if str.count("X") == (4 - t)
+		return O_WINS if str.count("O") == (4 - t)
+	end
+	
+	# Check diagonals
+	diagonals = [[game[0][0], game[1][1], game[2][2], game[3][3]], [game[3][0], game[2][1], game[1][2], game[0][3]]]
+	diagonals.each do |diag|
+		str = diag.join
+		t = str.count("T")
+		
+		return X_WINS if str.count("X") == (4 - t)
+		return O_WINS if str.count("O") == (4 - t)
+	end
+	
+	# Check if draw vs in-progress
+	return game.flatten.join.count(".") > 0 ? IN_PROGRESS : DRAW
+end
+
+input = "N:/Users/Spidy/Downloads/A-large.in"
+output = "N:/Users/Spidy/Downloads/tictactoe-large.txt"
+
+out = File.open(output, "w")
+lines = File.readlines(input)
+cases = lines.shift.to_i
+
+cases.times do |kase|
+	# Setup game board
+	game = lines.shift(4).collect { |line| line.strip.split('') }
+	
+	# Find the winner
+	winner = findWinner(game)
+	
+	# Print the winner
+	case winner
+	when X_WINS
+		win_str = "X won"
+	when O_WINS
+		win_str = "O won"
+	when DRAW
+		win_str = "Draw"
+	when IN_PROGRESS
+		win_str = "Game has not completed"
+	end
+		
+	out.puts "Case #" + (kase + 1).to_s + ": " + win_str
+	
+	# Remove extra line
+	lines.shift
+end

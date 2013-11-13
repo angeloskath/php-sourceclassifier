@@ -1,0 +1,66 @@
+import Control.Monad
+import Data.Array.Unboxed
+import Data.Monoid
+
+type Board = UArray (Int, Int) Char
+
+readProblem :: String -> [Board]
+readProblem str = go (drop 1 (lines str))
+  where
+    go [] = []
+    go ls = readBoard (take 4 ls) : go (drop 5 ls)
+
+readBoard :: [String] -> Board
+readBoard lines =
+  array ((0, 0), (3, 3)) $
+        zip [ (x, y) | x <- [0..3], y <- [0..3]]
+            (concat lines)
+
+rows :: Board -> [String]
+rows board = [ [ board ! (x, y) | y <- [0..3] ] | x <- [0..3] ]
+
+cols :: Board -> [String]
+cols board = [ [ board ! (x, y) | x <- [0..3] ] | y <- [0..3] ]
+
+diags :: Board -> [String]
+diags board = [ map (board !) (zip [0..3] [0..3])
+              , map (board !) (zip [3, 2..0] [0..3])
+              ]
+
+sequences :: Board -> [String]
+sequences board = rows board ++ cols board ++ diags board
+
+data Win = Win Char | Draw | Incomplete
+  deriving (Eq, Show)
+
+instance Monoid Win where
+  mempty = Draw
+  mappend (Win x) _ = Win x
+  mappend _ (Win y) = Win y
+  mappend Incomplete _ = Incomplete
+  mappend _ Incomplete = Incomplete
+  mappend Draw Draw = Draw
+
+winStatus :: String -> Win
+winStatus string
+  | all (\c -> c == 'X' || c == 'T') string = Win 'X'
+  | all (\c -> c == 'O' || c == 'T') string = Win 'O'
+  | any (== '.') string = Incomplete
+  | otherwise = Draw
+
+boardStatus :: Board -> Win
+boardStatus = mconcat . map winStatus . sequences
+
+showCase :: Int -> String
+showCase i = "Case #" ++ show i ++ ": "
+
+showResult :: Int -> Win -> String
+showResult i w =
+    showCase i ++ case w of
+      Win c -> c : " won"
+      Draw -> "Draw"
+      Incomplete -> "Game has not completed"
+
+main = do
+    c <- readFile "A-large.in"
+    writeFile "A-large.out" $ unlines $ map (uncurry showResult) (zip [1..] (map boardStatus (readProblem c)))

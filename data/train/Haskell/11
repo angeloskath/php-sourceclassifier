@@ -1,0 +1,27 @@
+
+main = do
+        caseCount <- getIntLine
+        mapM_ (\caseNum -> solveCase >>= putStrLn . (("Case #" ++ show caseNum ++ ": ") ++)  ) [1..caseCount] -- Solve each case and pretty print
+
+solveCase = do
+                board <- sequence (replicate 4 getLine) -- Read four lines
+                getLine -- Discard extra empty line
+                let lines = boardLines board
+                let xWin = any (all (`elem` ['X','T']) ) lines -- There is a winning line for X
+                let oWin = any (all (`elem` ['O','T']) ) lines -- There is a winning line for O
+                let notFull = any (elem '.') board             -- There is a . on the board
+                let answer | xWin = "X won"
+                           | oWin = "O won"
+                           | notFull = "Game has not completed"
+                           | otherwise = "Draw"
+                return answer
+                
+boardLines board = diagonals board ++ rows board ++ columns board
+
+rows = id
+columns = map (map head) . takeWhile (not . null . head) . iterate (map tail)
+diagonals board = [zipWith (!!) board [0..3] , zipWith (!!) board [3,2..0] ]
+
+
+getIntLine :: IO Int
+getIntLine = fmap read getLine

@@ -1,0 +1,169 @@
+<?php
+function analizeRow($row)
+{
+    $res = 0;
+    if($row == 'XXXX' || $row == 'XXXT' || $row == 'XXTX' || $row == 'XTXX' || $row == 'TXXX')
+        $res = 1;
+    else if($row == 'OOOO' || $row == 'OOOT' || $row == 'OOTO' || $row == 'OTOO' || $row == 'TOOO')
+        $res = 2;
+    else 
+    {
+        $aux = strstr($row, '.');
+        if($aux)
+            $res = 3;
+    }
+    return $res;
+}
+
+function analizeColumn($row1, $row2, $row3, $row4, $column)
+{
+    $res = false;
+    if(($row1[$column] == 'X' || $row1[$column] == 'T') && ($row2[$column] == 'X' || $row2[$column] == 'T')
+        && ($row3[$column] == 'X' || $row3[$column] == 'T') && ($row4[$column] == 'X' || $row4[$column] == 'T'))
+        $res = 1;
+    else if(($row1[$column] == 'O' || $row1[$column] == 'T') && ($row2[$column] == 'O' || $row2[$column] == 'T')
+        && ($row3[$column] == 'O' || $row3[$column] == 'T') && ($row4[$column] == 'O' || $row4[$column] == 'T'))
+        $res = 2;
+    return $res;
+}
+
+function analizeDiagonal1($row1, $row2, $row3, $row4)
+{
+    $res = false;
+    if(($row1[0] == 'X' || $row1[0] == 'T') && ($row2[1] == 'X' || $row2[1] == 'T')
+        && ($row3[2] == 'X' || $row3[2] == 'T') && ($row4[3] == 'X' || $row4[3] == 'T'))
+        $res = 1;
+    else if(($row1[0] == 'O' || $row1[0] == 'T') && ($row2[1] == 'O' || $row2[1] == 'T')
+        && ($row3[2] == 'O' || $row3[2] == 'T') && ($row4[3] == 'O' || $row4[3] == 'T'))
+        $res = 2;
+    return $res;
+}
+
+function analizeDiagonal2($row1, $row2, $row3, $row4)
+{
+    $res = false;
+    if(($row1[3] == 'X' || $row1[3] == 'T') && ($row2[2] == 'X' || $row2[2] == 'T')
+        && ($row3[1] == 'X' || $row3[1] == 'T') && ($row4[0] == 'X' || $row4[0] == 'T'))
+        $res = 1;
+    else if(($row1[3] == 'O' || $row1[3] == 'T') && ($row2[2] == 'O' || $row2[2] == 'T')
+        && ($row3[1] == 'O' || $row3[1] == 'T') && ($row4[0] == 'O' || $row4[0] == 'T'))
+        $res = 2;
+    return $res;
+}
+function printRes($res)
+{
+    switch($res)
+    {
+        case 0:
+            $cad = 'Draw';
+            break;
+        
+        case 1:
+            $cad = 'X won';
+            break;
+        
+        case 2:
+            $cad = 'O won';
+            break;
+        
+        case 3:
+            $cad = 'Game has not completed';
+            break;
+    }
+    return $cad;
+}
+
+$archive = fopen("A-large.in","r");
+$output = fopen("output2.txt","w");
+if(!$archive)
+{
+    echo 'error al abrir el archivo';
+    die();
+}
+$nCases = fgets($archive);
+for($cont = 1; $cont <= $nCases; $cont++)
+{
+    $row1 = trim(fgets($archive));
+    $row2 = trim(fgets($archive));
+    $row3 = trim(fgets($archive));
+    $row4 = trim(fgets($archive));
+    $res1 = analizeRow($row1);
+    if($res1 != 1 && $res1 != 2)
+    {
+        $res2 = analizeRow($row2);
+        if($res2 != 1 && $res2 != 2)
+        {
+            $res3 = analizeRow($row3);
+            if($res3 != 1 && $res3 != 2)
+            {
+                $res4 = analizeRow($row4);
+                if($res4 != 1 && $res4 != 2)
+                {
+                    $row1 = str_split($row1);
+                    $row2 = str_split($row2);
+                    $row3 = str_split($row3);
+                    $row4 = str_split($row4);
+                    $band = false;
+                    for($cont2 = 0; $cont2 < 4 && $band == false; $cont2 ++)
+                    {
+                        $band = analizeColumn($row1, $row2, $row3, $row4, $cont2);
+                    }
+                    if($band == false)
+                    {
+                        $res = analizeDiagonal1($row1, $row2, $row3, $row4);
+                        if($res == false)
+                        {
+                            $res = analizeDiagonal2($row1, $row2, $row3, $row4);
+                            if($res == false)
+                            {
+                                if($res1 == 3 || $res2 == 3 || $res3 == 3 || $res4 == 3)
+                                {
+                                    $a = printRes(3);
+                                }
+                                else
+                                {
+                                    $a = printRes(0);
+                                }
+                            }
+                            else
+                            {
+                                $a = printRes($res);
+                            }
+                        }
+                        else
+                        {
+                            $a = printRes($res);
+                        }
+                    }
+                    else
+                    {
+                        $a = printRes($band);
+                    }
+                }
+                else
+                {
+                    $a = printRes($res4);
+                }
+            }
+            else
+            {
+                $a = printRes($res3);
+            }
+        }
+        else
+        {
+            $a = printRes($res2);
+        }
+    }
+    else
+    {
+        $a = printRes($res1);
+    }
+    fgets($archive);
+    $salto = '';
+    if($cont < $nCases)
+        $salto = PHP_EOL;
+    fputs($output, 'Case #'.$cont.': '.$a.$salto);
+}
+fclose($archive);
+fclose($output);

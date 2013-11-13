@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+
+def print_status(num, board)
+  completed = true
+
+  check_rows = Proc.new do |rows|
+    rows.each do |row|
+      if row.include?('.')
+        completed = false
+        next
+      end
+      if row.all? { |cell| ['X', 'T'].include?(cell) }
+        puts "Case ##{num}: X won"
+        return
+      end
+      if row.all? { |cell| ['O', 'T'].include?(cell) }
+        puts "Case ##{num}: O won"
+        return
+      end
+    end
+  end
+
+  # Check horizontals
+  check_rows.call(board)
+
+  # Check verticals
+  check_rows.call(board.transpose)
+
+  # Check diagonals
+  diag1 = [board[0][0], board[1][1], board[2][2], board[3][3]]
+  diag2 = [board[3][0], board[2][1], board[1][2], board[0][3]]
+  if diag1.all? { |cell| ['X', 'T'].include?(cell) }
+    puts "Case ##{num}: X won"
+    return
+  end
+  if diag2.all? { |cell| ['X', 'T'].include?(cell) }
+    puts "Case ##{num}: X won"
+    return
+  end
+  if diag1.all? { |cell| ['O', 'T'].include?(cell) }
+    puts "Case ##{num}: O won"
+    return
+  end
+  if diag2.all? { |cell| ['O', 'T'].include?(cell) }
+    puts "Case ##{num}: O won"
+    return
+  end
+
+  if completed
+    puts "Case ##{num}: Draw"
+  else
+    puts "Case ##{num}: Game has not completed"
+  end
+end
+
+ntests = $stdin.readline.chomp.to_i
+
+(1..ntests).each do |n|
+  board = []
+  board[0] = $stdin.readline.chomp.chars.to_a
+  board[1] = $stdin.readline.chomp.chars.to_a
+  board[2] = $stdin.readline.chomp.chars.to_a
+  board[3] = $stdin.readline.chomp.chars.to_a
+  $stdin.readline
+  print_status(n, board)
+end

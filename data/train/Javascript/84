@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <title>Problem A. Tic-Tac-Toe-Tomek</title>
+        <script>
+            function Process() {
+                InText = document.getElementById("InBox").innerText // Input Text
+                InsArr = InText.split("\n") // Convert Input Text to Inputs Array
+                T = Number(InsArr[0])
+                for (CaseI = 1; CaseI <= T; CaseI++) {
+                    Draws = 0
+                    for (RowI = CaseI * 5 - 4; RowI <= CaseI * 5 - 1; RowI++) {
+                        Row = InsArr[RowI]
+                        Status = GetStatus(Row)
+                        if (Status == 1 || Status == 2) {
+                            break
+                        }
+                        Col = ""
+                        for (ColItemI = CaseI * 5 - 4; ColItemI <= CaseI * 5 - 1; ColItemI++) {
+                            Col += InsArr[ColItemI].substr((RowI % 5) - 1, 1)
+                        }
+                        Status = GetStatus(Col)
+                        if (Status == 1 || Status == 2) {
+                            break
+                        }
+                    }
+                    if (Status != 1 && Status != 2) {
+                        Diag1 = ""
+                        Diag2 = ""
+                        for (RowI = CaseI * 5 - 4; RowI <= CaseI * 5 - 1; RowI++) {
+                            Diag1 += InsArr[RowI].substr((RowI % 5) - 1, 1)
+                            Diag2 += InsArr[RowI].substr(4 - (RowI % 5), 1)
+                        }
+                        Status = GetStatus(Diag1)
+                        if (Status != 1 && Status != 2) {
+                            Status = GetStatus(Diag2)
+                            if (Status != 1 && Status != 2) {
+                                if (Draws == 10) {
+                                    Status = 3
+                                } else {
+                                    Status = 4
+                                }
+                            }
+                        }
+                    }
+                    OutsArr[CaseI - 1] = "Case #" + CaseI + ": " + Statuses[Status - 1]
+                }
+
+                OutsText = OutsArr.join("\n")
+                document.getElementById("OutBox").innerText = OutsText
+            }
+
+            function GetStatus(Items) {
+                Xs = 0
+                Os = 0
+                Ts = 0
+                for (ItemI = 0; ItemI < 4; ItemI++) {
+                    switch (Items.substr(ItemI, 1)) {
+                        case "X":
+                            Xs++
+                            break
+                        case "O":
+                            Os++
+                            break
+                        case "T":
+                            Ts++
+                            break
+                    }
+                }
+                if (Xs + Ts == 4) {
+                    return 1
+                } else if (Os + Ts == 4) {
+                    return 2
+                } else if (Xs + Os + Ts == 4) {
+                    Draws++
+                    return 3
+                } else {
+                    return 4
+                }
+            }
+            var Draws
+            OutsArr = new Array()
+            Statuses = ["X won", "O won", "Draw", "Game has not completed"]
+        </script>
+    </head>
+    <body>
+        <table border="0">
+            <tr>
+                <td valign="top">
+                    Inputs:
+                </td>
+                <td>
+                    <textarea id="InBox" rows="10" cols="50"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <input type="button" value="Process Inputs" onclick="Process()">
+                </td>
+            </tr>
+            <tr>
+                <td valign="top">
+                    Outputs:
+                </td>
+                <td>
+                    <textarea id="OutBox" rows="10" cols="50"></textarea>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

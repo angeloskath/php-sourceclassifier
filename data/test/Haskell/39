@@ -1,0 +1,85 @@
+module Lib where
+
+groupsOf n xs = take n xs : case drop n xs of
+                                []  -> []
+                                xs' -> groupsOf n xs'
+
+(.|) = flip (.)
+
+diag xss = zipWith (!!) xss [0..(min width height - 1)]
+	where (width, height) = widthheight xss
+
+mirror = map reverse
+
+diag' = diag . mirror
+
+widthheight []   = (0, 0)
+widthheight [[]] = (0, 0)
+widthheight xss@(xs:_) = (length xs, length xss)
+-- vim:expandtab
+import Lib
+import Runner
+
+import Data.List
+
+main = makeMain split
+
+split input = unlines $ 
+    zipWith solve (groupsOf 5 .| map (take 4) $ strLines) [1..n]
+    where (strN:strLines) = lines input
+          n = read strN
+
+solve :: [[Char]] -> Int -> String
+solve prob i = "Case #" ++ show i ++ ": " ++ solution
+    where prob' = diag prob : diag' prob : prob ++ transpose prob 
+          solution = if checkX prob'
+                     then "X won"
+                     else if checkO prob'
+                     then "O won"
+                     else if checkDraw prob'
+                     then "Draw"
+                     else "Game has not completed"
+          checkX = any $ all (\c -> c == 'X' || c == 'T')
+          checkO = any $ all (\c -> c == 'O' || c == 'T')
+          checkDraw = all (all (/= '.'))
+-- vim:expandtab
+module Runner ( makeMain
+              , makeMainLines
+              ) where
+
+import Control.Monad ( sequence_ )
+import System.Environment ( getArgs )
+import System.IO ( IOMode(..) 
+                 , hClose
+                 , hGetContents
+                 , hPutStr
+                 , openFile 
+                 , stdin 
+                 , stdout )
+
+makeMain f = do
+    args <- getArgs
+    handleIn <- case args of
+                    [] -> return stdin
+                    (path:_) -> openFile path ReadMode
+    handleOut <- case args of
+                    [] -> return stdout
+                    (path:_) -> openFile (path ++ ".out") WriteMode
+    input <- hGetContents handleIn
+    hPutStr handleOut . f $ input
+    hClose handleIn
+    hClose handleOut
+
+makeMainLines lf = makeMain aux
+    where aux = unlines . aux' . lines
+          aux' []           = error "Need at least one input line"
+          aux' (strN:cases) = 
+              let n = read strN 
+              in zipWith (\c i -> "Case #" ++ show i ++ ": " ++ lf c) cases [1..n]
+
+makeMainLines' lf = do
+    n <- readLn
+    sequence_ . map aux $ [1..n]
+    where aux i = do
+              input <- getLine
+              putStrLn $ "Case #" ++ show i ++ ": " ++ lf input

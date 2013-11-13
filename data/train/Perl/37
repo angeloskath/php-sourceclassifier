@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+use List::Util qw(first);
+
+chomp($numcases=<>);
+#print "numcases=$numcases\n";
+for ($k=0;$k<$numcases;$k++) {
+	$i=$k+1;
+	#print "$i\n";
+	@board=();
+	for ($r=0;$r<4;$r++){
+		@row=split(undef,<>);
+		push @board, [@row];
+#		foreach my $v (@row) {
+#			print "$v+";
+#		}
+	}
+	$blank=<>;
+#	print $board[0][0]."\n";
+#	print $board[2][2]."\n";
+	#check across wins
+	for ($r=0;$r<4;$r++){
+		$countX=0; $countO=0; $countT=0; $countdot=0;
+		for ($c=0;$c<4;$c++){
+			if ($board[$r][$c] eq 'X') {$countX++; } 
+			if ($board[$r][$c] eq 'O')  {$countO++; }
+			if ($board[$r][$c] eq 'T') {$countT++; }
+			if ($board[$r][$c] eq '.') {$countdot++; }
+		#print $board[$r][$c]."$countX $countO $countT $countdot \n";
+		}
+		if ($countX+$countT==4) {
+			print "Case #$i: X won\n";goto ENDCASE;
+		} elsif ($countO+$countT==4) {
+			print "Case #$i: O won\n";goto ENDCASE;
+		}
+	}
+
+	#check down wins
+	for ($c=0;$c<4;$c++){
+		$countX=0; $countO=0; $countT=0; $countdot=0;
+		for ($r=0;$r<4;$r++){
+			if ($board[$r][$c] eq 'X') {$countX++; } 
+			if ($board[$r][$c] eq 'O')  {$countO++; }
+			if ($board[$r][$c] eq 'T') {$countT++; }
+			if ($board[$r][$c] eq '.') {$countdot++; }
+		#print $board[$r][$c]."$countX $countO $countT $countdot \n";
+		}
+		if ($countX+$countT==4) {
+			print "Case #$i: X won\n";goto ENDCASE;
+		} elsif ($countO+$countT==4) {
+			print "Case #$i: O won\n";goto ENDCASE;
+		}
+	}
+
+	#check diagonal wins
+	$countX=0; $countO=0; $countT=0; $countdot=0;
+	for ($r=0;$r<4;$r++){
+			if ($board[$r][$r] eq 'X') {$countX++; } 
+			if ($board[$r][$r] eq 'O')  {$countO++; }
+			if ($board[$r][$r] eq 'T') {$countT++; }
+			if ($board[$r][$r] eq '.') {$countdot++; }
+		#print $board[$r][$c]."$countX $countO $countT $countdot \n";
+	}
+		if ($countX+$countT==4) {
+			print "Case #$i: X won\n";goto ENDCASE;
+		} elsif ($countO+$countT==4) {
+			print "Case #$i: O won\n";goto ENDCASE;
+		}
+
+	$countX=0; $countO=0; $countT=0; $countdot=0;
+	for ($r=0;$r<4;$r++){
+			if ($board[$r][3-$r] eq 'X') {$countX++; } 
+			if ($board[$r][3-$r] eq 'O')  {$countO++; }
+			if ($board[$r][3-$r] eq 'T') {$countT++; }
+			if ($board[$r][3-$r] eq '.') {$countdot++; }
+		#print $board[$r][$c]."$countX $countO $countT $countdot \n";
+	}
+		if ($countX+$countT==4) {
+			print "Case #$i: X won\n";goto ENDCASE;
+		} elsif ($countO+$countT==4) {
+			print "Case #$i: O won\n";goto ENDCASE;
+		}
+
+	#check incomplete
+	for ($r=0;$r<4;$r++){
+		for ($c=0;$c<4;$c++){
+			if ($board[$r][$c] eq '.') { print "Case #$i: Game has not completed\n";goto ENDCASE;}
+		}
+	}
+
+	# draw
+	print "Case #$i: Draw\n";goto ENDCASE;
+	
+	ENDCASE:
+}

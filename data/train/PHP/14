@@ -1,0 +1,56 @@
+#!/usr/bin/php
+<?php
+
+ // Tic-Tac-Toe-Tomek
+ // MichaelMcElroy.NET
+
+    $path = "./large.txt";
+    $file = fopen ($path, "r");
+    $lines  = split ("\n", fread ($file, filesize ($path)));
+
+    fclose ($file);
+
+    $cases = intval (trim ($lines [0]));
+
+    for ($c = 0; $c < $cases; $c ++)
+
+        {
+        $text = "";
+        $text .= trim ($lines [1 + (5 * $c) + 0]);
+        $text .= trim ($lines [1 + (5 * $c) + 1]);
+        $text .= trim ($lines [1 + (5 * $c) + 2]);
+        $text .= trim ($lines [1 + (5 * $c) + 3]);
+
+        print ("Case #" . ($c + 1) . ": ");
+
+        if (did_win ($text, "X")) {print ("X won\n");}
+        else if (did_win ($text, "O")) {print ("O won\n");}
+        else if (strpos ($text, ".") === FALSE) {print ("Draw\n");}
+        else {print ("Game has not completed\n");}
+        }
+
+    function did_win ($text, $symbol)
+
+        {
+        $answer = FALSE;
+
+        $text = str_replace ("T", "Z", $text);
+        $text = str_replace ($symbol, "Z", $text);
+
+        if (strlen (preg_replace ('/[^Z]/', '', $text)) < 4) {$answer = FALSE;}
+        else if (preg_match ('/^ZZZZ............$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^....ZZZZ........$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^........ZZZZ....$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^............ZZZZ$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^Z...Z...Z...Z...$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^.Z...Z...Z...Z..$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^..Z...Z...Z...Z.$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^...Z...Z...Z...Z$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^Z....Z....Z....Z$/', $text)) {$answer = TRUE;}
+        else if (preg_match ('/^...Z..Z..Z..Z...$/', $text)) {$answer = TRUE;}
+        else {$answer = FALSE;}
+
+        return $answer;
+        }
+
+    ?>

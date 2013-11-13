@@ -1,0 +1,103 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"bufio"
+	"strings"
+)
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func checkRow(row []rune) (won bool, player rune) {
+	curr := 'n'
+	for i, c := range row {
+		switch {
+		case c == curr: continue
+		case c == 'T': continue
+		case c == '.': return false, 'n'
+		case i > 0: return false, 'n'
+		default: curr = c
+		}
+	}
+	return true, curr
+}
+
+func checkWin(board [][]rune) rune {
+	// horizontal
+	for y := 0; y < 4; y++ {
+		if won, p := checkRow(board[y]); won {
+			return p
+		}
+	}
+
+	// vertical
+	row := make([]rune, 4)
+	for x := 0; x < 4; x++ {
+		for y := 0; y < 4; y++ {
+			row[y] = board[y][x]
+		}
+		if won, p := checkRow(row); won {
+			return p
+		}
+	}
+
+	// diagonal
+	for x := 0; x < 4; x++ {
+		row[x] = board[x][x]
+	}
+	if won, p := checkRow(row); won {
+		return p
+	}
+	for x := 0; x < 4; x++ {
+		row[x] = board[x][3-x]
+	}
+	if won, p := checkRow(row); won {
+		return p
+	}
+
+	// ended?
+	for y := 0; y < 4; y++ {
+		for x := 0; x < 4; x++ {
+			if board[y][x] == '.' {
+				return 'n';
+			}
+		}
+	}
+
+	return 'D';
+}
+
+func main() {
+	var cases int
+	_, err := fmt.Scan(&cases);
+	checkErr(err);
+	in := bufio.NewReader(os.Stdin)
+
+	for cs := 1; cs <= cases; cs++ {
+		fmt.Printf("Case #%d: ", cs)
+		board := make([][]rune, 4)
+		for i := 0; i < 4; i++ {
+			line, err := in.ReadString('\n')
+			checkErr(err)
+			line = strings.TrimRight(line, "\n")
+			board[i] = make([]rune, 4)
+			for j, c := range line {
+				board[i][j] = c
+			}
+		}
+		switch p := checkWin(board); p {
+		case 'X': fmt.Println("X won")
+		case 'O': fmt.Println("O won")
+		case 'D': fmt.Println("Draw")
+		default: fmt.Println("Game has not completed")
+		}
+		_, err = in.ReadString('\n')
+		checkErr(err)
+	}
+}

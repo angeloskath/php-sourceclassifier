@@ -1,0 +1,73 @@
+{-# LANGUAGE LambdaCase #-}
+module Main where
+
+import Debug.Trace
+import Data.Array
+
+import qualified Data.Set as S
+import qualified Data.Map as M
+
+import Control.Monad
+import Control.Arrow
+import Control.Applicative
+
+data Move = X | O | Blank | T deriving (Eq, Ord, Enum, Bounded)
+
+instance Read Move where
+    readsPrec _ (c:xs) | c == '.' = [(Blank, xs)]
+    readsPrec _ (c:xs) | c == 'X' = [(X, xs)]
+    readsPrec _ (c:xs) | c == 'O' = [(O, xs)]
+    readsPrec _ (c:xs) | c == 'T' = [(T, xs)]
+    readsPrec _ _ = []
+
+instance Show Move where
+    show Blank = "."
+    show X = "X"
+    show O = "O"
+    show T = "T"
+
+parseBoard :: [[String]] -> Array (Int,Int) Move
+parseBoard xs = array ((0,0),(3,3)) $ concatMap (uncurry indexLine') $ zip xs [0..]
+    where indexLine' :: [String] -> Int -> [((Int,Int), Move)]
+          indexLine' xs' y' = zip [ (i',y') | i' <- [0..] ] $ map read xs'
+
+solveBoard :: Array (Int,Int) Move -> Move
+solveBoard ay = if X `S.member` results' && O `S.member` results' then T else S.findMin results' -- manually break the tie
+    where
+          results' = S.fromList $ map (tallyLine' . probe') checks'
+
+          emptyMap' :: M.Map Move Int
+          emptyMap' = M.fromList $ zip [minBound..maxBound] $ repeat 0
+
+          -- directional checks
+          down'    = id *** succ
+          right'   = succ *** id
+          diag'    = succ *** succ
+          oppdiag' = pred *** succ
+
+          checks' :: [((Int,Int), (Int,Int) -> (Int,Int))]
+          checks' = [ ((0,y), right') | y <- [0..3] ] ++ [ ((x,0), down') | x <- [0..3] ] ++ [((0,0), diag')] ++ [((3,0), oppdiag')]
+
+          probe' :: ((Int,Int), (Int,Int) -> (Int,Int)) -> M.Map Move Int
+          probe' (idx, direction) = M.unionWith max emptyMap' $ M.fromListWith (+) $ flip zip (repeat 1) $ map (ay !) $ take 4 $ iterate direction idx
+
+          tallyLine' :: M.Map Move Int -> Move
+          tallyLine' r | r M.! X == 4 = X
+          tallyLine' r | r M.! O == 4 = O
+          tallyLine' r | r M.! X == 3 && r M.! T == 1 = X
+          tallyLine' r | r M.! O == 3 && r M.! T == 1 = O
+          tallyLine' r | r M.! Blank > 0 = Blank
+          tallyLine' _ = T
+
+main :: IO ()
+main = do
+    boards <- read <$> getLine :: IO Int
+    forM_ [1..boards] $ \i -> do
+        board <- parseBoard <$> (replicateM 4 $ (map return) <$> getLine)
+        _     <- if i /= boards then getLine else return "" -- remove the blank
+
+        putStr $ "Case #" ++ show i ++ ": "
+        putStrLn $ case solveBoard board of
+                        T -> "Draw"
+                        Blank -> "Game has not completed"
+                        x -> (show x) ++ " won"

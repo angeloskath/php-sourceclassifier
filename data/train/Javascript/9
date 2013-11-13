@@ -1,0 +1,94 @@
+var codejam = require('code_jam')();
+
+codejam.readCase = function() {
+    var a = [],
+        i, sizeI;
+
+    for (i = 0, sizeI = 4; i < sizeI; ++i) {
+        a.push(this.readLine().split(''));
+    }
+    this.readLine();
+
+    return a;
+};
+
+codejam.evaluate = function(a) {
+    var i,
+        sizeI,
+        isNotCompleted = false,
+        check,
+        row, col, dig1, dig2;
+
+    function checkLine(b) {
+        var isX = true,
+            isO = true,
+            i, sizeI;
+
+        for (i = 0, sizeI = b.length; i < sizeI; ++i) {
+            if (b[i] === 'X') {
+                isX = isX;
+                isO = false;
+            } else if (b[i] === 'O') {
+                isO = isO;
+                isX = false;
+            } else if (b[i] === '.') {
+                isNotCompleted = true;
+                return;
+            }
+
+            if ( ! isX  && ! isO) {
+                return;
+            }
+        }
+
+        return isX ? 'X' : 'O';
+    }
+
+    for (i = 0, sizeI = a.length; i < sizeI; ++i) {
+        row = a[i];
+
+        check = checkLine(row);
+        if (check === 'X') {
+            return 'X won';
+        } else if (check === 'O') {
+            return 'O won';
+        }
+
+        col = [];
+        for (var j = 0, sizeJ = row.length; j < sizeJ; ++j) {
+            col.push(a[j][i]);
+        }
+
+        check = checkLine(col);
+        if (check === 'X') {
+            return 'X won';
+        } else if (check === 'O') {
+            return 'O won';
+        }
+    }
+
+    dig1 = [];
+    dig2 = [];
+    for (i = 0, sizeI = a.length; i < sizeI; ++i) {
+        dig1.push(a[i][i]);
+        dig2.push(a[i][sizeI - i - 1]);
+    }
+
+    check = checkLine(dig1);
+    if (check === 'X') {
+        return 'X won';
+    } else if (check === 'O') {
+        return 'O won';
+    }
+
+    check = checkLine(dig2);
+    if (check === 'X') {
+        return 'X won';
+    } else if (check === 'O') {
+        return 'O won';
+    }
+
+    return isNotCompleted ? 'Game has not completed' : 'Draw';
+};
+
+codejam.run();

@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+
+def game_status(game)
+  xwon = 'X won'
+  owon = 'O won'
+  draw = 'Draw'
+  inc = 'Game has not completed'
+
+  #Check did X win
+  if( all_equal(game[0][0],game[1][1],game[2][2],game[3][3], 'X') or
+      all_equal(game[0][3],game[1][2],game[2][1],game[3][0], 'X') )
+    return xwon
+  end
+
+  for i in 0...4
+    if( all_equal(game[i][0],game[i][1],game[i][2],game[i][3], 'X') or
+        all_equal(game[0][i],game[1][i],game[2][i],game[3][i], 'X') )
+      return xwon
+    end
+  end
+
+  #Check did 0 win
+  if( all_equal(game[0][0],game[1][1],game[2][2],game[3][3], 'O') or
+      all_equal(game[0][3],game[1][2],game[2][1],game[3][0], 'O') )
+    return owon
+  end
+
+  for i in 0...4
+    if( all_equal(game[i][0],game[i][1],game[i][2],game[i][3], 'O') or
+        all_equal(game[0][i],game[1][i],game[2][i],game[3][i], 'O') )
+      return owon
+    end
+  end
+
+
+  #Check if incomplete (board un-filled)
+  for i in 0...4
+    for j in 0...4
+      if game[i][j] == '.'
+        return inc
+      end
+    end
+  end
+
+  # Else draw
+  return draw
+end
+
+def all_equal(a,b,c,d, player)
+  return ((a == player or a == 'T') and
+    (b == player or b == 'T') and
+    (c == player or c == 'T') and
+    (d == player or d == 'T'))
+
+end
+
+
+f = File.open(ARGV[0], 'r')
+
+T = f.gets.to_i
+
+for i in 1..T
+  game = []
+  4.times do
+      game.push(f.gets)
+  end
+
+  f.gets # remove space
+
+  puts "Case ##{i}: " + game_status(game)
+
+end

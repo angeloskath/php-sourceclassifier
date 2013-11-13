@@ -1,0 +1,44 @@
+import java.io.FileReader
+import java.util.Scanner
+
+object TicTacToe {
+  val scanner: Scanner = new Scanner(new FileReader("/home/vinothkumar/input"))
+  def main(args: Array[String]) {
+    val noOfCases: Int = scanner.nextInt()
+    print(1.to(noOfCases).map(playGame).reduce(_ + "\n" + _))
+  }
+
+  def playGame(caseNo:Int) = {
+    val board = readBoard
+
+    val winners = (vertical(board) ++ horizontal(board) ++ crisscross(board)).map(winner)
+
+    "Case #" + caseNo + ": "+ (if (winners.contains('X')) "X won"
+    else if(winners.contains('O')) "O won"
+    else if (board.exists(_.contains('.'))) "Game has not completed"
+    else "Draw")
+  }
+
+  def winner(line:String) = {
+    line.reduce((sofar,now) => if (now == sofar) sofar else if (now == 'T') sofar else 'T')
+  }
+
+  def horizontal(board: List[String]) = {
+    board
+  }
+
+  def crisscross(board: List[String]) = {
+    List(
+      0.to(3).foldLeft("")((sofar,i) => sofar + board(i).charAt(i)),
+      0.to(3).foldLeft("")((sofar,i) => sofar + board(i).charAt(board.length - i - 1))
+    )
+  }
+
+  def vertical(board: List[String]) = {
+    0.to(3).map(column => board.foldLeft("")(_ + _.charAt(column)))
+  }
+
+  def readBoard = {
+    0.to(3).map(_ => scanner.next("[^\\s]+")).toList
+  }
+}

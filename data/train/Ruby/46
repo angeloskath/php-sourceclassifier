@@ -1,0 +1,64 @@
+def rows game
+  cols = game.map { |r| r.chars.to_a }.transpose.map { |r| r.inject(:+) }
+  diag1 = (0...4).map { |n| game[n][n] }.inject(:+)
+  diag2 = (0...4).map { |n| game[3-n][n] }.inject(:+)
+  game + cols + [diag1, diag2]
+end
+
+def row_winner row
+  t = row.chars.count('T')
+  o = row.chars.count('O')
+  x = row.chars.count('X')
+
+  if t + o == 4
+    return 'O'
+  elsif t + x == 4
+    return 'X'
+  end
+end
+
+STDIN.readline =~ /^(\d+)$/ or raise
+t = Integer($1)
+
+first = true
+(1..t).each do |x|
+  if first
+    first = false
+  else
+    STDIN.readline
+  end
+
+  game = []
+  4.times do
+    game << STDIN.readline.chomp
+    game[-1].length == 4 or raise
+  end
+
+  o_won = false
+  x_won = false
+  full = true
+
+  rows(game).each do |r|
+    case row_winner(r)
+    when 'O' then o_won = true
+    when 'X' then x_won = true
+    end
+
+    full = false if r.index('.')
+  end
+
+  raise if o_won and x_won
+
+  res = nil
+  if o_won
+    res = 'O won'
+  elsif x_won
+    res = 'X won'
+  elsif full
+    res = 'Draw'
+  else
+    res = "Game has not completed"
+  end
+
+  puts "Case ##{x}: #{res}"
+end

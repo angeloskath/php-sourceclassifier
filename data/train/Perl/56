@@ -1,0 +1,158 @@
+###################################
+# Tic-Tac-Toe-Tomek               #
+# Competitor:Sammy A. Esmail      #
+# 2013-04-12
+###################################
+use 5.14.2;
+use strict;
+use warnings;
+use constant TRUE		=>	1;
+use constant FALSE	=>	0;
+my $file_of_input_words=shift;
+my $file_of_output_words="Tic_Tac_Toe_Output.txt";
+
+open(my $MW,"<",$file_of_input_words)
+				or die "Could not open file";
+open(my $OUTPUT,">",$file_of_output_words)
+// die "Could not open file";
+
+my $CASE_COUNT=<$MW>; # of cases
+my $case_number=0;
+my $i;
+my $j;
+for (my $k=1;$k<=$CASE_COUNT;$k++) {
+	$case_number++;
+	my @matrix=[];
+
+	############################################
+	# Read Next Four Rows And Load Into Matrix #
+	############################################
+	for ($i=0;$i<=3;$i++) {
+		my $row=<$MW>;
+		chomp($row);
+		#say $row;
+		$row=~s/^\s*//;
+		$row=~s/\s*^//;
+		$row=~s/\./_/g;
+		my @row=split //,$row;
+		#say foreach @row;
+		$matrix[$i]=\@row;
+		push(@matrix,\@row);
+	}
+	#say "Printing Matrix";
+	#for (my $row=0;$row<=3;$row++) { 
+	#	for(my $col=0;$col<=3;$col++) {
+	#		print $matrix[$row][$col]," ";
+	#	}
+	#	print "\n";
+	#	<>;
+	#}
+	#say "#### Case:$k #############";
+	my $letter='X';
+	if(is_letter_a_winner(\@matrix,'X') ) {
+	#say "Letter X is a Winner!";
+		print $OUTPUT "Case #$k: X won\n";
+	}
+	elsif(is_letter_a_winner(\@matrix,'O') ) {
+	#say "Letter O is a Winner!";
+		print $OUTPUT "Case #$k: O won\n";
+	}
+	elsif(is_game_still_on(\@matrix)) {
+		#say "Game Still On";
+		print $OUTPUT "Case #$k: Game has not completed\n";
+	}
+	else {
+		print $OUTPUT "Case #$k: Draw\n";
+		#say "No Winner";
+	}
+	############# Skip the Blank Line ########
+	my $skip_line=<$MW>;
+}
+close($OUTPUT);
+
+sub is_game_still_on {
+	my $matrix_ptr=shift;
+	my @matrix=@$matrix_ptr;
+	for (my $row=0;$row<=3;$row++) { 
+		for(my $col=0;$col<=3;$col++) {
+			if($matrix[$row][$col] eq '_') {
+				return(TRUE);
+			}
+		}
+	}
+	return(FALSE);
+}
+sub is_letter_a_winner {
+	my $matrix_ptr=shift;
+	my $letter=shift;
+	my @matrix=@$matrix_ptr;
+	my $i;
+	my $j;
+	my $WINNER=FALSE;
+	my $true_count;
+	############## Check Rows #######
+	for($i=0;$i<=3;$i++) {
+		$true_count=0;
+		for($j=0;$j<=3;$j++) {
+			if($matrix[$i][$j] eq $letter 
+				|| $matrix[$i][$j] eq 'T' ) {	
+				$true_count++;
+			}
+		}
+		if($true_count==4) {
+			#say "A:Winner";
+			$WINNER=TRUE;
+			return($WINNER);
+		}
+	}
+	#say "Checking Columns ";<>;
+	############## Check Columns #######
+	for($j=0;$j<=3;$j++) {
+		$true_count=0;
+		for($i=0;$i<=3;$i++) {
+			if($matrix[$i][$j] eq $letter
+			  || $matrix[$i][$j] eq 'T') {
+				$true_count++;
+			}
+		}
+		if($true_count==4) {
+			#say "Columns:Winner";<>;
+			$WINNER=TRUE;
+			return($WINNER);
+		}
+	}
+	############# Check Two Diagonals ######
+	$true_count=0;
+	for ($i=0;$i<=3;$i++) {
+					#say "$i:$j";
+			if($matrix[$i][$i] eq $letter
+			  || $matrix[$i][$i] eq 'T') {
+				$true_count++;
+		}
+	}
+	if($true_count==4) {
+					#say "Diagonal_L_R:Winner";<>;
+		$WINNER=TRUE;
+		return($WINNER);
+	}
+
+
+	$j=3;
+	$true_count=0;
+	for ($i=0;$i<=3;$i++) {
+					#say "$i:$j";
+			if($matrix[$i][$j] eq $letter 
+			  || $matrix[$i][$j] eq 'T') {
+				$true_count++;
+			}
+			$j--;
+	}
+	if($true_count==4) {
+					#say "Diagonal_R_L:Winner";<>;
+		$WINNER=TRUE;
+		return($WINNER);
+	}
+	#say "Got Here";
+	return($WINNER);
+}
+

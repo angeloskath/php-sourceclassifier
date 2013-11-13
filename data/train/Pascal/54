@@ -1,0 +1,62 @@
+program prog;
+
+{$APPTYPE CONSOLE}
+
+Uses SysUtils;
+
+var a: array [1..4, 1..4] of char;
+  i, j, n, t: integer;
+  c: char;
+  isFree, x, o: boolean;
+
+function f(a, b, c, d: char):char;
+var s: string;
+begin
+  s := a+b+c+d;
+  if Pos('.', s) > 0 then Exit('.');
+  if (pos('X', s) > 0) and (pos('O', s) > 0) then Exit('D');
+  if a = 'T' then Exit(b) else Exit(a);
+end;
+
+procedure p(a, b, c, d: char);
+var ch: char;
+begin
+  ch:= f(a, b, c, d);
+  case ch of
+    '.': isFree:= True;
+    'X': x:= true;
+    'O': o:= true;
+  end;
+end;
+
+function str: string;
+begin
+  if x then Exit('X won');
+  if o then Exit('O won');
+  if isFree then Exit('Game has not completed');
+  Exit('Draw')
+end;
+
+begin
+  reset(input, 'input.txt');
+  rewrite(output, 'output.txt');
+  readln(n);
+  for t:= 1 to n do begin
+    for i:= 1 to 4 do begin
+      for j:= 1 to 4 do read(a[i, j]);
+      readln;
+    end;
+    readln;
+    isFree:= false;
+    x:= false; o:= false;
+    for i:= 1 to 4 do begin
+      p(a[i, 1], a[i, 2], a[i, 3], a[i, 4]);
+      p(a[1, i], a[2, i], a[3, i], a[4, i]);
+    end;
+    p(a[1, 1], a[2, 2], a[3, 3], a[4, 4]);
+    p(a[1, 4], a[2, 3], a[3, 2], a[4, 1]);
+    writeln('Case #'+IntToStr(t)+': '+str);
+  end;
+  close(input);
+  close(output);
+end.

@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+
+open FH, '<', "in.txt" or die $!;
+
+my @lines = <FH>;
+my $numTests = $lines[0];
+my $line;
+my $numLine = 1;
+my @boardX;
+my @boardO;
+my $x = 0;
+my $y = 0;
+my $dotCount = 0;
+my $end = 0;
+my $i = 0;
+
+for ($i = 1; $i <= $numTests; $i++) {
+	for ($x = 0; $x < 4; $x++) {
+		$line = $lines[$numLine];
+		for ($y = 0; $y < 4; $y++) {
+			$move = substr($line, $y, 1);
+			if ($move eq ".") { $dotCount++;  }
+			if ($move eq "T") {
+				$boardX[$x][$y] = "X";
+				$boardO[$x][$y] = "O";
+			}else {
+				$boardX[$x][$y] = $move;
+				$boardO[$x][$y] = $move;
+			}
+		}
+		$numLine++;
+	}
+
+	$numLine++;
+
+	#&printBoard(\@boardX);
+	&checkH(\@boardX);
+	&checkV(\@boardX);
+	&checkD(\@boardX);
+
+	#&printBoard(\@boardO);
+	&checkH(\@boardO);
+	&checkV(\@boardO);
+	&checkD(\@boardO);
+
+	if (($dotCount == 0) && ($end == 0)) {
+		print "Case #" . $i . ": Draw\n";
+		$end = 1;
+	}
+
+	if ($end == 0) {
+		print "Case #" . $i . ": Game has not completed\n";
+	}
+	$end = 0;
+	$dotCount = 0;
+}
+
+sub printBoard(@) {
+	my(@game) = @{$_[0]};
+	for($row = 0; $row < 4; $row++) {
+    		for($col = 0; $col < 4; $col++) {
+        		print $game[$row][$col]
+   		}
+   	print "\n";
+	}	
+   	print "\n";
+}
+
+sub checkH(@) {
+	my(@game) = @{$_[0]};
+	for($x = 0; $x < 4; $x++) {
+		if (($game[$x][0] eq $game[$x][1]) && ($game[$x][1] eq $game[$x][2]) && ($game[$x][2] eq $game[$x][3]) && ($end == 0)) {
+			
+			if (!($game[$x][0] eq ".")) {
+				print "Case #" . $i . ": " . $game[$x][0] . " won\n";
+				$end = 1;
+			}
+		}
+	}
+	
+}
+
+sub checkV(@) {
+	my(@game) = @{$_[0]};
+	for($y = 0; $y < 4; $y++) {
+		if (($game[0][$y] eq $game[1][$y]) && ($game[1][$y] eq $game[2][$y]) && ($game[2][$y] eq $game[3][$y]) && ($end == 0)) {
+			
+			if (!($game[0][$y] eq ".")) {
+				print "Case #" . $i . ": " . $game[0][$y] . " won\n";
+				$end = 1;
+			}
+		}
+	}
+	
+}
+
+sub checkD(@) {
+	my(@game) = @{$_[0]};
+	if (($game[0][0] eq $game[1][1]) && ($game[1][1] eq $game[2][2]) && ($game[2][2] eq $game[3][3]) && ($end == 0)) {
+			
+		if (!($game[0][0] eq ".")) {
+			print "Case #" . $i . ": " . $game[0][0] . " won\n";
+			$end = 1;
+		}
+	}
+	if (($game[0][3] eq $game[1][2]) && ($game[1][2] eq $game[2][1]) && ($game[2][1] eq $game[3][0]) && ($end == 0)) {
+			
+		if (!($game[0][3] eq ".")) {
+			print "Case #" . $i . ": " . $game[0][3] . " won\n";
+			$end = 1;
+		}
+	}
+}
+
+close(FH);

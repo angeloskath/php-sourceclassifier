@@ -1,0 +1,113 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+)
+
+type Board [4][4]int
+
+func orPanic(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func parse(b *bufio.Reader) Board {
+	m := Board{}
+	for i := 0; i < 4; i ++ {
+		line, err := b.ReadString('\n')
+		orPanic(err)
+		j := 0
+		for _, l := range line {
+			switch l {
+			case 'O':
+				m[i][j] = -1
+			case 'X':
+				m[i][j] = 1
+			case 'T':
+				m[i][j] = 0
+			case '.':
+				m[i][j] = -1000
+			case '\n', ' ', '\t':
+				j--
+			default:
+				panic("Invlid input " + string(l))
+			}
+			j++
+		}
+	}
+	return m
+}
+
+func (m Board) Winner() string {
+	completed := true
+	for i := 0; i < 4; i++ {
+		horiz, vert := 0, 0
+		for j := 0; j < 4; j++ {
+			horiz += m[i][j]
+			vert += m[j][i]
+			if m[i][j] == -1000 {
+				completed = false
+			}
+		}
+		switch vert {
+		case 3, 4:
+			return "X won"
+		case -3, -4:
+			return "O won"
+		}
+		switch horiz {
+		case 3, 4:
+			return "X won"
+		case -3, -4:
+			return "O won"
+		}
+	}
+	topleft, topright := 0, 0
+	for i := 0; i < 4; i++ {
+		topleft += m[i][i]
+		topright += m[3-i][i]
+	}
+	switch topleft {
+	case 3, 4:
+		return "X won"
+	case -3, -4:
+		return "O won"
+	}
+	switch topright {
+	case 3, 4:
+		return "X won"
+	case -3, -4:
+		return "O won"
+	}
+	if completed {
+		return "Draw"
+	}
+	return "Game has not completed"
+}
+
+func ensureNl(r io.Reader) {
+	b := make([]byte, 1)
+	n, err := r.Read(b)
+	if err != nil || n != 1 || b[0] != '\n' {
+		panic(fmt.Sprintln("Expected newline, got", n, "of", b))
+	}
+}
+
+func play(src io.Reader, w io.Writer) {
+	var n int
+	r := bufio.NewReader(src)
+	fmt.Fscan(r, &n)
+	for i := 1; i <= n; i++ {
+		ensureNl(r)
+		b := parse(r)
+		fmt.Fprintf(w, "Case #%d: %s\n", i, b.Winner())
+	}
+}
+
+func main() {
+	play(os.Stdin, os.Stdout)
+}

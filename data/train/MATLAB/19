@@ -1,0 +1,107 @@
+clear all;clc
+
+fid = fopen('A-small-attempt0(2).in','r');
+fid2 = fopen('asmall.out', 'wt');
+%c = fread(fid, 1, 'int64')'
+t=fscanf(fid,'%d',1);
+
+for ii=1:t
+    %A=[];
+    c=zeros(4,4);
+    %     fscanf(fid,'%c',1);
+    %   A=['XXXT';'....';'OO..';'....'];
+    %   A=['XOXT';'XXOO';'OXOX';'XXOO'];
+    
+    %   A=['XXXT';'....';'OO..';'....'];
+    for i=1:4
+        A(i,:)=fscanf(fid,'%s',1);
+        for j=1:4
+            if A(i,j)=='.'
+                c(i,j)=0;
+            end
+            
+            if A(i,j)=='X'
+                c(i,j)=1;
+            end
+            
+            if A(i,j)=='O'
+                c(i,j)=2;
+            end
+            if A(i,j)=='T'
+                c(i,j)=-1;
+            end
+        end
+    end
+    [s1,s2]=size(c);
+    xw=0;
+    ow=0;
+    dw=0;
+    noEmpty=length(find(c==0));
+    for i=1:s1
+        for j=1:s2
+            %        [ffrx,ffcx]=find(c==1);
+            %        [ffro,ffco]=find(c==2);
+            if c(i,j)~=0 && c(i,j)~=-1
+                rowc=c(i,:);
+                colc=c(:,j);
+                
+                if i==j
+                    diag1=zeros(4,1);
+                    diag2=zeros(4,1);
+                    %                 diag1f=zeros(4,1);
+                    %                 diag2f=zeros(4,1);
+                    for dd=1:4
+                        %                     diag1f(dd)=flags(dd,dd);
+                        diag1(dd)=c(dd,dd);
+                        
+                        diag2(dd)=c(4-dd+1,dd);
+                        %                     diag2f(dd)=flags(4-dd+1,dd);
+                    end
+                end
+                
+                ffd1=find(diag1==c(i,j) | diag1==-1);
+                ffd2=find(diag2==c(i,j) | diag2==-1);
+                ffr=find(rowc==c(i,j) | rowc==-1);
+                ffc=find(colc==c(i,j) | colc==-1);
+                if sum(ffd1>0)==4 || sum(ffd2>0)==4 || sum(ffr>0)==4 || sum(ffc>0)==4
+                    
+                    if c(i,j)==1
+                        xw=1;
+                    end
+                    if c(i,j)==2
+                        ow=1;
+                    end
+                    
+                end
+            end
+            
+        end
+    end
+    
+    xw
+    ow
+    %     if lc>0
+    %         fprintf(fid2, 'Case #%d:\n', ii);
+    %         fprintf(fid2, '%s\n', 'Impossible');
+    %     else
+    %         fprintf(fid2, 'Case #%d:\n', ii);
+    %         for k=1:R
+    %             fprintf(fid2, '%s\n', A(k,:));
+    %         end
+    %
+    %     end
+    if xw==1 && ow==0
+        fprintf(fid2, 'Case #%d: %s\n', ii,'X won');
+    end
+    
+    if xw==0 && ow==1
+        fprintf(fid2, 'Case #%d: %s\n', ii,'O won');
+    end
+    if xw==0 && ow==0 && noEmpty>0
+         fprintf(fid2, 'Case #%d: %s\n', ii,'Game has not completed');
+    end
+     if xw==0 && ow==0 && noEmpty==0
+         fprintf(fid2, 'Case #%d: %s\n', ii,'Draw');
+    end
+    
+end

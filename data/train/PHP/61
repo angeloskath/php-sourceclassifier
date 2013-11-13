@@ -1,0 +1,95 @@
+<?php
+;/**
+*   Ahsio participation for google code jam 2013 - Qualification Round
+*   Problem: Tic-Tac-Toe-Tomek
+*/
+
+    if (!$inputFile = fopen("A-large.in","r")) {
+        echo "Can't open the input file";
+        exit;
+    }
+    if (!$outputFile = fopen("A-large.ou","w")) {
+        echo "Can't open the output file";
+        exit;
+    }
+
+    $numberOfTestCases = (int)fgets($inputFile);
+
+    for ($caseNumber = 1; $caseNumber <= $numberOfTestCases; $caseNumber++) {
+        $board = array();
+        for ($indexLine = 0 ; $indexLine < 4; $indexLine ++) {
+            $line = fgets($inputFile);
+            $board[$indexLine] = array();
+            for ($indexColumn = 0; $indexColumn < 4; $indexColumn++) {
+                $board[$indexLine][$indexColumn] = $line[$indexColumn];
+            }
+        }
+        $isWinner = winnerCheck($board);
+        if ($isWinner['isWinner']) {
+            fputs($outputFile, "Case #".$caseNumber.": ". $isWinner['winner']." won\n");
+        } else if (checkEmpty($board)) {
+            fputs($outputFile, "Case #".$caseNumber.": Game has not completed\n");
+        } else {
+            fputs($outputFile, "Case #".$caseNumber.": Draw\n");
+        }
+        $line = fgets($inputFile);
+
+    }
+    fclose($inputFile);
+    fclose($outputFile);
+
+    function winnerCheck($board = array()) {
+        if (checkIfHeWins($board, 'X')) {
+            return array(
+                'isWinner' => true,
+                'winner'   => 'X',
+            );
+        } else if(checkIfHeWins($board, 'O')) {
+            return array(
+                'isWinner' => true,
+                'winner'   => 'O',
+            );
+        }
+
+        return array('isWinner' => false);
+    }
+
+    function checkEmpty($board = array()) {
+        foreach ($board as $indexLine => $line) {
+            foreach ($line as $indexColumn => $value) {
+                if ($value == '.') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function checkIfHeWins($board = array(), $symbol) {
+        for ($i = 0 ; $i < 4; $i ++) {
+            // check lines
+            if (isGood($board[$i][0], $symbol) && isGood($board[$i][1], $symbol) && isGood($board[$i][2], $symbol) && isGood($board[$i][3], $symbol)) {
+                return true;
+            }
+            // check columns
+            if (isGood($board[0][$i], $symbol) && isGood($board[1][$i], $symbol) && isGood($board[2][$i], $symbol) && isGood($board[3][$i], $symbol)) {
+                return true;
+            }
+        }
+        // check both diagonals
+        if (isGood($board[0][0], $symbol) && isGood($board[1][1], $symbol) && isGood($board[2][2], $symbol) && isGood($board[3][3], $symbol)) {
+            return true;
+        }
+        if (isGood($board[0][3], $symbol) && isGood($board[1][2], $symbol) && isGood($board[2][1], $symbol) && isGood($board[3][0], $symbol)) {
+            return true;
+        }
+
+
+        return false;
+    }
+
+    function isGood($value, $symbol) {
+        return ($value == $symbol || $value == 'T');
+    }
+?>

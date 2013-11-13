@@ -1,0 +1,64 @@
+use strict;
+
+my $state = 0;
+my $case = 1;
+my $caseLine = 0;
+my @board;
+
+sub evalBoard(@);
+
+while(my $line = <>) {
+	if($state == 0) {
+		$state = 1;
+		next;
+	}
+	if($line =~ /^\s*$/) {
+		next;
+	}
+	$line =~ s/\s*//g;
+	$board[$caseLine++] = $line;
+	if($caseLine==4) {
+		print "Case #$case: " . evalBoard(@board) . "\n";
+		$caseLine = 0;
+		$case++;
+	}
+}
+
+sub evalString(@) {
+	my @l = @_;
+	my %counts = ('T'=>0, 'X'=>0, 'O'=>0, '.'=>0);
+	for(my $i=0; $i<=$#l; ++$i) {
+		$counts{$l[$i]}++;
+	}
+	return 'O won' if($counts{'O'}==4 || ($counts{'O'}==3 && $counts{'T'}==1));
+	return 'X won' if($counts{'X'}==4 || ($counts{'X'}==3 && $counts{'T'}==1));
+
+	return $counts{'.'};
+}
+
+sub evalBoard(@) {
+	my @board = @_;
+	my $spaces = 0;
+	my @trans;
+	for(my $i=0; $i<=$#board; ++$i) {
+		my @line = split(//, $board[$i]);
+		my $result = evalString(@line);
+		return $result if(length($result) > 1);
+		$spaces += $result;
+		for(my $j=0; $j<=$#line; ++$j) {
+			$trans[$j][$i] = $line[$j];
+		}
+	}
+	my @diags;
+	for(my $i=0; $i<=$#trans; ++$i) {
+		my $result = evalString(@{$trans[$i]});
+		return $result if(length($result) > 1);
+		$diags[0][$i] = $trans[$i][$i];
+		$diags[1][$i] = $trans[$i][$#trans-$i];
+	}
+	for(my $i=0; $i<=$#diags; ++$i) {
+		my $result = evalString(@{$diags[$i]});
+		return $result if(length($result) > 1);
+	}
+	return $spaces == 0 ? 'Draw' : 'Game has not completed';
+}

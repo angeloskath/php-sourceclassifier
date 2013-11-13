@@ -1,0 +1,97 @@
+Var
+        n, Now:Longint;
+        Cou:Array[#0..#255]Of Longint;
+        a:Array[1..4]Of String;
+
+Procedure Init;
+Var
+        i:Longint;
+Begin
+        For i:=1 To 4 Do
+                Readln(a[i]);
+        Readln;
+End;
+
+Procedure Work;
+Var
+        i, j:Longint;
+Begin
+        Write('Case #', Now, ': ');
+        For i:=1 To 4 Do
+        Begin
+                FillChar(Cou, Sizeof(Cou), 0);
+                For j:=1 To 4 Do
+                        Inc(Cou[a[i][j]]);
+                If (Cou['O'] + Cou['T'] = 4) Then
+                Begin
+                        Writeln('O won');
+                        Exit;
+                End;
+                If (Cou['X'] + Cou['T'] = 4) Then
+                Begin
+                        Writeln('X won');
+                        Exit;
+                End;
+        End;
+        For j:=1 To 4 Do
+        Begin
+                FillChar(Cou, Sizeof(Cou), 0);
+                For i:=1 To 4 Do
+                        Inc(Cou[a[i][j]]);
+                If (Cou['O'] + Cou['T'] = 4) Then
+                Begin
+                        Writeln('O won');
+                        Exit;
+                End;
+                If (Cou['X'] + Cou['T'] = 4) Then
+                Begin
+                        Writeln('X won');
+                        Exit;
+                End;
+        End;
+        FillChar(Cou, Sizeof(Cou), 0);
+        For j:=1 To 4 Do
+                Inc(Cou[a[j][j]]);
+        If (Cou['O'] + Cou['T'] = 4) Then
+        Begin
+                Writeln('O won');
+                Exit;
+        End;
+        If (Cou['X'] + Cou['T'] = 4) Then
+        Begin
+                Writeln('X won');
+                Exit;
+        End;
+        FillChar(Cou, Sizeof(Cou), 0);
+        For j:=1 To 4 Do
+                Inc(Cou[a[j][4-j+1]]);
+        If (Cou['O'] + Cou['T'] = 4) Then
+        Begin
+                Writeln('O won');
+                Exit;
+        End;
+        If (Cou['X'] + Cou['T'] = 4) Then
+        Begin
+                Writeln('X won');
+                Exit;
+        End;
+        FillChar(Cou, SizeOf(Cou), 0);
+        For i:=1 To 4 Do
+                For j:=1 To 4 Do
+                        Inc(Cou[a[i][j]]);
+        If (Cou['.'] = 0) Then Writeln('Draw')
+        Else Writeln('Game has not completed');
+
+End;
+
+Begin
+        Assign(Input, 'chess.in'); Reset(Input);
+        Assign(Output, 'chess.out'); Rewrite(Output);
+        Readln(n);
+        For Now:=1 To n Do
+        Begin
+                Init;
+                Work;
+        End;
+        Close(Input); Close(Output);
+End.

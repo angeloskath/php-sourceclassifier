@@ -1,0 +1,92 @@
+var fs = require('fs')
+  , NAME = 'A-large.in'
+  , file = fs.readFileSync(NAME).toString();
+
+function getGames() {
+  var lines = file.split('\n')
+    , num = parseInt(lines.shift(), 10)
+    , games = []
+    , ctr = 0;
+  for (var i = 0; i < num*5; i+=5) {
+    games[ctr] = [];
+    for (var j = 0; j < 4; j++) {
+      games[ctr][j] = lines[i + j];
+    }
+    ctr++;
+  }
+  return games;
+}
+
+function getWinner(games) {
+  return games.map(judgeGame);
+}
+
+function judgeGame(game) {
+  var i, j
+    , hline, vline, dline, dline2
+    , dotCnt;
+  // horizontal & horizontal
+  for (i = 0; i < 4; i++) {
+    hline = game[i];
+    vline = [game[0][i], game[1][i]
+          , game[2][i], game[3][i]]
+    var hjdg = judgeLine(hline);
+    var vjdg = judgeLine(vline);
+    if (hjdg.x || hjdg.o) return hjdg;
+    if (vjdg.x || vjdg.o) return vjdg;
+  }
+  // diagonal
+  dline = [game[0][0], game[1][1]
+        , game[2][2], game[3][3]];
+  dline2 = [game[3][0], game[2][1]
+        , game[1][2], game[0][3]];
+  var djdg = judgeLine(dline);
+  var d2jdg = judgeLine(dline2);
+  if (djdg.x || djdg.o) return djdg;
+  if (d2jdg.x || d2jdg.o) return d2jdg;
+  //check dots
+  dotCnt = getDotCount(game);
+  return {
+      x: false
+    , o: false
+    , isDraw: (dotCnt === 0)
+    , isIncomplete: (dotCnt > 0)
+  };
+}
+
+function getDotCount(game) {
+  var dotCnt = 0;
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 4; j++) {
+      if (game[i][j] === '.') dotCnt++;
+    }
+  }
+  return dotCnt;
+}
+
+function judgeLine(line) {
+  var judge = {x: false, o: false}
+    , i, l, oc = 0, xc = 0, isT;
+  for (i = 0; i < 4; i++) {
+    l = line[i];
+    isT = (l === 'T');
+    if (isT || (l === 'O')) oc++;
+    if (isT || (l === 'X')) xc++;
+  }
+  return {
+      o: (oc === 4)
+    , x: (xc === 4)
+  };
+}
+
+function printWinner(judged) {
+  var tpl = 'Case #%d: %s';
+  judged.map(function (game, i) {
+    if (game.o) console.log(tpl, i+1, 'O won');
+    if (game.x) console.log(tpl, i+1, 'X won');
+    if (game.isDraw) console.log(tpl, i+1, 'Draw');
+    if (game.isIncomplete) console.log(tpl, i+1, 'Game has not completed');
+  });
+}
+
+printWinner(getWinner(getGames()));

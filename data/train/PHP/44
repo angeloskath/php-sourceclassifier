@@ -1,0 +1,70 @@
+<?php
+function outcome($in) {
+	$x = $o = true;
+	foreach ($in as $v) {
+		if ($v == 'X') {
+			$o = false;
+		}
+		elseif ($v == 'O') {
+			$x = false;
+		}
+		elseif ($v == '.') {
+			$x = $o = false;
+		}
+		if (!$x && !$o)
+			break;
+	}
+	if ($x) {
+		return 'X won';
+	}
+	elseif ($o) {
+		return 'O won';
+	}
+	else {
+		return false;
+	}
+}
+
+$fin = fopen('A-large.in', 'r');
+$fout = fopen('out.txt', 'w');
+$cases = (int)trim(fgets($fin));
+$line = array();
+for ($i = 1; $i <= $cases; $i++) {
+	fwrite($fout, 'Case #' . $i .': ');
+	for ($j = 0; $j < 4; $j++) {
+		$line[$j] = str_split(trim(fgets($fin)));
+	}
+
+	for ($j = 0; $j < 4; $j++) {
+		if ($outcome = outcome($line[$j]))
+			break;
+		if ($outcome = outcome(array($line[0][$j], $line[1][$j], $line[2][$j], $line[3][$j])))
+			break;
+	}
+	if (!$outcome) {
+		$outcome = outcome(array($line[0][0], $line[1][1], $line[2][2], $line[3][3]));
+		if (!$outcome) {
+			$outcome = outcome(array($line[0][3], $line[1][2], $line[2][1], $line[3][0]));
+		}
+	}
+
+	if ($outcome) {
+		fwrite($fout, $outcome);
+	}
+	else {
+		$draw = true;
+		for ($j = 0; $j < 4; $j++) {
+			if (in_array('.', $line[$j])) {
+				$draw = false;
+				break;
+			}
+		}
+		fwrite($fout, $draw ? 'Draw' : 'Game has not completed');
+	}
+	if ($i !== $cases) {
+		fwrite($fout, "\n");
+	}
+
+	fgets($fin);
+}
+fclose($fin);

@@ -1,0 +1,71 @@
+<?php
+
+function do_test($in, $case) { 
+
+  $finished = true;
+  $result = NULL;
+  $lines = array("", "", "", "", "", "", "", "", "", "");
+
+  for ($i = 0; $i < 4; $i ++) { 
+    for ($j = 0; $j < 4; $j ++) { 
+      $c = fgetc($in);
+      $lines[$i] .= $c;
+      $lines[$j + 4] .= $c;
+      if ($i == $j) $lines[8] .= $c;
+      if (($i + $j) == 3) $lines[9] .= $c;
+      if ($c == '.') $finished = false;
+    }
+    // Read the line break;
+    $line = get_next_line($in);
+  }
+
+  // Eat the blank line 
+  $line = get_next_line($in);
+
+  $x = 0; $o = 0;
+  foreach ($lines as $line) { 
+    if (preg_match('/[OT][OT][OT][OT]/', $line)) { $o ++; }
+    if (preg_match('/[XT][XT][XT][XT]/', $line)) { $x ++; } 
+  }
+
+  echo "Case #$case: ";
+  if ($x) { 
+    if ($o) { 
+      echo "Draw\n";
+    } else { 
+      echo "X won\n";
+    }
+  } else if ($o) { 
+    echo "O won\n";
+  } else { 
+    if ($finished) { 
+      echo "Draw\n";
+    } else { 
+      echo "Game has not completed\n";
+    }
+  }
+
+  //  echo "X$x O$o F$finished\n";
+}
+
+
+
+function get_next_line($in) { 
+  if ($line = fgets($in)) { 
+    return (trim($line, "\n\r"));
+  }
+  return FALSE;
+}
+
+$in = fopen("php://stdin", "r");
+
+$num_entries = (int)get_next_line($in);
+$case = 1;
+do 
+{
+  do_test($in, $case);
+} 
+while (($case++) < $num_entries);
+  
+return 0;
+?>

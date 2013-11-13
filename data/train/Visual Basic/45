@@ -1,0 +1,101 @@
+﻿Imports System.IO
+Imports System.Text
+Imports System.Text.RegularExpressions
+
+Module Module1
+
+    Sub Main()
+        'load file
+        Dim LineReader As String() = File.ReadAllLines("C:\Jam\A-large.in")
+        Dim SolutionWriter As New System.IO.StreamWriter("C:\Jam\A.out")
+
+        Dim T As UShort = CUShort(LineReader(0))
+        Dim iLine As UShort = 0
+
+
+        Dim Board(3, 3) As Char
+        ' Dim Sol As String
+
+        For counter As Integer = 1 To T
+            iLine += 1
+
+            For i = 0 To 3
+                For j = 0 To 3
+                    Board(i, j) = LineReader(iLine)(j)
+                Next
+                iLine += 1
+            Next
+
+            Dim result As UShort = 0
+
+            For i = 0 To 3
+                result = Row(Board(i, 0), Board(i, 1), Board(i, 2), Board(i, 3))
+                If result <> 0 Then
+                    Exit For
+                End If
+            Next
+
+            If result = 0 Then
+                For j = 0 To 3
+                    result = Row(Board(0, j), Board(1, j), Board(2, j), Board(3, j))
+                    If result <> 0 Then
+                        Exit For
+                    End If
+                Next
+            End If
+
+            If result = 0 Then
+                result = Row(Board(0, 0), Board(1, 1), Board(2, 2), Board(3, 3))
+            End If
+
+            If result = 0 Then
+                result = Row(Board(0, 3), Board(1, 2), Board(2, 1), Board(3, 0))
+            End If
+
+            If result = 0 Then
+                If Stalemate(Board) Then
+                    result = 3
+                End If
+            End If
+
+            Select Case result
+                Case 0
+                    SolutionWriter.WriteLine("Case #" & counter & ": Game has not completed")
+                Case 1
+                    SolutionWriter.WriteLine("Case #" & counter & ": X won")
+                Case 2
+                    SolutionWriter.WriteLine("Case #" & counter & ": O won")
+                Case 3
+                    SolutionWriter.WriteLine("Case #" & counter & ": Draw")
+            End Select
+
+
+        Next
+
+
+        SolutionWriter.Close()
+    End Sub
+
+    Private Function Row(ByVal r1 As Char, ByVal r2 As Char, ByVal r3 As Char, ByVal r4 As Char) As UShort
+        If (r1 = "X" OrElse r1 = "T") AndAlso (r2 = "X" OrElse r2 = "T") AndAlso (r3 = "X" OrElse r3 = "T") AndAlso (r4 = "X" OrElse r4 = "T") Then
+            Return 1
+        End If
+
+        If (r1 = "O" OrElse r1 = "T") AndAlso (r2 = "O" OrElse r2 = "T") AndAlso (r3 = "O" OrElse r3 = "T") AndAlso (r4 = "O" OrElse r4 = "T") Then
+            Return 2
+        End If
+
+        Return 0
+    End Function
+
+    Private Function Stalemate(ByVal Board(,) As Char) As Boolean
+        For i = 0 To 3
+            For j = 0 To 3
+                If Board(i, j) = "." Then Return False
+            Next
+        Next
+        Return True
+    End Function
+
+
+End Module

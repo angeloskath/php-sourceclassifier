@@ -1,0 +1,115 @@
+<html>
+
+  <script>
+    window.onload = function() {
+
+      function checkWin(table) {
+        for(var i = 0; i < 4; i++) {
+          var r = {'O':0, 'X':0, 'T':0};
+          for(var j = 0; j < 4; j++) {
+            r[table[i][j]]++;
+          }
+          if (r['O'] + r['T'] == 4) return 'O';
+          if (r['X'] + r['T'] == 4) return 'X';
+
+          r = {'O':0, 'X':0, 'T':0};
+          for(var j = 0; j < 4; j++) {
+            r[table[j][i]]++;
+          }
+          if (r['O'] + r['T'] == 4) return 'O';
+          if (r['X'] + r['T'] == 4) return 'X';
+        } 
+        var r = {'O':0, 'X':0, 'T':0};
+        for(var i = 0; i < 4; i++) {
+          r[table[i][i]]++;
+        }
+        if (r['O'] + r['T'] == 4) return 'O';
+        if (r['X'] + r['T'] == 4) return 'X';
+
+        var r = {'O':0, 'X':0, 'T':0};
+        for(var i = 0; i < 4; i++) {
+          r[table[i][4-i-1]]++;
+        }
+        if (r['O'] + r['T'] == 4) return 'O';
+        if (r['X'] + r['T'] == 4) return 'X';
+        return 'D';
+      }
+
+      function checkComplete(table) {
+        return table.join().indexOf('.') == -1;
+      }        
+
+      function handleFileSelect(evt) {
+        var files = evt.target.files; // FileList object
+        var file = files[0];
+        console.log(file);
+
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          // set input 
+          var text = e.target.result;
+          document.getElementById('input').innerHTML = '<pre>' + text + '</pre>';
+
+          //remove empty line and first line
+          text = text.split('\n').filter(function(v, i, a) {
+            return (!(v === '' || v.length == 0) && i != 0);
+          });
+
+          var len = text.length;
+          var output = '';
+          for (var i = 0; i < len; i+=4) {
+            var table = [text[i], text[i+1], text[i+2], text[i+3]];
+            var win = checkWin(table);
+            var result = '';
+            if (win == 'D') {
+              var c = checkComplete(table);
+              console.log('c', c);
+              if (c) {
+                result = 'Draw';
+              } else {
+                result = 'Game has not completed'; 
+              }
+            } else {
+              result = win + ' won';
+            }
+            output += 'Case #'+((i/4)+1)+': ' + result + '\n';
+          }
+
+          // set output
+          console.log(output);
+          document.getElementById('output').innerHTML = "<pre id='answer'>" +
+          output + '</pre>';
+        };
+
+        reader.readAsText(file, 'UTF-8');
+      };
+
+      function clickDownloadHandler(e) {
+        content = document.getElementById('answer').innerHTML;
+        uriContent = "data:application/octet-stream," +
+          encodeURIComponent(content);
+        newWindow=window.open(uriContent, 'output'); 
+      };
+
+      document.getElementById('files').addEventListener('change', handleFileSelect, false);
+      console.log('done');
+
+      document.getElementById('download').addEventListener('click',
+                                                           clickDownloadHandler, false);
+    }
+
+  </script>
+
+  <body>
+
+    <input type="file" id="files" name="files[]" multiple />
+    <br>
+    <span>Input</span><div id="input"></div>
+    <br>
+    <span>Output</span><div id="output"></div>
+    <br>
+    <button type="button" id="download" > download content</button>
+
+  </body>
+</html>

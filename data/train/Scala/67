@@ -1,0 +1,81 @@
+package common
+
+/**
+ * Problem solver, has methods for handling input and output.
+ */
+trait ProblemSolver {
+
+    /**
+     * Main method.
+     * @param args doesn't have args.
+     */
+    def main(args: Array[String]) {
+        out(solve(in("sample.txt")))
+        out(solve(in("in.txt")), "out.txt")
+    }
+
+    /**
+     * Input method. Reads the file line by line and returns a list of files
+     * @param path list of lines as strings.
+     */
+    def in(path: String): List[String] = scala.io.Source.fromInputStream(
+        getClass.getResourceAsStream(path)
+    ).getLines.toList
+
+    /**
+     * Prints every line to output file.
+     * @param result list of results as strings.
+     * @param path of result file. If empty the system console will be used.
+     */
+    def out(result: List[String], path: String = "") {
+        if (path.isEmpty) result.foreach(line => println(line))
+        else {
+            val pw = new java.io.PrintWriter(path)
+            1.to(result.length).foreach(index => pw.println("Case #" + index + ": " + result(index - 1)))
+            pw.close()
+        }
+    }
+
+    /**
+     * Solve problem given list of string input lines.
+     * @param input lines from problem data.
+     * @return list of string results to be printed.
+     */
+    def solve(input: List[String]): List[String]
+}
+package qualification.tictactoe
+
+import common.ProblemSolver
+
+/**
+ *
+ */
+object TicTacToe extends ProblemSolver {
+
+    override def solve(input: List[String]): List[String] = input.tail.grouped(5).map(
+        g => testCase(g.filter(l => !l.isEmpty))
+    ).toList
+
+    def testCase(input: List[String]): String = {
+        val horizontal = input.map(l => winner(l.toSet))
+        val vertical = (0 to 3).map(i => winner(input.map(l => l(i)).toSet))
+        val diagonal = List(
+            winner((0 to 3).map(i => input(i)(i)).toSet),
+            winner((0 to 3).map(i => input(i)(3 - i)).toSet))
+
+        val res = List(horizontal, vertical, diagonal).flatten.toSet.filter(o => !o.isEmpty)
+        res.size match {
+            case 0 => if (hasEmpty(input)) "Game has not completed" else "Draw"
+            case 1 => res.head.get + " won"
+            case _ => "Draw"
+        }
+    }
+
+    def hasEmpty(input: List[String]): Boolean = input.flatten.contains('.')
+
+    def winner(line: Set[Char]): Option[Char] = {
+        val withoutT = line.filter(c => c != 'T')
+        if (withoutT.contains('.') || withoutT.size > 1) None
+        else withoutT.headOption
+    }
+}

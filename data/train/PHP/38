@@ -1,0 +1,122 @@
+<?php
+	function getFileByLine($file,$split=null){
+		$lines = file($file,FILE_IGNORE_NEW_LINES);
+		if($split != null){
+			$ret = array();
+			foreach ($lines as $line_num => $line) {
+			    $ret[] = explode($split, $line);
+			}
+			return $ret;
+
+		}else{
+			return $lines;
+		}
+
+	}
+
+
+	class OUTP{
+		 var $rows = array();
+		 var $id = 1;
+		 function addRow($text){
+			$this->rows[] = sprintf("Case #%d: %s",$this->id,$text);
+			$this->id++;
+
+		}
+		 function test(){
+			$lines2 = file("test.txt",FILE_IGNORE_NEW_LINES);
+			foreach($lines2 as $row => $line ){
+				echo "row {$row}: ";
+				if(!isset($this->rows[$row])){
+					echo "output te weinig!!";
+				}elseif($line != $this->rows[$row]){
+					echo "<font color='red'>".$line." != " .$this->rows[$row]."</font>\n<br/>";
+				}else{
+					echo "<font color='green'>".$line." (correct)</font>\n <br/>";
+				}	
+			}
+			
+		}
+		function pr(){
+			echo "<pre>";
+			foreach($this->rows as $row){
+				echo $row."\n";
+			}
+			echo "</pre>";
+		}
+
+	}
+
+	function vd(){
+		echo "<div style='border:1px solid black' ><pre>";
+		foreach(func_get_args() as $a => $arg){
+			echo "argument {$a}:\n<br/>";
+			var_dump($arg);
+		}
+		echo "</pre>";
+		foreach(debug_backtrace() as $row){			
+			echo "<i>". $row['file'] ." - ".$row['line'] ."</i><br/>\n";
+		}
+		echo "</div>";
+	}<?php
+	include("tools.php");
+
+	$gamelines = getFileByLine("data.txt");
+	$gamecount  = $gamelines[0];
+	$games = array();
+	for($i =0; $i< $gamecount;$i++){
+		$games[] = array_slice($gamelines, ($i *5) + 1,  4);
+	}
+	//vd($games);
+	$outp = new OUTP();
+	foreach($games as $g){
+		$state = "Draw";
+		foreach($g as $r){
+			if(strstr($r, ".")){$state = "Game has not completed";}
+		}
+		for($i =0; $i < 4;$i++){
+			$a = win(g($g,$i,0),g($g,$i,1),g($g,$i,2),g($g,$i,3));
+			if($a != false){
+				$state = $a . " won";
+				break;
+			}
+			$a = win(g($g,0,$i),g($g,1,$i),g($g,2,$i),g($g,3,$i));
+			if($a != false){
+				$state = $a . " won";
+				break;
+			}
+		}
+		$a = win(g($g,0,0),g($g,1,1),g($g,2,2),g($g,3,3));
+		if($a != false){
+			$state = $a . " won";
+		}
+		$a = win(g($g,0,3),g($g,1,2),g($g,2,1),g($g,3,0));
+		if($a != false){
+			$state = $a . " won";
+		}
+
+
+		$outp->addRow($state);
+
+	}
+	function g($g,$x,$y){
+		return substr($g[$x], $y,1);
+	}
+	function win($a,$b,$c,$d){
+		$types = array('X'=>0,'O'=>0,'T'=>0,'.'=>0);
+		$types[$a]++;
+		$types[$b]++;
+		$types[$c]++;
+		$types[$d]++;
+		if($types['X'] == 4 || (($types['X'] + $types['T']) == 4)){
+			return "X";			
+		}
+		if($types['O'] == 4 || (($types['O'] + $types['T']) == 4)){
+			return "O";			
+		}
+		return false;
+
+	}
+	
+	$outp->test();
+	$outp->pr();

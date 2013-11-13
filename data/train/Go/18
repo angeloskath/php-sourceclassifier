@@ -1,0 +1,140 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
+type board [][]byte
+
+func main() {
+	var b []byte = make([]byte, 1)
+	var T, status int
+	var theboard board = make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		theboard[i] = make([]byte, 4)
+	}
+	
+	infile, err := os.Open("A-large.in")
+	if err != nil {
+		panic(err)
+	}
+	defer infile.Close()
+	outfile, err := os.Create("A-large.out")
+	if err != nil {
+		panic(err)
+	}
+	defer outfile.Close()
+	
+	infile.Read(b)
+	for b[0] != '\n' {
+		T = 10*T + int(b[0]) - int('0')
+		infile.Read(b)
+	}
+	for i := 0; i < T; i++ {
+		theboard.readboard(infile)
+		infile.Read(b)
+		status = theboard.boardstatus()
+		writerow(i, status, outfile, i == T-1)
+	}
+}
+
+func (theboard board) readboard(infile *os.File) {
+	var b []byte = make([]byte, 1)
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			infile.Read(b)
+			theboard[i][j] = b[0]
+		}
+		infile.Read(b)
+	}
+}
+
+func (theboard board) boardstatus() int {
+	for i := 0; i < 4; i++ {
+		if (theboard[i][0] == 'O' || theboard[i][0] == 'T') &&
+		   (theboard[i][1] == 'O' || theboard[i][1] == 'T') &&
+		   (theboard[i][2] == 'O' || theboard[i][2] == 'T') &&
+		   (theboard[i][3] == 'O' || theboard[i][3] == 'T') {
+			   return 0
+		}	
+		if (theboard[i][0] == 'X' || theboard[i][0] == 'T') &&
+		   (theboard[i][1] == 'X' || theboard[i][1] == 'T') &&
+		   (theboard[i][2] == 'X' || theboard[i][2] == 'T') &&
+		   (theboard[i][3] == 'X' || theboard[i][3] == 'T') {
+			   return 1
+		}	
+	}
+	for j := 0; j < 4; j++ {
+		if (theboard[0][j] == 'O' || theboard[0][j] == 'T') &&
+		   (theboard[1][j] == 'O' || theboard[1][j] == 'T') &&
+		   (theboard[2][j] == 'O' || theboard[2][j] == 'T') &&
+    	   (theboard[3][j] == 'O' || theboard[3][j] == 'T') {
+			   return 0
+		}
+		if (theboard[0][j] == 'X' || theboard[0][j] == 'T') &&
+		   (theboard[1][j] == 'X' || theboard[1][j] == 'T') &&
+		   (theboard[2][j] == 'X' || theboard[2][j] == 'T') &&
+    	   (theboard[3][j] == 'X' || theboard[3][j] == 'T') {
+			   return 1
+		}
+	}
+	if (theboard[0][0] == 'O' || theboard[0][0] == 'T') &&
+	   (theboard[1][1] == 'O' || theboard[1][1] == 'T') &&
+	   (theboard[2][2] == 'O' || theboard[2][2] == 'T') &&
+	   (theboard[3][3] == 'O' || theboard[3][3] == 'T') {
+		   return 0
+	}
+	if (theboard[0][0] == 'X' || theboard[0][0] == 'T') &&
+	   (theboard[1][1] == 'X' || theboard[1][1] == 'T') &&
+	   (theboard[2][2] == 'X' || theboard[2][2] == 'T') &&
+	   (theboard[3][3] == 'X' || theboard[3][3] == 'T') {
+		   return 1
+	}
+	if (theboard[3][0] == 'O' || theboard[3][0] == 'T') &&
+	   (theboard[2][1] == 'O' || theboard[2][1] == 'T') &&
+	   (theboard[1][2] == 'O' || theboard[1][2] == 'T') &&
+	   (theboard[0][3] == 'O' || theboard[0][3] == 'T') {
+		   return 0
+	}
+	if (theboard[3][0] == 'X' || theboard[3][0] == 'T') &&
+	   (theboard[2][1] == 'X' || theboard[2][1] == 'T') &&
+	   (theboard[1][2] == 'X' || theboard[1][2] == 'T') &&
+	   (theboard[0][3] == 'X' || theboard[0][3] == 'T') {
+		   return 1
+	}		
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if theboard[i][j] == '.' {
+				return 2
+			}
+		}
+	}
+	return 3
+}
+
+func (theboard board) printboard() {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			fmt.Printf("%c", theboard[i][j])
+		}
+		fmt.Printf("\n")
+	}
+}
+
+func writerow(n, status int, outfile *os.File, islast bool) {
+	switch(status) {
+	case 0:
+		outfile.WriteString("Case #" + strconv.Itoa(n+1) + ": O won")
+	case 1:
+		outfile.WriteString("Case #" + strconv.Itoa(n+1) + ": X won")
+	case 2:
+		outfile.WriteString("Case #" + strconv.Itoa(n+1) + ": Game has not completed")
+	case 3:
+		outfile.WriteString("Case #" + strconv.Itoa(n+1) + ": Draw")
+	}
+	if !islast {
+		outfile.WriteString("\n")
+	}
+}

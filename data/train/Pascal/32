@@ -1,0 +1,74 @@
+program codejamA;
+var
+  t,tt,i:integer;
+  a:array[1..4,1..4] of char;
+  f,g:text;
+
+function xgood(c:char):boolean;
+begin
+  if (c='X') or (c='T') then xgood:=true
+  else xgood:=false;
+end;
+
+function ogood(c:char):boolean;
+begin
+  if (c='O') or (c='T') then ogood:=true
+  else ogood:=false;
+end;
+
+procedure check;
+var
+  i,j,num,sol:integer;
+  p:boolean;
+begin
+  num:=0;
+  for i:=1 to 4 do
+    for j:=1 to 4 do
+      if a[i,j]<>'.' then inc(num);
+  if num=16 then sol:=2
+  else sol:=3;
+  p:=false;
+  for i:=1 to 4 do
+    p:=p or ((xgood(a[i,1])) and (xgood(a[i,2]))
+      and (xgood(a[i,3])) and (xgood(a[i,4])));
+  for i:=1 to 4 do
+    p:=p or ((xgood(a[1,i])) and (xgood(a[2,i]))
+      and (xgood(a[3,i])) and (xgood(a[4,i])));
+  p:=p or ((xgood(a[1,1])) and (xgood(a[2,2]))
+      and (xgood(a[3,3])) and (xgood(a[4,4])));
+  p:=p or ((xgood(a[1,4])) and (xgood(a[2,3]))
+      and (xgood(a[3,2])) and (xgood(a[4,1])));
+  if p then sol:=1
+  else begin
+  for i:=1 to 4 do
+    p:=p or ((ogood(a[i,1])) and (ogood(a[i,2]))
+      and (ogood(a[i,3])) and (ogood(a[i,4])));
+  for i:=1 to 4 do
+    p:=p or ((ogood(a[1,i])) and (ogood(a[2,i]))
+      and (ogood(a[3,i])) and (ogood(a[4,i])));
+  p:=p or ((ogood(a[1,1])) and (ogood(a[2,2]))
+      and (ogood(a[3,3])) and (ogood(a[4,4])));
+  p:=p or ((ogood(a[1,4])) and (ogood(a[2,3]))
+      and (ogood(a[3,2])) and (ogood(a[4,1])));
+  if p then sol:=0;
+  end;
+  if sol=0 then writeln(g,'Case #',tt,': O won')
+  else if sol=1 then writeln(g,'Case #',tt,': X won')
+  else if sol=2 then writeln(g,'Case #',tt,': Draw')
+  else writeln(g,'Case #',tt,': Game has not completed');
+end;
+
+begin
+  assign(f,'A-large.in');
+  assign(g,'codejamAlarge.out');
+  reset(f);
+  rewrite(g);
+  readln(f,t);
+  for tt:=1 to t do begin
+    for i:=1 to 4 do readln(f,a[i,1],a[i,2],a[i,3],a[i,4]);
+    readln(f);
+    check;
+  end;
+  close(f);
+  close(g);
+end.

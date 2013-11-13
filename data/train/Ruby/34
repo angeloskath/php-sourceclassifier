@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+def check_line(l)
+  line = l.sort
+  if !line.include?(".")
+    if line[0]==line[-1]
+      return (line[0]=="O" ? 0 : 1)
+    else
+      if (line[0]=="T" and (line[1]==line[-1]))
+        return (line[1]=="O" ? 0 : 1)
+      end
+      if (line[-1]=="T" and (line[0]==line[-2]))
+        return (line[0]=="O" ? 0 : 1)
+      end  
+    end
+  end
+  return -1
+end
+
+f_in = File.open("qualification_a.in","r")
+f_out = File.open("qualification_a.out","w")
+
+t = f_in.gets.to_i
+
+(1..t).each {|c| 
+mat = []
+points = false
+(1..4).each {|k|
+  s = f_in.gets.chomp.split ""
+  mat.push s
+  if s.include? "."
+    points = true
+  end
+}
+
+#check lines
+res = []
+mat.each {|e| res.push check_line e}
+(0..3).each {|p|
+  arr = []
+  arr.push mat[0][p]
+  arr.push mat[1][p]
+  arr.push mat[2][p]
+  arr.push mat[3][p]
+  res.push check_line arr
+}
+ 
+arr = []
+arr.push mat[0][0]
+arr.push mat[1][1]
+arr.push mat[2][2]
+arr.push mat[3][3]
+res.push check_line arr
+
+arr = []
+arr.push mat[0][3]
+arr.push mat[1][2]
+arr.push mat[2][1]
+arr.push mat[3][0]
+res.push check_line arr
+
+if res.include? 1
+  str = "X won"
+end
+
+if res.include? 0
+  str = "O won"
+end
+
+res.sort!
+if res[-1]==-1
+  if points
+    str = "Game has not completed"
+  else
+    str = "Draw" 
+  end
+end
+f_in.gets
+f_out.puts "Case ##{c}: #{str}"
+ 
+ }
+

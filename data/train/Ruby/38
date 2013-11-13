@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+
+input = ARGV[0]
+# input = 'a_test.txt'
+# input = 'A-small-attempt0.in'
+open(input) do |f|
+  t = f.gets.to_i
+  t.times do |i|
+    square = []
+    4.times do |j|
+      square << f.gets.chomp
+    end
+
+    lines = []
+    # 横
+    lines << square
+    # 縦
+    c_ary = ["", "", "", ""]
+    square.each do |l|
+      l.each_char.with_index do |ch, j|
+        c_ary[j] << ch
+      end
+    end
+    lines << c_ary
+    # ななめ
+    lines << square[0][0] + square[1][1] + square[2][2] + square[3][3]
+    lines << square[0][3] + square[1][2] + square[2][1] + square[3][0]
+
+    lines.flatten!
+
+    print "Case \##{i + 1}: "
+    if lines.find {|l| l.gsub("T", "X") == "XXXX"}
+      puts "X won"
+    elsif lines.find {|l| l.gsub("T", "O") == "OOOO"}
+      puts "O won"
+    elsif not square.join.index(".")
+      puts "Draw"
+    else
+      puts "Game has not completed"
+    end
+
+    f.gets
+  end
+end

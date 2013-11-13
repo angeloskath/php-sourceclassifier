@@ -1,0 +1,35 @@
+(ns codejam.qual.question1)
+
+(defn check-any-winner [rows]
+  (some #(if (not-any? (partial = \.) % )
+          (let [xos (filter (partial not= \T) %)]
+             (if  (every? (partial = \X) xos)
+               "X won"
+               (if (every? (partial = \O) xos)
+                 "O won")))) 
+       rows))
+
+(defn get-columns [rows]
+  (apply map str rows))
+
+(defn get-diagonals [rows]
+  (list
+   (apply str (map nth rows (iterate inc 0) )) 
+   (let [last-index (dec (count rows))]
+     (apply str (map nth rows  (iterate dec last-index))))))
+
+(defn check-board [rows]
+  (or (check-any-winner (concat rows (get-columns rows)
+                          (get-diagonals rows)))
+      (if (not-any? (partial = \.) (apply concat rows))
+        "Draw"
+        "Game has not completed")))
+
+(defn -main [& args]
+  #_(with-open [rdr (clojure.java.io/reader "input.txt")])
+  (let [input-lines (line-seq (java.io.BufferedReader. *in*)) ;rdr
+        cases (map (partial take 4) (partition-all 5 (next input-lines)))]
+    (doall (map #(println (str "Case #" %1 ":") (check-board %2))
+                (iterate inc 1)
+                cases))))
+(-main)

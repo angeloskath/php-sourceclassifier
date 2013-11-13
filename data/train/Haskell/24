@@ -1,0 +1,88 @@
+{-# LANGUAGE TupleSections #-}
+
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BSC
+import Data.Char (isSpace)
+
+import Data.IORef
+import Data.Maybe
+import Text.Printf
+import Control.Monad
+import Control.Arrow
+
+-- IO Function Helpers
+int :: BSC.ByteString -> (Int, BSC.ByteString)
+int = second (BSC.dropWhile isSpace) . fromJust . BSC.readInt
+
+int2 :: BSC.ByteString -> ((Int, Int), BSC.ByteString)
+int2 bs = let (n1, bs1) = int bs 
+              (n2, bs2) = int bs1 
+          in ((n1,n2), bs2)
+
+int3 :: BSC.ByteString -> ((Int,Int,Int), BSC.ByteString)
+int3 bs = let ((n1,n2), bs1) = int2 bs 
+              (n3, bs2) = int bs1 
+          in ((n1,n2,n3), bs2)
+
+char :: BSC.ByteString -> (Char, BSC.ByteString) 
+char = BSC.head &&& BSC.tail
+
+letter :: BSC.ByteString -> (Char, BSC.ByteString)
+letter = second (BSC.dropWhile isSpace) . char 
+
+string :: BSC.ByteString -> (String, BSC.ByteString)
+string = (BSC.unpack *** BSC.dropWhile isSpace) . BSC.span (not . isSpace)
+
+readMany :: (BSC.ByteString -> (a, BSC.ByteString)) -> 
+            Int -> BSC.ByteString -> ([a], BSC.ByteString)
+readMany f n bs =
+    let walk 0 bs acc = (reverse acc, bs)
+        walk n bs acc =
+            let (x, bs') = f bs in
+            walk (n-1) bs' (x:acc)
+    in walk n bs []
+       
+intMany :: Int -> BSC.ByteString -> ([Int], BSC.ByteString)
+intMany = readMany int
+
+next :: IORef BSC.ByteString -> (BSC.ByteString -> (a, BSC.ByteString)) -> IO a
+next input parse = do
+  bs <- readIORef input
+  let (x, bs') = parse bs
+  writeIORef input bs'
+  return x
+
+main :: IO ()
+main = do 
+  all <- BS.getContents
+  input <- newIORef all
+  let parse = next input 
+  cases <- parse int
+  forM_ [1..cases] $ \caseNum -> do
+         board <- parse (readMany string 4)
+         printf "Case #%d: " caseNum
+         case filter isJust $ rows board ++ columns board ++ diags board of
+           [] -> if any (any (== '.')) board then putStrLn "Game has not completed"
+                 else putStrLn "Draw"
+           (Just s:_) -> putStrLn s
+
+count :: Char -> [Char] -> Int
+count c = length . filter (==c)
+
+isWinning :: [Char] -> Maybe String
+isWinning l | count 'X' l == 4 = Just "X won"
+            | count 'O' l == 4 = Just "O won"
+            | count 'X' l == 3 && count 'T' l == 1 = Just "X won"
+            | count 'O' l == 3 && count 'T' l == 1 = Just "O won"
+            | otherwise = Nothing
+
+rows :: [[Char]] -> [Maybe String]
+rows = map isWinning
+
+columns :: [[Char]] -> [Maybe String]
+columns board = map (\i -> isWinning (map (!! i) board)) [0..3]
+
+diags :: [[Char]] -> [Maybe String]
+diags board = [isWinning $ map (\i-> (!! i) $ (!! i) $ board) [0..3],
+              isWinning $ map (\i-> (!! i) $ (!! (3-i)) $ board) [0..3]]
+               

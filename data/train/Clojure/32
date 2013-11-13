@@ -1,0 +1,90 @@
+(ns tic-tac-toe-tomek.core
+  (:require [clojure.java.io :as io])
+  (:gen-class))
+
+
+;; IO Input
+
+;Read from a file
+(defn llegeix-fitxer [fin]
+  (line-seq (io/reader (io/file fin))))
+
+;Write to a file
+(defn gen-llista-fitxer-sortida [llista-solucio]
+  (map #(str %1 ": " %2) (map #(str "Case #" %) (range 1 (inc (count llista-solucio)))) llista-solucio)
+  )
+
+;Write to a file
+(defn esborrar-fitxer [fsortida]
+  (with-open [wrtr (io/writer fsortida)]
+    (.write wrtr "")))
+
+(defn escriu-fitxer-cadena [fsortida, cadena]
+  (with-open [wrtr (io/writer fsortida :append true)]
+    (.write wrtr (str cadena "\n"))))
+
+(defn generar-sortida [fsortida, LL_escriure]
+  (doseq [x LL_escriure]
+    (escriu-fitxer-cadena fsortida x)))
+
+
+;; Solution
+
+
+(defn dintre-2 [a P N]
+  (or (= a P) (= a N))
+  )
+
+(defn expandeix-or [a b c d P N]
+  (and (dintre-2 a P N) (dintre-2 b P N) (dintre-2 c P N) (dintre-2 d P N)))
+
+(defn no-hi-ha-buits? [col sbuit]
+  (neg? (.indexOf (reduce str col) ".")))
+
+(defn quiampliat? [TTTb]
+  (letfn [(q? [TTTb jugador neutre]
+     (let [[[a b c d]
+            [e f g h]
+            [i j k l]
+            [m n o p]] TTTb]
+       (cond
+         ;; Files
+         (expandeix-or a b c d jugador neutre)  jugador
+         (expandeix-or e f g h jugador neutre)  jugador
+         (expandeix-or i j k l jugador neutre)  jugador
+         (expandeix-or m n o p jugador neutre)  jugador
+         ;; Columnes
+         (expandeix-or a e i m jugador neutre)  jugador
+         (expandeix-or b f j n jugador neutre)  jugador
+         (expandeix-or c g k o jugador neutre)  jugador
+         (expandeix-or d h l p jugador neutre)  jugador
+         ;; Diagonals
+         (expandeix-or a f k p jugador neutre)  jugador
+         (expandeix-or m j g d jugador neutre)  jugador
+         :else nil))
+           )]
+
+      (cond
+       (= (q? TTTb \X \T) \X) "X won"
+       (= (q? TTTb \O \T) \O) "O won"
+       (no-hi-ha-buits? TTTb \.) "Draw"
+       :else "Game has not completed")))
+
+;; Calculate Solution
+
+(def direccio "/home/jose/GoogleCodeJam/tic-tac-toe-tomek/src/files/")
+
+(defn calcula [fin fout]
+  (esborrar-fitxer (str direccio fout))
+  (generar-sortida (str direccio fout)
+  (gen-llista-fitxer-sortida (map quiampliat? (pmap rest (partition 5 (llegeix-fitxer (str direccio fin) )))))
+                   ))
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [fin fout & args]
+  ;; work around dangerous default behaviour in Clojure
+  (alter-var-root #'*read-eval* (constantly false))
+  (println "Hello, Google CodeJam World!")
+  (calcula fin fout)
+  )

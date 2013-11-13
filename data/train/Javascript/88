@@ -1,0 +1,151 @@
+var fs = require("fs")
+
+var _ = require("underscore")
+
+var async = require("async")
+var s = require('string');
+function findWinner(str) {
+    var foundDot = false;
+    var foundX = false;
+    var foundO = false;
+    _.each(str, function (ch) {
+        if(ch == '.') {
+            foundDot = true;
+            return;
+        } else {
+            if(ch == 'X') {
+                foundX = true;
+            } else {
+                if(ch == 'O') {
+                    foundO = true;
+                }
+            }
+        }
+    });
+    if(foundDot) {
+        return null;
+    } else {
+        if(foundX && !foundO) {
+            return 'X';
+        } else {
+            if(foundO && !foundX) {
+                return 'O';
+            }
+        }
+    }
+}
+function processTestCase(testCase) {
+    var lines = testCase.split('\n');
+    var chars = [];
+    _.each(lines, function (line) {
+        chars.push(line.split(''));
+    });
+    var toCheck = lines;
+    _.each([
+        0, 
+        1, 
+        2, 
+        3
+    ], function (i) {
+        toCheck.push(chars[0][i] + chars[1][i] + chars[2][i] + chars[3][i]);
+    });
+    toCheck.push(chars[0][0] + chars[1][1] + chars[2][2] + chars[3][3]);
+    toCheck.push(chars[3][0] + chars[2][1] + chars[1][2] + chars[0][3]);
+    for(var i = 0; i < toCheck.length; i++) {
+        var winner = findWinner(toCheck[i]);
+        if(winner) {
+            return winner + " won";
+        }
+    }
+    if(s(testCase).contains('.')) {
+        return "Game has not completed";
+    } else {
+        return "Draw";
+    }
+}
+function fileToTestCases(input) {
+    var testCases = [];
+    var curTestCase = '';
+    var line;
+    while(input.length > 0) {
+        line = s(input.shift()).trim().s;
+        if(line != '') {
+            curTestCase += line + '\n';
+        } else {
+            if(curTestCase != '') {
+                testCases.push(s(curTestCase).trim().s);
+                curTestCase = '';
+            }
+        }
+    }
+    if(curTestCase != '') {
+        testCases.push(curTestCase);
+    }
+    return testCases;
+}
+if(process.argv.length < 3) {
+    throw "Invalid parameters";
+}
+var fileFolder = './files/';
+var inputFileName = fileFolder + process.argv[2];
+if(process.argv.length > 3) {
+    var outputFileName = fileFolder + process.argv[3];
+}
+var testExpectedFile = false;
+if(process.argv.length > 4) {
+    testExpectedFile = true;
+}
+var input = fs.readFileSync(inputFileName, 'utf8').split('\n');
+var numTestCases = parseInt(input.shift());
+var testCases = fileToTestCases(input);
+if(testCases.length != numTestCases) {
+    throw 'Wrong number of test cases - ' + testCases.length + ' vs ' + numTestCases;
+}
+var done = 0;
+function asyncTestCase(testCase, callback) {
+    var result = processTestCase(testCase);
+    process.stdout.write('.');
+    done++;
+    if(done % 10 == 0) {
+        console.log('\n' + done);
+    }
+    callback(null, result);
+}
+function formatResult(result, i) {
+    return "Case #" + (i + 1) + ": " + result;
+}
+async.map(testCases, asyncTestCase, function (err, results) {
+    if(err) {
+        throw "Error processing test cases: " + err;
+    }
+    console.log("\nFinished processing test cases, outputting results");
+    if(!outputFileName) {
+        _.each(results, function (result, index) {
+            console.log(formatResult(result, index));
+        });
+    } else {
+        var output = '';
+        _.each(results, function (result, index) {
+            if(index > 0) {
+                output += '\n';
+            }
+            output += formatResult(result, index);
+        });
+        if(testExpectedFile) {
+            console.log("\nChecking results against expected");
+            var expected = fs.readFileSync(outputFileName, 'utf8');
+            if(output == expected) {
+                console.log("IT WORKS!!");
+            } else {
+                console.log("IT DIDN'T WORK!!");
+                console.log("Expected:");
+                console.log(expected);
+                console.log("Got:");
+                console.log(output);
+            }
+        } else {
+            fs.writeFileSync(outputFileName, output, 'utf8');
+        }
+    }
+});
+

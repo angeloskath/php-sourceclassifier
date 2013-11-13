@@ -1,0 +1,101 @@
+import java.util.Scanner
+import java.io.{ File, BufferedWriter, FileWriter, IOException }
+
+object tik_tak_toe {
+	def main(args: Array[String]) {
+		createTableaux("C:\\Users\\The Gazou\\Desktop\\in.txt", "C:\\Users\\The Gazou\\Desktop\\tik.txt")
+	}
+
+	def createTableaux(in:String, out:String) {
+		val sc = new Scanner(new File(in));
+		val fw = new FileWriter(out);
+		val output = new BufferedWriter(fw);
+		val t = sc.next().toInt
+		for (c <- 1 to t) {
+
+			/*val arr = new Array[Array[Char]](4)
+			for (i <- 0 to 3) {
+		    	val l = sc.next()
+		    	arr(i) = l.toArray()
+			}
+			*/
+			val arr = (0 until 4).map(_ => sc.next().toArray).toArray
+			
+			var won = 'd'
+			var pasFini = false
+			var result = ('d', false)
+			
+			result = check(arr, 0, 0, 1, 1)
+			if (won == 'd')
+				won = result._1
+			if (!pasFini)
+				pasFini = result._2
+			result = check(arr, 0, 3, 1, -1)
+			if (won == 'd')
+				won = result._1
+			if (!pasFini)
+				pasFini = result._2
+
+			for (i <- 0 to 3) {
+				result = check(arr, i, 0, 0, 1)
+				if (won == 'd')
+					won = result._1
+				if (!pasFini)
+					pasFini = result._2
+				result = check(arr, 0, i, 1, 0)
+				if (won == 'd')
+					won = result._1
+				if (!pasFini)
+					pasFini = result._2
+			}
+				
+			// trouver le texte de la réponse
+			val réponse = if (won == 'X')
+				"X won"
+			else if (won == 'O')
+				"O won"
+			else if (pasFini)
+				"Game has not completed"
+			else if (won == 'd')
+				"Draw"
+			else
+				"ERROR"
+			//on marque dans le fichier ou plutot dans le BufferedWriter qui sert comme un tampon(stream)
+				if (c!=t){
+					output.write("Case #" + c + ": " + réponse+ "\n")
+				}else{
+					output.write("Case #" + c + ": " + réponse)
+				}
+		}
+		output.close()
+	}
+
+	// véfirication
+	def check(arr: Array[Array[Char]], sx: Int, sy: Int, dx: Int, dy: Int) = {
+		
+		val line = (0 to 3).map(i => arr(sx + i * dx)(sy + i * dy))
+		val pasFini = line.contains('.')
+		val lineWithoutT = line.filter(_ != 'T')
+		val wonX = lineWithoutT.forall(_ == 'X')
+		val wonO = lineWithoutT.forall(_ == 'O')
+		
+		val result = if (wonX) 'X' else if (wonO) 'O' else 'd'
+		(result, pasFini)
+		
+		/*
+		var pasFini = false
+		//if (arr(i).tail.forall(_ == arr(i).head))
+		var identique = true
+		for (i <- 0 to 3) {
+			if (arr(sx)(sy) == '.')
+				pasFini = true
+			
+			if (arr(sx)(sy) != arr(sx + i * dx)(sy + i * dy))
+				identique = false
+		}
+		if (identique)
+			(arr(sx)(sy), false)
+		else
+			('d', pasFini)*/
+	}
+}

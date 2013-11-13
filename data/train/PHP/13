@@ -1,0 +1,84 @@
+<?php
+$file =fopen($argv[1],"r");
+if (!$file) { print "could not open file \n";}
+$i=0;
+$oflag=0;
+$xflag=0;
+$emptyflag=0;
+$T=fgets($file);
+for ($q=0;$q<$T;$q++) {
+$oflag=0;
+$xflag=0;
+$emptyflag=0;
+$prod=$sum=$prod1=$sum1=$prod2=$sum2=$prod3=$sum3=$prod4=$sum4=-100;
+$in=array();
+$ar=array();
+for ($p=0;$p<4;$p++){
+$x=fgets($file);
+$ar=str_split($x);
+for ($j=0;$j<4;$j++){
+//print $ar[$j]."\n";
+if ($ar[$j]=='O') {$in[$p][$j]=0;}
+if ($ar[$j]=='X') {$in[$p][$j]=1;}
+if ($ar[$j]=='T') {$in[$p][$j]=-10;}
+if ($ar[$j]=='.') {$in[$p][$j]=-30;$emptyflag=1;}
+
+
+}
+}
+ //print_r($in);
+//check if row contains winner
+for ($i=0;$i<4;$i++) {
+$prod=$in[$i][0]*$in[$i][1]*$in[$i][2]*$in[$i][3];
+$sum=$in[$i][0]+$in[$i][1]+$in[$i][2]+$in[$i][3];
+if (($prod==0) && (($sum==-10)|| ($sum==0))) { 
+//print "row\n";
+$oflag=1;}
+if (($prod==1) || ($prod==-10)) {
+//print "row#$i ==prod=$prod sum=$sum\n";
+$xflag=1;}
+$prod1=$in[0][$i]*$in[1][$i]*$in[2][$i]*$in[3][$i];
+$sum1=$in[0][$i]+$in[1][$i]+$in[2][$i]+$in[3][$i];
+if (($prod1==0) && (($sum1==-10)|| ($sum1==0))) { 
+//print "col\n";
+$oflag=1;}
+if (($prod1==1) || ($prod1==-10)) {
+//print "col\n";
+$xflag=1;}
+}
+$prod3=$in[0][0]*$in[1][1]*$in[2][2]*$in[3][3];
+
+$sum3=$in[0][0]+$in[1][1]+$in[2][2]+$in[3][3];
+if (($prod3==0) && (($sum3==-10)|| ($sum3==0))) {
+//print "diag1\n"; 
+$oflag=1;}
+if (($prod3==1) || ($prod3==-10)) {
+//print "diag1\n";
+$xflag=1;}
+$prod4=$in[0][3]*$in[1][2]*$in[2][1]*$in[3][0];
+
+$sum4=$in[0][3]+$in[1][2]+$in[2][1]+$in[3][0];
+if (($prod4==0) && (($sum4==-10)|| ($sum4==0))) {
+ //print "diag2";
+ $oflag=1;}
+if (($prod4==1) || ($prod4==-10)) {
+//print "diag2";
+$xflag=1;}
+$m=$q+1;
+if ($oflag) {
+print "Case #$m: O won\n";
+} else  if ($xflag) {
+print "Case #$m: X won\n";
+
+} else if ($emptyflag) {
+print "Case #$m: Game has not completed\n";
+
+} else {
+print "Case #$m: Draw\n";
+
+}
+fgets($file);
+}
+
+
+?>

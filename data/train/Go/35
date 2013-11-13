@@ -1,0 +1,125 @@
+package main
+
+import (
+	"fmt"
+)
+
+type result uint8
+
+const (
+	GAME_DRAW result = iota
+	GAME_X_WIN
+	GAME_O_WIN
+	GAME_NOT_OVER
+)
+
+type ttt struct {
+	b []byte
+}
+
+func NewGame(b string) *ttt {
+	var g ttt
+	g.b = []byte(b)
+	return &g
+}
+
+func (g *ttt) Judge() result {
+	if len(g.b) != 16 {
+		panic("game is not valid!")
+	}
+
+	judgeLines := [][]int{
+		[]int{0, 1, 2, 3},
+		[]int{4, 5, 6, 7},
+		[]int{8, 9, 10, 11},
+		[]int{12, 13, 14, 15},
+		[]int{0, 4, 8, 12},
+		[]int{1, 5, 9, 13},
+		[]int{2, 6, 10, 14},
+		[]int{3, 7, 11, 15},
+		[]int{0, 5, 10, 15},
+		[]int{3, 6, 9, 12},
+	}
+
+	r := GAME_DRAW
+	for _, l := range judgeLines {
+		c := g.judgeLine(l)
+		if c == GAME_X_WIN || c == GAME_O_WIN {
+			return c
+		}
+		r += c
+	}
+	if r == GAME_DRAW {
+		return r
+	}
+
+	return GAME_NOT_OVER
+}
+
+func (g *ttt) judgeLine(is []int) result {
+	if len(is) != 4 {
+		panic("expect 4 indexes")
+	}
+
+	r := GAME_NOT_OVER
+
+	for _, i := range is {
+		switch g.b[i] {
+		case 'X':
+			switch r {
+			case GAME_NOT_OVER, GAME_X_WIN:
+				r = GAME_X_WIN
+			case GAME_O_WIN:
+				r = GAME_DRAW
+			}
+		case 'O':
+			switch r {
+			case GAME_NOT_OVER, GAME_O_WIN:
+				r = GAME_O_WIN
+			case GAME_X_WIN:
+				r = GAME_DRAW
+			}
+		case 'T':
+			switch r {
+			case GAME_NOT_OVER, GAME_X_WIN, GAME_O_WIN:
+				r = r
+			}
+		case '.':
+			return GAME_NOT_OVER
+		}
+		if r == GAME_DRAW {
+			return r
+		}
+	}
+	return r
+}
+
+func main() {
+	var t int
+	fmt.Scan(&t)
+
+	for i := 0; i < t; i++ {
+		var board string
+		var line string
+		for j := 0; j < 4; j++ {
+			fmt.Scanln(&line)
+			board += line
+		}
+		g := NewGame(board)
+		/* log.Println(g) */
+
+		fmt.Printf("Case #%d: ", i+1)
+		switch g.Judge() {
+		case GAME_DRAW:
+			fmt.Println("Draw")
+		case GAME_X_WIN:
+			fmt.Println("X won")
+		case GAME_O_WIN:
+			fmt.Println("O won")
+		default:
+			fmt.Println("Game has not completed")
+		}
+
+		fmt.Scanln(&line)
+	}
+}

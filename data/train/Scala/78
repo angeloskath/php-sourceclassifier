@@ -1,0 +1,63 @@
+import java.io.{PrintWriter, File}
+import scala.io.Source
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: gabriel
+ * Date: 13.04.13
+ * Time: 14:13
+ * To change this template use File | Settings | File Templates.
+ */
+
+val it = Source.fromFile("input").getLines()
+val out = new PrintWriter("output")
+
+val amnt = it.next().toInt
+
+it.grouped(5).slice(0, amnt).map(t => hasWon(t)).foldLeft(1)( (count, result) => {
+  out.println("Case #" + count + ": " + result)
+  count+1
+})
+
+out.close()
+
+def hasWon(game: Seq[String]) = {
+  var result = "Game has not completed"
+  if(game.forall( row => !row.contains("."))) result = "Draw"
+
+  var d1 = game(0).charAt(0)
+  var d2 = game(3).charAt(0)
+  var v = ' '
+  var h = ' '
+
+  for(i <- 0 until 4) {
+    v = game(i).charAt(0)
+    h = game(0).charAt(i)
+
+    for(j <- 0 until 4) {
+      h = comp(h, game(j).charAt(i) )
+      v = comp(v, game(i).charAt(j)  )
+    }
+    if(h != '.') result = h + " won"
+    if(v != '.') result = v + " won"
+
+    d1 = comp(d1, game(i).charAt(i))
+    d2 =  comp(d2, game(i).charAt(3-i))
+  }
+
+  if(d1 != '.') result = d1 + " won"
+  if(d2 != '.') result = d2 + " won"
+
+  result
+}
+
+def comp(prev: Char, now: Char) = {
+  if( prev == now && now != '.' )
+    now
+  else if ( now == 'T' )
+    prev
+  else if ( prev == 'T' )
+    now
+  else
+    '.'
+}

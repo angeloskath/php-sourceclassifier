@@ -1,0 +1,456 @@
+program asdasd;
+var
+	a,b,c,d,e:integer;
+	isi:array [1..4,1..4] of char;
+	checko,checkx,checkcomp:boolean;
+begin
+	readln(a);
+	for b:=1 to a do
+		begin
+			checko:=false;
+			checkx:=false;
+			checkcomp:=false;
+			for c:=1 to 4 do
+				for d:=1 to 4 do
+					begin
+						if d = 4 then
+							readln(isi[c,d])
+						else
+							read(isi[c,d]);
+						if isi[c,d] = '.' then
+							checkcomp:=true;
+					end;
+			for c:=1 to 4 do
+				begin
+					case c of
+						1:
+						case isi[1,c] of
+							'X':
+							begin
+								checkx:=true;
+								for e:=1 to 3 do
+									if not((isi[1+e,c+e] = 'X') or (isi[1+e,c+e] = 'T')) then
+										begin
+											checkx:=false;
+											break;
+										end;
+								if not(checkx) then
+									begin
+										checkx:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c] = 'X') or (isi[1+e,c] = 'T')) then
+												begin
+													checkx:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if not(checkx) then
+									begin
+										checkx:=true;
+										for e:=1 to 3 do
+											if not((isi[1,c+e] = 'X') or (isi[1,c+e] = 'T')) then
+												begin
+													checkx:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if checkx then
+									break;
+							end;
+							'O':
+							begin
+								checko:=true;
+								for e:=1 to 3 do
+									if not((isi[1+e,c+e] = 'O') or (isi[1+e,c+e] = 'T')) then
+										begin
+											checko:=false;
+											break;
+										end;
+								if not(checko) then
+									begin
+										checko:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c] = 'O') or (isi[1+e,c] = 'T')) then
+												begin
+													checko:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if not(checko) then
+									begin
+										checko:=true;
+										for e:=1 to 3 do
+											if not((isi[1,c+e] = 'O') or (isi[1,c+e] = 'T')) then
+												begin
+													checko:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if checko then
+									break;
+							end;
+						end;
+						2..3:
+						case isi[1,c] of
+							'X':
+							begin
+								checkx:=true;
+								for e:=1 to 3 do
+									if not((isi[1+e,c] = 'X') or (isi[1+e,c] = 'T')) then
+										begin
+											checkx:=false;
+											break;
+										end;
+								if checkx then
+									break;
+							end;
+							'O':
+							begin
+								checko:=true;
+								for e:=1 to 3 do
+									if not((isi[1+e,c] = 'O') or (isi[1+e,c] = 'T')) then
+										begin
+											checko:=false;
+											break;
+										end;
+								if checko then
+									break;
+							end;
+						end;
+						4:
+						case isi[1,c] of
+							'X':
+							begin
+								checkx:=true;
+								for e:=1 to 3 do
+									if not((isi[1,c-e] = 'X') or (isi[1,c-e] = 'T')) then
+										begin
+											checkx:=false;
+											break;
+										end;
+								if not(checkx) then
+									begin
+										checkx:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c] = 'X') or (isi[1+e,c] = 'T')) then
+												begin
+													checkx:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if not(checkx) then
+									begin
+										checkx:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c-e] = 'X') or (isi[1+e,c-e] = 'T')) then
+												begin
+													checkx:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if checkx then
+									break;
+							end;
+							'O':
+							begin
+								checko:=true;
+								for e:=1 to 3 do
+									if not((isi[1,c-e] = 'O') or (isi[1,c-e] = 'T')) then
+										begin
+											checko:=false;
+											break;
+										end;
+								if not(checko) then
+									begin
+										checko:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c] = 'O') or (isi[1+e,c] = 'T')) then
+												begin
+													checko:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if not(checko) then
+									begin
+										checko:=true;
+										for e:=1 to 3 do
+											if not((isi[1+e,c-e] = 'O') or (isi[1+e,c-e] = 'T')) then
+												begin
+													checko:=false;
+													break;
+												end;
+									end
+								else
+									break;
+								if checko then
+									break;
+							end;
+						end;
+					end;
+				end;
+			if not(checko or checkx) then
+				for c:=1 to 4 do
+					begin
+						case c of
+							1:
+							case isi[4,c] of
+								'X':
+								begin
+									checkx:=true;
+									for e:=1 to 3 do
+										if not((isi[4,c+e] = 'X') or (isi[4,c+e] = 'T')) then
+											begin
+												checkx:=false;
+												break;
+											end;
+									if not(checkx) then
+										begin
+											checkx:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c+e] = 'X') or (isi[4-e,c+e] = 'T')) then
+													begin
+														checkx:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if not(checkx) then
+										begin
+											checkx:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c] = 'X') or (isi[4-e,c] = 'T')) then
+													begin
+														checkx:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if checkx then
+										break;
+								end;
+								'O':
+								begin
+									checko:=true;
+									for e:=1 to 3 do
+										if not((isi[4,c+e] = 'O') or (isi[4,c+e] = 'T')) then
+											begin
+												checko:=false;
+												break;
+											end;
+									if not(checko) then
+										begin
+											checko:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c+e] = 'O') or (isi[4-e,c+e] = 'T')) then
+													begin
+														checko:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if not(checko) then
+										begin
+											checko:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c] = 'O') or (isi[4-e,c] = 'T')) then
+													begin
+														checko:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if checko then
+										break;
+								end;
+							end;
+							2..3:
+							case isi[4,c] of
+								'X':
+								begin
+									checkx:=true;
+									for e:=1 to 3 do
+										if not((isi[4-e,c] = 'X') or (isi[4-e,c] = 'T')) then
+											begin
+												checkx:=false;
+												break;
+											end;
+									if checkx then
+										break;
+								end;
+								'O':
+								begin
+									checko:=true;
+									for e:=1 to 3 do
+										if not((isi[4-e,c] = 'O') or (isi[4-e,c] = 'T')) then
+											begin
+												checko:=false;
+												break;
+											end;
+									if checko then
+										break;
+								end;
+							end;
+							4:
+							case isi[4,c] of
+								'X':
+								begin
+									checkx:=true;
+									for e:=1 to 3 do
+										if not((isi[4-e,c-e] = 'X') or (isi[4-e,c-e] = 'T')) then
+											begin
+												checkx:=false;
+												break;
+											end;
+									if not(checkx) then
+										begin
+											checkx:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c] = 'X') or (isi[4-e,c] = 'T')) then
+													begin
+														checkx:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if not(checkx) then
+										begin
+											checkx:=true;
+											for e:=1 to 3 do
+												if not((isi[4,c-e] = 'X') or (isi[4,c-e] = 'T')) then
+													begin
+														checkx:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if checkx then
+										break;
+								end;
+								'O':
+								begin
+									checko:=true;
+									for e:=1 to 3 do
+										if not((isi[4-e,c-e] = 'O') or (isi[4-e,c-e] = 'T')) then
+											begin
+												checko:=false;
+												break;
+											end;
+									if not(checko) then
+										begin
+											checko:=true;
+											for e:=1 to 3 do
+												if not((isi[4-e,c] = 'O') or (isi[4-e,c] = 'T')) then
+													begin
+														checko:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if not(checko) then
+										begin
+											checko:=true;
+											for e:=1 to 3 do
+												if not((isi[4,c-e] = 'O') or (isi[4,c-e] = 'T')) then
+													begin
+														checko:=false;
+														break;
+													end;
+										end
+									else
+										break;
+									if checko then
+										break;
+								end;
+							end;
+						end;
+					end;
+			if not(checko or checkx) then
+				for c:=2 to 3 do
+					case isi[c,1] of
+						'X':
+						begin
+							checkx:=true;
+							for e:=1 to 3 do
+								if not((isi[c,1+e] = 'X') or (isi[c,1+e] = 'T')) then
+									begin
+										checkx:=false;
+										break;
+									end;
+							if checkx then
+								break;
+						end;
+						'O':
+						begin
+							checko:=true;
+							for e:=1 to 3 do
+								if not((isi[c,1+e] = 'O') or (isi[c,1+e] = 'T')) then
+									begin
+										checko:=false;
+										break;
+									end;
+							if checko then
+								break;
+						end;
+					end;
+			if not(checko or checkx) then
+				for c:=2 to 3 do
+					case isi[c,4] of
+						'X':
+						begin
+							checkx:=true;
+							for e:=1 to 3 do
+								if not((isi[c,4-e] = 'X') or (isi[c,4-e] = 'T')) then
+									begin
+										checkx:=false;
+										break;
+									end;
+							if checkx then
+								break;
+						end;
+						'O':
+						begin
+							checko:=true;
+							for e:=1 to 3 do
+								if not((isi[c,4-e] = 'O') or (isi[c,4-e] = 'T')) then
+									begin
+										checko:=false;
+										break;
+									end;
+							if checko then
+								break;
+						end;
+					end;
+				if checko or checkx then
+					if checko then
+						writeln('Case #',b,': O won')
+					else
+						writeln('Case #',b,': X won')
+				else
+					if checkcomp then
+						writeln('Case #',b,': Game has not completed')
+					else
+						writeln('Case #',b,': Draw');
+			readln;
+		end;	
+end.

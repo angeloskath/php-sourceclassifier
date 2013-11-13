@@ -1,0 +1,154 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace TicTacToe
+{
+    public class Solution
+    {
+        public StreamReader ReadInputFile(string ippath)
+        {
+            StreamReader file = new StreamReader(ippath);
+            return file;
+        }
+
+        public void WriteOutputToFile(string[] output, int maxlength, string outputpath)
+        {
+            string[] result = new string[maxlength];
+            for (int j = 0; j < maxlength; j++)
+            {
+                result[j] = "Case #" + (j + 1) + ": " + output[j];
+            }
+            System.IO.File.WriteAllLines(outputpath, result);
+        }
+
+
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Dictionary<string, string> grid = new Dictionary<string, string>();
+            grid.Add("XXXT", "X won");
+            grid.Add("XXTX", "X won");
+            grid.Add("XTXX", "X won");
+            grid.Add("TXXX", "X won");
+            grid.Add("XXXX", "X won");
+
+            grid.Add("OOOT", "O won");
+            grid.Add("OOTO", "O won");
+            grid.Add("OTOO", "O won");
+            grid.Add("TOOO", "O won");
+            grid.Add("OOOO", "O won");
+
+            string c1=string.Empty, c2=string.Empty, c3=string.Empty, c4=string.Empty, d1=string.Empty, d2=string.Empty,row,res=string.Empty;
+            bool isDotPresent = false, resultFound =false;
+
+            Solution soln = new Solution();
+            StreamReader filereader = soln.ReadInputFile(@"G:\C#Projects\Code Jam 2013\TicTacToeT\a.in");
+            int n;
+            n = Convert.ToInt32(filereader.ReadLine());
+            string[] output = new string[n];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    row = filereader.ReadLine();
+                    if (!string.IsNullOrEmpty(row) && !resultFound)
+                    {
+                        if (row.Contains('.'))
+                            isDotPresent = true;
+                        if (grid.ContainsKey(row))
+                        {
+                            res = grid[row];
+                            resultFound = true;
+                        }
+                        else
+                        {
+                            if (c1.Length != 4)
+                            {
+                                c1 = c1 + row[0];
+                                c2 = c2 + row[1];
+                                c3 = c3 + row[2];
+                                c4 = c4 + row[3];
+
+                                if (c1.Length == 4)
+                                {
+                                    if (grid.ContainsKey(c1.Trim()))
+                                    {
+                                        res = grid[c1];
+                                        resultFound = true;
+                                    }
+                                    else if (grid.ContainsKey(c2.Trim()))
+                                    {
+                                        res = grid[c2];
+                                        resultFound = true;
+                                    }
+                                    else if (grid.ContainsKey(c3.Trim()))
+                                    {
+                                        res = grid[c3];
+                                        resultFound = true;
+                                    }
+                                    else if (grid.ContainsKey(c4.Trim()))
+                                    {
+                                        res = grid[c4];
+                                        resultFound = true;
+                                    }
+                                    else
+                                    {
+                                        //build diagonal string
+                                        d1 = c1[0].ToString() + c2[1].ToString() + c3[2].ToString() + c4[3].ToString();
+                                        if (grid.ContainsKey(d1.Trim()))
+                                        {
+                                            res = grid[d1];
+                                            resultFound = true;
+                                        }
+                                        else
+                                        {
+                                            d2 = c1[3].ToString() + c2[2].ToString() + c3[1].ToString() + c4[0].ToString();
+                                            if (grid.ContainsKey(d2.Trim()))
+                                            {
+                                                res = grid[d2];
+                                                resultFound = true;
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                            
+                        }
+
+                    }
+
+                        
+                } // end of one test case
+
+                if (resultFound)
+                    output[i] = res;
+                else
+                {
+                    if (isDotPresent)
+                        output[i] = "Game has not completed";
+                    else
+                        output[i] = "Draw";
+                }
+
+                res = string.Empty;
+                c1 = string.Empty;
+                c2 = string.Empty;
+                c3 = string.Empty;
+                c4 = string.Empty;
+                resultFound = false;
+                isDotPresent = false;
+                filereader.ReadLine(); // to remove blank line
+            } // end of test case loop
+
+            soln.WriteOutputToFile(output, n, @"G:\C#Projects\Code Jam 2013\TicTacToeT\op.txt");
+
+        }
+    }
+}

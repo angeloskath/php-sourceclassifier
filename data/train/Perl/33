@@ -1,0 +1,145 @@
+use feature ':5.10';
+
+$n = <>;
+
+for $i (1 .. $n)
+{
+	@board = ();
+ 	$empty = 0;
+	
+	for $j (0..3)
+	{
+		$columnString = <>;
+		if (index($columnString, ".") != -1)
+		{
+			$empty = 1;
+		}
+		
+		@columns = split(//, $columnString);		
+		@{$board[$j]} = @columns;		
+	}
+	
+	
+	$index = 0;
+	
+	for $j (0..3)
+	{
+		while ($index < 4 && ($board[$j][$index] eq "X" || $board[$j][$index] eq "T"))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: X won";
+			last;
+		}
+
+		$index = 0;
+		while ($index < 4 && ($board[$j][$index] eq 'O' || $board[$j][$index] eq 'T'))
+		{
+			$index++;
+		}
+
+		if ($index == 4)
+		{
+			say "Case #$i: O won";
+			last;
+		}			
+
+		$index = 0;
+		while ($index < 4 && ($board[$index][$j] eq 'X' || $board[$index][$j] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: X won";
+			last;
+		}
+
+		$index = 0;
+		while ($index < 4 && ($board[$index][$j] eq 'O' || $board[$index][$j] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: O won";
+			last;
+		}
+
+	}
+
+	if ($index != 4)
+	{
+		$index = 0;
+		while ($index < 4 && ($board[$index][$index] eq 'X' || $board[$index][$index] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: X won";
+		}
+	}
+	
+	if ($index != 4)
+	{
+		$index = 0;
+		while ($index < 4 && ($board[$index][$index] eq 'O' || $board[$index][$index] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: O won";
+		}
+	}
+
+	if ($index != 4)
+	{
+		$index = 0;
+		while ($index < 4 && ($board[3 - $index][$index] eq 'X' || $board[3 - $index][$index] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: X won";
+		}
+	}
+
+	if ($index != 4)
+	{
+		$index = 0;
+		while ($index < 4 && ($board[3 - $index][$index] eq 'O' || $board[3 - $index][$index] eq 'T'))
+		{
+			$index++;
+		}
+		
+		if ($index == 4)
+		{
+			say "Case #$i: O won";
+		}
+	}
+	
+	if ($index != 4)
+	{
+		if ($empty)
+		{
+				say "Case #$i: Game has not completed";
+		}
+		else
+		{
+				say "Case #$i: Draw";
+		}
+	}
+	
+	$empty = <>;
+}

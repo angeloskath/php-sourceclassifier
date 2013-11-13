@@ -1,0 +1,48 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+#use bigint;
+#use Memoize;
+
+$\ = "\n";
+
+my $T;
+my @in;
+
+$T = <>;
+
+for my $case (1..$T) {
+  $_ = <>.<>.<>.<>;
+  <>;
+  s/[\r\n]//g;
+  #print;
+		# rows
+  if (   /^(....){0,3}[XT][XT][XT][XT]/
+		# cols
+      || /[XT]...[XT]...[XT]...[XT]/
+		# diagonals
+      || /[XT]....[XT]....[XT]....[XT]/
+      || /^...[XT]..[XT]..[XT]..[XT]/) {
+    print "Case #$case: X won";
+    next;
+  }
+
+		# rows
+  if (   /^(....){0,3}[OT][OT][OT][OT]/
+		# cols
+      || /[OT]...[OT]...[OT]...[OT]/
+		# diagonals
+      || /[OT]....[OT]....[OT]....[OT]/
+      || /^...[OT]..[OT]..[OT]..[OT]/) {
+    print "Case #$case: O won";
+    next;
+  }
+
+  if (/\./) {
+    print "Case #$case: Game has not completed";
+    next;
+  }
+
+  print "Case #$case: Draw";
+}

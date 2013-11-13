@@ -1,0 +1,88 @@
+-- -*- Mode: haskell; Coding: utf-8; -*-
+import System.Environment
+import Data.Array
+import Control.Monad
+
+main = do
+  args <- getArgs
+  case args of
+    [input] -> doMain input
+    _ -> putStrLn $ "usage: EXE filename"
+
+data CellData = X | O | T | Dot
+              deriving (Show, Eq)
+
+data T4State a = Cell a
+               | Won a
+               | Draw
+               | NotComplited
+               deriving (Show, Eq)
+
+t4StateToString a = case a of
+  (Cell a) -> "Cell " ++ (show a)
+  (Won a) -> (show a) ++ " won"
+  Draw -> "Draw"
+  NotComplited -> "Game has not completed"
+
+data TestSet a = TestSet a
+               deriving (Show, Eq)
+
+judgeM (Won a) (Won b) = judge a b
+judgeM Draw _ = Draw
+judgeM _ Draw = Draw
+judgeM NotComplited _ = NotComplited
+judgeM _ NotComplited = NotComplited
+
+judge X O = Draw
+judge O X = Draw
+judge X X = Won X
+judge O O = Won O
+judge T T = Won T
+judge a T = judge a a
+judge T a = judge a a
+judge Dot _ = NotComplited
+judge _ Dot = NotComplited
+
+doMain inFile = do
+  (dataNum,dataSet) <- readFile inFile >>= parseTestSet
+  forM_ (zip [1..dataNum] dataSet) $ \(i,d) -> do
+    putStr $ "Case #" ++ (show i) ++ ": "
+    putStrLn $ t4StateToString $ t4judge $ rows d ++ cols d ++ [cross1 d] ++ [cross2 d]
+    where getRaw ary i = map (ary !) (range ((i,0),(i,3)))
+          getCol ary i = map (ary !) (range ((0,i),(3,i)))
+          rows ary = map (getRaw ary) [0..3]
+          cols ary = map (getCol ary) [0..3]
+          cross1 ary = map (ary !) (zip [0..3] [0..3])
+          cross2 ary = map (ary !) (zip [0..3] (reverse [0..3]))
+
+
+t4judge ts = let results = map t4judge' ts
+                 hasNotComplited = NotComplited `elem` results
+             in case reduce results of
+               (Won a) -> Won a
+               _ -> if hasNotComplited then NotComplited else Draw
+  where t4judge' ts = foldr judgeM (Won T) $ map (Won . readCellData) ts
+        reduce [] = Draw
+        reduce ((Won a):_) = Won a
+        reduce res = reduce $ tail res
+
+
+parseTestSet ss = do
+  return $ (testCaseNum, map parseTestData testSet)
+  where testCaseNum = read $ head (lines ss) :: Int
+        testSet = breaks (=="") $ tail (lines ss)
+        breaks :: (Eq a) => (a -> Bool) -> [a] -> [[a]]
+        breaks fn [] = []
+        breaks fn xs = let (hs,ts) = break fn xs
+                           ts' = if ts == [] then [] else tail ts
+                       in hs : (breaks fn ts')
+
+parseTestData td = array ((0,0),(3,3)) dataList
+  where dataList = zip index $ concat td
+        index = concat $ map (zip [0..3]) $ map repeat [0..3]
+
+readCellData :: Char -> CellData
+readCellData a | a == 'X' = X
+               | a == 'O' = O
+               | a == 'T' = T
+               | a == '.' = Dot

@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+use strict;
+
+my($number);
+$number = <>;
+chomp($number);
+
+my($i, $j);
+my($line, @tmp, @a, $str);
+for($i = 0; $i < $number; $i++) {
+	undef(@a);
+	for($j = 0; $j < 4; $j++) {
+		$line = <>;
+		chomp($line);
+		$a[$j] .= $line;
+	}
+	$str = join('', @a);
+	if(judge($str, 'X', 0) == 1) {
+		printf("Case #%d: X won\n", $i + 1);
+	}
+	elsif(judge($str, 'O', 0) == 1) {
+		printf("Case #%d: O won\n", $i + 1);
+	}
+	elsif(judge($str, 'X', 1) == 0 and judge($str, 'O', 1) == 0) {
+		printf("Case #%d: Draw\n", $i + 1);
+	}
+	else {
+		printf("Case #%d: Game has not completed\n", $i + 1);
+	}
+	#skip one line
+	$line = <>;
+	undef(@a);
+}
+
+sub judge {
+	my($s, $char, $max) = @_;
+	my($res);
+	$s =~ s/T/$char/;
+	if($max == 1) {
+		$s =~ s/\./1/g;
+	}
+	else {
+		$s =~ s/\./0/g;
+	}
+	if($char eq 'X') {
+		$s =~ s/O/0/g;
+		$s =~ s/X/1/g;
+	}
+	else {
+		$s =~ s/O/1/g;
+		$s =~ s/X/0/g;
+	}
+	$res = binstr_2_dec($s);
+	$res = calc($res);
+	return($res);
+}
+
+sub calc {
+	my($value) = @_;
+	my(@mode) = (61440, 3840, 240, 15, 34952, 17476, 8738, 4369, 4680, 33825);
+	my($i);
+	for($i = 0; $i <= $#mode; $i++) {
+		if(($value & $mode[$i]) == $mode[$i]) {
+			return(1);
+		}
+	}
+	return(0);
+}
+
+sub binstr_2_dec {
+	my($str) = @_;
+	my($a) = unpack("n", pack("B16", $str));
+	return($a);
+}
+

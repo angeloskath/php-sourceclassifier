@@ -1,0 +1,295 @@
+#!/usr/bin/perl
+# use strict;
+# use warnings;
+
+use Data::Dumper;
+use Set::Scalar;
+
+use Switch 'Perl5', 'Perl6';
+
+sub trim {
+    (my $s = $_[0]) =~ s/^\s+|\s+$//g;
+    return $s;        
+}
+
+sub calcGame {
+  my $line1 = $_[0];
+  my $line2 = $_[1];
+  my $line3 = $_[2];
+  my $line4 = $_[3];
+  my @l1 = split //, $line1;
+  my @l2 = split //, $line2;
+  my @l3 = split //, $line3;
+  my @l4 = split //, $line4;
+  
+  my $c0x = 0;
+  my $c1x = 0;
+  my $c2x = 0;
+  my $c3x = 0;
+  my $r0x = 0;
+  my $r1x = 0;
+  my $r2x = 0;
+  my $r3x = 0;
+  my $d0x = 0;
+  my $d1x = 0;
+  my $c0o = 0;
+  my $c1o = 0;
+  my $c2o = 0;
+  my $c3o = 0;
+  my $r0o = 0;
+  my $r1o = 0;
+  my $r2o = 0;
+  my $r3o = 0;
+  my $d0o = 0;
+  my $d1o = 0; 
+  my $notFinished = 0;
+	
+	for(my $i = 0; $i < 4; $i++) {
+	  my $c1 = $l1[$i];
+	  my $c2 = $l2[$i];
+	  my $c3 = $l3[$i];
+	  my $c4 = $l4[$i];
+
+    switch($i) {
+      case(0) { 
+        if ($c1 eq 'X' || $c1 eq 'T') {
+          $c0x++; $r0x++; $d0x++;
+        }
+        if ($c1 eq 'O' || $c1 eq 'T') {
+          $c0o++; $r0o++; $d0o++;
+        }
+        if ($c1 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c2 eq 'X' || $c2 eq 'T') {
+          $c0x++; $r1x++;
+        }
+        if ($c2 eq 'O' || $c2 eq 'T') {
+          $c0o++; $r1o++;
+        }
+        if ($c2 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c3 eq 'X' || $c3 eq 'T') {
+          $c0x++; $r2x++;
+        }
+        if ($c3 eq 'O' || $c3 eq 'T') {
+          $c0o++; $r2o++;
+        }
+        if ($c3 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c4 eq 'X' || $c4 eq 'T') {
+          $c0x++; $r3x++; $d1x++;
+        }
+        if ($c4 eq 'O' || $c4 eq 'T') {
+          $c0o++; $r3o++; $d1o++;
+        }
+        if ($c4 eq '.') {
+          $notFinished++;
+        }
+      }
+      case(1) {
+        if ($c1 eq 'X' || $c1 eq 'T') {
+          $c1x++; $r0x++;
+        }
+        if ($c1 eq 'O' || $c1 eq 'T') {
+          $c1o++; $r0o++;
+        }
+        if ($c1 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c2 eq 'X' || $c2 eq 'T') {
+          $c1x++; $r1x++; $d0x++;
+        }
+        if ($c2 eq 'O' || $c2 eq 'T') {
+          $c1o++; $r1o++; $d0o++;
+        }
+        if ($c2 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c3 eq 'X' || $c3 eq 'T') {
+          $c1x++; $r2x++; $d1x++;
+        }
+        if ($c3 eq 'O' || $c3 eq 'T') {
+          $c1o++; $r2o++; $d1o++;
+        }
+        if ($c3 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c4 eq 'X' || $c4 eq 'T') {
+          $c1x++; $r3x++;
+        }
+        if ($c4 eq 'O' || $c4 eq 'T') {
+          $c1o++; $r3o++;
+        }
+        if ($c4 eq '.') {
+          $notFinished++;
+        }
+      }
+      case(2) {
+        if ($c1 eq 'X' || $c1 eq 'T') {
+          $c2x++; $r0x++;
+        }
+        if ($c1 eq 'O' || $c1 eq 'T') {
+          $c2o++; $r0o++;
+        }
+        if ($c1 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c2 eq 'X' || $c2 eq 'T') {
+          $c2x++; $r1x++; $d1x++;
+        }
+        if ($c2 eq 'O' || $c2 eq 'T') {
+          $c2o++; $r1o++; $d1o++;
+        }
+        if ($c2 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c3 eq 'X' || $c3 eq 'T') {
+          $c2x++; $r2x++; $d0x++;
+        }
+        if ($c3 eq 'O' || $c3 eq 'T') {
+          $c2o++; $r2o++; $d0o++;
+        }
+        if ($c3 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c4 eq 'X' || $c4 eq 'T') {
+          $c2x++; $r3x++;
+        }
+        if ($c4 eq 'O' || $c4 eq 'T') {
+          $c2o++; $r3o++;
+        }
+        if ($c4 eq '.') {
+          $notFinished++;
+        }
+      }
+      case(3) { 
+        if ($c1 eq 'X' || $c1 eq 'T') {
+          $c3x++; $r0x++; $d1x++;
+        }
+        if ($c1 eq 'O' || $c1 eq 'T') {
+          $c3o++; $r0o++; $d1o++;
+        }
+        if ($c1 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c2 eq 'X' || $c2 eq 'T') {
+          $c3x++; $r1x++;
+        }
+        if ($c2 eq 'O' || $c2 eq 'T') {
+          $c3o++; $r1o++;
+        }
+        if ($c2 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c3 eq 'X' || $c3 eq 'T') {
+          $c3x++; $r2x++;
+        }
+        if ($c3 eq 'O' || $c3 eq 'T') {
+          $c3o++; $r2o++;
+        }
+        if ($c3 eq '.') {
+          $notFinished++;
+        }
+        
+        if ($c4 eq 'X' || $c4 eq 'T') {
+          $c3x++; $r3x++; $d0x++;
+        }
+        if ($c4 eq 'O' || $c4 eq 'T') {
+          $c3o++; $r3o++; $d0o++;
+        }
+        if ($c4 eq '.') {
+          $notFinished++;
+        }
+      }
+    }
+    
+    if ($c0x == 4 ||
+    $c1x == 4 ||
+    $c2x == 4 ||
+    $c3x == 4 ||
+    $r0x == 4 ||
+    $r1x == 4 ||
+    $r2x == 4 ||
+    $r3x == 4 ||
+    $d0x == 4 ||
+    $d1x == 4) {
+      return 0;
+    }
+    elsif ($c0o == 4 ||
+    $c1o == 4 ||
+    $c2o == 4 ||
+    $c3o == 4 ||
+    $r0o == 4 ||
+    $r1o == 4 ||
+    $r2o == 4 ||
+    $r3o == 4 ||
+    $d0o == 4 ||
+    $d1o == 4) {
+      return 1;
+    }
+	}
+
+  if ($notFinished == 0) {
+    return 2;
+  }
+  else {
+  	return 3;
+	}
+}
+
+# Get file names
+if (@ARGV != 2) {
+	die("Needs input and output names as arguments\n");
+}
+my ($input, $output) = @ARGV;
+#print "Input: $input\tOutput: $output\n"
+
+# Prepare files
+open INPUT, "<$input" or die $!;
+open OUTPUT, ">$output" or die $!;
+
+my $numberOfCases = <INPUT>;
+print $numberOfCases;
+
+my $caseNum = 0;
+
+# For each input line
+while (my $line = <INPUT>) {
+	$caseNum++;
+	# CUSTOM CODE START
+	my $line2 = <INPUT>;
+	my $line3 = <INPUT>;
+	my $line4 = <INPUT>;
+	<INPUT>;
+  
+  my $rcode = calcGame($line, $line2, $line3, $line4);
+  my $result = "";
+  switch($rcode) {
+    case(0) { $result = "X won"; }
+    case(1) { $result = "O won"; }
+    case(2) { $result = "Draw"; }
+    case(3) { $result = "Game has not completed"; }
+    default { print "STOPSTOPSTOPSTOP, INVALID RCODE"; return; }
+  }
+
+	# CUSTOM CODE END
+	print OUTPUT "Case #$caseNum: ".$result."\n";
+	print "Case #$caseNum: ".$result."\n";
+}
+
+close(INPUT);
+close(OUTPUT);

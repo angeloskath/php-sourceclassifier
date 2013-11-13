@@ -1,0 +1,122 @@
+<?php
+
+$results=array("X won",
+"O won",
+"Draw",
+"Game has not completed");
+
+
+$fi=fopen("inputA","r");
+$fo=fopen("outputA","w");
+
+$case=0;
+
+$N=fgets($fi);
+for($iter=0;$iter<$N;$iter++){
+    $T=4;
+    $board=array();
+    //completar tablero
+    for($iter2=0;$iter2<$T;$iter2++){
+        $board[]=fgets($fi);
+    }
+    fgets($fi);
+    //buscar en diagonales
+    $x1=0;
+    $o1=0;
+    $x2=0;
+    $o2=0;
+    for($i=0;$i<$T;$i++){
+        switch($board[$i][$i]){
+            case"T":
+                $x1++;
+                $o1++;
+                break;
+            case"O":
+                $o1++;
+                break;
+            case"X":
+                $x1++;
+                break;
+        }
+        switch($board[$i][$T-$i-1]){
+            case"T":
+                $x2++;
+                $o2++;
+                break;
+            case"O":
+                $o2++;
+                break;
+            case"X":
+                $x2++;
+                break;
+        }
+    }
+    if($x1==$T||$x2==$T){
+        $case++;
+        fwrite($fo, "Case #$case: ".$results[0]."\n");
+        continue 1;
+    }
+    if($o1==$T||$o2==$T){
+        $case++;
+        fwrite($fo, "Case #$case: ".$results[1]."\n");
+        continue 1;
+    }
+    $incompleted=false;
+    for($i=0;$i<$T;$i++){
+        $x1=0;
+        $o1=0;
+        $x2=0;
+        $o2=0;
+        for($j=0;$j<$T;$j++){
+            switch($board[$i][$j]){
+                case".":
+                    $incompleted=true;
+                    break;
+                case"T":
+                    $x1++;
+                    $o1++;
+                    break;
+                case"O":
+                    $o1++;
+                    break;
+                case"X":
+                    $x1++;
+                    break;
+            }
+            switch($board[$j][$i]){
+                case".":
+                    $incompleted=true;
+                    break;
+                case"T":
+                    $x2++;
+                    $o2++;
+                    break;
+                case"O":
+                    $o2++;
+                    break;
+                case"X":
+                    $x2++;
+                    break;
+            }
+        }
+        if($x1==$T||$x2==$T){
+            $case++;
+            fwrite($fo, "Case #$case: ".$results[0]."\n");
+            continue 2;
+        }
+        if($o1==$T||$o2==$T){
+            $case++;
+            fwrite($fo, "Case #$case: ".$results[1]."\n");
+            continue 2;
+        }
+    }
+    $case++;
+    if(!$incompleted){
+        fwrite($fo, "Case #$case: ".$results[2]."\n");
+    }else{
+        fwrite($fo, "Case #$case: ".$results[3]."\n");
+    }    
+}
+fclose($fo);
+
+?>

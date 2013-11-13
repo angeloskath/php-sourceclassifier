@@ -1,0 +1,67 @@
+% Brendan Wreford
+% Code Jam 2013
+% 
+% Q1: Tic-Tac-Toe-Tomek
+
+clear all;
+clc;
+
+% Read submat from path
+inFile = fopen('A-large.in');
+line = strtrim(fgetl(inFile));
+totalNum = str2double(line);
+
+% Open file for writing
+path = 'output.txt';
+outFile = fopen(path, 'w');
+
+X = 7;
+O = 87;
+T = 1;
+
+counter = 1;
+while (ischar(line) && counter <= totalNum)
+    tempMat = zeros(4);
+    for i = 1:1:4
+        line = strtrim(fgetl(inFile));
+        for j = 1:1:4
+            if (line(j) == 'X')
+                tempMat(i,j) = 7;
+            elseif (line(j) == 'O')
+                tempMat(i,j) = 87;
+            elseif (line(j) == 'T')
+                tempMat(i,j) = 1;
+            end
+        end
+    end
+    line = fgetl(inFile);
+    
+    check1 = sum(tempMat,1);
+    check2 = sum(tempMat,2)';
+    check3 = sum(diag(tempMat));
+    check4 = tempMat(1,4)+tempMat(2,3) + tempMat(3,2) + tempMat(4,1);
+    check5 = sum(check1);
+    
+    check = [check1 check2 check3 check4 check5];
+    
+    res = find(check == 28 | check == 22 | check == 348 | check == 262 | check == 666 | check == 752);
+    
+    if isempty(res)
+       fprintf(outFile, 'Case #%.0f: Game has not completed\n',counter);
+    elseif check(res(1)) == 28
+        fprintf(outFile, 'Case #%.0f: X won\n',counter);
+    elseif check(res(1)) == 22
+        fprintf(outFile, 'Case #%.0f: X won\n',counter);
+    elseif check(res(1)) == 348
+        fprintf(outFile, 'Case #%.0f: O won\n',counter);
+    elseif check(res(1)) == 262
+        fprintf(outFile, 'Case #%.0f: O won\n',counter);
+    elseif check(res(1)) == 666
+        fprintf(outFile, 'Case #%.0f: Draw\n',counter);
+    elseif check(res(1)) == 752
+        fprintf(outFile, 'Case #%.0f: Draw\n',counter);
+    else
+        disp(counter)
+    end
+    counter = counter +1;
+end

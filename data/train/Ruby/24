@@ -1,0 +1,128 @@
+#!/Users/moomindani/.rbenv/shims/ruby
+# -*- coding: utf-8 -*-
+
+# Ruby template for Google Code Jam
+
+require 'benchmark'
+
+class Solution
+
+  def solve(dataset)
+    File.open(dataset, 'r') do |input|
+      File.open(dataset.sub(/\.in/, '.out'), 'w') do |output|
+        test_cases = input.readline.to_i
+        1.upto(test_cases) do |test_case|
+          # input
+          tbl = []
+          5.times{
+            row = input.readline.split(//)
+            tbl.push(row)
+          }
+
+          # check row
+          next if put_result(output,test_case,check_row(tbl))
+          
+          # check column
+          next if put_result(output,test_case,check_column(tbl))
+
+          # check diagonal
+          next if put_result(output,test_case,check_diagonal(tbl))
+
+          # check continue
+          next if put_result(output,test_case,check_continue(tbl))
+
+          # draw
+          put_result(output,test_case,4)
+        end
+      end
+    end
+  end
+
+  def put_result(output, test_case, num)
+    case num
+    when 0 # not determined
+      return false
+    when 1 # X won
+      puts "Case ##{test_case}: X won"
+      output << %Q{Case ##{test_case}: X won\n}
+    when 2 # O won
+      puts "Case ##{test_case}: O won"
+      output << %Q{Case ##{test_case}: O won\n}
+    when 3 # continue
+      puts "Case ##{test_case}: Game has not completed"
+      output << %Q{Case ##{test_case}: Game has not completed\n}
+    when 4 # draw
+      puts "Case ##{test_case}: Draw"
+      output << %Q{Case ##{test_case}: Draw\n}
+    end
+
+    return true
+  end
+
+  def check_row(table)
+    table.each{|row|
+      if row.join().scan(/X|T/).size == 4
+        return 1
+      elsif row.join().scan(/O|T/).size == 4
+        return 2
+      end
+    }
+    return 0
+  end
+
+  def check_column(table)
+    for i in 0..4
+      column = []
+      table.each{|row|
+        column.push(row[i])
+      }
+      if column.join().scan(/X|T/).size == 4
+        return 1
+      elsif column.join().scan(/O|T/).size == 4
+        return 2
+      end
+    end
+    return 0
+  end
+
+  def check_diagonal(table)
+    diagonal_1 = []
+    diagonal_2 = []
+    diagonal_index = 0
+    table.each{|row|
+      diagonal_1.push(row[diagonal_index])
+      diagonal_2.push(row[3-diagonal_index])
+      diagonal_index += 1
+    }
+    if diagonal_1.join().scan(/X|T/).size == 4
+      return 1
+    elsif diagonal_1.join().scan(/O|T/).size == 4
+      return 2
+    end
+
+    if diagonal_2.join().scan(/X|T/).size == 4
+      return 1
+    elsif diagonal_2.join().scan(/O|T/).size == 4
+      return 2
+    end
+
+    return 0
+  end
+
+  def check_continue(table)
+    table.each{|row|
+      if row.include?(".")
+        return 3
+      end
+    }
+    return 0
+  end
+end
+
+problem = Solution.new
+#problem.solve('test.in')
+
+Benchmark.bm do |x|
+#  x.report('small') { problem.solve('A-small-attempt0.in') }
+  x.report('large') { problem.solve('A-large.in') }
+end

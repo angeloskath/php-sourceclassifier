@@ -1,0 +1,68 @@
+program tic_tac;
+var t,i,i2,i3:longint;
+    m:array[0..5,0..5] of char;
+    b:boolean;
+    l:0..3;
+    doc,doc2:text;
+begin
+  assign(doc,'A-large.in');
+  assign(doc2,'A-large.out');
+  reset(doc);
+  rewrite(doc2);
+  readln(doc,t);
+  for i:=1 to t do
+   begin
+    b:=false;
+    l:=0;
+    for i2:=1 to 4 do
+     for i3:=1 to 4 do
+      begin
+       if i3<>4 then
+        read(doc,m[i3,i2])
+        else
+         begin
+          readln(doc,m[i3,i2]);
+          if i2=4 then
+           readln(doc);
+         end;
+       if m[i3,i2]='.' then
+        b:=true;
+      end;
+    for i2:=1 to 4 do
+     if ((m[1,i2]='X')or(m[1,i2]='T'))and((m[2,i2]='X')or(m[2,i2]='T'))and((m[3,i2]='X')or(m[3,i2]='T'))and((m[4,i2]='X')or(m[4,i2]='T')) then
+      l:=1
+     else
+      if ((m[1,i2]='O')or(m[1,i2]='T'))and((m[2,i2]='O')or(m[2,i2]='T'))and((m[3,i2]='O')or(m[3,i2]='T'))and((m[4,i2]='O')or(m[4,i2]='T')) then
+       l:=2;
+    if l=0 then
+     for i2:=1 to 4 do
+      if ((m[i2,1]='X')or(m[i2,1]='T'))and((m[i2,2]='X')or(m[i2,2]='T'))and((m[i2,3]='X')or(m[i2,3]='T'))and((m[i2,4]='X')or(m[i2,4]='T')) then
+       l:=1
+      else
+       if ((m[i2,1]='O')or(m[i2,1]='T'))and((m[i2,2]='O')or(m[i2,2]='T'))and((m[i2,3]='O')or(m[i2,3]='T'))and((m[i2,4]='O')or(m[i2,4]='T')) then
+        l:=2;
+    if l=0 then
+     if ((m[1,1]='X')or(m[1,1]='T'))and((m[2,2]='X')or(m[2,2]='T'))and((m[3,3]='X')or(m[3,3]='T'))and((m[4,4]='X')or(m[4,4]='T')) then
+      l:=1
+     else
+      if ((m[1,1]='O')or(m[1,1]='T'))and((m[2,2]='O')or(m[2,2]='T'))and((m[3,3]='O')or(m[3,3]='T'))and((m[4,4]='O')or(m[4,4]='T')) then
+       l:=2
+     else
+      if ((m[1,4]='X')or(m[1,4]='T'))and((m[2,3]='X')or(m[2,3]='T'))and((m[3,2]='X')or(m[3,2]='T'))and((m[4,1]='X')or(m[4,1]='T')) then
+       l:=1
+     else
+      if ((m[1,4]='O')or(m[1,4]='T'))and((m[2,3]='O')or(m[2,3]='T'))and((m[3,2]='O')or(m[3,2]='T'))and((m[4,1]='O')or(m[4,1]='T')) then
+       l:=2;
+    write(doc2,'Case #',i,': ');
+    if (l=0)and(b=false) then
+     writeln(doc2,'Draw');
+    if (l=0)and(b=true) then
+     writeln(doc2,'Game has not completed');
+    if l=1 then
+     writeln(doc2,'X won');
+    if l=2 then
+     writeln(doc2,'O won');
+   end;
+  close(doc);
+  close(doc2);
+end.

@@ -1,0 +1,102 @@
+<?php
+
+//$filename = 'sample.in';
+//$filename = '/Volumes/Awesome/Downloads/A-small-attempt0.in';
+$filename = '/Volumes/Awesome/Downloads/A-large.in';
+
+$lines = file($filename);
+
+$responses = array(
+   'X' => 'X won',
+   'O' => 'O won',
+   '.' => 'Game has not completed',
+   'C' => 'Draw'
+);
+
+function echoBoard($board) {
+   foreach ($board as $line) {
+      echo "$line\n";
+   }
+}
+
+function testBoard($board) {
+   $possibles = array();
+
+   $diag1 = '';
+   $diag2 = '';
+   $all = '';
+   for ($i = 0; $i <= 3; $i++) {
+      // Row
+      $possibles[] = $board[$i];
+      // Col
+      $tmp = '';
+      for ($j = 0; $j <= 3; $j++) {
+         $tmp .= $board[$j][$i];
+      }
+      $possibles[] = $tmp;
+
+      $diag1 .= $board[$i][$i];
+      $diag2 .= $board[$i][3 - $i];
+      $all .= $board[$i];
+   }
+   $possibles[] = $diag1;
+   $possibles[] = $diag2;
+
+   $xwins = false;
+   $owins = false;
+
+   foreach ($possibles as $poss) {
+      if (preg_match('/[XT][XT][XT][XT]/', $poss)) {
+         $xwins = true;
+         $response = 'X';
+         break;
+      }
+   }
+
+   if (!$xwins) {
+      foreach ($possibles as $poss) {
+         if (preg_match('/[OT][OT][OT][OT]/', $poss)) {
+            $owins = true;
+            $response = 'O';
+            break;
+         }
+      }
+
+      if (!$owins) {
+         if (preg_match('/\./', $all)) {
+            $response = '.';
+         } else {
+            $response = 'C';
+         }
+      }
+   }
+
+   return $response;
+}
+
+$board = array();
+$caseNum = 0;
+foreach ($lines as $lineNum => $line) {
+   if ($lineNum == 0) {
+      $numTests = trim($line);
+      continue;
+   }
+
+   if (!trim($line)) {
+      continue;
+   }
+
+   if (count($board) < 3) {
+      $board[] = trim($line);
+   } else {
+      $board[] = trim($line);
+
+      $response = testBoard($board);
+
+      //echoBoard($board);
+      $board = array();
+      $caseNum++;
+      echo "Case #$caseNum: {$responses[$response]}\n";
+   }
+}
+

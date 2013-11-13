@@ -1,0 +1,46 @@
+<?php
+
+$input = file('C:\Users\Razel\Desktop\A-large.in');
+
+for($case = 1; $case < $input[0]+1; $case++)
+{
+    echo "Case #$case: ";
+    
+    $result = false;
+    $empty = false;
+    
+    $lines = array();
+    for($i=0;$i<4;$i++)
+    {
+        $lines[$i] = trim($input[1+($case-1)*5+$i]);
+    }
+    
+    for($i=0;$i<4;$i++)
+    {
+        $lines[] = $lines[0][$i].$lines[1][$i].$lines[2][$i].$lines[3][$i];
+    }
+    $lines[] = $lines[0][0].$lines[1][1].$lines[2][2].$lines[3][3];
+    $lines[] = $lines[0][3].$lines[1][2].$lines[2][1].$lines[3][0];
+    
+    foreach($lines as $line)
+    {        
+        foreach(array('X', 'O') as $letter)
+        {
+            if(substr_count($line, $letter) + substr_count($line, 'T') == 4)
+            {
+                $result = "$letter won";
+                break;
+            }
+        }
+        
+        $empty = $empty || (strpos($line, '.') !== false);
+    }
+    
+    if(!$result)
+    {
+        $result = $empty ? 'Game has not completed' : 'Draw';
+    }
+    
+    echo "$result\n";
+}
+

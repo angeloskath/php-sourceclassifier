@@ -1,0 +1,100 @@
+import scalaz._
+import Scalaz._
+import effect._
+import IO._
+
+object TTTT {
+
+  def run: IO[Unit] =
+
+    for {
+      testCases <- readLn
+      games <- repeat(testCases.toInt, readGame)
+      results = games.map(_.solve).zipWithIndex.map {
+        case (res, i) =>
+          "Case #" + (i+1) + ": " + res
+      }.mkString("\n")
+      _ <- putStrLn(results)
+    } yield ()
+
+  def repeat[T](n: Int, what: IO[T]): IO[Seq[T]] = {
+    require(n >= 0)
+
+    if (n == 0)
+      IO(Seq())
+    else
+      for {
+        x <- what
+        xs <- repeat(n - 1, what)
+      } yield (x +: xs)
+  }
+
+  def readGame: IO[Board] =
+    for {
+      l1 <- readLn
+      l2 <- readLn
+      l3 <- readLn
+      l4 <- readLn
+      _ <- readLn // blank
+    } yield Board(l1 ++ l2 ++ l3 ++ l4)
+
+  case class Board(contents: String) {
+    require(contents.length == 4 * 4, s"Contents were: $contents with len ${contents.length}")
+    require(contents.count(_ == 'T') <= 1)
+
+    def rc(row: Int, col: Int): Char = contents(row * 4 + col)
+
+    def aWin(line: String): Option[String] = {
+      require(line.length() == 4)
+
+      if (line.count(c => c == 'X' || c == 'T') == 4)
+        Some("X won")
+      else if (line.count(c => c == 'O' || c == 'T') == 4)
+        Some("O won")
+      else
+        None
+    }
+
+    def row(idx: Int): String =
+      (for {
+        c <- 0 to 3
+      } yield rc(idx, c)).mkString
+
+    def col(idx: Int): String =
+      (for {
+        r <- 0 to 3
+      } yield rc(r, idx)).mkString
+
+    def leadingDiagonal: String =
+      (for {
+        i <- 0 to 3
+      } yield rc(i, i)).mkString
+
+    def trailingDiagonal: String =
+      (for {
+        i <- 0 to 3
+      } yield rc(i, 3 - i)).mkString
+
+    def allLines = {
+
+      val r = for {
+        i <- 0 to 3
+      } yield Seq(row(i), col(i))
+
+      leadingDiagonal +: trailingDiagonal +: r.flatten
+    }
+
+    def solve: String = {
+
+      for (line <- allLines) {
+        aWin(line).map { return _ }
+      }
+
+      if (contents.count(_ == '.') == 0)
+        "Draw"
+      else
+        "Game has not completed"
+    }
+  }
+
+}

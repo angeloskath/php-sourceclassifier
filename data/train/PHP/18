@@ -1,0 +1,162 @@
+#!/usr/bin/php
+<?php
+
+$inputFile = $argv[1];
+if (!is_file($inputFile)) {
+	die('Invalid input file: '. $inputFile);
+}
+
+$outcomes = array(
+	'x' => 'X won',
+	'o' => 'O won',
+	'draw' => 'Draw',
+	'playing' => 'Game has not completed'
+);
+
+$boardSize = 4;
+function checkBoard($board) {
+	global $boardSize;
+
+	// Check Rows
+	for ($yI = 0; $yI < $boardSize; $yI++) {
+		$xCount = 0;
+		$oCount = 0;
+		$tCount = 0;
+		for ($xI = 0; $xI < $boardSize; $xI++) {
+			$value = $board[$yI][$xI];
+			switch (strtolower($value)) {
+				case 'x':
+					++$xCount;
+					break;
+				case 'o':
+					++$oCount;
+					break;
+				case 't':
+					++$tCount;
+					break;
+			}
+			if ($xCount + $tCount == $boardSize) {
+				return 'x';
+			}
+			if ($oCount + $tCount == $boardSize) {
+				return 'o';
+			}
+		}
+	}
+
+	// Check Columns
+	for ($xI = 0; $xI < $boardSize; $xI++) {
+		$xCount = 0;
+		$oCount = 0;
+		$tCount = 0;
+		for ($yI = 0; $yI < $boardSize; $yI++) {
+			$value = $board[$yI][$xI];
+			switch (strtolower($value)) {
+				case 'x':
+					++$xCount;
+					break;
+				case 'o':
+					++$oCount;
+					break;
+				case 't':
+					++$tCount;
+					break;
+			}
+			if ($xCount + $tCount == $boardSize) {
+				return 'x';
+			}
+			if ($oCount + $tCount == $boardSize) {
+				return 'o';
+			}
+		}
+	}
+
+	// Check Diagonal
+	$diagonalXCount = 0;
+	$diagonalOCount = 0;
+	$diagonalTCount = 0;
+	for ($i = 0; $i < $boardSize; $i++) {
+		$value = $board[$i][$i];
+		switch (strtolower($value)) {
+			case 'x':
+				++$diagonalXCount;
+				break;
+			case 'o':
+				++$diagonalOCount;
+				break;
+			case 't':
+				++$diagonalTCount;
+				break;
+		}
+		if ($diagonalXCount + $diagonalTCount == $boardSize) {
+			return 'x';
+		}
+		if ($diagonalOCount + $diagonalTCount == $boardSize) {
+			return 'o';
+		}
+	}
+
+	// Check Anti-diagonal
+	$antiDiagonalXCount = 0;
+	$antiDiagonalOCount = 0;
+	$antiDiagonalTCount = 0;
+	for ($i = 0; $i < $boardSize; $i++) {
+		$value = $board[$i][$boardSize - 1 - $i];
+		switch (strtolower($value)) {
+			case 'x':
+				++$antiDiagonalXCount;
+				break;
+			case 'o':
+				++$antiDiagonalOCount;
+				break;
+			case 't':
+				++$antiDiagonalTCount;
+				break;
+		}
+		if ($antiDiagonalXCount + $antiDiagonalTCount == $boardSize) {
+			return 'x';
+		}
+		if ($antiDiagonalOCount + $antiDiagonalTCount == $boardSize) {
+			return 'o';
+		}
+	}
+
+	// Check Draws
+	$openSpaceCount = 0;
+	for ($yI = 0; $yI < $boardSize; $yI++) {
+		for ($xI = 0; $xI < $boardSize; $xI++) {
+			if ($board[$yI][$xI] == '.') {
+				++$openSpaceCount;
+			}
+		}
+	}
+	if ($openSpaceCount == 0) {
+		return 'draw';
+	}
+
+	return 'playing';
+}
+
+
+$fh = fopen($inputFile, 'r');
+$testCaseCount = fgets($fh);
+syslog(LOG_INFO, microtime(true) .' | Test Cases: '. $testCaseCount);
+for ($tI = 0; $tI < $testCaseCount; $tI++) {
+	$board = array();
+
+	for ($y = 0; $y < $boardSize; $y++) {
+		$boardLine = trim(fgets($fh));
+		if (strlen($boardLine) != $boardSize) {
+			syslog(LOG_WARNING, microtime(true) . ' | Invalid line: '. var_export($boardLine, true));
+		}
+		$lineCells = str_split($boardLine, 1);
+		$board[$y] = $lineCells;
+	}
+
+	$result = checkBoard($board);
+	echo 'Case #'. ($tI + 1) .': '. $outcomes[$result], "\n";
+
+	$emptyLine = fgets($fh);
+}
+
+?>

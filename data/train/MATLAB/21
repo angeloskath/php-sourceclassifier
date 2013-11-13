@@ -1,0 +1,53 @@
+CStr = dataread('file', 'C:\Users\Ahmad\Desktop\A-large (1).in', '%s', 'delimiter', '\n');
+testc=str2num(char(CStr(1)));
+clc
+fid=fopen('C:\Users\Ahmad\Desktop\myoutput.txt','w');
+u=0;
+for i= 2:5:length(CStr)
+   u=u+1;
+    f=0;
+    dotc=0;
+    cr=(char(CStr));
+    cr=cr(i:i+3,:);
+    
+  cr=[cr;cr';diag(cr)';diag(fliplr(cr))'];
+  
+  for k=1:size(cr,1)
+   xc=0;
+   oc=0;
+      for g=1:size(cr,2)
+           if cr(k,g)=='X' || cr(k,g)=='T'
+               xc=xc+1;
+           end
+           if cr(k,g)=='O' || cr(k,g)=='T'
+               oc=oc+1;
+           end
+           
+           if cr(k,g)=='.'
+               dotc=1;
+           end
+           
+      end
+   
+      if xc==4
+          fprintf(fid,'Case #%d: X won\n',u);
+          f=1;
+          break
+      end
+      if oc==4
+          fprintf(fid,'Case #%d: O won\n',u);
+          f=1;
+          break
+      end
+  
+      
+  end
+  if dotc==1 && f==0 
+          fprintf(fid,'Case #%d: Game has not completed\n',u);
+      end
+      if dotc ~=1 && f==0
+          fprintf(fid,'Case #%d: Draw\n',u);
+      end
+        
+end
+fclose(fid)

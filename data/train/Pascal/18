@@ -1,0 +1,82 @@
+{$mode delphi}
+var t,h,i,j,cc:integer;
+    ans:char;
+    flag,emp:boolean;
+    c:array[1..4,1..4]of char;
+
+begin
+  assign (input,'A-small-attempt0.in'); reset(input);
+  assign (output,'output.txt'); rewrite(output);
+  readln (t);
+  for h:= 1 to t do begin
+    //прочтение
+    emp:=false;
+    for i:=1 to 4 do begin
+      for j:= 1 to 4 do begin
+        read(c[i,j]);
+        if c[i,j]='.' then emp:=true;  
+      end;
+      readln;
+    end;
+    if h<>t then readln;
+       
+    flag:=false;
+    //вертикаль
+    for i:=1 to 4 do begin
+      cc:=0;
+      for j:=1 to 4 do begin
+        if ((c[i,j] = c[i,1]) or ((c[i,1] = 'T')and(c[i,j] = c[i,2])) or (c[i,j]='T')) and (c[i,j]<>'.') then inc(cc);
+      end;
+      if cc=4 then begin
+        if c[i,1]='T' then ans:=c[i,2]
+          else ans:=c[i,1];
+        writeln ('Case #',h,': ',ans,' won');
+        flag:=true;
+        break;
+      end; 
+    end;
+    if flag then continue;
+    //горизонталь
+    for i:=1 to 4 do begin
+      cc:=0;
+      for j:=1 to 4 do begin
+        if (c[j,i]<>'.') and ((c[j,i] = c[1,i])or ((c[1,i] = 'T')and(c[j,i] = c[2,i])) or (c[j,i]='T')) then inc(cc);
+      end;                 
+      if cc=4 then begin
+        if c[1,i]='T' then ans:=c[2,i]
+          else ans:=c[1,i];
+        writeln ('Case #',h,': ',ans,' won');
+        flag:=true;
+        break;
+      end; 
+    end;
+    if flag then continue;
+    //диагональ из верхнего левого
+    cc:=0;
+    for i:=1 to 4 do begin
+      if (c[i,i]<>'.') and ((c[1,1] = c[i,i])or ((c[1,1] = 'T')and(c[i,j] = c[2,2])) or (c[i,i]='T')) then inc(cc);  
+    end;
+    if cc=4 then begin
+      if c[1,1]='T' then ans:=c[2,2]
+        else ans:=c[1,1];
+      writeln ('Case #',h,': ',ans,' won');
+      flag:=true;
+    end; 
+    if flag then continue;
+    //диагональ из верхнего правого
+    cc:=0;
+    for i:=1 to 4 do begin
+      if (c[i,5-i]<>'.') and ((c[i,5-i] = c[1,4]) or ((c[1,4] = 'T')and(c[i,j] = c[2,2])) or (c[i,5-i]='T')) then inc(cc);   
+    end;
+    if cc=4 then begin
+      if c[1,4] = 'T' then ans:=c[2,3]
+        else ans:=c[1,4];
+      writeln ('Case #',h,': ',ans,' won');
+      flag:=true;
+    end;
+    if flag then continue;
+    //никто не выиграл
+    if not emp then writeln ('Case #',h,': Draw')
+      else writeln ('Case #',h,': Game has not completed');
+  end;
+end.

@@ -1,0 +1,174 @@
+
+def is_finished?(x)
+  4.times{|i|
+    4.times{|j|
+      return false if x[i][j] == :e
+    }
+  }
+  true
+end
+
+def analyze(x)
+
+  # test rows for victories
+  4.times{|i|
+    # test row i for a victory of X
+    x_won = true
+    4.times{|j|
+      case x[i][j]
+      when :X
+        # do nothing
+      when :T
+        # do nothing
+      else
+        x_won = false
+      end
+    }
+    return "X won (row #{i})" if x_won
+    # test row i for a victory of O
+    o_won = true
+    4.times{|j|
+      case x[i][j]
+      when :O
+        # do nothing
+      when :T
+        # do nothing
+      else
+        o_won = false
+      end
+    }
+    return "O won (row #{i})" if o_won
+  }
+
+  # test cols for victories
+  4.times{|j|
+    # test col i for a victory of X
+    x_won = true
+    4.times{|i|
+      case x[i][j]
+      when :X
+        # do nothing
+      when :T
+        # do nothing
+      else
+        x_won = false
+      end
+    }
+    return "X won (col #{j})" if x_won
+
+    # test col i for a victory of O
+    o_won = true
+    4.times{|i|
+      case x[i][j]
+      when :O
+        # do nothing
+      when :T
+        # do nothing
+      else
+        o_won = false
+      end
+    }
+    return "O won (col #{j})" if o_won
+  }
+
+  # test first diagonal for victory of X
+  x_won = true
+  4.times{|i|
+    case x[i][i]
+    when :X
+      # do nothing
+    when :T
+      # do nothing
+    else
+      x_won = false
+    end
+  }
+  return "X won (diag 1)" if x_won
+
+  # test first diagonal for victory of O
+  o_won = true
+  4.times{|i|
+    case x[i][i]
+    when :O
+      # do nothing
+    when :T
+      # do nothing
+    else
+      o_won = false
+    end
+  }
+  return "O won (diag 1)" if o_won
+
+
+  # test second diagonal for victory of X
+  x_won = true
+  4.times{|i|
+    case x[3-i][i]
+    when :X
+      # do nothing
+    when :T
+      # do nothing
+    else
+      x_won = false
+    end
+  }
+  return "X won (diag 2)" if x_won
+
+  # test second diagonal for victory of O
+  o_won = true
+  4.times{|i|
+    case x[3-i][i]
+    when :O
+      # do nothing
+    when :T
+      # do nothing
+    else
+      o_won = false
+    end
+  }
+  return "O won (diag 2)" if o_won
+
+
+
+  if is_finished?(x)
+    return "Draw" 
+  else
+    return "Game has not completed"
+  end
+end
+
+n = gets.to_i
+
+n.times{|i|
+  m = []
+  4.times{|j|
+    line = gets.strip
+    row = []
+    line.split("").map{|x|
+      case x
+      when 'X'
+        row << :X
+      when 'O'
+        row << :O
+      when 'T'
+        row << :T
+      when '.'
+        row << :e
+      end
+    }
+    m << row
+    $stderr.puts line
+  }
+  gets # the empty line
+
+  m.each{|x|
+    x.each{|y|
+      $stderr.print "#{y.to_s}"
+    }
+    $stderr.puts
+  }
+  result = analyze(m)
+  # puts "Case ##{i+1}: #{result}"
+  puts "Case ##{i+1}: #{result.gsub(/ \(.*/, "")}"
+}
+

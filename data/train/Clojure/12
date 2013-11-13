@@ -1,0 +1,41 @@
+(ns a.core
+  (:require [clojure.java.io :as io])
+  (:gen-class))
+
+(defn full-row [row]
+  (case (frequencies row)
+    {\X 3 \T 1} "X"
+    {\X 4} "X"
+    {\O 3 \T 1} "O"
+    {\O 4} "O"
+    nil))
+
+
+
+(defn get-diagonals [game]
+  [(map #(-> game (nth (first %)) (nth (second %))) [[0 0] [1 1] [2 2] [3 3]])
+   (map #(-> game (nth (first %)) (nth (second %))) [[3 0] [2 1] [1 2] [0 3]])])
+
+
+(defn determine-winner [game]
+  (let [rows (map full-row
+                  (concat game
+                          (partition 4 (apply interleave game))
+                          (get-diagonals game)))
+        winner (first (remove nil? rows))
+        completed? (empty? (filter #(= % \.) (apply str game)))]
+    (if winner
+      (str winner " won")
+      (if completed?
+        "Draw"
+        "Game has not completed"))))
+
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [path]
+  (with-open [reader (io/reader path)]
+    (let [lines (remove empty? (rest (line-seq reader)))
+          games (partition 4 lines)]
+      (doseq [[index game] (map-indexed vector games)]
+        (println (str "Case #" (inc index) ": " (determine-winner game)))))))

@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+my $xwins = qr/(X|T)(X|T)(X|T)(X|T)|(X|T)..._.(X|T).._..(X|T)._...(X|T)|(X|T)_..(X|T)._.(X|T).._(X|T)|(X|T)....(X|T)....(X|T)....(X|T)/;
+my $owins = qr/(O|T)(O|T)(O|T)(O|T)|(O|T)..._.(O|T).._..(O|T)._...(O|T)|(O|T)_..(O|T)._.(O|T).._(O|T)|(O|T)....(O|T)....(O|T)....(O|T)/;
+my $open = qr/\./;
+
+sub read_block {
+    my $block = '';
+    for (my $i = 0; $i < 4; $i++) {
+	my $line = <>;
+	$line =~ s/\n|\r//g;
+	$block .= $line . '_';
+    }
+    my $line = <>;
+    return $block;
+}
+
+my $no = <>;
+
+for (my $i = 1; $i <= $no; $i++) {
+    my $block = read_block();
+    print "Case #$i: ";
+    if ($block =~ $xwins) {
+	print "X won\n";
+    } elsif ($block =~ $owins) {
+	print "O won\n";
+    } elsif ($block =~ $open) {
+	print "Game has not completed\n";
+    } else {
+	print "Draw\n";
+    }
+}
+
+

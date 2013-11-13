@@ -1,0 +1,94 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+sub trace {
+#   print @_;
+}
+
+my $inf = 9**9**9;
+my $neginf = -9**9**9;
+my $nan = -sin(9**9**9);
+
+sub isinf { $_[0]==9**9**9 || $_[0]==-9**9**9 }
+sub isnan { ! defined( $_[0] <=> 9**9**9 ) }
+# useful for detecting negative zero
+sub signbit { substr( sprintf( '%g', $_[0] ), 0, 1 ) eq '-' }
+
+my $true = (1 == 1);
+my $false = (1 == 0);
+
+sub shift2 ($\@) {
+   my $s = shift @_;
+   return splice(@{$_[0]}, 0, $s);
+}
+sub pop2 ($\@) {
+   my $s = shift @_;
+   return splice(@{$_[0]}, -$s);
+}
+
+my @bo;
+sub checkSeq
+{
+   my $start = shift @_;
+   my $step = shift @_;
+   my $side = shift @_;
+   my $res = 1;
+   my $ci = $start;
+   foreach( 1 .. 4 )
+   {
+      my $cur = $bo[ $ci ];
+      if( $cur ne $side and $cur ne "T" ) { $res = 0; last; }
+      $ci += $step;
+   }
+   trace( "\t$start $step $side $ci $res\n" );
+   return $res;
+}
+
+sub checkWin
+{
+   my $s = shift @_;
+   return (
+      checkSeq(0,1,$s) or
+      checkSeq(4,1,$s) or
+      checkSeq(8,1,$s) or
+      checkSeq(12,1,$s) or
+      checkSeq(0,4,$s) or
+      checkSeq(1,4,$s) or
+      checkSeq(2,4,$s) or
+      checkSeq(3,4,$s) or
+      checkSeq(3,3,$s) or
+      checkSeq(0,5,$s)
+   );;
+}
+
+my $ntests = <>;
+chomp $ntests;
+trace( "Ntests = $ntests\n" );
+
+undef $/;
+my $fileContent = <>;
+my @td = split( /\s+/, $fileContent );
+
+foreach ( 1 .. $ntests ) {
+   trace( "-----------\n" );
+   trace( "| Test $_ |\n" );
+   trace( "-----------\n" );
+
+   # my $ntc = shift @td;
+   my $board = shift(@td) . shift(@td) . shift(@td). shift(@td);
+   $board =~ s/\n//;
+
+   my $full = 1;
+   if( $board =~ /\./ ) { $full = 0; }
+   @bo = split "", $board;
+   trace( "$#bo @bo\n" );
+
+   my $msg = undef;
+   if(!defined($msg) and checkWin( "X" ) ) { $msg = "X won"; }
+   if(!defined($msg) and checkWin( "O" ) ) { $msg = "O won"; }
+   if(!defined($msg) and !$full ) { $msg = "Game has not completed"; }
+   if(!defined($msg) ) { $msg = "Draw"; }
+
+   print "Case #$_: $msg\n";
+}

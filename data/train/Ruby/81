@@ -1,0 +1,55 @@
+## Google Code Jam 2013
+## Qualification Round. Problem A
+## Author: Jon Eisen
+
+def debug
+  false
+end
+
+def ri
+  gets.split.map{|x|x.to_i}
+end
+
+def board()
+  b = (0..3).map{ gets.chomp.split '' }
+  gets rescue nil
+  b
+end
+
+def rowwin(p, row)
+  row.map{|e|["T",p].include?(e)}.all?
+end
+
+def solve
+  b = board
+  puts b.map{|bb|bb.join('')}.join("\n") + "\n" if debug
+  rows = (0..3).map { |i| b[i] }
+  cols = (0..3).map { |i| b.map { |row| row[i] } }
+  diag1 = (0..3).map { |i| b[i][i] }
+  diag2 = (0..3).zip((0..3).reverse_each).map { |i,j| b[i][j] }
+
+  p diag1, diag2 if debug
+  all = rows + cols + [diag1, diag2]
+
+  xwins = false
+  owins = false
+  filled = true
+
+  all.each do |row|
+    xwins = true if rowwin("X", row)
+    owins = true if rowwin("O", row)
+    break if xwins or owins
+    filled &&= row.map{|e| e != "."}.all?
+  end
+
+  return "X won" if xwins
+  return "O won" if owins
+  return "Draw" if filled
+  "Game has not completed"
+end
+
+n = ri[0]
+n.times do |i|
+  ans = solve
+  puts "Case ##{i+1}: #{ans}"
+end

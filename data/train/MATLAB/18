@@ -1,0 +1,120 @@
+function bpbCJ2013_prob1A_A()
+% T number of test cases
+fidA = fopen('input.in','r');
+T = fscanf(fidA,'%d',1);
+% fgetl(fidA);
+for iTestCase = 1:T;
+            tLine = fgetl(fidA);
+
+    for jLine = 1:4
+        tLine = fgetl(fidA);
+        for kCharacter = 1:4;
+             switch tLine(kCharacter)
+                 case 'T';
+                     b(jLine,kCharacter,iTestCase) = 1+1i;
+                 case 'X';
+                     b(jLine,kCharacter,iTestCase) = 1;
+                 case 'O';
+                     b(jLine,kCharacter,iTestCase) = 1i;
+                 case '.';
+                     b(jLine,kCharacter,iTestCase) = nan;
+             end
+        end
+    end
+end
+fclose(fidA);
+%% Process
+
+for iTestCase = 1:T
+    board = b(:,:,iTestCase);
+    
+    % check if player X won rows
+    if any(nansum(real(board),2)==4)
+        output{iTestCase} = 'X won';
+        continue
+    end
+    
+    % check if player X won cols
+    if any(nansum(real(board),1)==4)
+        output{iTestCase} = 'X won';
+        continue
+    end
+    
+    % check if player X won diags
+    if sum(sum(real(board).*eye(4)))==4;
+        output{iTestCase} = 'X won';
+        continue
+    end
+    
+    % check if player X won diags
+    if sum(sum(real(board).*fliplr(eye(4))))==4;
+        output{iTestCase} = 'X won';
+        continue
+    end
+    
+    
+    % check if player O won cols
+    if any(nansum(imag(board),1)==4)
+        output{iTestCase} = 'O won';
+        continue
+    end
+    
+     % check if player 0 won rows
+    if any(nansum(imag(board),2)==4)
+        output{iTestCase} = 'O won';
+        continue
+    end
+    
+    % check if player O won diags
+    if sum(sum(imag(board).*eye(4)))==4;
+        output{iTestCase} = 'O won';
+        continue
+    end
+    
+    % check if player O won diags
+    if sum(sum(imag(board).*fliplr(eye(4))))==4;
+        output{iTestCase} = 'O won';
+        continue
+    end
+    
+    % check if the game is still going
+    if any(isnan(board(:)));
+        output{iTestCase} = 'Game has not completed';
+        continue
+    end
+    
+    output{iTestCase} = 'Draw';
+  
+end
+
+%%
+
+%% write output
+writeOutput(output,4)
+function bpbCJ2012_writeOutput(output,style)
+
+fidA = fopen(fullfile(pwd,'output.out'),'w');
+for iResult = 1:length(output);
+    switch style
+        case 1 % cell output, print integers
+
+        fprintf(fidA,...
+        ['Case #',num2str(iResult),': ',...
+        output{iResult},'\r\n']);
+        case 2 % non cell output, print integers
+        
+    fprintf(fidA,...
+        ['Case #',num2str(iResult),': ',...
+        num2str(output(iResult)),'\r\n']);
+        
+        case 3 % non cell output, print %.6f
+                fprintf(fidA,...
+        ['Case #',num2str(iResult),': ',...
+        num2str(output(iResult),'%.6f'),'\r\n']);
+        case 4 % cell output, strings
+            fprintf(fidA,...
+                ['Case #',num2str(iResult),': ', output{iResult}]);
+            fprintf(fidA,'\r\n');
+    end
+end
+fclose(fidA);

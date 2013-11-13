@@ -1,0 +1,55 @@
+module Main where
+
+import Control.Applicative
+import Control.Monad
+
+main = do
+  t <- readLn
+  mapM (\x -> putStr ("Case #" ++ show x ++ ": ") >> solve) [1..t]
+
+solve :: IO ()
+solve = do
+  b <- readBoard
+  getLine
+  -- print (rows b, cols b, diags b)
+  let oWins = wins O b
+      xWins = wins X b
+      draw = full b
+  putStrLn $
+    if oWins
+      then "O won"
+      else if xWins
+        then "X won"
+        else if draw
+          then "Draw"
+          else "Game has not completed"
+  return ()
+
+type Board = [[Space]]
+wins :: Space -> Board -> Bool
+wins s b = any wins' (rows b) || any wins' (cols b) || any wins' (diags b)
+  where wins' = win4 s
+rows = id
+cols board = map (\x -> map (\row -> row !! x) board) [0..3]
+diags :: [[a]] -> [[a]]
+diags board = [map (\n -> op1 n n) [0..3], map (\n -> op2 n n) [0..3]]
+  where op1 x y = (board !! x) !! y
+        op2 x y = (board !! x) !! (3 - y)
+win4 s x = numS + numT == 4
+  where numS = length $ filter (== s) x
+        numT = length $ filter (== T) x
+
+
+full = all rowFull 
+rowFull = not . any (== Empty)
+
+data Space = X | O | T | Empty
+  deriving (Show, Eq)
+
+readBoard = replicateM 4 readBoardLine
+readBoardLine = map readSpot <$> getLine 
+
+readSpot 'X' = X
+readSpot 'O' = O
+readSpot 'T' = T
+readSpot '.' = Empty

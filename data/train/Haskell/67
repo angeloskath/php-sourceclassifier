@@ -1,0 +1,50 @@
+import Data.List
+--what a mess
+main = do
+  c <- getContents
+  let cases = split $ lines c
+  let solved = init $ map state cases
+  format solved
+
+split [] = []
+split (c:cs) = [take 4 cs] ++ split (drop 4 cs)
+
+won s g = contained s g || contained s (transpose g)
+    where contained str g = any (== True) $ map (\r -> str `isInfixOf` r) g
+
+state g | (won "XXXX" g) = "X won"
+        | (won "OOOO" g) = "O won"
+        | diagonal "XXXX" g = "X won"
+        | diagonal "OOOO" g = "O won"
+        | tomek "XXXT" g won = "X won"
+        | tomek "XXXT" g diagonal = "X won"
+        | tomek "OOOT" g won = "O won"
+        | tomek "OOOT" g diagonal = "O won"
+        | not (won "." g) = "Draw"
+        | otherwise = "Game has not completed"
+
+tomek str g f = any (== True) $ map (\o -> f o g) (permutations str)
+
+diagonal str g = str == leftD g 0 || str == rightD g 3
+
+leftD _ 4 = ""
+leftD g n = (g !! n !! n):(leftD g (n+1))
+
+rightD g _ = (g !! 0 !! 3):(g !! 1 !! 2):(g !! 2 !! 1):(g !! 3 !! 0):[]
+
+game3 = ["XXXO", "..O.", ".O..", "T..."]
+
+format cs = flip mapM_ (zip [1..] cs) $ (\(i, c) -> do 
+                              putStr $ "Case #" ++ show i ++ ": "
+                              putStrLn $ c)
+
+
+
+
+
+testGame = ["XXXT","....","OO..","...."]
+
+{-
+xWon ("XXX" `elem` game) = "X won"
+xWon ("XXX" `elem` (transpose game)) = "X won"
+-}

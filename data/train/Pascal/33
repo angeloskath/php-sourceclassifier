@@ -1,0 +1,85 @@
+var i,j:longint;
+    a:array[1..4,1..4]of char;
+
+procedure xuatx;
+begin
+  writeln('X won');
+end;
+
+procedure xuato;
+begin
+  writeln('O won');
+end;
+
+procedure solve;
+var i,j:longint;
+    pick:char;
+    check:boolean;
+begin
+  for i:=1 to 4 do begin
+    check:=true;
+    if a[i,1]='T' then pick:=a[i,2] else pick:=a[i,1];
+    if pick='.' then continue;
+    for j:=1 to 4 do if (a[i,j]='T')or(a[i,j]=pick) then
+    else check:=false;
+    if check then begin
+      if pick='X' then xuatx else xuato;
+      exit;
+    end;
+  end;
+  for j:=1 to 4 do begin
+    check:=true;
+    if a[1,j]='T' then pick:=a[2,j] else pick:=a[1,j];
+    if pick='.' then continue;
+    for i:=1 to 4 do if (a[i,j]='T')or(a[i,j]=pick) then
+    else check:=false;
+    if check then begin
+      if pick='X' then xuatx else xuato;
+      exit;
+    end
+  end;
+  check:=true;
+  if a[1,1]='T' then pick:=a[2,2] else pick:=a[1,1];
+  if pick<>'.' then begin
+    for i:=1 to 4 do if (a[i,i]='T')or(a[i,i]=pick) then
+    else check:=false;
+    if check then begin
+      if pick='X' then xuatx else xuato;  exit;
+    end;
+  end;
+  check:=true;
+  if a[4,1]='T' then pick:=a[3,2] else pick:=a[4,1];
+  if pick<>'.' then begin
+    for i:=1 to 4 do if (a[i,5-i]='T')or(a[i,5-i]=pick) then
+    else check:=false;
+    if check then begin
+      if pick='X' then xuatx else xuato;  exit;
+    end;
+  end;
+  for i:=1 to 4 do for j:=1 to 4 do
+    if a[i,j]='.' then begin
+      writeln('Game has not completed');  exit;
+    end;
+  writeln('Draw');
+end;
+
+procedure nhap;
+var i,j,test,ntest:longint;
+begin
+  assign(input,'test.inp');  reset(input);
+  assign(output,'test.out');  rewrite(output);
+  readln(test);
+  for ntest:=1 to test do begin
+    write('Case #',ntest,': ');
+    for i:=1 to 4 do begin
+      for j:=1 to 4 do read(a[i,j]);
+      readln;
+    end;
+    solve;
+    readln;
+  end;
+end;
+
+begin
+  nhap;
+end.

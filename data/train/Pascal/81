@@ -1,0 +1,143 @@
+var a:array[1..4] of string[10];
+t,i,j,k,n:longint;
+zz:boolean;
+procedure con;
+var i,j,k,n:longint;
+begin
+    for i:=1 to 4 do
+    begin
+        if (a[i,1]=a[i,2]) and (a[i,1]=a[i,3]) and (a[i,1]=a[i,4]) then
+        begin
+        if (a[i,1]='X') then
+        begin
+            writeln('Case #',t,': X won');
+             zz:=true;
+            exit;
+        end
+        else if (a[i,1]='O') then
+        begin
+            writeln('Case #',t,': O won');
+             zz:=true;
+            exit;
+        end;
+        end;
+    end;
+    for j:=1 to 4 do
+    begin
+        if (a[1,j]=a[2,j]) and (a[1,j]=a[3,j]) and (a[1,j]=a[4,j]) then
+        begin
+
+        if (a[1,j]='X') then
+        begin
+            writeln('Case #',t,': X won');
+             zz:=true;
+            exit;
+        end
+        else if (a[1,j]='O') then
+        begin
+            writeln('Case #',t,': O won');
+             zz:=true;
+            exit;
+        end;
+        end;
+    end;
+    if ((a[1,1]=a[2,2]) and (a[1,1]=a[3,3]) and (a[1,1]=a[4,4]))   then
+        begin
+
+        if (a[1,1]='X') then
+        begin
+            writeln('Case #',t,': X won');
+             zz:=true;
+            exit;
+        end
+        else if (a[1,1]='O') then
+        begin
+            writeln('Case #',t,': O won');
+             zz:=true;
+            exit;
+        end;
+        end;
+    if  ((a[1,4]=a[2,3]) and (a[2,3]=a[3,2]) and (a[1,4]=a[4,1]))   then
+        begin
+
+        if (a[1,4]='X') then
+        begin
+            writeln('Case #',t,': X won');
+               zz:=true;
+            exit;
+        end
+        else if (a[1,4]='O') then
+        begin
+            writeln('Case #',t,': O won');
+               zz:=true;
+            exit;
+        end;
+        end;
+end;
+procedure che;
+var i,j,x,y:longint;
+z,v:boolean;
+begin
+    z:=false;
+    v:=false;
+    for i:=1 to 4 do
+    for j:=1 to 4 do
+    if a[i][j]='.' then
+    z:=true;
+    for i:=1 to 4 do
+    for j:=1 to 4 do
+    if a[i,j]='T' then
+    begin
+    x:=i;
+    y:=j;
+    a[i,j]:='X';
+    v:=true;
+    end;
+    con;
+    if zz then exit;
+    if v  then
+    a[x,y]:='O';
+    con;
+    if zz then exit;
+    if not zz and z then
+    begin
+    writeln('Case #',t,': Game has not completed');
+    exit;
+    end
+    else
+    begin
+    writeln('Case #',t,': Draw');
+    end;
+    x:=0;y:=0;
+end;
+begin
+    readln(n);
+    for t:=1 to n do
+    begin
+        zz:=false;
+        for i:=1 to 4 do
+        readln(a[i]);
+        che;
+        readln;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    end;
+end.

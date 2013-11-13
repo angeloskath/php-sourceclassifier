@@ -1,0 +1,103 @@
+<?php 
+function pout($file, $text, $case){
+	if($case > 1) fwrite($file, "\n");
+	fwrite($file, "Case #" . $case . ": ". $text);
+}
+
+
+function checkRow($row){
+	
+	$previous = $row[0];
+	
+	if($previous == "T"){
+		$previous = $row[1];
+	}
+	$filaOk = $previous;
+	
+	for($i = 0; $i < 4; $i++){
+		if($row[$i] == "."){
+			return $row[$i];
+		}elseif(($row[$i] != $previous) && ($row[$i] != "T")){
+			$filaOk = false;
+		}
+	}
+	return $filaOk;
+}
+
+function processCase($tablero, $case = 1){
+	
+	$hayPuntos = false;
+	
+	for($i = 0; $i < 4; $i++){
+		$result = checkRow($tablero[$i]);
+		if($result == ".") {
+			$hayPuntos = true;
+		}elseif($result != ""){
+			return $result;
+		}
+	}
+	
+	for($i = 0; $i < 4; $i++){
+		$result = checkRow(array($tablero[0][$i], $tablero[1][$i], $tablero[2][$i], $tablero[3][$i]));
+		if($result == "."){
+			$hayPuntos = true;
+		}elseif($result != ""){
+			return $result;
+		}
+	}
+	
+	$result = checkRow(array($tablero[0][0], $tablero[1][1], $tablero[2][2], $tablero[3][3]));
+	if($result == "."){
+		$hayPuntos = true;
+	}elseif($result != ""){
+		return $result;
+	}
+	
+	$result = checkRow(array($tablero[0][3], $tablero[1][2], $tablero[2][1], $tablero[3][0]));
+	if($result == "."){
+		$hayPuntos = true;
+	}elseif($result != ""){
+		return $result;
+	}
+	
+	if($hayPuntos){
+		return ".";
+	}else{
+		return "";
+	}		
+	
+				
+}
+
+
+
+$input = fopen($argv[1], "r");
+$output = fopen($argv[2], "w");
+
+$numCases = (int)fgets($input);
+for($i = 1; $i < $numCases + 1; $i++){
+	$tablero = array(
+				0 => str_split(rtrim(fgets($input))),
+				1 => str_split(rtrim(fgets($input))),
+				2 => str_split(rtrim(fgets($input))),
+				3 => str_split(rtrim(fgets($input)))
+			);
+	fgets($input);
+	switch (processCase($tablero, $i)){
+		case "X":
+			$text = "X won";
+			break;
+		case "O":
+			$text = "O won";
+			break;
+		case ".":
+			$text = "Game has not completed";
+			break;
+		case "":
+			$text = "Draw";
+			break;
+
+	}
+	pout($output, $text, $i);
+}
+?> 

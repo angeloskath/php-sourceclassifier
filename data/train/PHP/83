@@ -1,0 +1,111 @@
+<?php
+/**
+ * @author Louis
+ * 
+ * préparer le jeu en entrée dans un fichier "a.in"
+ * lancer la commande "php 2.php" pour lancer le script
+ *  
+ */
+
+$in = fopen('a.in', 'r');
+$out = fopen('a.out', 'w');
+//nombre de cas ( intval = cast en entier, trim suppression des espaces / retours à la ligne avant et après)
+$C = intval(trim(fgets($in)));
+
+
+/**
+ * Affiche la grille sur la sortie, utile pour le débug ...
+ * @param array $board
+ */
+function printBoard($board){
+    foreach($board as $l){
+        echo implode('',$l).PHP_EOL;
+    }
+}
+
+
+/**
+ * Vérifie s'il y'a un gagnant sur le board pour K pièces alignées
+ * La grille sera parcourue de gauche à droite et de haut en bas.
+ * @param array $board
+ * @param int $K
+ */
+function lookForWinner($board, $K){
+    $N = count($board);
+    //le bleu gagne
+    $blue = false;
+    //le rouge gagne
+    $red = false;
+    
+    $completed = true; //jeu fini jusqu'a preuve du contraire;
+    //parcours par ligne
+    for($i=0; $i<$N; $i++){
+        //Si les 2 joueurs ont gagnés, on ne cherche pas d'autre combinaisons gagnantes
+        if($red && $blue) break;
+        //parcour par colonne
+        for($j=0; $j<$N; $j++){
+            //lecture de la case
+            $case = $board[$i][$j];
+            if($case=='.'){ 
+                $completed = false;//rien à tester, on passe à la case suivante
+                continue;                
+            }
+            
+            //on part du principe que la case (R ou B) trouvée, va générée une combinaison gagnante dans les 4 direction (en ligne, en colonne et en diag)
+            $line = true;
+            $diag1 = true;
+            $diag2 = true;
+            $col = true;
+            
+            //on ne test que les cases à droites pour le cas de la ligne, ou les cases sur les lignes en dessous (aux indices supérieurs) pour les autres combinaison
+            // car si on en est là, c'est que les cases précédentes dans l'analyse de la grille (donc en haut et à gauche) ne sont pas gagnante
+            for($k=1; $k < $K; $k++){ //on test K-1 case restante 
+                $ckp = $j + $k; //colonne suivante
+                $ckm = $j - $k; //colonne précédente
+                $lkm = $i + $k; //ligne suivante
+                
+                //on élimine une combinaison gagnante dès qu'on trouve une anomalie.
+                // l'ordre des tests et la reprises du boolean ($line, $col, $diag1 et $diag2) 
+                // est important, car dès qu'un test renvoie faux, les autres tests ne sont (normalement) pas executés
+                $line = $line && $ckp < $N && ($board[$i][$ckp] == $case || $board[$i][$ckp]=='T');
+                $col = $col && $lkm < $N && ($board[$lkm][$j] == $case || $board[$lkm][$j]=='T');
+                $diag1 = $diag1 && $lkm < $N && $ckm > -1 && ($board[$lkm][$ckm] == $case || $board[$lkm][$ckm]=='T');
+                $diag2 = $diag2 && $lkm < $N && $ckp < $N && ($board[$lkm][$ckp] == $case || $board[$lkm][$ckp]=='T');
+
+                //si tout les tests sont faux nous arretons l'analyse et sortons de la boucle
+                if(!$line && !$col && !$diag1 && !$diag2) break;
+            }
+            //si à la fin de nos K-1 essais il reste une combinaison gagnante, alors c'est bon
+            if($line || $col || $diag1 || $diag2){
+                if($case == 'O') return 'O won';
+                else return 'X won';
+            }
+        }
+    }
+    if($completed) return 'Draw';
+    else return 'Game has not completed'; 
+}
+
+//lecture des c Cas 
+for($c = 0; $c<$C; $c++){
+    $N = 4; //taille de la grille;
+    
+    //initialisation de la grille (matrix / tableau de tableau)
+    $board = array();
+    for($l = 0; $l < $N; $l++){
+        //lecture de la ligne et transformation en tableau (1 lettre = 1 case)
+        $line = str_split(trim(fgets($in)));
+        $board[$l] = $line;
+    }
+    fgets($in); //suat de ligne
+    
+    $y = lookForWinner($board, 4); //détection des gagnants
+    
+    //ajout de la ligne dans le fichier de sortie
+    $solution = 'Case #'.($c+1).': '.$y."\n";
+    echo $solution; 
+    fputs($out,$solution);
+}
+
+fclose($in); 
+fclose($out);

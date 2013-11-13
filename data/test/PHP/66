@@ -1,0 +1,69 @@
+<pre>
+<?php //Guy Kastenbaum Paris 2013
+$in=file("in.txt");
+$n=trim(array_shift($in));
+//print_r($in);
+$i=1;
+$res="";
+for($j=1;$j<=$n;$j++)
+{
+	$board=array();
+	for($l=0;$l<4;$l++)
+		$board[$l]=preg_split("//",trim(array_shift($in)),-1, PREG_SPLIT_NO_EMPTY);
+	array_shift($in);
+	$val=ttt($board);
+	$res.="Case #".($j).": ".$val."\n";
+}
+file_put_contents("out.txt",$res);
+print $res;
+
+function dbg($board)
+{
+	foreach($board as $i=>$line)
+		print(join("",$line)."\n");
+}
+function ttt($board)
+{
+	foreach(array($board,flip90($board)) as $boarlin)
+	{
+		foreach($boarlin as $i=>$line)
+		{
+			$res=chklin($line);
+			if($res) return($res);
+		}
+		$res=chkdia($boarlin);
+		if($res) return($res);
+	}
+	foreach($board as $i=>$line)
+		foreach($line as $j=>$value)
+			if ($value==".") return("Game has not completed");
+	return("Draw");
+}
+function chklin($line)
+{
+	$ntox=array("."=>0,"O"=>0,"X"=>0,"T"=>0);
+	foreach($line as $j=>$value) $ntox[$value]++;
+	if ($ntox["O"]+$ntox["T"]==4) return("O won");
+	if ($ntox["X"]+$ntox["T"]==4) return("X won");
+	return(null);
+}
+function chkdia($board)
+{
+	$ntox=array("."=>0,"O"=>0,"X"=>0,"T"=>0);
+	//foreach($board as $j=>$line) print $line[$j];//lol
+	foreach($board as $j=>$line) $ntox[$line[$j]]++;//lol
+	if ($ntox["O"]+$ntox["T"]==4) return("O won");
+	if ($ntox["X"]+$ntox["T"]==4) return("X won");
+	return(null);
+}
+function flip90($board)
+{
+	$sz4=count($board[0])-1;
+	$flipped=$board;
+	foreach($board as $i=>$line)
+		foreach($line as $j=>$value)
+			$flipped[$j][$sz4-$i]=$value;
+	return($flipped);
+}
+
+?>

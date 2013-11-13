@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+exit(1) if($#ARGV+1 != 1);
+$filename = $ARGV[0];
+open(INPUT,"< ".$filename);
+open(OUTPUT,"> out.txt");
+$casecount = <INPUT>;
+$testcount = 0;
+while($testcount < $casecount)
+{
+	$thereisdot = 0; #if there is dot in board, value is 1.
+	$result = 0;#0 draw 1 X win 2 O win
+	$testcount++;
+	@board = ();
+
+	for($i = 0;$i < 4; $i++) 
+	{
+		$column = <INPUT>;
+		#print $column;
+		for($j = 0;$j < 4; $j++) 
+		{
+			$board[$i][$j] = substr($column,$j,1);
+			$thereisdot = 1 if($board[$i][$j] eq ".");
+
+		}
+	}
+		
+	#row or column
+	foreach $i(0,1,2,3) 
+	{
+		$result = &judge($board[$i][0],$board[$i][1],$board[$i][2],$board[$i][3]);
+		last if($result != 0);
+		#print $board[0][$i]." ".$board[1][$i]." ".$board[2][$i]." ".$board[3][$i];
+		$result = &judge($board[0][$i],$board[1][$i],$board[2][$i],$board[3][$i]);
+		last if($result != 0);
+	}
+	#slant
+	if($result == 0)
+	{
+			$result = &judge($board[0][0],$board[1][1],$board[2][2],$board[3][3]);
+			$result = &judge($board[0][3],$board[1][2],$board[2][1],$board[3][0]) if($result == 0);
+	}
+	if($result == 1)
+	{
+		$strresult = "X won\n";
+	}
+	elsif($result == 2)
+	{
+		$strresult = "O won\n";
+	}
+	elsif($thereisdot == 1)
+	{
+		$strresult = "Game has not completed\n";
+	}
+	else
+	{
+		$strresult = "Draw\n";
+	}
+	print "Case #".$testcount.": ".$strresult;
+	print OUTPUT "Case #".$testcount.": ".$strresult;
+	$garbage = <INPUT>;#blank ignore
+}
+
+#0 draw
+#1 X win
+#2 O win
+sub judge
+{
+	#print @_;
+	$x=$y=0;
+	foreach $i(0,1,2,3)
+	{
+		$x++ if(@_[$i] eq "X");
+		$y++ if(@_[$i] eq "O");
+		
+		if(@_[$i] eq "T")
+		{
+			$x++;
+			$y++;
+		}
+		
+	}
+	#print $x."@".$y." \n";
+	if($x == 4)
+	{
+		return 1;
+	}
+	elsif($y == 4)
+	{
+		return 2;
+	}
+	else
+	{
+		return 0;
+	}
+}

@@ -1,0 +1,27 @@
+
+import Control.Applicative
+import Data.Char
+import Data.List
+import Control.Monad
+
+gg :: [String] -> [String]
+gg b = b ++ transpose b ++ [[(b!!i)!!i|i<-[0..3]]] ++ [[(reverse b!!i)!!i|i<-[0..3]]]
+won :: Char -> [String] -> Bool
+won ch b = any (all (=='T')) (gg $ map (map ss) b) where
+  ss c | c == ch = 'T'
+   | otherwise = c
+
+solve board
+  | won 'O' board = "O won"
+  | won 'X' board = "X won"
+  | any (any (=='.')) board = "Game has not completed"
+  | otherwise = "Draw"
+
+getNonEmptyLine = do
+  l <- getLine
+  if any (not . isSpace) l then return l else getNonEmptyLine
+
+main=do
+ n <- read <$> getLine
+ flip mapM [1..n] $ \tc -> do
+   (\res -> putStrLn $ "Case #" ++ show tc ++ ": " ++ res) . solve =<< (replicateM 4 getNonEmptyLine)

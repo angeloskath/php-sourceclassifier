@@ -1,0 +1,30 @@
+open(IN,"alarge.in");
+open(OUT,">alarge.out");
+@b;
+for(1..<IN>){
+	print OUT"Case #$_: ";
+	for(0..3){@b[4*$_..4*$_+3]=split//,<IN>;}<IN>;
+	
+	if(C("X")){print OUT"X won\n";}
+	elsif(C("O")){print OUT"O won\n";}
+	elsif(d()){print OUT"Draw\n";}
+	else{print OUT"Game has not completed\n";}
+	
+}
+
+sub C{
+	($p)=@_;
+	for(0..3){return 1if(c($p,4*$_,1));}
+	for(0..3){return 1if(c($p,$_,4));}
+	return c($p,0,5)||c($p,3,3);
+}
+
+sub c{
+	($p,$s,$a)=@_;
+	for(0..3){return 0if($b[$s]ne"T"&&$b[$s]ne$p);$s+=$a;}
+	return 1;
+}
+sub d{
+	foreach(@b){return 0if("."eq$_);}
+	return 1;
+}

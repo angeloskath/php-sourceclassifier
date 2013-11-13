@@ -1,0 +1,100 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+public class GCJ2013QA {
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter pw = new PrintWriter(System.out);
+		int t = Integer.parseInt(r.readLine());
+		char[][] cc = new char[4][4];
+		for (int i = 1; i <= t; i++) {
+			for (int j = 0; j < 4; j++) {
+				cc[j] = r.readLine().toCharArray();
+			}
+			r.readLine();
+			pw.println("Case #" + i + ": " + solve(cc));
+		}
+		pw.flush();
+	}
+
+	private static String solve(char[][] cc) {
+		char[][] cc1 = new char[4][4];
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				cc1[i][j] = cc[i][j];
+				if (cc1[i][j] == 'T') {
+					cc1[i][j] = 'X';
+				}
+			}
+		}
+		if (won(cc1, 'X')) {
+			return "X won";
+		}
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				cc1[i][j] = cc[i][j];
+				if (cc1[i][j] == 'T') {
+					cc1[i][j] = 'O';
+				}
+			}
+		}
+		if (won(cc1, 'O')) {
+			return "O won";
+		}
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (cc[i][j] == '.') {
+					return "Game has not completed";
+				}
+			}
+		}
+		return "Draw";
+	}
+
+	private static boolean won(char[][] cc, char ch) {
+		int count;
+		for (int i = 0; i < 4; i++) {
+			count = 0;
+			for (int j = 0; j < 4; j++) {
+				if (cc[i][j] == ch) {
+					count++;
+				}
+			}
+			if (count == 4) {
+				return true;
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			count = 0;
+			for (int j = 0; j < 4; j++) {
+				if (cc[j][i] == ch) {
+					count++;
+				}
+			}
+			if (count == 4) {
+				return true;
+			}
+		}
+		count = 0;
+		for (int i = 0; i < 4; i++) {
+			if (cc[i][i] == ch) {
+				count++;
+			}
+		}
+		if (count == 4) {
+			return true;
+		}
+		count = 0;
+		for (int i = 0; i < 4; i++) {
+			if (cc[i][3 - i] == ch) {
+				count++;
+			}
+		}
+		if (count == 4) {
+			return true;
+		}
+		return false;
+	}
+}

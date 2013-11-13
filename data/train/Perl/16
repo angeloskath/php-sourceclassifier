@@ -1,0 +1,110 @@
+use v5.14;
+no strict;
+
+sub results ($);
+sub solveme($);
+sub su(@);
+$su = 0;
+
+print "Enter filename for INPUT: >";
+    $input = <STDIN>;
+chomp($input);
+open (IN, "<$input");
+
+open (OUTFILE, ">$input.results.txt");
+
+$_ = <IN>; chomp; for $a (1..$_) {
+    
+    #   pulls each line into a variable
+    #$_ = <IN>; chomp; $var1 = $_;            
+    #$_ = <IN>; chomp; $var2 = $_;
+    #$_ = <IN>; chomp; $var3 = $_;
+    
+    #   pulls one line into an anonymous array
+    #$_ = <IN>; chomp; $a1 = [split(/ /)];
+    #$_ = <IN>; chomp; $a2 = [split(/ /)];
+    #$_ = <IN>; chomp; $a3 = [split(/ /)];
+    
+    #   pulls first line as X - then pulls X lines into an array of anonymous arrays
+    my @arr1 = (); my $N = 4; for (1..$N) { $_=<IN>; chomp; push @arr1, [split //]; } <IN>;
+    #my @arr1 = (); $_ = <IN>; chomp; my $N = $_; for (1..$N) { $_=<IN>; chomp; push @arr1, [split]; };$a1 = [join ",",@arr1];
+   
+    #   runs solvme on each item of the array
+    #foreach $b (0..$#arr1) {
+    #    su "solveme", $arr1[$b], "\n";
+    #    $final = solveme($arr1[$b]);
+    #}
+    
+    #   runs solveme once
+    $final = solveme(\@arr1);
+    #$final = solveme($a1);
+    
+    #   returns results to output file
+    results("$final");
+    
+}
+
+close OUTFILE;
+
+
+
+
+
+
+sub solveme ($) {
+    
+    #my ($av1) = @_;
+    my @rows = @{$_[0]};
+    $blanks = 0;
+ROW:    foreach (@rows) {
+        su "@{$_}";
+        foreach (@{$_}) {
+            if (/\./) {$blanks = 1;}
+        }
+    }
+    su "blanks: $blanks";
+    
+    foreach $b (0..3) {
+        
+        push @rows, [$rows[0][$b],$rows[1][$b],$rows[2][$b],$rows[3][$b]];
+        
+    }
+    push @rows, [$rows[0][0],$rows[1][1],$rows[2][2],$rows[3][3]];
+    push @rows, [$rows[0][3],$rows[1][2],$rows[2][1],$rows[3][0]];
+    
+    foreach (@rows) {
+        $_ = join "", @{$_};
+        if (/^(O|T)*$/) { return "O won";}
+        if (/^(X|T)*$/) { return "X won";}
+    }
+    
+    if ($blanks) {
+        return "Game has not completed";
+    } else {
+        return "Draw";
+    }
+    
+    $solution = 0;
+    #print "solve: $av1";
+    
+    
+    
+    return $solution;
+}
+
+
+
+
+
+
+
+sub results ($) {
+    my ($result) = @_;
+    print "Case #$a: $result\n";
+    print OUTFILE "Case #$a: $result\n";
+}
+
+
+sub su (@) {
+    if ($su) {say @_;}
+}

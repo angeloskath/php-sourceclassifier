@@ -1,0 +1,58 @@
+function state(table) {
+  var cell, column, row, i
+
+  for (var player = 0; player < 2; player++) {
+    row_loop: for (row = 0; row < 4; row++) {
+      for (column = 0; column < 4; column ++) {
+        cell = table[row][column]
+        if (cell !== player && cell !== 2) continue row_loop
+      }
+      return (player ? 'X' : 'O') + ' won' // There's a full row!
+    }
+
+    column_loop: for (column = 0; column < 4; column ++) {
+      for (row = 0; row < 4; row++) {
+        cell = table[row][column]
+        if (cell !== player && cell !== 2) continue column_loop
+      }
+      return (player ? 'X' : 'O') + ' won' // There's a full column!
+    }
+
+    for (i = 0; i <= 3; i++) {
+      cell = table[i][i]
+      if (cell !== player && cell !== 2) break
+    }
+    if (i === 4) return (player ? 'X' : 'O') + ' won'
+
+    for (i = 0; i <= 3; i++) {
+      cell = table[3-i][i]
+      if (cell !== player && cell !== 2) break
+    }
+    if (i === 4) return (player ? 'X' : 'O') + ' won'
+  }
+
+  return table.full ? 'Draw' : 'Game has not completed'
+}
+
+input = require('fs').readFileSync(process.argv[2]).toString()
+
+charmap = {
+  '.': -1,
+  'O': 0,
+  'X': 1,
+  'T': 2
+}
+tables = input.replace(/^\d*\n/, '').replace(/\n*$/, '').split('\n\n')
+tables = tables.map(function(str) {
+  var table = str.split('\n').map(function(line) {
+    return line.split('').map(function(char) {
+      return charmap[char]
+    })
+  })
+  table.full = (str.indexOf('.') === -1)
+  return table
+})
+
+tables.map(function(table, i) {
+  console.log('Case #' + (i+1) + ': ' + state(table))
+})

@@ -1,0 +1,54 @@
+import java.io.File
+
+class TikTakTok(src: List[String]) {
+  val feld: List[List[Char]] = src.map(line => line.toCharArray().toList)
+  val range = 1 to 4
+  
+  def getRow(row : Int) = for (i <- 0 to 3) yield feld(row-1)(i);
+  def getColumn(col : Int) = for (i <- 0 to 3) yield feld(i)(col-1);
+  def getDiagonal = for (i <- 0 to 3) yield feld(i)(i);
+  def getBackDiagonal = for (i <- 0 to 3) yield feld(i)(3-i);
+  
+  
+  def checkWin(ch: Char) : Boolean = {
+    def win(chs : Seq[Char]) = chs.forall(sym => sym == ch || sym == 'T')
+    range.exists(n => win(getRow(n)) || win(getColumn(n))) || win(getDiagonal) || win(getBackDiagonal)
+  }
+  def containsDot = feld.exists(line => line.exists(_ == '.'))
+  override def toString = feld.map(line => line.map(_.toString).reduceLeft(_ + " " + _)).reduceLeft(_ + "\n" + _);
+}
+
+object TikTakTok {
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
+
+  def checkEntry(src: List[String]): String = {
+    // Read in field
+    val tik = new TikTakTok(src)
+    if (tik.checkWin('X')) "X won"
+    else if (tik.checkWin('O')) "O won"
+    else if (tik.containsDot)  "Game has not completed"
+    else "Draw"
+  }
+  def main(args: Array[String]) {
+    var source = scala.io.Source.fromFile("tiktak.txt").getLines.toList
+    var T: Integer = Integer.decode(source.head);
+    source = source.tail;
+    var file: java.io.File = new File("output.txt");
+    var results: List[String] = List();
+    while (T > 0) {
+      results = results ++ List(checkEntry(source.take(4)));
+      source = source.drop(5);
+      T = T - 1;
+    }
+    var i = 1;
+    printToFile(file) { p =>
+      results.foreach { result =>
+        p.println("Case #" + i + ": " + result)
+        i = i + 1;
+      }
+    }
+  }
+}

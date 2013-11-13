@@ -1,0 +1,68 @@
+File.open( "a.in", "r").each do |line|
+  line
+end
+def check_line line
+  if line =~ /[OT]{4}/
+    return "O"
+  elsif line =~ /[XT]{4}/
+    return "X"
+  end
+  return false
+end
+file = File.new("a.in", "r")
+n = file.gets.to_i # && 6
+lines = []
+for i in 1..n
+  lines = []
+  4.times{ lines << file.gets.strip }
+  file.gets # blank
+  # puts lines
+  ret = false
+  for j in 0..3
+    # diag1 = lines.each_with_index{ |l, k| puts "\n\n#{l} #{k} #{3-k} #{l[3-k].inspect}\n\n" }
+
+    # ..map {|l, k| l[k][3-k]}.join
+    # puts "diag1 = #{diag1}"
+
+    nl = lines.map{|l| l[j]}.join ''
+    if (ret = check_line nl)
+      puts "Case ##{i}: #{ret} won"
+      break
+    end
+
+    if (ret = check_line lines[j])
+      puts "Case ##{i}: #{ret} won"
+      break
+    end
+
+
+  end
+  diag1 = lines.each_with_index.map{ |l, k| l[k] }.join
+  diag2 = lines.each_with_index.map{ |l, k| l[3-k] }.join
+  # puts "diag2", diag2.inspect
+  # puts "diag1", diag1.inspect
+  if ret
+    next
+  end
+  if (ret = (check_line diag1) || (check_line diag2))
+    puts "Case ##{i}: #{ret} won"
+  end
+  if ret
+    next
+  end
+  in_progress = lines.map{|l| l =~ /\./}.any?
+  if in_progress
+    puts "Case ##{i}: Game has not completed"
+  else
+    puts "Case ##{i}: Draw"
+  end
+
+
+  
+  # puts "\n\n#{i}\n #{lines}"
+end
+
+def check board
+  board[r][c]
+end
+

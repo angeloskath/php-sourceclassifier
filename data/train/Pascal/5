@@ -1,0 +1,84 @@
+Const X_WON = 1;
+      O_WON = 2;
+      DRAW = 3;
+      NOT_OVER = 4;
+Type Board = Array[1..4, 1..4] of Char;
+
+Function Analyze(const a: Board):LongInt;
+Var i, j: LongInt;
+    every: Char;
+Begin
+	for i:=1 to 4 do begin
+		every := a[i, 1];
+		for j:=2 to 4 do begin
+			if every = 'T' then
+				every := a[i, j]
+			else if (every <> a[i, j]) and (a[i, j] <> 'T') then
+				every := '~';
+		end;
+		if every = 'X' then Exit(X_WON);
+		if every = 'O' then Exit(O_WON);
+
+		every := a[1, i];
+		for j:=2 to 4 do begin
+			if every = 'T' then
+				every := a[j, i]
+			else if (every <> a[j, i]) and (a[j, i] <> 'T') then
+				every := '~';
+		end;
+		if every = 'X' then Exit(X_WON);
+		if every = 'O' then Exit(O_WON);
+	end;
+
+	every := a[1, 1];
+	for i:=2 to 4 do begin
+		if every = 'T' then
+			every := a[i, i]
+		else if (every <> a[i, i]) and (a[i, i] <> 'T') then
+			every := '~';
+	end;
+	if every = 'X' then Exit(X_WON);
+	if every = 'O' then Exit(O_WON);
+
+	every := a[4, 1];
+	for i:=2 to 4 do begin
+		if every = 'T' then
+			every := a[5 - i, i]
+		else if (every <> a[5 - i, i]) and (a[5 - i, i] <> 'T') then
+			every := '~';
+	end;
+	if every = 'X' then Exit(X_WON);
+	if every = 'O' then Exit(O_WON);
+
+	for i:=1 to 4 do begin
+		for j:=1 to 4 do begin
+			if a[i, j] = '.' then Exit(NOT_OVER);
+		end;
+	end;
+
+	Exit(DRAW);
+End;
+
+Var t, i, j, k, state: LongInt;
+    a: Board;
+Begin
+	ReadLn(t);
+	for i:=1 to t do begin
+		for j:=1 to 4 do begin
+			for k:=1 to 4 do begin
+				Read(a[j, k]);
+			end;
+			ReadLn;
+		end;
+		ReadLn;
+
+		state := Analyze(a);
+		write('Case #', i, ': ');
+		case state of
+		X_WON: WriteLn('X won');
+		O_WON: WriteLn('O won');
+		DRAW: WriteLn('Draw');
+		NOT_OVER: WriteLn('Game has not completed');
+		end;
+	end;
+End.

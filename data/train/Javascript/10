@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+	<head>
+		<title>My Code</title>
+		<style>
+			#input, #output { width:49%; height:200px}
+		</style>
+		<script>
+			function test() {
+				var src = document.getElementById('input').value;
+				var start = new Date();
+				var str = src.split('\n');
+				var des = '', line = 0, i, j, k;
+				var t = Number(str[line++]);
+				for(i=1;i<=t;i++) {
+					var x=[], won = '.';
+					for(j=0;j<4;j++) {
+						x[j]=str[line++].split('');
+					}
+					for(j=0;j<4;j++) {
+						p = x[j][0];
+						if(p == 'T') p = x[j][1];
+						if(p == '.') continue;;
+						for(k=1;k<4;k++) {
+							if(x[j][k] != p && x[j][k] != 'T') {
+								break;
+							}
+						}
+						if(k == 4) {
+							won = p;
+							break;
+						}
+					}
+					if(won == '.') {
+						for(j=0;j<4;j++) {
+							p = x[0][j];
+							if(p == 'T') p = x[1][j];
+							if(p == '.') continue;
+							for(k=1;k<4;k++) {
+								if(x[k][j] != p && x[k][j] != 'T') {
+									break;
+								}
+							}
+							if(k == 4) {
+								won = p;
+								break;
+							}
+						}
+					}
+					if(won == '.') {
+						p = x[0][0];
+						if(p == 'T') p = x[1][1];
+						for(j=1;j<4;j++) {
+							if(x[j][j] != p && x[j][j] != 'T') {
+								break;
+							}
+						}
+						if(j == 4 && p != '.') {
+							won = p;
+						}
+					}
+					if(won == '.') {
+						p = x[0][3];
+						if(p == 'T') p = x[1][2];
+						for(j=1;j<4;j++) {
+							if(x[j][3 - j] != p && x[j][3 - j] != 'T') {
+								break;
+							}
+						}
+						if(j == 4 && p != '.') {
+							won = p;
+						}
+					}
+					if(won == '.') {
+						for(j=0;j<4;j++) {
+							for(k=0;k<4;k++) {
+								if(x[j][k] == '.') {
+									won = '-';
+									break;
+								}
+							}
+							if(won == '-') break;
+						}
+					}
+					if(won == 'X') {
+						des += 'Case #' + i + ': X won\n';
+					}
+					else if(won == 'O') {
+						des += 'Case #' + i + ': O won\n';
+					}
+					else if(won == '.') {
+						des += 'Case #' + i + ': Draw\n';
+					}
+					else {
+						des += 'Case #' + i + 
+							': Game has not completed\n';
+					}
+					line++;
+				}
+				document.getElementById('timer').value = (new Date()).getTime() - start.getTime();
+				document.getElementById('output').value = des;
+			}
+		</script>
+	</head>
+	<body>
+		<div style="float: left; width:50%">input:</div>
+		<div>output:</div>
+		<textarea id="input"></textarea>
+		<textarea id="output"></textarea>
+		<button id="go" type="submit" onclick="test()" style="height:14px">Go</button>
+		<textarea id="timer" style="height:14px; width:50px"></textarea>
+	</body>
+</html>

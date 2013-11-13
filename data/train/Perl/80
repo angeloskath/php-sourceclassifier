@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+use Switch;
+
+my @lines = ();
+my @grille = ();
+my $state;
+my $col1,$col2,$col3,$col4;
+my $output;
+open(FILE,"A-large.in");
+while (<FILE>) {
+  chomp($_);
+  push(@lines,$_);
+}
+close(FILE);
+
+for($i=1;$i<=$lines[0];$i++) {
+  # state : 0 => X win, 1 => O win, 2 => draw, 3 => not completed
+  $state = 2;
+  @grille = ();
+  $col1 = "";
+  $col2 = "";
+  $col3 = "";
+  $col4 = "";
+  $diag1 = "";
+  $diag2 = "";
+
+  # La premiere ligne de chaque groupe est 1+(i-1)*5
+  for($j=1+($i-1)*5;$j<=4+($i-1)*5;$j++) {
+    push(@grille,$lines[$j]);
+    $col1 .= substr($lines[$j],0,1);
+    $col2 .= substr($lines[$j],1,1);
+    $col3 .= substr($lines[$j],2,1);
+    $col4 .= substr($lines[$j],3,1);
+    $diag1 .= substr($lines[$j],$j-($i-1)*5-1,1);
+    $diag2 .= substr($lines[$j],4-($j-($i-1)*5),1);
+  }
+  push(@grille,$col1);
+  push(@grille,$col2);
+  push(@grille,$col3);
+  push(@grille,$col4);
+  push(@grille,$diag1);
+  push(@grille,$diag2);
+
+  for($j=0;$j<@grille;$j++) {
+    if ($grille[$j] =~ /(X|T){4}/) {
+      $state = 0;
+    } elsif ($grille[$j] =~ /(O|T){4}/) {
+      $state = 1;
+    }
+  }
+  if ($state == 2) {
+    for($j=0;$j<@grille;$j++) {
+      if ($grille[$j] =~ /\./) {
+        $state = 3;
+      }
+    }
+  }
+
+  $output = "Case #$i: ";
+  switch ($state) {
+    case 0 {$output .= "X won"}
+    case 1 {$output .= "O won"}
+    case 2 {$output .= "Draw"}
+    case 3 {$output .= "Game has not completed"}
+  }
+  print $output."\n";
+}

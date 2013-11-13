@@ -1,0 +1,73 @@
+(ns gcj.q.q1
+   (:require [clojure.string :as str]))
+
+(def fname (first *command-line-args*))
+
+
+(defn split-args
+  [[n & rems]]
+  (letfn
+      [
+       (get-args
+	[[args [_ & lines]]]
+	(let [[arg rem] (split-at 4 lines)] 
+	     [(conj args arg) rem]))]
+    (last (take (inc (Integer/parseInt n))
+		(iterate get-args [[] (conj rems "\n ")])))
+    ))
+
+(defn make-args
+  [fn]
+  (-> fn slurp str/split-lines split-args first))
+
+(defn make-diag-pattern
+  [table]
+  (letfn
+      [
+       (diag-next
+	[[init rems]]
+	(let [[n-i n-rem]
+	  (reduce (fn [[a1 b1] [a2 b2]] [(conj a1 a2) (conj b1 b2)])
+		  [[] []]
+		  (map (fn [x] (split-at 1 x)) rems)
+		  )]
+	  [(conj init (apply str (flatten n-i))) n-rem]))]
+    (let [diag1 (first (last (take (-> table first count inc)
+				   (iterate diag-next [[] table]))))
+	  diag2 (apply str (for [x (range 4) y (range 4) :when (= x y)]
+			     (reduce nth table [x y])))
+	  diag3 (apply str (for [x (range 4) y (range 4) :when (= 3 (+ x y))]
+			     (reduce nth table [x y])))
+	  ]
+      (flatten [table diag1 diag2 diag3])))
+  )
+
+
+(defn winX?
+  [x]
+  (not (every? nil? 
+	   (map #(re-find #"[XT]{4}" %) x)
+	   )))
+(defn winO?
+  [x]
+  (not (every? nil? 
+	   (map #(re-find #"[OT]{4}" %) x)
+	   )))
+
+(defn game-over?
+  [table]
+  (not-any? #(= % \.) (apply str table)))
+
+(defn solve [args]
+  (let [diags (make-diag-pattern args)]
+    (cond
+     (winX? diags) "X won"
+     (winO? diags) "O won"
+     (game-over? args) "Draw"
+     :else "Game has not completed"
+     )
+    ))
+
+(doseq [[sol n] (map vector (map solve (make-args fname)) (iterate inc 1))]
+  (printf "Case #%d: %s\n" n sol))
+

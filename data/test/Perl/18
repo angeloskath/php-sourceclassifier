@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+my $cases = <>;
+chomp $cases;
+for (my $i = 1; $i <= $cases; $i++) {
+    my @lines = ();
+    for ($j = 0; $j < 4; $j++) {
+        my $line = <>;
+        chomp $line;
+        push(\@lines, $line);
+    }
+    <>;
+    map chomp, @lines;
+    my @m = map {[split(//)]} @lines;
+    print "Case #$i: ", solve(\@m), "\n";
+}
+
+sub solve {
+    my $m = shift;
+    for (my $row = 0; $row < 4; $row++) {
+        if (my $winner = winner(@{$m->[$row]})) {
+            return $winner . debug(" row " . $row);
+        }
+    }
+    for (my $col = 0; $col < 4; $col++) {
+        if (my $winner = winner(map {$m->[$_]->[$col]} (0..3))) {
+            return $winner . debug(" col " . $col);
+        }
+    }
+    if (my $winner = winner(map {$m->[$_]->[$_]} (0..3))) {
+        return $winner . debug(" diag 1");
+    }
+    if (my $winner = winner(map {$m->[$_]->[3-$_]} (0..3))) {
+        return $winner . debug(" diag -1");;
+    }
+    for (my $row = 0; $row < 4; $row++) {
+        for (my $col = 0; $col < 4; $col++) {
+            if ($m->[$row]->[$col] eq '.') {
+                return "Game has not completed";
+            }
+        }
+    }
+
+    return "Draw";
+}
+
+sub winner {
+    my $set = '';
+    while (my $char = shift) {
+        next if ($char eq 'T');
+        if ($set && ($set ne $char)) {
+            return;
+        } elsif (!$set) {
+            $set = $char;
+        }
+    }
+    if ($set ne '.') {
+        return "$set won";
+    }
+}
+
+sub debug {
+    return ''; #shift;
+}

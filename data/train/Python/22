@@ -1,0 +1,309 @@
+'''
+CodeJam Practice 
+Created on 2012-12-20
+
+@author: festony
+'''
+
+from cj_lib import *
+from properties import *
+
+curr_file_name = 'A-large'
+#curr_file_name = 'A-small-attempt0'
+#curr_file_name = 'test'
+
+
+def input_dividing_func(input_lines):
+    total_case = int(input_lines.pop(0))
+    case_inputs = []
+    for i in range(total_case):
+        board = []
+        for i in range(4):
+            board.append(list(input_lines.pop(0)))
+        case_inputs.append(board)
+        input_lines.pop(0)
+    return case_inputs
+
+def check_line_won(line):
+    uniq_elem = list(set(line))
+    r = ''
+    if len(uniq_elem) == 1:
+        r = uniq_elem[0]
+    elif len(uniq_elem) == 2:
+        if 'T' in uniq_elem:
+            t_index = uniq_elem.index('T', )
+            winner_index = (t_index + 1) % 2
+            r = uniq_elem[winner_index]
+        else:
+            if '.' in uniq_elem:
+                r = '.'
+            else:
+                r = 'C' #completed
+    else:
+        if '.' in uniq_elem:
+            r = '.'
+        else:
+            r = 'C'
+    return r
+    
+def process_func(func_input):
+    board = func_input
+    #rows = board[:]
+    completed = True
+    for line in board:
+        r = check_line_won(line)
+        if r == 'X':
+            return 'X won'
+        if r == 'O':
+            return 'O won'
+        if completed and r == '.':
+            completed = False
+            
+    columns = []
+    for i in range(4):
+        column = []
+        for j in range(4):
+            column.append(board[j][i])
+        columns.append(column)
+        
+    for line in columns:
+        r = check_line_won(line)
+        if r == 'X':
+            return 'X won'
+        if r == 'O':
+            return 'O won'
+        if completed and r == '.':
+            completed = False
+            
+    cross = [[], []]
+    for i in range(4):
+        cross[0].append(board[i][i])
+        cross[1].append(board[i][3-i])
+        
+    for line in cross:
+        r = check_line_won(line)
+        if r == 'X':
+            return 'X won'
+        if r == 'O':
+            return 'O won'
+        if completed and r == '.':
+            completed = False
+   # print rows
+    #print columns
+    #print cross
+    if completed:
+        return 'Draw'
+    return 'Game has not completed'
+
+run_proc(process_func, input_dividing_func, curr_working_folder, curr_file_name)
+
+#print check_line_won(['X', 'X', 'X', 'X'])
+#x = set(['X', 'O', '.'])
+#x.index('X')
+
+
+'''
+Created on Dec 12, 2012
+
+@author: festony
+'''
+
+# store some common properties that might be relative to local environment, so
+# leave svn peace.
+
+default_file_name = 'test'
+
+#default_input_file_path = r'C:\Users\dingliangl\Downloads\codejamtest_p\test.in'
+#default_output_file_path = r'C:\Users\dingliangl\Downloads\codejamtest_p\test.out'
+#default_working_folder = 'C:\\Users\\dingliangl\\Downloads\\codejamtest_p\\'
+
+#curr_working_folder = 'C:\\Users\\dingliangl\\Downloads\\codejamtest_p\\'
+
+
+#default_input_file_path = r'G:\Project\Codejam_inout\test.in'
+#default_output_file_path = r'G:\Project\Codejam_inout\test.out'
+default_working_folder = 'G:\\Project\\Codejam_inout\\'
+
+curr_working_folder = 'G:\\Project\\Codejam_inout\\'
+
+'''
+CodeJam Python Lib for Festony, By Festony
+
+Created on 2012-12-12
+
+@author: festony
+'''
+
+import time
+import threading
+from properties import *
+
+__all__ = [ \
+           'run_proc', \
+           'run_proc_m', \
+           'accumulate', \
+           ]
+
+print_details = True
+
+def print_detailed_info(info):
+    if print_details:
+        print info
+
+def run_proc_m(func, input_dividing_func, working_folder=default_working_folder, file_name=default_file_name):
+    ''' run_proc multithread version
+    '''
+    in_path = working_folder + file_name + '.in'
+    out_path = working_folder + file_name + '.out'
+    inputfile = open(in_path, 'r')
+    raw_input_str = inputfile.read()
+    inputfile.close()
+    input_lines = map(lambda x:x.rstrip('\r\n'), raw_input_str.split('\n'))
+    inputs = input_dividing_func(input_lines)
+    r = ''
+    case_total_num = len(inputs)
+    print_detailed_info('{0} cases in total.'.format(case_total_num))
+    start_time_overall = time.clock()
+    
+    ths = []
+    for i, func_input in enumerate(inputs):
+        ths.append(threading.Thread(target=func,args=(func_input,)))
+        ths[i].start()
+        
+    for i, func_input in enumerate(inputs):
+        ths[i].join()
+        
+    end_time_overall = time.clock()
+    print(r)
+    print("Overall process time: %g sec(s)" % \
+    (end_time_overall - start_time_overall,))
+    outputfile = open(out_path, 'w')
+    outputfile.write(r)
+    outputfile.close()
+    return r
+
+def run_proc(func, input_dividing_func, working_folder=default_working_folder, file_name=default_file_name):
+    '''Run the function multiple times for cases.
+    
+    Process time for each run / all runs are tracked.
+    1) need to provide the function to process each case, the function
+    should take a list as raw func_input;
+    2) an input_dividing_func should be provided to break func_input lines into func_input lists
+    for each case.
+    '''
+    in_path = working_folder + file_name + '.in'
+    out_path = working_folder + file_name + '.out'
+    inputfile = open(in_path, 'r')
+    raw_input_str = inputfile.read()
+    inputfile.close()
+    input_lines = map(lambda x:x.rstrip('\r\n'), raw_input_str.split('\n'))
+    inputs = input_dividing_func(input_lines)
+    r = ''
+    case_total_num = len(inputs)
+    print_detailed_info('{0} cases in total.'.format(case_total_num))
+    start_time_overall = time.clock()
+    
+    for i, func_input in enumerate(inputs):
+        case_num = i + 1
+        print_detailed_info('Case {0}:'.format(case_num))
+        start_time_single_case = time.clock()
+        r += 'Case #%d: %s\n' % (case_num, str(func(func_input)))
+        print_detailed_info("Process time: %g sec(s)" % \
+        (time.clock() - start_time_single_case,))
+    
+    end_time_overall = time.clock()
+    print(r)
+    print("Overall process time: %g sec(s)" % \
+    (end_time_overall - start_time_overall,))
+    outputfile = open(out_path, 'w')
+    outputfile.write(r)
+    outputfile.close()
+    return r
+
+# commonly used functions
+
+def accumulate(l):
+    r = l[:]
+    for i in range(1, len(r)):
+        r[i] += r[i-1]
+    return r
+
+# Test
+if __name__ == '__main__':
+    def test_process_func(func_input):
+        print 'func_input:', func_input
+        return 0
+    
+    # Set test case input file
+    f = open(default_working_folder + default_file_name + '.in', 'r')
+    old_content = f.read()
+    print old_content
+    f.close()
+    f = open(default_working_folder + default_file_name + '.in', 'w')
+    f.write('''4
+5
+Yeehaw
+NSM
+Dont Ask
+B9
+Googol
+10
+Yeehaw
+Yeehaw
+Googol
+B9
+Googol
+NSM
+B9
+NSM
+Dont Ask
+Googol
+5
+Yeehaw
+NSM
+Dont Ask
+B9
+Googol
+7
+Googol
+Dont Ask
+NSM
+NSM
+Yeehaw
+Yeehaw
+Googol
+4
+Zol
+Zolz
+Zollz
+Zolzz
+0
+0
+3
+'AZ'
+'BZ'
+'CZ'
+''')
+    f.close()
+
+    def test_input_dividing_func(input_lines):
+        total_case = int(input_lines.pop(0))
+        case_inputs = []
+        for i in range(total_case):
+            engine_num = int(input_lines.pop(0))
+            engines = input_lines[:engine_num]
+            del input_lines[:engine_num]
+            query_num = int(input_lines.pop(0))
+            queries = input_lines[:query_num]
+            del input_lines[:query_num]
+            case_inputs.append([engines, queries])
+        return case_inputs
+    
+    run_proc(test_process_func, test_input_dividing_func)
+    
+    run_proc_m(test_process_func, test_input_dividing_func)
+    
+    # restore file used in test case back to its original content.
+    f = open(default_working_folder + default_file_name + '.in', 'w')
+    f.write(old_content)
+    f.close()

@@ -1,0 +1,112 @@
+<?php 
+
+$f = fopen('A-large.in', 'r');
+$a = array();
+while (!feof($f))
+{
+	$a[]= trim(fgets($f));
+}
+fclose($f);
+
+$result = '';
+
+$case_num_total = $a[0]; //case number
+$case_arr = array();
+$p = 1;
+for ($i = 1; $i <= $case_num_total; $i++)
+{
+    $case_arr[$i] = array($a[$p], $a[$p+1], $a[$p+2], $a[$p+3]);
+    $p=$p+5;
+}
+
+foreach ($case_arr as $i => $case)
+{
+    $result.= 'Case #' . $i . ': ' . is_win($case) . PHP_EOL;
+}
+
+//$p is the element of the table
+//$v is 4x4 table
+function is_win($v)
+{
+    $has_dot = FALSE;
+    //check row first
+    for ($i=0;$i<4;$i++)
+    {
+        $row = $v[$i][0].$v[$i][1].$v[$i][2].$v[$i][3];
+        $row_X = str_replace('T', 'X', $row);
+        $row_O = str_replace('T', 'O', $row);
+        
+        if ($row_X == 'XXXX')
+        {
+            return 'X won';
+            break;
+        };
+        if ($row_O == 'OOOO')
+        {
+            return 'O won';
+            break;
+        };
+        
+        if (strstr($row, '.'))
+        {
+            $has_dot = TRUE;
+        }
+        
+    }
+    //check column
+    for($i =0; $i<4; $i++)
+    {
+        $col = $v[0][$i].$v[1][$i].$v[2][$i].$v[3][$i];
+        $col_X = str_replace('T', 'X', $col);
+        $col_O = str_replace('T', 'O', $col);
+        if ($col_X == 'XXXX')
+        {
+            return 'X won';
+            break;
+        };
+        if ($col_O == 'OOOO')
+        {
+            return 'O won';
+            break;
+        };
+        
+    }
+    
+    //check diag
+    $diag1 = $v[0][0] . $v[1][1] . $v[2][2] . $v[3][3];
+    $diag2 = $v[0][3] . $v[1][2] . $v[2][1] . $v[3][0];
+    
+    $X_diag1 = str_replace('T', 'X', $diag1);
+    $X_diag2 = str_replace('T', 'X', $diag2);
+    $O_diag1 = str_replace('T', 'O', $diag1);
+    $O_diag2 = str_replace('T', 'O', $diag2);
+    
+    if ($X_diag1 == 'XXXX' || $X_diag2 == 'XXXX')
+    {
+        return 'X won';
+    }
+    if ($O_diag1 == 'OOOO' || $O_diag2 == 'OOOO')
+    {
+        return 'O won';
+    }
+    
+    //for draw and not complete
+
+    //if draw
+    if ($has_dot == FALSE)
+    {
+        return 'Draw';  
+    }
+    
+    //if not complete
+    
+    return 'Game has not completed';
+
+}
+
+echo $result;
+
+file_put_contents('upload/A-small-attempt0.out', $result);
+
+
+

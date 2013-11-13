@@ -1,0 +1,47 @@
+#!ruby -w
+#
+# Google Code Jam 2013 pre a
+#
+
+def a_do(data)
+  result = true
+  4.times { |x|
+    return "X won" if data[x].join =~ /[X|T]{4}/
+    return "O won" if data[x].join =~ /[O|T]{4}/
+  }
+  data2 = data.transpose
+  4.times { |y|
+    return "X won" if data2[y].join =~ /[X|T]{4}/
+    return "O won" if data2[y].join =~ /[O|T]{4}/
+  }
+  l = ""
+  r = ""
+  4.times { |x|
+    l += data[x][x]
+    r += data[x][3-x]
+  }
+  return "X won" if l =~ /[X|T]{4}/ or r =~ /[X|T]{4}/
+  return "O won" if l =~ /[O|T]{4}/ or r =~ /[O|T]{4}/
+
+  return data.flatten.join =~ /\./ ? "Game has not completed" : "Draw"
+end
+
+open(ARGV[0]) do |f|
+  @casenum = f.gets
+  @case = 1
+  while line = f.gets
+    next if line =~ /^[\r\n]$/
+    data = []
+    data.push line.split(//)
+    3.times { |x|
+      line = f.gets
+      data.push line.split(//)
+    }
+    @result = a_do(data)
+    puts "Case ##{@case}: #{@result}"
+
+    @case += 1
+  end
+end
+
+# vim:et:ts=2:sw=2:sts=2:ai:nu:

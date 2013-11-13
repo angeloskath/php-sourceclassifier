@@ -1,0 +1,161 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+type
+  tab = array[1..4,1..4] of char;
+
+var
+  input, output : TextFile;
+  T,i,j,k : integer;
+  jeu : tab;
+  phrase : string;
+
+procedure draw(var t : tab; l,c : integer;var test : boolean; var mes : string);
+var
+  i,j : integer;
+begin
+  for i:=1 to 4 do
+   for j:=1 to 4 do
+    begin
+     if t[i,j]=('.') then test:=false;
+    end;
+  if test=false then mes:=('Game has not completed')
+   else mes:=('Draw');
+end;
+
+procedure diag(var t : tab; l,c : integer;var res : boolean;var mes : string);
+var
+  i,j,compte : integer;
+  symb : char;
+begin
+  symb:=t[l,c];
+  compte:=1; j:=l;
+  //haut bas
+  for i:=c+1 to 4 do
+  begin
+   j:=j+1;
+   if j<=4 then
+    begin
+     if (t[j,i]=symb) or (t[j,i]=('T')) then compte:=compte+1
+      else break;
+    end;
+  end;
+  j:=l;
+  for i:=c-1 downto 1 do
+   begin
+   j:=j-1;
+   if j>0 then
+    begin
+     if (t[j,i]=symb) or (t[j,i]=('T')) then compte:=compte+1
+      else break;
+    end;
+  end;
+  if compte=4 then res:=true;
+  if res=true then mes:=symb+(' won');
+  //bas haut
+  if res=false then
+   begin
+   compte:=1; j:=l;
+  for i:=c+1 to 4 do
+  begin
+   j:=j-1;
+   if j>0 then
+    begin
+     if (t[j,i]=symb) or (t[j,i]=('T')) then compte:=compte+1
+      else break;
+    end;
+  end;
+  j:=l;
+  for i:=c-1 downto 1 do
+   begin
+   j:=j+1;
+   if j<=4 then
+    begin
+     if (t[j,i]=symb) or (t[j,i]=('T')) then compte:=compte+1
+      else break;
+    end;
+   end;
+  if compte=4 then res:=true;
+  if res=true then mes:=symb+(' won');
+   end;
+end;
+
+procedure vert(var t : tab; l,c : integer;var res : boolean; var mes :string);
+var
+  i,compte : integer;
+  symb : char;
+begin
+  symb:=t[l,c];
+  compte:=1;
+  for i:=l+1 to 4 do
+   if (t[i,c]=symb) or (t[i,c]=('T')) then compte:=compte+1
+    else break;
+  for i:=l-1 downto 1 do
+   if (t[i,c]=symb) or (t[i,c]=('T')) then compte:=compte+1
+    else break;
+  if compte=4 then res:=true;
+  if res=true then mes:=symb+(' won');
+end;
+
+procedure hor(var t : tab; l,c : integer;var res : boolean; var mes : string);
+var
+  i,compte : integer;
+  symb : char;
+begin
+  symb:=t[l,c];
+  compte:=1;
+  for i:=c+1 to 4 do
+   if (t[l,i]=symb) or (t[l,i]=('T')) then compte:=compte+1
+    else break;
+  for i:=c-1 downto 1 do
+   if (t[l,i]=symb) or (t[l,i]=('T')) then compte:=compte+1
+    else break;
+  if compte=4 then res:=true;
+  if res=true then mes:=symb+(' won');
+end;
+
+procedure traitement(var t : tab; var mes : string);
+var
+  i,j : integer;
+  res,test : boolean;
+begin
+  for i:=1 to 4 do
+  begin
+   for j:=1 to 4 do
+    begin
+    res:=false;
+     if (t[i,j]=('X')) or (t[i,j]=('O')) then
+      begin
+       res := false; test:=true;
+       hor(t,i,j,res,mes);
+       if res=false then vert(t,i,j,res,mes);
+       if res=false then diag(t,i,j,res,mes);
+      end;
+     if (i=4) and (j=4) and (res=false) then draw(t,i,j,test,mes);
+     if res=true then break;
+    end;
+    if res=true then break;
+  end;
+end;
+
+begin
+  Assign(input,'input.txt');Assign(output,'output.txt');
+  Reset(input); Rewrite(output);
+  readln(input,T);
+  for i:=1 to T do
+   begin
+    //saisie donnée
+    for j:=1 to 4 do
+     for k:=1 to 4 do
+      if k<4 then read(input,jeu[j,k]) else readln(input,jeu[j,k]);
+    if i<T then readln(input);
+    traitement(jeu,phrase);
+    writeln(output,'Case #',i,': ',phrase);
+   end;
+  Close(output);
+  readln
+end.

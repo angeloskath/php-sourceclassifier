@@ -1,0 +1,103 @@
+Program tictactoe;
+
+type
+
+	tictac = array [0..15] of char;
+	
+var
+	
+	tablero : tictac;
+	cas : char;
+	win : boolean;
+	draw : boolean;
+	T : integer; 
+	i : integer;
+	j : integer;
+	k : integer;
+	
+begin
+
+readln(T);
+
+for k := 1 to T do begin
+
+	for i := 0 to 15 do begin
+		if ((i = 3) or (i = 7) or (i = 11) or (i = 15)) then begin
+			readln(cas);
+			tablero[i] := cas;
+		end
+		else begin
+			read(cas);
+			tablero[i] := cas;
+		end;
+	end;
+	readln();
+		
+	draw := true;
+	win := false;
+	i := 0;
+	j := 0;
+	
+	while ((i <= 12) and (win = false)) do begin
+		if ((tablero[i] = 'T') and (tablero[i+1] <> '.') and (tablero[i+1] = tablero [i+2]) and (tablero[i+1] = tablero [i+3])) then begin
+			win := true;
+			writeln('Case #',k,': ',tablero[i],' won');
+		end
+		else if ((tablero[i] <> '.') and ((tablero[i] = tablero [i+1]) or (tablero[i+1] = 'T')) and ((tablero[i] = tablero [i+2]) or (tablero[i+2] = 'T')) and ((tablero[i] = tablero [i+3]) or (tablero[i+3] = 'T'))) then begin
+			win := true;
+			writeln('Case #',k,': ',tablero[i],' won');
+		end
+		else
+			i := i + 4;
+	end;
+	
+	while ((j < 4) and (win = false)) do begin
+		if ((tablero[j] = 'T') and (tablero[j+4] <> '.') and (tablero[j+4] = tablero [j+8]) and (tablero[j+4] = tablero [j+12])) then begin
+			win := true;
+			writeln('Case #',k,': ',tablero[j],' won');
+		end
+		else if ((tablero[j] <> '.') and ((tablero[j] = tablero [j+4]) or (tablero[j+4] = 'T')) and ((tablero[j] = tablero [j+8]) or (tablero[j+8] = 'T')) and ((tablero[j] = tablero [j+12]) or (tablero[j+12] = 'T'))) then begin
+			win := true;
+			writeln('Case #',k,': ',tablero[j],' won');
+		end
+		else
+			j := j + 1;
+	end;
+	
+	i := 0;
+	
+	if ((win = false) and (((tablero[i] = 'T') and (tablero[i+5] <> '.') and (tablero[i+5] = tablero [i+10]) and (tablero[i+5] = tablero [i+15])) or 
+		((tablero[i] <> '.') and ((tablero[i] = tablero [i+5]) or (tablero[i+5] = 'T')) and ((tablero[i] = tablero [i+10]) or (tablero[i+10] = 'T')) and ((tablero[i] = tablero [i+15]) or (tablero[i+15] = 'T'))))) then begin 
+		win := true;
+		writeln('Case #',k,': ',tablero[i],' won');
+	end
+	else if ((win = false) and (((tablero[i+3] = 'T') and (tablero[i+6] <> '.') and (tablero[i+6] = tablero [i+9]) and (tablero[i+6] = tablero [i+12])) or 
+		((tablero[i+3] <> '.') and ((tablero[i+3] = tablero [i+6]) or (tablero[i+6] = 'T')) and ((tablero[i+3] = tablero [i+9]) or (tablero[i+9] = 'T')) and ((tablero[i+3] = tablero [i+12]) or (tablero[i+12] = 'T'))))) then begin 
+		win := true;
+		writeln('Case #',k,': ',tablero[i+3],' won');
+	end;
+	
+	if (win = false) then begin
+	
+		while ((i < 16) and (draw = true)) do begin
+	
+			if (tablero[i] = '.') then begin
+				draw := false;
+				writeln('Case #',k,': Game has not completed');
+			end
+			else if (i = 15) then begin
+				i := i +1;
+				writeln ('Case #',k,': Draw');
+			end
+			else
+				i := i + 1
+				
+		end;
+		
+	end;
+end;
+end.
+	
+	
+	
+	

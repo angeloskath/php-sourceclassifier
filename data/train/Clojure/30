@@ -1,0 +1,96 @@
+(ns codejam-problems.tomek)
+(require '[clojure.string :as str])
+
+;; Reading the input file
+(defn input [] (slurp "A-large.in.txt"))
+
+;; Parsing the input
+(defn split-header [input]
+  (str/split input #"\s" 2))
+
+;; Removing unnecessary whitespace
+(defn remove-whitespace [[header body]]
+  [header (str/replace body #"\s" "")])
+
+;; Splitting cases into a vector of string lists
+(defn split-cases [body]
+  (loop [b (seq body)
+         acc []]
+    (if (> (count b) 0)
+      (recur (drop 16 b) (conj acc (take 16 b)))
+      acc)))
+
+;; Splitting cases
+(defn split-case [[header body]]
+  [header (split-cases body)])
+
+;; Parsing input
+(defn parse-input []
+  (let [[header body] (split-case (remove-whitespace (split-header (input))))]
+    (spit "output" (str/join "\n" (map parse-case body (iterate inc 1))))))
+
+;; Getting the first case to play with
+(def tt (first (second (parse-input))))
+
+;;; Tic tac toe specific functions
+
+;; Checking the winner
+(defn won? [slice p]
+  (every? #(contains? #{\T p} %) slice))
+
+(defn finished? [slice]
+  (not (some #(= \. %) slice)))
+
+;; Get the row
+(defn row [tt n]
+  (take 4 (drop (* 4 n) tt)))
+
+;; Get the column
+(defn col [tt n]
+  (take-nth 4 (drop n tt)))
+
+;; Getting the diagonal
+(defn diag [tt n]
+  (take 4 (take-nth (+ 4 (- 1 (* n 2))) (drop (* n 3) tt))))
+
+;; Getting the rows
+(defn rows [tt]
+  (map (partial row tt) (range 4)))
+
+;; Getting the cols
+(defn cols [tt]
+  (map (partial col tt) (range 4)))
+
+;; Getting the diagonals
+(defn diags [tt]
+  (map (partial diag tt) (range 2)))
+
+;; Getting all the slices from a case
+(defn slices [tt]
+  (concat (rows tt) (cols tt) (diags tt)))
+
+;;; Endings for a case
+;; X won
+(defn xwon? [slices]
+  (some #(won? % \X) slices))
+
+;; O won
+(defn owon? [slices]
+  (some #(won? % \O) slices))
+
+;; The game is completed?
+(defn completed? [slices]
+  (every? finished? slices))
+
+;; Parsing the case
+(defn verdict [slices]
+  (cond
+    (xwon? slices) "X won"
+    (owon? slices) "O won"
+    (completed? slices) "Draw"
+    :else "Game has not completed"))
+
+(defn parse-case [tt n]
+  (let [s (slices tt)]
+    (format "Case #%d: %s" n (verdict (slices tt)))))
+

@@ -1,0 +1,104 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my $cases = <>;
+chomp ($cases);
+die unless $cases =~ m/^\s*(\d+)\s*$/;
+$cases = $1;
+die if $cases =~ m/^0\d/;
+die if $cases != (int $cases);
+$cases = int $cases;
+die if $cases < 0;
+if ($cases == 0) { exit () };
+
+for my $case (1..$cases) {
+  my @grid;
+  my $isdot = 0;
+  my $winner;
+
+  for my $row (1..4) {
+    my @line = split "", <>;
+    $#line --;
+    push @grid, \@line;
+  }
+
+  if ($case != $cases) {
+    my $break = <>;
+    die unless $break =~ m/^\s*$/;
+  }
+
+  for my $row (0..3) {
+    for my $column (0..3) {
+      if ($grid [$row] [$column] eq ".") { $isdot ++; }
+    }
+  }
+
+  for my $row (0..3) {
+    my $c = $grid [$row] [0];
+    if ($c eq '.') { $isdot ++; next; }
+    elsif ($c eq 'T') { $c = $grid [$row] [1]; next if $c eq '.' }
+
+    my $ok = 1;
+    for my $column (0..3) {
+      if ($grid [$row] [$column] ne $c and $grid [$row] [$column] ne 'T') { $ok = 0; last; }
+    }
+
+    if ($ok) { $winner = $c; last; }
+  }
+
+  unless (defined $winner) {
+    for my $column (0..3) {
+      my $c = $grid [0] [$column];
+      if ($c eq '.') { $isdot ++; next; }
+      elsif ($c eq 'T') { $c = $grid [1] [$column]; next if $c eq '.' }
+
+      my $ok = 1;
+      for my $row (0..3) {
+        if ($grid [$row] [$column] ne $c and $grid [$row] [$column] ne 'T') { $ok = 0; last; }
+      }
+
+      if ($ok) { $winner = $c; last; }
+    }
+  }
+
+  if (defined $winner) {
+    print "Case #$case: $winner won\n";
+    next;
+  } else {
+
+    if (1) {
+      my $c = $grid [0] [0];
+      if ($c eq '.') { $isdot ++; $c = 'Y'; }
+      elsif ($c eq 'T') { $c = $grid [1] [1]; if ($c eq '.') { $c = "-" } }
+
+      my $ok = 1;
+      for my $diag (0..3) {
+        if ($grid [$diag] [$diag] ne $c and $grid [$diag] [$diag] ne 'T') { $ok = 0; last; }
+      }
+
+      if ($ok) { $winner = $c; }
+    }
+
+    if (1) {
+      my $c = $grid [0] [3];
+      if ($c eq '.') { $isdot ++; $c = 'Y'; }
+      elsif ($c eq 'T') { $c = $grid [1] [2]; if ($c eq '.') { $c = "-" } }
+
+      my $ok = 1;
+      for my $diag (0..3) {
+        if ($grid [$diag] [3 - $diag] ne $c and $grid [$diag] [3 - $diag] ne 'T') { $ok = 0; last; }
+      }
+
+      if ($ok) { $winner = $c; }
+    }
+
+    if (defined $winner) {
+      print "Case #$case: $winner won\n";
+    } elsif ($isdot != 0) {
+      print "Case #$case: Game has not completed\n";
+    } else {
+      print "Case #$case: Draw\n";
+    }
+  }
+}

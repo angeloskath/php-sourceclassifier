@@ -1,0 +1,43 @@
+import Data.List (transpose)
+
+data Outcome = XWon | OWon | Draw | NotYet
+  deriving Eq
+
+instance Show Outcome where
+    show XWon = "X won"
+    show OWon = "O won"
+    show Draw = "Draw"
+    show NotYet = "Game has not completed"
+
+diagonals :: [String] -> [String]
+diagonals (s1:s2:s3:s4:[]) =
+    [[s1 !! 0, s2 !! 1, s3 !! 2, s4 !! 3],
+     [s4 !! 0, s3 !! 1, s2 !! 2, s1 !! 3]]
+
+rowOutcome :: String -> Outcome
+rowOutcome cs
+  | '.' `elem` cs = NotYet
+  | 'X' `elem` cs && 'O' `notElem` cs = XWon
+  | 'O' `elem` cs && 'X' `notElem` cs = OWon
+  | otherwise = Draw
+
+outcome :: [String] -> Outcome
+outcome game
+  | XWon `elem` os   = XWon
+  | OWon `elem` os   = OWon
+  | NotYet `elem` os = NotYet
+  | otherwise        = Draw
+  where
+    os = map rowOutcome (game ++ (transpose game) ++ (diagonals game))
+
+answer :: String -> String
+answer s =
+    unlines $ map (\(n, s) -> "Case #" ++ show n ++ ": " ++ show (outcome s))
+                  (zip [1..] (chunkFours $ tail $ lines s))
+
+
+chunkFours :: [a] -> [[a]]
+chunkFours (x:y:z:w:_:rest) = [x,y,z,w] : chunkFours rest
+chunkFours []               = []
+
+main = interact answer

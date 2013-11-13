@@ -1,0 +1,22 @@
+makeList inp = inp ++ [zipWith (!!) inp l | l <- [0..] : [3,2..] : map repeat [0..3]]
+
+count f = length . filter f
+
+oWon str = count (\c -> c == 'O' || c == 'T') str == 4
+xWon str = count (\c -> c == 'X' || c == 'T') str == 4
+incomplete str = count (== '.') str > 0
+
+judge inp | count oWon inp > 0 = "O won"
+          | count xWon inp > 0 = "X won"
+          | count incomplete inp > 0 = "Game has not completed"
+          | otherwise = "Draw"
+                             
+doit = judge . makeList
+
+process n inp = "Case #" ++ (show n) ++ ": " ++ (doit inp)
+
+fours inp | length inp >= 5 = (take 4 . tail) inp : fours (drop 5 inp)
+          | otherwise = []
+
+main :: IO ()
+main = interact (unlines . zipWith process [1..] . fours . lines)

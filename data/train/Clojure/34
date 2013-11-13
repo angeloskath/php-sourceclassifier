@@ -1,0 +1,53 @@
+(ns qual.core)
+
+(defn paths
+  [board]
+  (let [rows board
+        cols (map (fn [idx] (apply str (map (fn [row] (get row idx)) board))) (range (count board)))
+        diag-1 (apply str
+                      (for [i (range (count board))]
+                        (nth (nth board i) i)))
+        diag-2 (apply str
+                      (for [i (range (count board))]
+                        (nth (nth board i) (- (count board) i 1))))]
+    (concat rows cols [diag-1 diag-2])))
+
+(defn incomplete
+  [board]
+  (some (partial some #(#{\.} %)) (paths board)))
+
+(defn player-win
+  [board player-char]
+  (some (partial every? #(#{\T player-char} %)) (paths board)))
+
+(defn status
+  [board]
+  (cond
+   (player-win board \X) "X won"
+   (player-win board \O) "O won"
+   (incomplete board) "Game has not completed"
+   :else "Draw"))
+
+
+(defn do-case
+  [case-num input]
+  (println (str "Case #" case-num ": " (status input))))
+
+(defn run
+  [rdr]
+  (let [lines (line-seq rdr)
+        t (Integer/parseInt (first lines))
+        boards (map (partial take 4) (partition-all 5 (rest lines)))]
+    (dotimes [i t]
+      (do-case (inc i) (nth boards i)))
+    ))
+
+(defn driver
+  []
+  (let [test-file-name "sample.in"
+        test-rdr (clojure.java.io/reader test-file-name)]
+    (run test-rdr)))
+
+;; don't evaluate this final form or entire file, will hang REPL
+(let [stdin-rdr (clojure.java.io/reader *in*)]
+  (run stdin-rdr))

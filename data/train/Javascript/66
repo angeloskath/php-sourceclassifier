@@ -1,0 +1,120 @@
+
+/* using http://nodejs.org/ */
+
+var fs = require('fs'),
+    sys = require('util');
+function checkX(board)
+{
+
+  for(var i =0; i < 4; i++)
+  {
+    var ret = true;
+    for(var j = 0; j < 4; j++)
+	{
+	  if(board[i][j] == 'O' || board[i][j] == '.')
+		 ret = false;
+	}
+	if(ret) return ret;
+  }
+  for(var i =0; i < 4; i++)
+  {
+    var ret = true;
+    for(var j = 0; j < 4; j++)
+	{
+	  if(board[j][i] == 'O' || board[j][i] == '.')
+		 ret = false;
+	}
+	if(ret) return ret;
+  }
+  var ret = true;
+  for(var i =0; i < 4; i++)
+  {
+	  if(board[i][i] == 'O' || board[i][i] == '.')
+		 ret = false;
+  }
+  if(ret) return ret;
+  ret = true;
+  for(var i =0; i < 4; i++)
+  {
+	  if(board[i][3-i] == 'O' || board[i][3-i] == '.')
+		 ret = false;
+  }
+  return ret;
+}
+function checkD(board)
+{
+  var ret = true;
+  for(var i =0; i < 4; i++)
+  {
+    for(var j = 0; j < 4; j++)
+	{
+	  if(board[i][j] == '.')
+		 ret = false;
+	}
+  }
+  return ret;
+}
+function checkY(board)
+{
+
+  for(var i =0; i < 4; i++)
+  {
+    var ret = true;
+    for(var j = 0; j < 4; j++)
+	{
+	  if(board[i][j] == 'X' || board[i][j] == '.')
+		 ret = false;
+	}
+	if(ret) return ret;
+  }
+  for(var i =0; i < 4; i++)
+  {
+    var ret = true;
+    for(var j = 0; j < 4; j++)
+	{
+	  if(board[j][i] == 'X' || board[j][i] == '.')
+		 ret = false;
+	}
+	if(ret) return ret;
+  }
+  var ret = true;
+  for(var i =0; i < 4; i++)
+  {
+	  if(board[i][i] == 'X' || board[i][i] == '.')
+		 ret = false;
+  }
+  if(ret) return ret;
+  ret = true;
+  for(var i =0; i < 4; i++)
+  {
+	  if(board[i][3-i] == 'X' || board[i][3-i] == '.')
+		 ret = false;
+  }
+  return ret;
+}
+fs.readFile('in.txt', function (err, data) {
+  if (err) throw err;
+  var dat = data.toString().split("\n");
+  var T = dat[0];
+  var ret = '';
+  for(var i=0;i<T;i++){
+    var array = new Array();
+	array[0] = dat[5*i+1];
+ 	array[1] = dat[5*i+2];
+	array[2] = dat[5*i+3];
+ 	array[3] = dat[5*i+4];
+    if (checkX(array))
+      ret += 'Case #'+(i+1)+': X won\n';
+	else
+	if (checkY(array))
+      ret += 'Case #'+(i+1)+': O won\n';
+	else
+    if (checkD(array))
+      ret += 'Case #'+(i+1)+': Draw\n';
+	else
+      ret += 'Case #'+(i+1)+': Game has not completed\n';
+  }
+  fs.writeFile('out2.txt', ret, function (err) {
+    if (err) throw err;
+  });
+});

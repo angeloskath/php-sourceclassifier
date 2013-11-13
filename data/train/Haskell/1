@@ -1,0 +1,41 @@
+module Main (main) where
+
+import Control.Monad
+import Data.List
+import Text.Printf
+
+type Board = [[Char]]
+
+readBoard :: IO Board
+readBoard = do board <- sequence $ replicate 4 $ getLine
+               getLine
+               return board
+
+lineResult :: [Char] -> Maybe String
+lineResult l | all (\c -> c == 'T' || c == 'X') l = Just "X won"
+             | all (\c -> c == 'T' || c == 'O') l = Just "O won"
+             | otherwise                          = Nothing
+
+boardResult :: Board -> String
+boardResult board =
+    let rowResults = map lineResult board
+        colResults = map lineResult (transpose board)
+        diagResults = [ lineResult [board !! i !! j | (i, j) <- l]
+                      | l <- [ [(0, 0), (1, 1), (2, 2), (3, 3)]
+                             , [(0, 3), (1, 2), (2, 1), (3, 0)]
+                             ]
+                      ]
+    in case msum (rowResults ++ colResults ++ diagResults) of
+           Nothing -> if any (any (== '.')) board
+                          then "Game has not completed"
+                          else "Draw"
+           Just s -> s
+
+main :: IO ()
+main =
+    do t <- liftM read getLine :: IO Int
+       sequence_ $ [ do board <- readBoard
+                        let result = boardResult board
+                        printf "Case #%d: %s\n" i result
+                   | i <- [1 .. t]
+                   ]

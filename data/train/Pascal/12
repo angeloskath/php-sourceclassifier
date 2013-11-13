@@ -1,0 +1,67 @@
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+const
+  dx : array[1..4] of integer = (-1, 0, 1, 1);
+  dy : array[1..4] of integer = (1, 1, 1, 0);
+
+var
+  f : array[1..4, 1..4] of char;
+  i, j, t, _t, n : integer;
+
+function func(ch : char; x, y, t : integer) : integer;
+begin
+  result := 0;
+  if (x < 1) or (x > 4) or (y > 4) or (y < 1) or ((f[y][x] <> ch) and (f[y][x] <> 'T')) then
+    exit;
+  result := 1 + func(ch, x + dx[t], y + dy[t], t);
+end;
+
+procedure start;
+var
+  i, j, k : integer;
+begin
+    for i := 1 to n do
+      for j := 1 to n do begin
+        for k := 1 to 4 do begin
+          if (func('X', j, i, k) = 4) then begin
+            writeln('Case #', _t, ': X won');
+            exit;
+          end;
+          if (func('O', j, i, k) = 4) then begin
+            writeln('Case #', _t, ': O won');
+            exit;
+          end;
+        end;  
+      end;
+     for i := 1 to n do
+       for j := 1 to n do
+         if (f[i][j] = '.') then begin
+           writeln('Case #', _t, ': Game has not completed');
+           exit;
+         end;
+     writeln('Case #', _t, ': Draw');
+end;
+
+begin
+  reset(input, 'A-large.in');
+  rewrite(output, 'output.txt');
+
+  readln(t);
+  for _t := 1 to t do begin
+    n := 4;
+    for i := 1 to n do begin
+      for j := 1 to n do
+        read(f[i][j]);
+      readln;
+    end;
+    readln;
+    start;
+  end;
+
+
+end.

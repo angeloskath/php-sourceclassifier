@@ -1,0 +1,71 @@
+<?php
+$fp = fopen('1.in', 'r');
+$fr = fopen('1.out', 'w');
+$T = intval(chop(fgets($fp)));
+for ($case = 1; $case <= $T; ++$case)
+{
+    unset($m);
+    $point = FALSE;
+    for ($i = 0; $i < 4; ++$i)
+    {
+        $line = fgets($fp);
+        for ($j = 0; $j < 4; ++$j)
+        {
+            switch ($line[$j])
+            {
+                case 'X':
+                    $m[$i][$j] = -1;
+                    break;
+                case 'O':
+                    $m[$i][$j] = 1;
+                    break;
+                case '.':
+                    $m[$i][$j] = 0;
+                    $point = TRUE;
+                    break;
+                case 'T':
+                    $m[$i][$j] = 100;
+                    break;
+            }
+        }
+        $m[$i][4] = 0;
+        $m[4][$i] = 0;
+    }
+    for ($i = 0; $i < 4; ++$i)
+    {
+        for ($j = 0; $j < 4; ++$j)
+        {
+            $m[$i][4] += $m[$i][$j];
+            $m[4][$i] += $m[$j][$i];
+        }
+    }
+    $d1 = $m[0][0] + $m[1][1] + $m[2][2] + $m[3][3];
+    $d2 = $m[0][3] + $m[1][2] + $m[2][1] + $m[3][0];
+    $res = $point ? 'Game has not completed' : 'Draw';
+    if ($d1 == -4 || $d1 == 97 || $d2 == -4 || $d2 == 97)
+    {
+        $res = 'X won';
+        goto L1;
+    }
+    if ($d1 == 4 || $d1 == 103 || $d2 == 4 || $d2 == 103)
+    {
+        $res = 'O won';
+        goto L1;
+    }
+    for ($i = 0; $i < 4; ++$i)
+    {
+        if ($m[$i][4] == -4 || $m[$i][4] == 97 || $m[4][$i] == -4 || $m[4][$i] == 97)
+        {
+            $res = 'X won';
+            goto L1;
+        }
+        if ($m[$i][4] == 4 || $m[$i][4] == 103 || $m[4][$i] == 4 || $m[4][$i] == 103)
+        {
+            $res = 'O won';
+            goto L1;
+        }
+    }
+    L1: fputs($fr, "Case #{$case}: {$res}\n");
+    fgets($fp);
+}
+

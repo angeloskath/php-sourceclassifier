@@ -1,0 +1,41 @@
+function tictactoetomek(input_file, output_file)
+	fid = fopen(input_file, 'r');
+	fid2 = fopen(output_file, 'w');
+	T = fscanf(fid, '%d');
+	for i = 1:T
+		Board = char(zeros(4,4));
+		for j = 1:4
+			Board(j,:) = fgetl(fid);			
+		end
+		fgetl(fid);
+		%%rows
+		X_row = sum(Board == 'X', 2);		
+		O_row = sum(Board == 'O', 2);
+		T_row = sum(Board == 'T', 2);
+		X_col = sum(Board == 'X');
+		O_col = sum(Board == 'O');
+		T_col = sum(Board == 'T');
+		Dot_count = sum(sum(Board == '.'));
+		X_diag1 = sum(diag(Board == 'X'));
+		O_diag1 = sum(diag(Board == 'O'));
+		T_diag1 = sum(diag(Board == 'T'));
+		X_diag2 = sum(Board([4 7 10 13]) == 'X');
+		O_diag2 = sum(Board([4 7 10 13]) == 'O');
+		T_diag2 = sum(Board([4 7 10 13]) == 'T');
+		if any(X_row == 4) || any(X_col == 4) || X_diag1 == 4 || X_diag2 == 4
+			fprintf(fid2, 'Case #%d: X won\n', i);			
+		elseif any(X_row == 3 & T_row == 1) || any(X_col == 3 & T_col == 1) || (X_diag1 == 3 && T_diag1 == 1) || (X_diag2 == 3 && T_diag2 == 1)
+			fprintf(fid2, 'Case #%d: X won\n', i);		
+		elseif any(O_row == 4) || any(O_col == 4) || O_diag1 == 4 || O_diag2 == 4
+			fprintf(fid2, 'Case #%d: O won\n', i);	
+		elseif any(O_row == 3 & O_row == 1) || any(O_col == 3 & O_col == 1) || (O_diag1 == 3 && T_diag1 == 1) || (O_diag2 == 3 && T_diag2 == 1)
+			fprintf(fid2, 'Case #%d: O won\n', i);	
+		elseif Dot_count > 0
+			fprintf(fid2, 'Case #%d: Game has not completed\n', i);			
+		else
+			fprintf(fid2, 'Case #%d: Draw\n', i);		
+		end
+	end
+	fclose(fid);
+	fclose(fid2);
+end

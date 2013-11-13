@@ -1,0 +1,30 @@
+import Data.Monoid
+import Data.List (transpose)
+import Control.Monad (replicateM)
+
+winning :: [Char] -> Maybe Char
+winning xs
+  | all (\y -> y == 'T' || y == 'X') xs = Just 'X'
+  | all (\y -> y == 'T' || y == 'O') xs = Just 'O'
+  | otherwise = Nothing
+
+evaluate xs@[a,b,c,d] = let
+    rows = xs
+    cols = transpose xs
+    down = [a !! 0, b !! 1, c !! 2, d !! 3]
+    up   = [d !! 0, c !! 1, b !! 2, a !! 3]
+  in case mconcat . map (First . winning) $ concat [ rows, cols, [ down,  up ]] of
+      First (Just x) -> x : " won"
+      First Nothing | or (map (any (== '.')) [ a,b,c,d ]) -> "Game has not completed"
+                    | otherwise -> "Draw"
+
+main = do
+  t <- read `fmap` getLine
+  runCase [ 1 .. t ]
+
+runCase :: [ Int ] -> IO ()
+runCase [] = return ()
+runCase (x:xs) = do
+  ys <- take 4 `fmap` replicateM 5 getLine
+  putStrLn $ "Case #" ++ show x ++ ": " ++ evaluate ys
+  runCase xs

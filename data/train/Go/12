@@ -1,0 +1,99 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	T := readInt()
+	for i := 0; i < T; i++ {
+		g := readGame()
+		status := analyzeGame(g)
+		fmt.Printf("Case #%d: %s\n", i+1, status)
+	}
+}
+
+func readInt() (val int) {
+	fmt.Scanln(&val)
+	return
+}
+
+func readString() (s string) {
+	fmt.Scanln(&s)
+	return
+}
+
+func readGame() (arr []string) {
+	for i := 0; i < 4; i++ {
+		arr = append(arr, readString())
+	}
+	fmt.Scanln() // Empty line between cases
+	return
+}
+
+type ResultCell struct {
+	X, O int
+}
+
+type ResultRow struct {
+	pos      [6]ResultCell
+	dotcount int
+}
+
+func analyzeGame(arr []string) string {
+	var results ResultRow
+	var X, O int
+	for row, s := range arr {
+		X, O = 0, 0
+		for i, r := range s {
+			switch r {
+			case 'X':
+				X++
+				results.pos[i+1].X++
+				if i == row {
+					results.pos[5].X++
+				} else if i == 3-row {
+					results.pos[0].X++
+				}
+			case 'O':
+				O++
+				results.pos[i+1].O++
+				if i == row {
+					results.pos[5].O++
+				} else if i == 3-row {
+					results.pos[0].O++
+				}
+			case 'T':
+				X++
+				O++
+				results.pos[i+1].X++
+				results.pos[i+1].O++
+				if i == row {
+					results.pos[5].X++
+					results.pos[5].O++
+				} else if i == 3-row {
+					results.pos[0].X++
+					results.pos[0].O++
+				}
+			case '.':
+				results.dotcount++
+			}
+			if X == 4 {
+				return "X won"
+			} else if O == 4 {
+				return "O won"
+			}
+		}
+	}
+	for _, cell := range results.pos {
+		if cell.X == 4 {
+			return "X won"
+		} else if cell.O == 4 {
+			return "O won"
+		}
+	}
+	if results.dotcount > 0 {
+		return "Game has not completed"
+	}
+	return "Draw"
+}

@@ -1,0 +1,81 @@
+<?php
+
+
+$fp = fopen("tomek3.dat","r");
+$rows = array(array(0,1,2,3),array(4,5,6,7),array(8,9,10,11),array(12,13,14,15));
+$cols = array(array(0,4,8,12),array(1,5,9,13),array(2,6,10,14),array(3,7,11,15));
+$diags = array(array(0,5,10,15),array(3,6,9,12));
+
+$all_cases = array_merge($rows,$cols,$diags);
+
+
+function getFour($arr,$index_arr) {
+	$out = "";
+	for ($i=0; $i < count($index_arr) ; $i++) { 
+		$out.=$arr[$index_arr[$i]];
+	}
+	//print $out."\n";
+	return $out;
+}
+
+function getVictor($test_str) {
+	if(str_replace("T", "X", $test_str) === "XXXX") {
+		return "X";
+	}
+	if(str_replace("T", "O", $test_str) === "OOOO") {
+		return "O";
+	}
+	return false;
+}
+
+function getResult($input,$couldBeDraw) {
+	global $all_cases;
+	for ($i=0; $i < count($all_cases); $i++) { 
+		$victor = getVictor(getFour($input,$all_cases[$i]));
+		if($victor === false) {
+			continue;
+		} else {
+			return "$victor won";
+		}
+	}
+	if($couldBeDraw) {
+		return "Draw";
+	} else {
+		return "Game has not completed";
+	}
+}
+
+
+$index = 0;
+$test_index = 1;
+$testcase = "";
+while (!feof($fp))
+{
+	$line = fgets($fp);
+	if($index === 0) {
+		$tc_count = intval($line);
+		$index += 1;
+		continue;
+	}
+	if($test_index > $tc_count) {
+		break;
+	}
+	//parse test case here
+	if($index%5 === 0) {
+		//reset and process
+		$couldBeDraw = false;
+		//if no .s left
+		if(strstr($testcase,".") === false) {
+			$couldBeDraw = true;
+		}
+		$tc_arr = str_split(trim($testcase));
+		//print(print_r($tc_arr,true));
+		$result = getResult($tc_arr,$couldBeDraw);
+		print("Case #$test_index: $result\n");		
+		$testcase = "";
+		$test_index += 1;
+	} else {
+		$testcase.=trim($line);	
+	}
+	$index += 1;
+}

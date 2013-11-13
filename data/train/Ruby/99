@@ -1,0 +1,50 @@
+gets.to_i.times{|x|
+  a=[]
+  completed=true
+  4.times{
+    s=gets.strip
+    completed = false if completed and s.include?('.')
+    a<<s.split('')
+  }
+  gets #strip away last line
+  win=nil
+
+  def winner(s)
+    if !s.include?('.')
+      if !s.include?('X')
+        return "O won"
+      elsif !s.include?('O')
+        return "X won"
+      end
+    end
+    return nil
+  end
+
+  #horizontal
+  4.times{|i|
+    win=winner(a[i])
+    break if win
+  }
+
+  #vertical
+  if !win
+    4.times{|i|
+      win=winner([a[0][i],a[1][i],a[2][i],a[3][i]])
+      break if win
+    }
+  end
+
+  #diagonal
+  if !win
+    win=winner(s=[a[0][0],a[1][1],a[2][2],a[3][3]])
+  end 
+  if !win
+    win=winner(s=[a[0][3],a[1][2],a[2][1],a[3][0]])
+  end
+      
+  if !win
+    win = completed ? "Draw" : "Game has not completed"
+  end
+
+  puts "Case ##{x+1}: #{win}"
+}

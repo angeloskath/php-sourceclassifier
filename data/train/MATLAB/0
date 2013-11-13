@@ -1,0 +1,89 @@
+%Qual 2013
+%Prob A
+
+clc
+clear
+close all
+
+[fileInput, folderInput] = uigetfile('*.in', 'Get input file');
+fileInputFull = [folderInput, fileInput];
+fileOutputFinal = [folderInput, fileInput(1:end-2), 'out' ];
+% fileInputFull = 'C:\Users\Daniel\Dropbox\Projects\Competitions\Google Jam\Real\temp.in';
+% fileOutputFinal = 'C:\Users\Daniel\Dropbox\Projects\Competitions\Google Jam\Real\temp.out';
+
+pid = fopen(fileInputFull);
+cellFullFile = textscan(pid, '%s', 'Delimiter', '\n', 'Whitespace', '');
+fclose(pid);
+cellFullFile = cellFullFile{1};
+
+numCases = str2double(cellFullFile{1});
+    cellFullFile = cellFullFile(2:end);
+cellOut = cell(numCases,1);
+
+
+for i=1:numCases
+    cellVals = cellFullFile( (i-1)*5+1:5*i-1);
+    
+    %O
+    charTest = 'O';
+    matBool = false(4,4);
+    for j=1:4
+        vecLoc = strfind(cellVals{j}, charTest);
+        vecLoc2 = strfind(cellVals{j}, 'T');
+        matBool(j,vecLoc)=true;
+        matBool(j,vecLoc2)=true;
+    end
+    vecSums = zeros(10,1);
+    vecSums(1:4) = sum(matBool);
+    vecSums(5:8) = sum(matBool,2);
+    vecSums(9) = matBool(1,1)+matBool(2,2)+matBool(3,3)+matBool(4,4);
+    vecSums(10) = matBool(1,4)+matBool(2,3)+matBool(3,2)+matBool(4,1);
+    boolWin = logical(vecSums==4);
+    if any(boolWin)
+        cellOut{i} = 'O won';
+        continue
+    end
+    
+    %X
+    charTest = 'X';
+    matBool = false(4,4);
+    for j=1:4
+        vecLoc = strfind(cellVals{j}, charTest);
+        vecLoc2 = strfind(cellVals{j}, 'T');
+        matBool(j,vecLoc)=true;
+        matBool(j,vecLoc2)=true;
+    end
+    vecSums = zeros(10,1);
+    vecSums(1:4) = sum(matBool);
+    vecSums(5:8) = sum(matBool,2);
+    vecSums(9) = matBool(1,1)+matBool(2,2)+matBool(3,3)+matBool(4,4);
+    vecSums(10) = matBool(1,4)+matBool(2,3)+matBool(3,2)+matBool(4,1);
+    boolWin = logical(vecSums==4);
+    if any(boolWin)
+        cellOut{i} = 'X won';
+        continue
+    end    
+    
+    %.
+    charTest = '.';
+    matBool = false(4,4);
+    for j=1:4
+        vecLoc = strfind(cellVals{j}, charTest);
+        matBool(j,vecLoc)=true;
+    end    
+    if any(matBool(:))
+        cellOut{i} = 'Game has not completed';
+    else
+        cellOut{i} = 'Draw';
+    end
+
+end
+
+strFinal = '';
+for vecNums = 1:numCases;
+    strFinal = [strFinal, sprintf('Case #%d: %s\n',vecNums, cellOut{vecNums})];
+end
+
+pidFile = fopen(fileOutputFinal, 'w');
+fprintf(pidFile, '%s', strFinal);
+fclose(pidFile);

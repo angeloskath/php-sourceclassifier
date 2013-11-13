@@ -1,0 +1,126 @@
+#!/usr/bin/ruby
+# Code Jam Problem A
+
+hash = Hash.new(0)
+
+# Sum of row/column/diagonal
+# 3 X + T = 3*1+8 = 11
+# 3 O + T = 3*2+8 = 14
+hash["X"] = 1
+hash["O"] = 2
+hash["T"] = 8
+hash["."] = 16
+
+lines = Array.new(4)
+
+# 0 = Draw
+# 1 = X won
+# 2 = O won
+win = 0
+
+file = File.new("A-large.in", "r")
+out = File.new("A-large.out", "w")
+cases = file.gets.to_i
+count = 1
+cases.times do 
+  empty = false
+
+  # Input to array
+  for i in 0..3
+    lines[i] = file.gets.split("")
+  end
+
+  # Check for win in rows
+  for i in 0..3
+    sum = 0
+    win = 0
+    lines[i].each do |a|
+      sum += hash[a].to_i
+    end
+
+    if sum == 11 || sum == 4
+      win = 1
+      break
+    elsif sum == 14 || sum == 8
+      win = 2
+      break
+    # if empty cells
+    elsif sum > 16
+      empty = true
+    end
+  end
+
+  # Check for win in columns
+  for i in 0..3
+    # If win has been decided, move on
+    unless win == 0
+      break
+    end
+    sum = 0
+    win = 0
+    for j in 0..3
+      sum += hash[lines[j][i]].to_i
+    end
+    if sum == 11 || sum == 4
+      win = 1
+      break
+    elsif sum == 14 || sum == 8
+      win = 2
+      break
+    end
+  end
+
+  # Check for win in columns
+  for i in 0..1
+    # If win has been decided, move on
+    unless win == 0
+      break
+    end
+    sum = 0
+    if i == 0
+      for j in 0..3
+        sum += hash[lines[j][j]].to_i
+      end
+      if sum == 11 || sum == 4
+        win = 1
+        break
+      elsif sum == 14 || sum == 8
+        win = 2
+        break
+      end
+    else
+      for j in 0..3
+        sum += hash[lines[3-j][j]].to_i
+      end
+      if sum == 11 || sum == 4
+        win = 1
+        break
+      elsif sum == 14 || sum == 8
+        win = 2
+        break
+      end
+    end
+  end
+
+  out.print "Case #" + count.to_s + ": "
+  if win == 0
+    unless empty
+      out.puts "Draw"
+    else
+      out.puts "Game has not completed"
+    end
+  elsif win == 1
+    out.puts "X won"
+  elsif win == 2
+    out.puts "O won"
+  end
+
+  # Discard empty row
+  file.gets
+
+  # Test case counter
+  count += 1
+end
+file.close
+
+

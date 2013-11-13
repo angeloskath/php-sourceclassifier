@@ -1,0 +1,29 @@
+#!/usr/bin/ruby1.9.1
+
+def check_win player, board
+	pb = board.map{|line| line.tr "T", player }
+	return true if pb.any? {|line| line.count(player) == 4 }
+	return true if (0..3).any? {|column| (0..3).all? {|line| pb[line][column] == player } }
+	return true if (0..3).all? {|idx| pb[idx][idx] == player}
+	return true if (0..3).all? {|idx| pb[idx][3 - idx] == player }
+	return false
+end
+
+gets.to_i.times do |test|
+	board = (1..4).map{readline.chomp}
+	
+	if check_win "X", board
+		result = "X won"
+	# check for O win
+	elsif check_win "O", board
+		result = "O won"
+	elsif board.join.index(".")
+		result = "Game has not completed"
+	else
+		result = "Draw"
+	end
+	
+	puts "Case ##{test + 1}: #{result}"
+	gets
+end
+

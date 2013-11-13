@@ -1,0 +1,45 @@
+fid = fopen('input.txt');
+numcases = fscanf(fid, '%i');
+
+ofd = fopen('output.txt', 'w');
+
+%assume each case is a nxn grid
+n = 4;
+
+for t = 1:numcases
+    
+    %read next case
+    cM = ''; 
+    for i=1:n
+       cM(i,:)=fscanf(fid, '%c', n+1);
+    end
+    %chop off endlines
+    cM = cM(:,1:end-1);
+    %take care of endline to prepare for next trial
+    fscanf(fid,'%c',1);
+    
+    %now convert characters to numbers
+    fM = zeros(n,n);
+    fM(cM=='X')=1;
+    fM(cM=='O')=0;
+    fM(cM=='T')=0.5;
+    fM(cM=='.')=-13; %we just want these out of the way
+    
+    %now look for wins
+    colsum = sum(fM,1);
+    rowsum = sum(fM,2);
+    diagsum = sum(diag(fM));
+    diagsum2 = sum(diag(fliplr(fM)));
+    if sum(floor(colsum)==0)>0 || sum(floor(rowsum)==0)>0 || floor(diagsum)==0 || floor(diagsum2)==0
+        fprintf(ofd, 'Case #%i: O won\n', t);
+    elseif sum(ceil(colsum)==n)>0 || sum(ceil(rowsum)==n)>0 || ceil(diagsum)==n || ceil(diagsum2)==n
+        fprintf(ofd, 'Case #%i: X won\n', t);
+    elseif ismember('.', cM)
+        fprintf(ofd, 'Case #%i: Game has not completed\n', t);
+    else
+        fprintf(ofd, 'Case #%i: Draw\n', t);
+    end
+end      
+
+fclose(fid);
+fclose(ofd);

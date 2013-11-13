@@ -1,0 +1,56 @@
+package com.nefariouszhen.codejam._2013.qual
+
+object TicTacToe {
+  def main(args: Array[String]) {
+    val in = io.Source.stdin.getLines()
+    val T = in.next().toInt
+
+    for (cs <- 1 to T) {
+      val m = (0 until 4).map(_ => in.next())
+      val hasEmpty = m.find(_.contains(".")).isDefined
+
+      val x = wins(m, List('X', 'T'))
+      val o = wins(m, List('O', 'T'))
+
+      val str = if (x) {
+        "X won"
+      } else if (o) {
+        "O won"
+      } else if (hasEmpty) {
+        "Game has not completed"
+      } else "Draw"
+
+      println("Case #%d: %s".format(cs, str))
+      in.next()
+    }
+  }
+
+  def wins(m: IndexedSeq[String], c: Seq[Char]): Boolean = {
+    val notAllowed = (a: Char) => !c.contains(a)
+
+    for (i <- 0 until 4) {
+      // Row
+      if (m(i).find(notAllowed).isEmpty) {
+        return true
+      }
+
+      // Col
+      if (m.map(_.charAt(i)).find(notAllowed).isEmpty) {
+        return true
+      }
+    }
+
+    // Diag
+    val di = for (i <- 0 until 4) yield (i, i)
+    if (di.map({ case (i,j) => m(i).charAt(j) }).find(notAllowed).isEmpty) {
+      return true
+    }
+
+    // Neg Slope Diag
+    if (di.map({ case (i,j) => m(i).charAt(3-j) }).find(notAllowed).isEmpty) {
+      return true
+    }
+
+    false
+  }
+}

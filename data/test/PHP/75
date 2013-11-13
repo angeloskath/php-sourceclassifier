@@ -1,0 +1,91 @@
+<?php
+ini_set('memory_limit', '2048M');
+set_time_limit(200);
+
+class InputParser{
+    private $file;
+    public function __construct($file){
+        $this->file = fopen($file, 'r');
+    }
+    public function __destruct(){
+        fclose($this->file);
+    }
+    function getNext(){
+        return trim(fgets($this->file));
+    }
+    function getNextAsArray(){
+        return preg_split('#\s+#', $this->getNext());
+    }
+}
+
+class OutputWriter{
+    private $file;
+    private $iCase = 0;
+    public function __construct($file){
+        $this->file = fopen($file, 'w');
+    }
+    public function __destruct(){
+        fflush($this->file);
+        fclose($this->file);
+    }
+    public function writeNextCaseResult($result){
+        echo $caseResult = 'Case #' . ++$this->iCase . ': ' . $result . "\n";
+        fputs($this->file, $caseResult);
+    }
+}
+
+$input = new InputParser($argv[1]);
+$output = new OutputWriter($argv[2]);
+
+$sets = (int)$input->getNext();
+
+for ($setI = 0; $setI < $sets; $setI++) {
+    
+    $ways = array('h' => array(0, 0, 0, 0), 'v' => array(0, 0, 0, 0), 'd' => array(0, 0));
+    $completed = true;
+    
+    for($i = 0; $i < 4; $i++) {
+        $rawRow = $input->getNext();
+        $row = array();
+        for($j = 0; $j < 4; $j++) {
+            $row[$j] = $rawRow[$j];
+            
+            switch ($rawRow[$j]) {
+                case 'T': $bValue=0; break;
+                case 'X': $bValue=1; break;
+                case 'O': $bValue=2; break;
+                case '.': $bValue=3; $completed = false; break;
+            }
+            
+            $ways['h'][$i] |= $bValue;
+            $ways['v'][$j] |= $bValue;
+            if ($i == $j) {
+                $ways['d'][0] |= $bValue;
+            }
+            if ($i == 3 - $j) {
+                $ways['d'][1] |= $bValue;
+            }
+        }
+    }
+    $input->getNext();
+    
+    foreach ($ways as $dWays) {
+        foreach($dWays as $ways) {
+            if ($ways == 1) {
+                $output->writeNextCaseResult('X won');
+                continue 3;
+            }
+            if ($ways == 2) {
+                $output->writeNextCaseResult('O won');
+                continue 3;
+            }
+        }
+    }
+    
+    if ($completed) {
+        $output->writeNextCaseResult('Draw');
+    } else {
+        $output->writeNextCaseResult('Game has not completed');
+    }
+    
+}

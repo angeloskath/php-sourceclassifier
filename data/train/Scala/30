@@ -1,0 +1,83 @@
+package qualification
+
+import java.io.{File, PrintWriter}
+import scala.io.Source
+import scala.collection.immutable
+
+/**
+ * User: Michael
+ * Date: 13/04/13
+ * Time: 18:45
+ */
+class Question1(inputFile: File, outputFile: PrintWriter) {
+  def runCases() {
+    val file = Source.fromFile(inputFile).getLines().toSeq
+    val testCount = file.head.toInt
+
+    val cases = (for (i <- 0 until testCount) yield file.slice(i*5+1,(i+1)*5)).map(parseCase)
+
+    val results = cases.map(r => checkResults(r)).zipWithIndex
+
+    results.foreach{case (r,i) => outputFile.write(s"Case #${i+1}: $r\n")}
+
+    outputFile.close()
+  }
+
+  def parseCase(input:Seq[String]) = {
+    val xResults = input.map(s => s.map {
+      case 'T' =>
+        true
+      case 'X' =>
+        true
+      case _ =>
+        false
+    }).toIndexedSeq
+
+    val yResults = input.map(s => s.map {
+      case 'T' =>
+        true
+      case 'O' =>
+        true
+      case _ =>
+        false
+    }).toIndexedSeq
+
+    val turnsRemaining = input.map(s => s.count(_ == '.')).sum
+
+    (xResults,yResults,turnsRemaining)
+  }
+
+  def checkResults(input:(IndexedSeq[IndexedSeq[Boolean]],IndexedSeq[IndexedSeq[Boolean]],Int)) = input match {
+    case (xResults,yResults,turnsRemaining) =>
+      val xWins = checkPlayer(xResults)
+      val yWins = checkPlayer(yResults)
+
+      if (xWins && yWins) {
+        "Draw"
+      } else if (xWins) {
+        "X won"
+      } else if (yWins) {
+        "O won"
+      } else if (turnsRemaining > 0){
+        "Game has not completed"
+      } else {
+        "Draw"
+      }
+  }
+
+  def checkPlayer(input:IndexedSeq[IndexedSeq[Boolean]]) = {
+    val inputResultsX = (for (x <- 0 until 4) yield input(x).count(_==true) == 4).find(_==true).isDefined
+    val transposedResults = input.transpose
+    val inputResultsY = (for (y <- 0 until 4) yield transposedResults(y).count(_==true) == 4).find(_==true).isDefined
+
+    val diagonalResults = (input(0)(0) && input(1)(1) && input(2)(2) && input(3)(3)) || (input(0)(3) && input(1)(2) && input(2)(1) && input(3)(0))
+
+    inputResultsX || inputResultsY || diagonalResults
+  }
+}
+
+object Question1 {
+  def main(args: Array[String]) {
+    new Question1(new File("A-large.in"),new PrintWriter(new File("A-large.out"))).runCases()
+  }
+}

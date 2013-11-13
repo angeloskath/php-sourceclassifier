@@ -1,0 +1,42 @@
+def owns_line?(player, line)
+	return line.select{|space| space != "T" and space != player}.empty?
+end
+
+def get_outcome(board)
+	players = ["X", "O"]
+	players.each do |player|
+		board.each do |line|
+			if owns_line?(player, line)
+				return "%s won" % player
+			end
+		end
+		(0...4).each do |i|
+			if owns_line?(player, board.map{|line| line[i]})
+				return "%s won" % player
+			end
+		end	
+		if owns_line?(player, [board[0][0], board[1][1], board[2][2], board[3][3]])
+			return "%s won" % player
+		elsif owns_line?(player, [board[0][3], board[1][2], board[2][1], board[3][0]])
+			return "%s won" % player
+		end
+	end
+	board.each do |line|
+		line.each do |space|
+			if space == "."
+				return "Game has not completed"
+			end
+		end
+	end
+	return "Draw"
+end
+
+k = gets.chomp.to_i
+(1..k).each do |i|
+	board = []
+	(0...4).each do |j|
+		board[j] = gets.chomp.split(//)
+	end
+	gets
+	puts "Case #%d: %s" % [i, get_outcome(board)]
+end

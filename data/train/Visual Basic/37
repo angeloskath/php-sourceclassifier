@@ -1,0 +1,223 @@
+﻿Imports System.IO
+
+Module Module1
+    Private Const file_In As String = "A-small-attempt0.in"
+    Private Const file_Out As String = "J.out"
+
+    Private IsFinished As Boolean
+    Private Winner As Char
+
+    Sub Main()
+        Dim SR As StreamReader
+        Dim SW As StreamWriter
+        Dim Total As Integer
+        Dim Count As Integer = 1
+        Dim S() As Char
+        Dim C(3)() As Char
+
+        SR = New StreamReader(file_In)
+        SW = New StreamWriter(file_Out)
+
+        Total = CULng(SR.ReadLine)
+
+        Do Until (SR.EndOfStream)
+            For i = 0 To 3
+                S = SR.ReadLine.ToCharArray
+                ReDim C(i)(3)
+
+                C(i)(0) = S(0)
+                C(i)(1) = S(1)
+                C(i)(2) = S(2)
+                C(i)(3) = S(3)
+            Next
+
+            S = SR.ReadLine
+
+            SW.WriteLine("Case #" + Count.ToString + ": " + Counting(C))
+
+            Count = Count + 1
+        Loop
+
+        SW.Close()
+        SR.Close()
+    End Sub
+
+    Private Function Counting(ByVal C()() As Char) As String
+
+        IsFinished = True
+
+        If IsRow(C) Then
+            Counting = WinnerIs()
+            Exit Function
+        End If
+
+        If IsColumn(C) Then
+            Counting = WinnerIs()
+            Exit Function
+        End If
+
+        If IsDiagonal(C) Then
+            Counting = WinnerIs()
+            Exit Function
+        End If
+
+        If IsFinished Then
+            Winner = "D"
+        Else
+            Winner = "I"
+        End If
+
+        Counting = WinnerIs()
+    End Function
+
+    Private Function WinnerIs() As String
+
+        WinnerIs = ""
+
+        Select Case Winner
+            Case "O"
+                WinnerIs = "O won" ' (the game is over, and O won)
+            Case "X"
+                WinnerIs = "X won" '(the game is over, and X won)
+            Case "D"
+                WinnerIs = "Draw" '(the game is over, and it ended in a draw)
+            Case "I"
+                WinnerIs = "Game has not completed" '(the game is not over yet)
+        End Select
+    End Function
+
+    Private Function IsRow(ByVal C()() As Char) As Boolean
+        Dim FirstDig As Char = "R"
+        Dim IsDone As Boolean = True
+
+        IsRow = False
+
+        For x = 0 To 3
+            FirstDig = "R"
+            IsDone = True
+
+            For y = 0 To 3
+                Select Case C(x)(y)
+                    Case "O", "X"
+                        If FirstDig <> C(x)(y) Then
+                            If FirstDig = "R" Then
+                                FirstDig = C(x)(y)
+                            Else
+                                IsDone = False
+                                Exit For
+                            End If
+                        End If
+                    Case "T"
+                    Case "."
+                        IsDone = False
+                        IsFinished = False
+                        Exit For
+                End Select
+            Next
+
+            If IsDone Then
+                Winner = FirstDig
+                IsRow = True
+                Exit Function
+            End If
+        Next
+    End Function
+
+    Private Function IsColumn(ByVal C()() As Char) As Boolean
+        Dim FirstDig As Char = "C"
+        Dim IsDone As Boolean = True
+
+        IsColumn = False
+
+        For x = 0 To 3
+            FirstDig = "C"
+            IsDone = True
+
+            For y = 0 To 3
+                Select Case C(y)(x)
+                    Case "O", "X"
+                        If FirstDig <> C(y)(x) Then
+                            If FirstDig = "C" Then
+                                FirstDig = C(y)(x)
+                            Else
+                                IsDone = False
+                                Exit For
+                            End If
+                        End If
+                    Case "T"
+                    Case "."
+                        IsDone = False
+                        IsFinished = False
+                        Exit For
+                End Select
+            Next
+
+
+            If IsDone Then
+                Winner = FirstDig
+                IsColumn = True
+                Exit Function
+            End If
+        Next
+    End Function
+
+    Private Function IsDiagonal(ByVal C()() As Char) As Boolean
+        Dim FirstDig As Char = "D"
+        Dim IsDone As Boolean = True
+
+        IsDiagonal = False
+
+        For x = 0 To 3
+            Select Case C(x)(x)
+                Case "O", "X"
+                    If FirstDig <> C(x)(x) Then
+                        If FirstDig = "D" Then
+                            FirstDig = C(x)(x)
+                        Else
+                            IsDone = False
+                            Exit For
+                        End If
+                    End If
+                Case "T"
+                Case "."
+                    IsDone = False
+                    IsFinished = False
+                    Exit For
+            End Select
+        Next
+
+        If IsDone Then
+            Winner = FirstDig
+            IsDiagonal = True
+            Exit Function
+        End If
+
+        IsDone = True
+
+        FirstDig = "D"
+
+        For x = 0 To 3
+            Select Case C(x)(3 - x)
+                Case "O", "X"
+                    If FirstDig <> C(x)(3 - x) Then
+                        If FirstDig = "D" Then
+                            FirstDig = C(x)(3 - x)
+                        Else
+                            IsDone = False
+                            Exit For
+                        End If
+                    End If
+                Case "T"
+                Case "."
+                    IsDone = False
+                    IsFinished = False
+                    Exit For
+            End Select
+        Next
+
+        If IsDone Then
+            Winner = FirstDig
+            IsDiagonal = True
+        End If
+    End Function
+End Module

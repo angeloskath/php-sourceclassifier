@@ -1,0 +1,34 @@
+object TicTacToeTomek {
+  def main(args: Array[String]) = {
+    val numCases = readLine().toInt
+
+    for (i <- 1 to numCases) {
+      val board = List(readLine().toList, readLine().toList, 
+        readLine().toList, readLine().toList)
+      readLine()
+
+      println("Case #" + i + ": " + status(board))
+    }
+  }
+
+  def status(board: List[List[Char]]) = {
+    val boardX = board.map(r => r.map(c => if (c == 'T') 'X' else c))
+    val boardO = board.map(r => r.map(c => if (c == 'T') 'O' else c))
+    val fourX = "XXXX".toList
+    val fourO = "OOOO".toList
+
+    if (boardX.contains(fourX) || boardX.transpose.contains(fourX) || diagonalWin(boardX, 'X'))
+      "X won"
+    else if (boardO.contains(fourO) || boardO.transpose.contains(fourO) || diagonalWin(boardO, 'O'))
+      "O won"
+    else if (board.flatten.forall(x => x != '.'))
+      "Draw"
+    else
+      "Game has not completed"
+  }
+
+  def diagonalWin(board: List[List[Char]], x: Char) = {
+    (0 to 3).map(i => board(i)(i)) == List(x, x, x, x) || 
+      (0 to 3).map(i => board(i)(3 - i)) == List(x, x, x, x)
+  }
+}

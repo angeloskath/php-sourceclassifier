@@ -1,0 +1,234 @@
+Program template;
+
+uses
+  Classes, SysUtils;
+
+const
+  InFileName = 'input.txt';
+  OutFileName = 'output.txt';
+
+type
+  TIntegerArray = array of integer;
+  TStringArray = array of string;
+  TProblemType = (ptSingleLine, ptMultiLine);
+  EFound = class(Exception);
+
+
+function Split(Input: string; Delimiter: char = ' '): TStringList;
+var
+  j: Integer;
+begin
+  result := TStringList.Create();
+  while (true) do
+  begin
+    j := Pos(Delimiter, Input);
+    if (j = 0) then
+    begin
+      result.Add(Input);
+      Break;
+    end
+    else
+    begin
+      result.Add(Copy(Input, 1, j - 1));
+      Input := Copy(Input, j + 1, Length(Input));
+    end;
+  end;
+end;
+
+function SplitToInts(Input: string; Delimiter: char = ' '): TIntegerArray;
+var
+  InputAsStringList: TStringList;
+  Counter: Integer;
+begin
+  InputAsStringList := Split(Input, Delimiter);
+  try
+    SetLength(result, InputAsStringList.Count);
+    for Counter := 0 to InputAsStringList.Count - 1 do
+    begin
+      result[Counter] := StrToInt(InputAsStringList[Counter]);
+    end;
+  finally
+    FreeAndNil(InputAsStringList);
+  end;
+end;
+
+function SplitToStrings(Input: string; Delimiter: char = ' '): TStringArray;
+var
+  InputAsStringList: TStringList;
+  Counter: Integer;
+begin
+  InputAsStringList := Split(Input, Delimiter);
+  try
+    SetLength(result, InputAsStringList.Count);
+    for Counter := 0 to InputAsStringList.Count - 1 do
+    begin
+      result[Counter] := InputAsStringList[Counter];
+    end;
+  finally
+    FreeAndNil(InputAsStringList);
+  end;
+end;
+
+procedure MoveLines(Input, Output: TStringList; NumLines: integer);
+var
+  Counter: Integer;
+begin
+  for Counter := 0 to NumLines - 1 do
+  begin
+    Output.Add(Input[0]);
+    Input.Delete(0);
+  end;
+end;
+
+function CountCharsInString(AString: string; AChar: char): integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 1 to Length(AString) do
+  begin
+    if AString[i] = AChar then
+      result := result + 1;
+  end;
+end;
+
+function RemoveCharsInString(AString: string; AChar: char): string;
+var
+  i: Integer;
+begin
+  result := '';
+  for i := 1 to Length(AString) do
+  begin
+    if AString[i] <> AChar then
+      result := result + AString[i];
+  end;
+end;
+
+
+//************************************************************************************************************************
+
+function ProcessOneProblem(Line: string): string; overload;
+begin
+
+end;
+
+
+function ProcessOneProblem(Parameters: TIntegerArray; Lines: TStringList): string; overload;
+begin
+
+end;
+
+
+procedure Setup();
+begin
+
+end;
+
+
+procedure TearDown();
+begin
+
+end;
+
+//************************************************************************************************************************
+
+
+procedure Process();
+var
+  Lines, Output, OneProblem: TStringList;
+  Parameters: TIntegerArray;
+  ProblemCount: integer;
+  i: Integer;
+  ProblemType: TProblemType;
+  NumLines: Integer;
+begin
+  Lines := TStringList.Create();
+  Output := TStringList.Create();
+  OneProblem := TStringList.Create();
+
+  //**************************
+  ProblemType := ptSingleLine;
+  //**************************  
+
+  try
+    if (not FileExists(InFileName)) then
+    begin
+      WriteLn(Format('%s does not exist', [InFileName]));
+      Exit;
+    end;
+
+    Lines.LoadFromFile(InFileName);
+    WriteLn(Format('%d lines read.', [Lines.Count]));
+    ProblemCount := StrToInt(Lines[0]);
+    Lines.Delete(0);
+
+    Setup();
+    try
+      for i := 0 to ProblemCount - 1 do
+      begin
+        case ProblemType of
+
+          ptSingleLine:
+            begin
+              Output.Add(ProcessOneProblem(Lines[0]));
+              WriteLn(Lines[0] + ' ---> ' + Output[Output.Count - 1]);              
+              Lines.Delete(0);
+            end;
+
+          ptMultiLine:
+            begin
+              OneProblem.Clear;
+              //****************************************************************
+              Parameters := SplitToInts(Lines[0]);
+              Lines.Delete(0);
+              NumLines := Parameters[0];
+              //****************************************************************
+              MoveLines(Lines, OneProblem, NumLines);
+              Output.Add(ProcessOneProblem(Parameters, OneProblem));
+              WriteLn(Format('Problem %d ---> %s', [ProblemCount + 1, Output[Output.Count - 1]]));              
+            end;
+        end;
+      end;
+
+      if (Output.Count <> ProblemCount) then
+      begin
+        WriteLn(Format('Output does not contain as many lines (%d) as there were problems (%d)', [Output.Count, ProblemCount]));
+        Exit;
+      end;
+
+      for i := 0 to Output.Count - 1 do
+      begin
+        Output[i] := Format('Case #%d: ', [i+1]) + Output[i];
+      end;
+
+      WriteLn('Output follows:');
+      WriteLn('');
+      for i := 0 to Output.Count - 1 do
+      begin
+        WriteLn(Output[i]);
+      end;
+
+      try
+        Output.SaveToFile(OutFileName);
+      except
+        on e:Exception do
+        begin
+          WriteLn(Format('Failed to create %s with error %s', [OutFileName, e.Message]));
+          Exit;
+        end;
+      end;
+    finally
+      TearDown();
+    end;
+  finally
+    FreeAndNil(OneProblem);
+    FreeAndNil(Lines);
+    FreeAndNil(Output);
+  end;
+end;
+
+begin {main}
+  Process();
+  WriteLn('Press enter to quit...');
+  ReadLn;
+End.

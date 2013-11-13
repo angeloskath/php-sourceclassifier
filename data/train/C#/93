@@ -1,0 +1,161 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace CodeJam2013Qualification
+{
+	class Program
+	{
+		const string inputDir = "C:\\code_jam_input";
+		const string inputDirDone = "C:\\code_jam_input_done";
+		const string outputDir = "C:\\code_jam_output";
+
+		static StreamWriter writer = null;
+		const string XWon = "X won";
+		const string OWon = "O won";
+		const string Draw = "Draw";
+		const string NotOver = "Game has not completed";
+
+		static void Main(string[] args)
+		{
+			string[] files = Directory.GetFiles(inputDir);
+			if (files.Length != 1)
+			{
+				Console.WriteLine("An invalid number of files was detected in the input directory: " + files.Length);
+			}
+			else
+			{
+				string inFile = files[0];
+				string outFile = Path.Combine(outputDir, Path.GetFileName(inFile) + ".out");
+				string inFileDone = Path.Combine(inputDirDone, Path.GetFileName(inFile));
+
+				using (Stream inStream = File.OpenRead(inFile))
+				{
+					using (StreamReader reader = new StreamReader(inStream))
+					{
+						using (Stream outStream = File.Open(outFile, FileMode.Create))
+						{
+							using (writer = new StreamWriter(outStream))
+							{
+
+								int T = int.Parse(reader.ReadLine());
+								for (int t = 1; t <= T; t++)
+								{
+									string result = Solve(reader);
+									reader.ReadLine(); // extra line
+
+									WriteOut("Case #" + t + ": " + result);
+								}
+								writer.Close();
+							}
+							outStream.Close();
+						}
+						reader.Close();
+					}
+					inStream.Close();
+				}
+
+				File.Move(inFile, inFileDone);
+			}
+			Console.ReadLine();
+		}
+
+		static string Solve(StreamReader reader)
+		{
+			int[] X = new int[4];
+			int[] Y = new int[4];
+
+			for (int i = 0; i < 4; i++)
+			{
+				X[i] = 3;
+				Y[i] = 3;
+			}
+
+			int TL_BR = 3;
+			int BL_TR = 3;
+
+			bool finished = true;
+
+			int linesRead = 0;
+			try
+			{
+				char[,] board = new char[4, 4];
+				for (int y = 0; y < 4; y++)
+				{
+					string line = reader.ReadLine();
+					linesRead++;
+					for (int x = 0; x < 4; x++)
+					{
+						int num;
+						if (line[x] == 'X')
+							num = 1;
+						else if (line[x] == 'O')
+							num = 2;
+						else if (line[x] == 'T')
+							num = 3;
+						else
+						{
+							if (line[x] != '.')
+							{
+								throw new Exception("Encountered an invalid character at [" + x + ", " + y + "]: " + line[x]);
+							}
+							num = 0;
+							finished = false;
+						}
+
+						X[y] &= num;
+						Y[x] &= num;
+
+						if (x == y)
+						{
+							TL_BR &= num;
+						}
+						if (x + y == 3)
+						{
+							BL_TR &= num;
+						}
+
+						if (y == 3)
+						{
+							if (Y[x] == 1)
+								return XWon;
+							else if (Y[x] == 2)
+								return OWon;
+						}
+					}
+
+					if (X[y] == 1)
+						return XWon;
+					else if (X[y] == 2)
+						return OWon;
+				}
+			}
+			finally
+			{
+				if (linesRead < 4)
+				{
+					for (int i = linesRead; i < 4; i++)
+					{
+						reader.ReadLine();
+					}
+				}
+			}
+
+			if (TL_BR == 1 || BL_TR == 1)
+				return XWon;
+			else if (TL_BR == 2 || BL_TR == 2)
+				return OWon;
+
+			return finished ? Draw : NotOver;
+		}
+
+		static void WriteOut(string line)
+		{
+			writer.WriteLine(line);
+			Console.WriteLine(line);
+		}
+	}
+}

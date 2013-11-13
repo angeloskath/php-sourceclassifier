@@ -1,0 +1,61 @@
+#!/usr/bin/ruby
+
+require 'pp'
+
+filename = ARGV[0]
+
+lines = IO.readlines(filename)
+lines.map!{|l| l.chomp}
+
+TOLERANCE = 0.00000001
+
+def debug(s = '')
+  STDERR.puts s.is_a?(String) ? s : s.inspect
+end
+
+num_testcases = lines.shift.to_i
+
+def check_line(line)
+  return 'X won' if line.all? { |cell| cell == :x || cell == :t }
+  return 'O won' if line.all? { |cell| cell == :o || cell == :t }
+  nil
+end
+
+def all_cells_populated?(board)
+  !board.any? { |row| row.any? { |cell| cell == :blank } }
+end
+
+num_testcases.times do |testcase|
+  debug "testcase #{testcase + 1}"
+
+  board = lines.shift(4)
+  blank = lines.shift
+  board.map! do |row|
+    row.split('').map do |cell|
+      case cell
+      when 'X'
+        :x
+      when 'O'
+        :o
+      when 'T'
+        :t
+      when '.'
+        :blank
+      end
+    end
+  end
+
+  #debug board.inspect
+
+  all_lines = []
+  all_lines += board
+  all_lines += board.transpose
+  all_lines << [board[0][0], board[1][1], board[2][2], board[3][3]] 
+  all_lines << [board[0][3], board[1][2], board[2][1], board[3][0]] 
+  #debug all_lines.inspect
+  result = all_lines.map { |line| check_line(line) }.compact.first
+  
+  result ||= (all_cells_populated?(board) ? 'Draw' : 'Game has not completed')
+             
+  puts "Case ##{testcase + 1}: #{result}"
+end

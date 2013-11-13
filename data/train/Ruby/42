@@ -1,0 +1,56 @@
+count = Integer(gets().chomp)
+
+(1..count).each do |c|
+  grid = []
+  (0..3).each do |i|
+    grid[i] = gets.chomp.chars.to_a
+  end
+
+  winner = nil
+
+  # Rows
+  (0..3).each do |i|
+    if grid[i].all? { |v| v == 'X' || v == 'T' }
+      winner = 'X'
+    elsif grid[i].all? { |v| v == 'O' || v == 'T' }
+      winner = 'O'
+    end
+  end
+
+  # Cols
+  (0..3).each do |i|
+    if grid.all? { |r| r[i] == 'X' || r[i] == 'T' }
+      winner = 'X'
+    elsif grid.all? { |r| r[i] == 'O' || r[i] == 'T' }
+      winner = 'O'
+    end
+  end
+
+  # Diagonals
+  if (0..3).all? { |i| grid[i][i] == 'X' || grid[i][i] == 'T' }
+    winner = 'X'
+  elsif (0..3).all? { |i| grid[i][i] == 'O' || grid[i][i] == 'T' }
+    winner = 'O'
+  end
+
+  if (0..3).all? { |i| grid[i][3-i] == 'X' || grid[i][3-i] == 'T' }
+    winner = 'X'
+  elsif (0..3).all? { |i| grid[i][3-i] == 'O' || grid[i][3-i] == 'T' }
+    winner = 'O'
+  end
+
+  # Create string
+  result = nil
+  if winner == 'X'
+    result = 'X won'
+  elsif winner == 'O'
+    result = 'O won'
+  elsif grid.all? { |r| r.all? { |v| v != '.' } }
+    result = 'Draw'
+  else
+    result = 'Game has not completed'
+  end
+
+  puts "Case ##{c}: #{result}"
+  gets
+end

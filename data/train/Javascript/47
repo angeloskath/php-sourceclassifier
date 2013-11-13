@@ -1,0 +1,105 @@
+<html>
+<body>
+<textarea rows=10 cols=40 id="input">
+6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O
+</textarea>
+<textarea rows=10 cols=40 id="output">
+</textarea>
+
+<input type=submit onclick="javascript:solve();">
+</body>
+
+<script>
+
+function empty( board ) {
+	for( var i = 0 ; i < 4 ; ++i ) for( var j = 0 ; j < 4 ; ++j ) {
+		if( board[i][j] == '.' ) return true;
+	}
+	return false;
+}
+
+function winchk( board, c ) {
+
+	for( var i = 0 ; i < 4 ; ++i ) {
+		var num = 0;
+		for( var j = 0 ; j < 4 ; ++j ) if( board[i][j] == c || board[i][j] == 'T' ) ++num;
+		if( num == 4 ) return true;
+	}
+	for( var j = 0 ; j < 4 ; ++j ) {
+		var num = 0;
+		for( var i = 0 ; i < 4 ; ++i ) if( board[i][j] == c || board[i][j] == 'T' ) ++num;
+		if( num == 4 ) return true;
+	}
+
+	var num2 = 0;
+	for( var i = 0 ; i < 4 ; ++i ) {
+		if( board[i][i] == c || board[i][i] == 'T' ) ++num2;	
+	}
+
+	if(num2 == 4) return true;
+
+	num2 = 0;
+	for( var i = 0 ; i < 4 ; ++i ) {
+		if( board[i][3-i] == c || board[i][3-i] == 'T' ) ++num2;	
+	}
+
+	if(num2 == 4) return true;
+
+	return false;
+}
+
+function proc( board ) {
+	ret = "Game has not completed";
+	if( !empty( board ) ) ret = "Draw";
+
+	if( winchk( board, "X" ) ) ret = "X won";
+	else if( winchk( board, "O" ) ) ret = "O won";
+
+	return ret;
+}
+
+function solve() {
+	var inp = document.getElementById("input").value.split("\n");
+	var oup = document.getElementById("output");
+	oup.value = "";
+	var ncase = Number( inp[0] );
+	for( var caseno = 1 ; caseno <= ncase ; ++caseno ) {
+		st = (caseno-1) * 5 + 1;
+		board = new Array( inp[st], inp[st+1], inp[st+2], inp[st+3] );
+		oup.value += "Case #" + caseno + ": ";
+		oup.value += proc( board );
+		oup.value += "\n";
+	}
+}
+
+</script>
+</html>

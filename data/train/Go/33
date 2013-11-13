@@ -1,0 +1,169 @@
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+)
+
+func main() {
+	err := doMain()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("done")
+}
+
+const TABLE_WIDTH = 4
+const TABLE_HEIGHT = 4
+
+type board [TABLE_WIDTH][TABLE_HEIGHT]byte
+
+func readBoard(scanner *bufio.Scanner, b *board) (err error) {
+	for y := 0; y < TABLE_HEIGHT; y++ {
+		scanner.Scan()
+		line := scanner.Text()
+		if len(line) != TABLE_WIDTH {
+			log.Fatalf("Bad line %v %s", y, line)
+		}
+		for x := 0; x < TABLE_WIDTH; x++ {
+			c := line[x]
+			b[x][y] = c
+		}
+	}
+	// extra blank line at end
+	scanner.Scan()
+	return
+}
+
+func doMain() (err error) {
+	inputFileName := flag.String("in", "", "input file")
+	outputFileName := flag.String("out", "", "output file")
+	flag.Parse()
+	log.Print("--in ", *inputFileName)
+	log.Print("--out ", *outputFileName)
+	in := os.Stdin
+	if *inputFileName != "" {
+		in, err = os.Open(*inputFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	out := os.Stdout
+	if *outputFileName != "" {
+		out, err = os.Create(*outputFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	scanner := bufio.NewScanner(in)
+	scanner.Scan()
+	testCases, err := strconv.Atoi(scanner.Text())
+	if err != nil {
+		log.Fatalf("Could not parse testCases", err)
+	}
+
+	log.Printf("%d test cases", testCases)
+
+	for i := 1; i <= testCases; i++ {
+		log.Printf("Test case %d", i)
+		var b board
+		err := readBoard(scanner, &b)
+		if err != nil {
+			log.Fatalf("error reading board %d %v", i, err)
+		}
+		err, result := checkBoard(&b)
+		if err != nil {
+			log.Fatalf("error checking board %d %v", i, err)
+		}
+		fmt.Fprintf(out, "Case #%d: %s\n", i, result)
+	}
+
+	for scanner.Scan() {
+		fmt.Fprintln(out, scanner.Text()) // Println will add back the final '\n'
+	}
+	if err = scanner.Err(); err != nil {
+		log.Println("reading standard input:", err)
+	}
+	return err
+}
+
+func checkBoard(b *board) (err error, result string) {
+	if checkSide(b, 'X') {
+		result = "X won"
+	} else if checkSide(b, 'O') {
+		result = "O won"
+	} else if !any(b, '.') {
+		result = "Draw"
+		return
+	} else {
+		result = "Game has not completed"
+	}
+	return
+}
+
+func checkSide(b *board, s byte) bool {
+	// check h
+	for j := 0; j < TABLE_HEIGHT; j++ {
+		var i int
+		for i = 0; i < TABLE_WIDTH; i++ {
+			c := b[i][j]
+			if !(c == s || c == 'T') {
+				break
+			}
+		}
+		if i == TABLE_WIDTH {
+			return true
+		}
+	}
+	// check v
+	for j := 0; j < TABLE_WIDTH; j++ {
+		var i int
+		for i = 0; i < TABLE_HEIGHT; i++ {
+			c := b[j][i]
+			if !(c == s || c == 'T') {
+				break
+			}
+		}
+		if i == TABLE_HEIGHT {
+			return true
+		}
+	}
+	// check left diag
+	var i int
+	for i = 0; i < TABLE_WIDTH; i++ {
+		c := b[i][i]
+		if !(c == s || c == 'T') {
+			break
+		}
+	}
+	if i == TABLE_WIDTH {
+		return true
+	}
+	// check right diag
+	for i = 0; i < TABLE_WIDTH; i++ {
+		c := b[i][(TABLE_WIDTH-1)-i]
+		if !(c == s || c == 'T') {
+			break
+		}
+	}
+	if i == TABLE_WIDTH {
+		return true
+	}
+	return false
+}
+
+func any(b *board, test byte) bool {
+	for j := 0; j < TABLE_HEIGHT; j++ {
+		for i := 0; i < TABLE_WIDTH; i++ {
+			c := b[i][j]
+			if c == test {
+				return true
+			}
+		}
+	}
+	return false
+}

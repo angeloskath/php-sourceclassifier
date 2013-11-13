@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+cases = ARGF.readline.to_i
+
+def solution
+	board = []
+	4.times do
+		board << ARGF.readline.strip
+	end
+	ARGF.readline
+
+	check = Proc.new do |line|
+		if line.include? '.'
+			# incomplete
+		elsif line.include? 'X'
+			return 'X won' unless line.include? 'O'
+		elsif line.include? 'O'
+			return 'O won'
+		end
+	end
+
+	4.times do |i|
+		check.call board[i]
+		check.call [board[0][i], board[1][i], board[2][i], board[3][i]]
+	end
+
+	check.call [board[0][3], board[1][2], board[2][1], board[3][0]]
+	check.call [board[0][0], board[1][1], board[2][2], board[3][3]]
+
+	board.each do |line|
+		return 'Game has not completed' if line.include? '.'
+	end
+
+	'Draw'
+end
+
+cases.times do |x|
+	puts "Case ##{x+1}: #{solution}"
+end

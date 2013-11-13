@@ -1,0 +1,64 @@
+(ns tic-tac-toe-tomek)
+
+(defn get-row [k coll]
+  (nth coll k))
+
+(defn get-col [k coll]
+  (map #(nth % k) coll))
+
+(defn get-main-diag [coll]
+  (loop [i 0 nums '()]
+    (if (= i 4) nums
+        (recur (inc i)
+               (cons (nth (nth coll i) i) nums)))))
+
+(defn get-reverse-diag [coll]
+  (loop [i 0 nums '()]
+    (if (= i 4) nums
+        (recur (inc i)
+               (cons (nth (nth coll i) (- 3 i)) nums)))))
+
+(defn winning-pair [a b]
+  (cond (= a b) a
+        (= a \T) b
+        (= b \T) a
+        (= a \.) a
+        (= b \.) b
+        (not (= a b)) "N"))
+
+(def to-answer-str
+  {\. "Game has not completed"
+   "N" "Draw"
+   \X "X won"
+   \O "O won"})
+
+(defn winning-seq [coll]
+  (reduce winning-pair coll))
+
+(defn get-winner [coll]
+  (let [rows
+        (concat (map #(get-row % coll) (range 4))
+                (map #(get-col % coll) (range 4))
+                (list (get-main-diag coll))
+                (list (get-reverse-diag coll)))]
+    (loop [colls rows complete? true]
+      (if (empty? colls) (if complete? "Draw" "Game has not completed")
+          (let [winner (winning-seq (first colls))]
+            (if (or (= winner \X)
+                    (= winner \O))
+              (get to-answer-str winner)
+              (recur (rest colls) (if (= winner \.) false complete?))))))))
+
+(defn solve []
+  (->> (slurp "A-large.in")
+       (clojure.string/split-lines)
+       (partition 5)
+       (map rest)
+       (map get-winner)
+       (map-indexed #(format "Case #%d: %s" (inc %1) %2))
+       (doall)
+       (interpose \newline)
+       (apply str)
+       (spit "output.txt")))
+
+

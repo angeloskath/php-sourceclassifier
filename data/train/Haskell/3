@@ -1,0 +1,52 @@
+import System.IO
+import Control.Monad (replicateM)
+
+main = do
+  tstr <- getLine
+  t <- return (read tstr) :: IO Int
+  boards <- replicateM t getBoard
+  mapM putStrLn (formatVerdicts 1 boards)
+
+getBoard = do
+  lines <- replicateM 4 getLine
+  getLine
+  return lines
+  
+formatVerdicts _ [] = [] :: [String]
+formatVerdicts i (board:boards) = 
+  (formatVerdict i board) : (formatVerdicts (i + 1) boards)
+  
+formatVerdict i board = 
+  "Case #" ++ show(i) ++ ": " ++ (verdict board)
+
+verdict board = if (hasWon 'X' board)
+                then "X won" else
+                  if (hasWon 'O' board)
+                  then "O won" else
+                    if (anyEmpty board)
+                    then "Game has not completed"
+                    else "Draw"
+
+indices = [0..3]
+
+anyEmpty board = elem '.' (foldl (++) "" board)
+
+hasWon player board =
+  let setsOfSquares = (map column indices) ++ [leadingDiagonal] ++ [orthogonalDiagonal] ++ (map row indices)
+  in anyTrue (map (\squares -> hasAllSquares squares player board) setsOfSquares)
+
+allTrue list = foldl (&&) True list
+anyTrue list = foldl (||) False list
+
+column i = map (\j -> (i, j)) indices
+row i = map (\j -> (j, i)) indices
+leadingDiagonal = map (\j -> (j, j)) indices
+orthogonalDiagonal = map (\j -> (3 - j, j)) indices
+
+hasAllSquares squares player board = allTrue (map (\square -> hasSquare player board square) squares)
+
+contents board x y = (board !! y) !! x
+
+hasSquare player board (x,y) =
+  let cell = contents board x y
+  in player == cell || 'T' == cell

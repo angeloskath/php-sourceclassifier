@@ -1,0 +1,48 @@
+#!/Users/chao/.rvm/rubies/ruby-1.9.3-p194-rg1824/bin/ruby
+require 'test/unit/assertions'
+require 'pp'
+include Test::Unit::Assertions
+
+def dbg(obj)
+  pp obj if true
+end
+
+def won?(board, player)
+  win = board.find {|row| row.inject(true) {|so_far, cell| so_far && (cell == player || cell == 'T')}}
+  if !win
+    win = (0..3).find do |col|
+      (0..3).inject(true) do |so_far, row| 
+        cell = board[row][col]
+        so_far && (cell == player || cell == 'T')
+      end
+    end
+    if !win
+      win = (0..3).inject(true) {|so_far, i| so_far && (board[i][i] == player || board[i][i] == 'T')}
+      if !win
+        win = (0..3).inject(true) {|so_far, i| so_far && (board[i][(i-3).abs] == player || board[i][(i-3).abs] == 'T')}
+      end
+    end
+  end
+  win
+end
+
+def incomplete?(board)
+  board.find {|row| row.find {|char| char == '.'}}
+end
+
+gets.to_i.times do |caseNum|
+  board = []
+  4.times.each {board << gets.strip.split('')}
+  gets # get rid of last blank line
+  if won?(board, 'X')
+    status = 'X won'
+  elsif won?(board, 'O')
+    status = 'O won'
+  elsif incomplete?(board)
+    status = 'Game has not completed'
+  else
+    status = 'Draw'
+  end
+  puts "Case ##{caseNum+1}: #{status}"
+end
+

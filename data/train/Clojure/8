@@ -1,0 +1,36 @@
+(ns Codejam.core
+  (:require [clojure.string :as string]))
+
+(def inst-name "A-large")
+(def in-file (str "instances/" inst-name ".in"))
+(def out-file (str "instances/" inst-name ".out"))
+
+(defn seq-winner [symbs]
+  (let [freq (frequencies symbs)]
+    (if (= 4 (+ (freq \X 0) (freq \T 0)))
+      \X
+      (if (= 4 (+ (freq \O 0) (freq \T 0)))
+        \O
+        nil))))
+
+(defn inst-winner [inst]
+  (or
+    (some seq-winner inst)
+    (some seq-winner (apply map str inst))
+    (seq-winner (string/join "" (for [i (range 4)] (nth (inst i) i))))
+    (seq-winner (string/join "" (for [i (range 4)] (nth (inst i) (- 3 i)))))
+    (some #{\.} (string/join inst))))
+
+(defn result-str [index winner]
+  (str "Case #" (inc index) ": "
+       ({\X "X won"
+         \O "O won"
+         \. "Game has not completed"
+         nil "Draw"} winner)))
+
+(defn run []
+  (let [[n & insts-str] (string/split (slurp in-file) #"\n\n")
+        insts (map string/split-lines insts-str)
+        winners (map inst-winner insts)]
+    (println insts)
+    (spit out-file (string/join "\n" (map-indexed result-str winners)))))

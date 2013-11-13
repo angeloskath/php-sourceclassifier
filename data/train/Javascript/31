@@ -1,0 +1,156 @@
+var SIZE = 4,
+	GameStatus = GS = {
+		X_WON: 0,
+		O_WON: 1,
+		INCOMPLETE: 2,
+		NOTHING: 3
+	};
+
+function processInput(input) {
+	var lines = input.split('\n');
+
+	// Parse out count
+	var count = parseInt(lines[0]),
+		partialLines = [],
+        output = [];
+
+	for (var i = 0; i < count; ++i) {
+		partialLines = [];
+        for (var j = 0; j < SIZE; ++j) {
+            partialLines.push(lines[i * 4 + 1 + i + j]);
+        }
+        
+        output.push(partialLines);
+	}
+    
+    return { count: count, boards: output };
+}
+
+function solve(input) {
+	var data = processInput(input);
+    var output = [];
+    var line = '';
+
+	for (var i = 0; i < data.count; ++i) {
+        line = 'Case #' + (i + 1) + ': ';
+        switch (solvePuzzle(data.boards[i])) {
+            case GS.X_WON:
+                line += 'X won';
+                break;
+            case GS.O_WON:
+                line += 'O won';
+                break;
+            case GS.INCOMPLETE:
+                line += 'Game has not completed';
+                break;
+            default:
+                line += 'Draw';
+                break;
+        }
+        
+        output.push(line);
+	}
+        
+    return output.join('\n');
+}
+
+function solvePuzzle(board) {
+	// Go through first row
+	var xFactor = 1, yFactor = 0,
+        result = solveDimension(board, xFactor, yFactor),
+        hasIncomplete = false;
+    
+    if (result == GS.X_WON || result == GS.O_WON) {
+        return result;
+    }
+    else if (result == GS.INCOMPLETE) {
+        hasIncomplete = true;
+    }
+
+	// Go through first column
+	xFactor = 0, yFactor = 1;
+    result = solveDimension(board, xFactor, yFactor);
+    
+    if (result == GS.X_WON || result == GS.O_WON) {
+        return result;
+    }
+    else if (result == GS.INCOMPLETE) {
+        hasIncomplete = true;
+    }
+
+	// Go through 0,0 diagonal
+    result = solveList(board, 0, 0, 1, 1);
+    if (result == GS.X_WON || result == GS.O_WON) {
+        return result;
+    }
+    else if (result == GS.INCOMPLETE) {
+        hasIncomplete = true;
+    }
+    
+	// Go through 3,3 diagonal
+    result = solveList(board, 3, 0, -1, 1);
+    if (result == GS.X_WON || result == GS.O_WON) {
+        return result;
+    }
+    else if (result == GS.INCOMPLETE) {
+        hasIncomplete = true;
+    }
+    
+    if (hasIncomplete) {
+        return GS.INCOMPLETE;
+    }
+    
+    return GS.NOTHING;
+}
+
+function solveDimension(board, xIncre, yIncre) {
+	// Per factor, go through each row
+	// NOTE We actually want this to go differently from what the original have
+	var xFactor = yIncre, yFactor = xIncre,
+		x = 0, y = 0, hasIncomplete = false;
+
+	do {
+		// Run through list
+		var status = solveList(board, x, y, xFactor, yFactor);
+        
+		if (status == GS.X_WON || status == GS.O_WON) {
+			return status;
+		}
+        else if (status == GS.INCOMPLETE) {
+            hasIncomplete = true;
+        }
+        
+        x += xIncre, y += yIncre;
+	} while (x < SIZE && y < SIZE);
+
+    return (hasIncomplete ? GS.INCOMPLETE : GS.NOTHING);
+}
+
+function solveList(board, xStart, yStart, xIncre, yIncre) {
+	// Grab list string
+	var x = xStart, y = yStart, strArr = [];
+
+	do {
+		strArr.push(board[x][y]);
+	} while ((x += xIncre) < SIZE && (y += yIncre) < SIZE);
+
+	var str = strArr.join('');
+
+	if (str.indexOf('.') >= 0) {
+		return GS.INCOMPLETE;
+	}
+
+	var xStr = str.replace('T', 'X');
+	if (xStr === 'XXXX') {
+		return GS.X_WON;
+	}
+
+	var yStr = str.replace('T', 'O');
+	if (yStr === 'OOOO') {
+		return GS.O_WON;
+	}
+
+	return GS.NOTHING;
+}
+
+$('#result').text(solve($('#whatever').text()));

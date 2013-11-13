@@ -1,0 +1,44 @@
+import Data.Bits
+import Data.List
+import Maybe (catMaybes)
+
+main = interact $ unlines . zipWith (++) ["Case #" ++ show i ++ ": " |i<-[1..]] . map solve . sliceI . tail . lines
+
+sliceI :: [String] -> [String]
+sliceI b
+	| 4 <= length b 	= (concat $ take 4 b) : (sliceI $ drop 5 b)
+	| otherwise	= []
+
+data Result = X | O | DN
+	deriving (Eq)
+
+solve :: [Char] -> String
+solve a
+	| k==X		= "X won"
+	| k==O		= "O won"
+	| elem ('.') a	= "Game has not completed"
+	| otherwise	= "Draw"
+	where k = poss a
+
+poss :: [Char] -> Result
+poss x = test $ map (flip lineFilter x) mask
+
+
+test :: [[Char]] -> Result
+test [] = DN
+test (x:xs)
+	| y=="O"		= O
+	| y=="X"		= X
+	| otherwise	= test xs
+	where y = filter (/='T') $ nub x
+
+mask = ["1000100010001000","0100010001000100","0010001000100010","0001000100010001","1000010000100001","0001001001001000","1111000000000000","0000111100000000","0000000011110000","0000000000001111"]
+--mask = map (findIndices (=='1')) mask'
+
+lineFilter :: [Char] -> [Char] -> [Char]
+lineFilter a b = catMaybes $ (zipWith minFil) a b
+
+minFil :: Char -> Char -> Maybe Char
+minFil '1' a = Just a
+minFil '0' a = Nothing
+

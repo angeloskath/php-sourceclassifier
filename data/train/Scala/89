@@ -1,0 +1,123 @@
+package codejam.qr.a
+
+import java.io.BufferedReader
+
+abstract class GameResult
+object X_Win extends GameResult
+object O_Win extends GameResult
+object Draw extends GameResult
+object Undecisable extends GameResult
+
+/*
+abstract class SeqDirection
+
+object Diagonal extends SeqDirection
+object XDirection extends SeqDirection
+object YDirection extends SeqDirection
+*/
+/*
+object TicTacToeTomek {
+  def unapply(matrix:TTT):Option[GameResult] = {
+    matrix.amIAlive match {
+      case 죽은세포 if (/*이웃세포 3개*/) => Some(X_Win)
+      case 산세포 if(/*이웃세포 2~3개*/) => Some(Y_Win)
+      case 산세포 => Some(Draw)
+      case ㄴ => Some(Undecisable)
+    }
+  }
+}
+*/
+
+class TicTacToeTomek(val matrix:List[List[Char]]) {
+	val emptyCount = countEmpty(matrix)
+	
+	def checkResult():Option[GameResult] = {
+	  var seqX = false;
+	  var seqO = false;
+	  
+	  for( x <- 0 to 3) {
+	    val horizontal =  matrix(x);
+	    if ( isConsequtive(horizontal, 'X')) {
+	      seqX = true
+	    }
+	    if ( isConsequtive(horizontal, 'O')) {
+	      seqO = true
+	    }
+	    	
+	    val vertical = matrix(0)(x)::matrix(1)(x)::matrix(2)(x)::matrix(3)(x)::Nil
+        if ( isConsequtive(vertical, 'X')) {
+	      seqX = true
+	    }
+	    if ( isConsequtive(vertical, 'O')) {
+	      seqO = true
+	    }
+	  }
+	  val diagonal1 = matrix(0)(0)::matrix(1)(1)::matrix(2)(2)::matrix(3)(3)::Nil
+	  val diagonal2 = matrix(0)(3)::matrix(1)(2)::matrix(2)(1)::matrix(3)(0)::Nil
+	  if ( isConsequtive(diagonal1, 'X') || isConsequtive(diagonal2, 'X')) {
+	    seqX = true
+	  }
+	  if ( isConsequtive(diagonal1, 'O') || isConsequtive(diagonal2, 'O')) {
+	    seqO = true
+	  }
+	  
+	  if (seqX && !seqO) {
+	    Some(X_Win)
+	  } else if (!seqX && seqO) {
+	    Some(O_Win)
+	  } else if (!seqX && !seqO ) {
+	    if (emptyCount == 0) 
+	      Some(Draw)
+	    else 
+	      Some(Undecisable)
+	  } else {
+		  None;
+	  }
+	}
+	
+	def result():String = checkResult match {
+	  case Some(X_Win) => "X won"
+	  case Some(O_Win) => "O won"
+	  case Some(Draw) => "Draw"
+	  case Some(Undecisable) => "Game has not completed"
+	  case _ => "???"
+	}
+	
+	private def isConsequtive(list:List[Char], character:Char):Boolean = {
+	  require(list.length == 4);
+	    if ( (list(0) == character || list(0) == 'T') &&
+	         (list(1) == character || list(1) == 'T') &&
+	    	 (list(2) == character || list(2) == 'T') &&
+	    	 (list(3) == character || list(3) == 'T') ) 
+	    	true
+	    else 
+	    	false
+	}
+	
+	private def countEmpty(matrix:List[List[Char]]):Int = {
+	  var total = 0;
+	  for ( x <- 0 to 3;y <- 0 to 3 ) {
+	      if (matrix(y)(x) == '.') {
+	        total += 1
+	      } 
+	  }
+	  total
+	} 
+}
+
+object app extends App {
+ val is = getClass().getResourceAsStream("/codejam/qr/a/A-large.in")
+ val source = scala.io.Source.fromInputStream(is)
+ val lines =  source.getLines();
+ 
+ val total_count = lines.next().toInt
+ 
+ for( case_no <- 1 to total_count ) {
+	 val set = lines.next().toCharArray().toList::lines.next().toCharArray().toList::lines.next().toCharArray().toList::lines.next().toCharArray().toList::Nil
+	 val ttt=  new TicTacToeTomek(set)
+	 println("Case #%d: %s".format( case_no, ttt.result));
+	 if (case_no < total_count) {
+	   lines.next
+	 }
+ }
+}

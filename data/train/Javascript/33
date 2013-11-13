@@ -1,0 +1,91 @@
+function solve () {
+  var g = [];
+  var emptySpot = false;
+  for (var i=0; i<4; i++) {
+    var line = scanWord();
+    if (line.indexOf('.') !== -1) emptySpot = true;
+    g.push(line.split(''));    
+  }
+  
+  var X = 0;
+  var O = 0;
+  function reset () {
+    X = 0;
+    O = 0;
+  }
+  function count(l) {
+    if (l === 'X') {
+      X++;
+    } else if (l === 'O') {
+      O++;
+    } else if (l === 'T') {
+      X++;
+      O++;
+    }
+  }
+  function over() {
+    if (X===4) {
+      writeln('X won');
+      return true;
+    } else if (O===4) {
+      writeln('O won');
+      return true;
+    }
+    return false;
+  }
+  
+  for (var r=0; r<4; r++) {
+    reset();
+    for (var c=0; c<4; c++) {
+      count(g[r][c]);
+    }
+    if(over()) return;
+  }
+  
+  for (var r=0; r<4; r++) {
+    reset();
+    for (var c=0; c<4; c++) {
+      count(g[c][r]);
+    }
+    if(over()) return;
+  }
+  
+  reset();
+  for (var r=0; r<4; r++) {
+    count(g[r][r]);
+  }
+  if (over()) return;
+  
+  reset();
+  for (var r=0; r<4; r++) {
+    count(g[r][3-r]);
+  }
+  if (over()) return;
+  
+  if (emptySpot) {
+    writeln('Game has not completed');
+  } else {
+    writeln('Draw');
+  }
+}
+
+util = require('util');
+fs = require('fs');
+fs.readFile('a.in', 'utf8', function (err,data) {
+  input = data;
+  var tests = scanNumber();
+  for (var i=1; i<=tests; i++) { write('Case #' + i + ': '); solve(); }
+});
+
+var input = '';
+function scanNumber() { var m; if (m = input.match(/[0-9.]+/)) { input = input.substr(m.index + m[0].length); return parseFloat(m[0]);} return false; }
+function scanWord() { var m; if (m = input.match(/\S+/)) { input = input.substr(m.index + m[0].length); return m[0]; } return false; }
+function scanText() {var m; if (m = input.match(/\S.+/)) {input = input.substr(m.index + m[0].length);return m[0];} return false;}
+function scanArray(scan) { var m = scanNumber(); var arr = []; for (var i=0; i<m; i++) { arr.push(scan())}; return arr }
+function write(data) {
+  util.print(data);
+}
+function writeln(data) {
+  write(data);
+  write('\n');
+}

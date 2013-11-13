@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+require 'matrix'
+
+class Board
+  @board
+
+  def initialize(str)
+    board = []
+    rows = str.split("\n")
+    @board = Matrix.rows(rows.map{|row| row.split("") })
+  end
+
+  def rows
+    @board.row_vectors
+  end
+
+  def cols
+    @board.column_vectors
+  end
+
+  def letter_win?(letter)
+    passes_vectors(letter, rows) || passes_vectors(letter, cols) || passes_vectors(letter, diagonal1) || passes_vectors(letter, diagonal2)
+  end
+
+  def diagonal1
+    [[rows[0][0], rows[1][1], rows[2][2], rows[3][3]]]
+  end
+
+  def diagonal2
+    [[rows[0][3], rows[1][2], rows[2][1], rows[3][0]]]
+  end
+
+  def complete?
+    rows.each do |row|
+      row.each do |cell|
+        return false if cell == "."
+      end
+    end
+    true
+  end
+
+  private
+  def passes_vectors(letter, vectors)
+    vectors.each do |vector|
+      seen_t = false
+      passed_vector = true
+
+      vector.each do |cell|
+        next if cell == letter
+
+        if cell == "T" && !seen_t
+          seen_t = true
+          next
+        end
+
+        passed_vector = false
+      end
+
+      return true if passed_vector
+    end
+
+    false
+  end
+end
+
+tests = []
+
+num_tests = ARGF.readline.to_i
+
+test = 0
+while test < num_tests
+  str = ""
+  str << ARGF.readline
+  str << ARGF.readline
+  str << ARGF.readline
+  str << ARGF.readline
+  ARGF.readline
+
+  board = Board.new(str)
+  if board.letter_win?("X")
+    puts "Case ##{test+1}: X won"
+  elsif board.letter_win?("O")
+    puts "Case ##{test+1}: O won"
+  elsif board.complete?
+    puts "Case ##{test+1}: Draw"
+  else
+    puts "Case ##{test+1}: Game has not completed"
+  end
+
+  test = test + 1
+end
+
+

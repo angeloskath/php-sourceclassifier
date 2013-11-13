@@ -1,0 +1,114 @@
+<?php
+set_time_limit(9999999);
+
+function solve(&$file, $index) {
+	$matrix = array();
+
+	for ($i = 0; $i < 4; $i++) {
+		$line = array_shift($file);
+
+		$matrix[$i] = array();
+
+		$line = str_split($line);
+
+		for ($j = 0; $j < 4; $j++) {
+			$matrix[$i][$j] = $line[$j];
+		}
+	}
+
+	array_shift($file);
+
+	$result = check($matrix, 'X');
+
+	if ($result) return $result;
+
+	$result = check($matrix, 'O');
+
+	if ($result) return $result;
+
+	for ($i = 0; $i < 4; $i++) {
+		for ($j = 0; $j < 4; $j++) {
+			if ($matrix[$i][$j] == '.') return 'Game has not completed';
+		}
+	}
+
+	return 'Draw';
+}
+
+function check(&$matrix, $player) {
+	for ($i = 0; $i < 4; $i++) {
+		$win = TRUE;
+
+		for ($j = 0; $j < 4; $j++) {
+			if ($matrix[$i][$j] != $player && $matrix[$i][$j] != 'T') {
+				$win = FALSE;
+
+				break;
+			}
+		}
+
+		if ($win) {
+			return $player . ' won';
+		}
+
+		$win = TRUE;
+
+		for ($j = 0; $j < 4; $j++) {
+			if ($matrix[$j][$i] != $player && $matrix[$j][$i] != 'T') {
+				$win = FALSE;
+
+				break;
+			}
+		}
+
+		if ($win) {
+			return $player . ' won';
+		}
+	}
+
+	$win = TRUE;
+
+	for ($i = 0; $i < 4; $i++) {
+		if ($matrix[$i][$i] != $player && $matrix[$i][$i] != 'T') {
+			$win = FALSE;
+
+			break;
+		}
+	}
+
+	if ($win) {
+		return $player . ' won';
+	}
+
+	$win = TRUE;
+
+	for ($i = 0, $j = 3; $i < 4; $i++, $j--) {
+		if ($matrix[$i][$j] != $player && $matrix[$i][$j] != 'T') {
+			$win = FALSE;
+
+			break;
+		}
+	}
+
+	if ($win) {
+		return $player . ' won';
+	}
+
+	return FALSE;
+}
+
+$fho = fopen('output.txt', 'w');
+
+$file = file('input.txt', FILE_IGNORE_NEW_LINES);
+
+$number = array_shift($file);
+
+for ($i = 1; $i <= (int)$number; $i++) {
+	$result = solve($file, $i);
+
+	if ($result) {
+		fwrite($fho, 'Case #' . $i . ': ' . implode(' ', (array)$result) . PHP_EOL);
+	}
+}
+
+fclose($fho);

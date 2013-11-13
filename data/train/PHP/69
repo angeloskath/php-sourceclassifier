@@ -1,0 +1,109 @@
+<?php
+
+class CodeJam {
+
+	private $__inputFilename  = 'A-large.in';
+	private $__outputFilename = 'A-large.out';
+
+	private $__file;
+
+	private $__cases = array();
+
+	public function __construct() {
+		$this->__file = file($this->__inputFilename);
+
+		$this->__numCases = (integer) array_shift($this->__file);
+
+		$this->__getCasesFromFile();
+	}
+
+	private function __getCasesFromFile() {
+		$case = array();
+		foreach ($this->__file as $line) {
+			// When empty line is reached, start a new case
+			if (strlen($line) < 4) {
+				$this->__cases[] = $case;
+				$case = array();
+				continue;
+			}
+
+			$case[] = $line;
+		}
+	}
+
+	private function __didPlayerWin($playerSymbol, &$case) {
+		$oppositePlayerSymbol = ($playerSymbol == 'X') ? 'O' : 'X';
+		// Check each row to make sure it only contains the player symbol or T
+		foreach ($case as $row) {
+			if (!strstr($row, '.') && !strstr($row, $oppositePlayerSymbol)) {
+				return true;
+			}
+		}
+		// Check each column
+		for ($i = 0; $i < 4; $i++) {
+			if (
+				in_array($case[0][$i], array($playerSymbol, 'T')) &&
+				in_array($case[1][$i], array($playerSymbol, 'T')) &&
+				in_array($case[2][$i], array($playerSymbol, 'T')) &&
+				in_array($case[3][$i], array($playerSymbol, 'T'))
+			) {
+				return true;
+			}
+		}
+		// Check the first diagonal
+		if (
+			in_array($case[0][0], array($playerSymbol, 'T')) &&
+			in_array($case[1][1], array($playerSymbol, 'T')) &&
+			in_array($case[2][2], array($playerSymbol, 'T')) &&
+			in_array($case[3][3], array($playerSymbol, 'T'))
+		) {
+			return true;
+		}
+		// Check the second diagonal
+		if (
+			in_array($case[0][3], array($playerSymbol, 'T')) &&
+			in_array($case[1][2], array($playerSymbol, 'T')) &&
+			in_array($case[2][1], array($playerSymbol, 'T')) &&
+			in_array($case[3][0], array($playerSymbol, 'T'))
+		) {
+			return true;
+		}
+		return false;
+	}
+
+	private function __containsEmptySpaces(&$case) {
+		foreach ($case as $row) {
+			if (strstr($row, '.')) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function __getOutcomeFromCase(&$case) {
+		if ($this->__didPlayerWin('X', $case)) {
+			return 'X won';
+		} else if ($this->__didPlayerWin('O', $case)) {
+			return 'O won';
+		} else if ($this->__containsEmptySpaces($case)) {
+			return 'Game has not completed';
+		} else {
+			return 'Draw';
+		}
+	}
+
+	public function run() {
+		$outputFile = fopen($this->__outputFilename, 'w');
+
+		foreach ($this->__cases as $i => $case) {
+			$outcome = $this->__getOutcomeFromCase($case);
+			fwrite($outputFile, sprintf("Case #%d: %s\n", ($i + 1), $outcome));
+		}
+
+		fclose($outputFile);
+	}
+
+}
+
+$codeJam = new CodeJam();
+$codeJam->run();

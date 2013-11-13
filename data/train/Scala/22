@@ -1,0 +1,37 @@
+import java.util;
+
+object A {
+
+  val sc = new java.util.Scanner(System.in)
+
+  def main(args: Array[String]) {
+    val T = sc.nextInt()
+    for (t <- 1 to T) {
+      printf("Case #%d: %s\n", t, solve())
+    }
+  }
+
+  def solve(): String = {
+    val board = new Array[String](4)
+    for (i <- 0 to 3) {
+      board(i) = sc.next()
+    }
+    if (win(board, 'X')) return "X won"
+    if (win(board, 'O')) return "O won"
+    if (board.exists(_.contains('.'))) return "Game has not completed"
+    return "Draw"
+  }
+
+  def win(board: Array[String], hand: Char): Boolean = {
+    def test(target: Char) = target == hand || target == 'T'
+    for (line <- board) if (line.forall(test)) return true // horz
+    for (i <- 0 to 3) {
+      val l = for (line <- board) yield line(i) // vert
+      if (l.forall(test)) return true
+    }
+    if ((for (i <- 0 to 3) yield board(i)(i)).forall(test)) return true // diag\
+    if ((for (i <- 0 to 3) yield board(i)(3 - i)).forall(test)) return true // diag/
+    return false
+  }
+
+}

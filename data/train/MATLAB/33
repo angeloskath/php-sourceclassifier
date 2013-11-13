@@ -1,0 +1,98 @@
+tic
+
+%% preparation
+
+% inputFile = 'sample.in';
+% outputFile = 'sample.out';
+
+% inputFile = 'A-small-attempt0.in';
+% outputFile = 'A-small-attempt0.out';
+
+inputFile = 'A-large.in';
+outputFile = 'A-large.out';
+
+inputFileID = fopen(inputFile);
+outputFileID = fopen(outputFile, 'w');
+
+T = str2num(fgetl(inputFileID));
+
+for indIn = 1 : T
+    
+    strMat = repmat(' ', 4, 4);
+    
+    %% read data
+    for rowSub = 1 : 4
+        strMat(rowSub, :) = fgetl(inputFileID);
+    end
+    fgetl(inputFileID);
+    
+    %% processing
+    strOut = genResult(strMat);
+    
+    %% output
+    fprintf(outputFileID,'Case #%d: %s\n', indIn, strOut);
+end
+
+
+fclose(inputFileID);
+fclose(outputFileID);
+tocfunction flag = checkWon(matIn)
+%CHECKWIN
+% matIn contains only 1's and 0's
+% flag : 0 means 1 hasn't won, 1 means 1 won
+
+flag = 0;
+
+% check rows
+for rowSub = 1 : 4
+    if sum(matIn(rowSub, :)) == 4
+        flag = 1;
+        return;
+    end
+end
+
+% check cols
+for colSub = 1 : 4
+    if sum(matIn(:, colSub)) == 4
+        flag = 1;
+        return;
+    end
+end
+
+% check diags
+if trace(matIn) == 4
+    flag = 1;
+    return;
+end
+
+if trace(fliplr(matIn)) == 4
+    flag = 1;
+    return;
+end
+
+end
+
+function strOut = genResult( strMat )
+%GENRESULT
+
+% check whether X won
+matX = (strMat == 'X') | (strMat == 'T');
+if checkWon(matX)
+    strOut = 'X won';
+    return;
+end
+
+% check whether O won
+matO = (strMat == 'O') | (strMat == 'T');
+if checkWon(matO)
+    strOut = 'O won';
+    return;
+end
+
+% check whehter draw
+if any(any(strMat == '.'))
+    strOut = 'Game has not completed';
+else
+    strOut = 'Draw';
+end
+

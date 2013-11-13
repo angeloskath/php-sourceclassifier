@@ -1,0 +1,77 @@
+<?php
+
+$file = explode("\n",trim(file_get_contents($argv[1])));
+list($num) = array_splice($file,0,1);
+
+
+function checkHorizontal($board)
+{
+	for($i=0;$i<4;$i++) {
+		$str = implode($board[$i],"");
+		if (preg_match("/[XT]{4}/",$str)) {
+			return "X";
+		} else if (preg_match("/[OT]{4}/",$str)) {
+			return "O";
+		} 
+	}
+	return false;
+}
+
+function checkDiagonal($board) {
+	$s = array();
+	for($i=0;$i<4;$i++) {
+		$s[0][] = $board[$i][$i];
+	}
+	for($i=0;$i<4;$i++) {
+		$s[1][] = $board[$i][3-$i];
+	}
+	foreach($s as $str) {
+		$str = implode($str,"");
+		if (preg_match("/[XT]{4}/",$str)) {
+			return "X";
+		} else if (preg_match("/[OT]{4}/",$str)) {
+			return "O";
+		}
+	}
+	return false;
+}
+
+function flipBoard($board)
+{
+	$new = array();
+	foreach($board as $ri => $row) {
+		foreach($row as $ci => $cell) {
+			$new[$ci][$ri] = $cell;
+		}
+	}
+	return $new;
+}
+
+
+function check($l,$board)
+{
+	if (($r = checkHorizontal($board)) ||
+	    ($r = checkDiagonal($board)) ||
+	    $r = checkHorizontal(flipBoard($board))) {
+		echo "Case #$l: $r won\n";
+		return;
+	} else {
+	    foreach($board as $ri => $row) {
+		if (strpos(implode($row,""),".")!==FALSE) {
+			echo "Case #$l: Game has not completed\n";
+			return;
+		}
+	    }
+	} 
+	echo "Case #$l: Draw\n";
+}
+for($i=0;$i<$num;$i++) {
+	$l = $i+1;
+	$board = array(
+		str_split($file[5*$i]),
+		str_split($file[5*$i+1]),
+		str_split($file[5*$i+2]),
+		str_split($file[5*$i+3])
+	);
+	check($l, $board);
+}

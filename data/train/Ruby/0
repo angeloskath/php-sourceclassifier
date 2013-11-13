@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+
+def read_board(lines, start)
+  board = []
+  (start...start + 4).each do |i|
+    board << lines[i].chomp
+  end
+  board
+end
+
+def no_moves(board)
+  !board.any? {|row| row.include?(".")}
+end  
+
+def win(board, player)
+  if board.any? { |row|
+    (0...4).all? { |col|
+      row[col] == player || row[col] == 'T'
+    }
+  }
+    return true
+  end
+
+  if (0...4).any? { |col|
+    (0...4).all? { |row|
+      board[row][col] == player || board[row][col] == 'T'
+    }
+  }
+    return true
+  end
+
+  if (0...4).all? {|x| board[x][x] == player || board[x][x] == 'T'}
+    return true
+  end
+
+  if (0...4).all? {|x| board[3 - x][x] == player || board[3 - x][x] == 'T'}
+    return true
+  end
+
+  false
+end
+
+def result(board)
+  if win(board, 'X')
+    return "X won"
+  elsif win(board, 'O')
+    return "O won"
+  elsif no_moves(board)
+    return "Draw"
+  else
+    return "Game has not completed"
+  end
+end
+
+def run(f)
+  lines = File.readlines(f)
+  cases = lines[0].to_i
+  (1..cases).each do |c|
+    board = read_board(lines, ((c - 1) * 5) + 1)
+    r = result(board)
+    puts "Case ##{c}: #{r}"
+  end
+
+end
+
+run(ARGV[0])

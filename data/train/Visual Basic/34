@@ -1,0 +1,172 @@
+Imports System.IO
+Imports System.IO.File
+Imports System.IO.Stream
+Imports System.Net.Sockets
+Imports System.Text
+Imports System.Data.OleDb
+Imports System.Net
+Imports System.Net.Mail
+Imports System.Drawing.Printing
+Imports System.Management
+Imports System.Runtime.InteropServices
+Public Class Form1
+
+    Const MAINREWORKFILE = "C:\JKBDOCS\CodeJam\a-small-attempt0.in"
+    Const TICCNT = 4
+    Const COLCNT = 4
+    Const ROWCNT = 4
+    Const PLAYERS = 2
+
+    Dim file_path As String = MAINREWORKFILE
+    Dim currentrow As String()
+
+
+    Public Sub GetReWorks()
+        Dim rows(2000) As String
+        Dim tics(3, 3) As String
+        Dim gamecnt As Integer
+        Dim x, z, m, plyrCnt, rcnt As Integer
+        Dim cnt As Integer
+        Dim player() As String = {"X", "O"}
+        Dim decision(2000) As String
+        Dim dots(2000) As String
+        Dim NumofCols, NumofRows As Integer
+
+        Dim TxtBx As New TextBox
+        Dim FILE_NAME As String = MAINREWORKFILE
+        Dim objReader As New System.IO.StreamReader(FILE_NAME)
+        TxtBx.Text = objReader.ReadToEnd
+        objReader.Close()
+
+        rows = TxtBx.Text.Split(vbLf)
+        gamecnt = CInt(rows(0))
+        rcnt = 1
+
+        Array.Clear(dots, 0, dots.Count - 1)
+
+        For x = 1 To gamecnt
+
+            For m = 0 To ROWCNT - 1
+                For z = 0 To COLCNT - 1
+                    tics(m, z) = Mid$(rows(rcnt), z + 1, 1)
+                    If tics(m, z) = "." Then
+                        dots(x) = 1
+                    End If
+                Next
+                rcnt += 1
+            Next
+            'check the 4 rows
+            For plyrCnt = 0 To PLAYERS - 1
+                For NumofRows = 0 To ROWCNT - 1
+                    cnt = 0
+                    For NumofCols = 0 To COLCNT - 1
+                        If tics(NumofRows, NumofCols) = player(plyrCnt) Or tics(NumofRows, NumofCols) = "T" Then
+                            cnt += 1
+                        End If
+                    Next
+                    If cnt = 4 Then
+                        decision(x) = "Case #" & x.ToString & ": " & player(plyrCnt) & " won"
+                        GoTo NxtGame
+                    End If
+                Next
+            Next
+
+            'check the 4 columns
+            For plyrCnt = 0 To PLAYERS - 1
+                For NumofCols = 0 To COLCNT - 1
+                    cnt = 0
+                    For NumofRows = 0 To ROWCNT - 1
+                        If tics(NumofRows, NumofCols) = player(plyrCnt) Or tics(NumofRows, NumofCols) = "T" Then
+                            cnt += 1
+                        End If
+                    Next
+                    If cnt = 4 Then
+                        decision(x) = "Case #" & x.ToString & ": " & player(plyrCnt) & " won"
+                        GoTo NxtGame
+                    End If
+                Next
+            Next
+
+            'check the Diagonals
+            For plyrCnt = 0 To PLAYERS - 1
+                NumofCols = 0
+                cnt = 0
+                For NumofRows = 0 To ROWCNT - 1
+                    If tics(NumofRows, NumofCols) = player(plyrCnt) Or tics(NumofRows, NumofCols) = "T" Then
+                        cnt += 1
+                    End If
+                    NumofCols += 1
+                Next
+                If cnt = 4 Then
+                    decision(x) = "Case #" & x.ToString & ": " & player(plyrCnt) & " won"
+                    GoTo NxtGame
+                End If
+
+                cnt = 0
+                NumofCols = COLCNT - 1
+                For NumofRows = 0 To ROWCNT - 1
+                    If tics(NumofRows, NumofCols) = player(plyrCnt) Or tics(NumofRows, NumofCols) = "T" Then
+                        cnt += 1
+                    End If
+                    NumofCols -= 1
+                Next
+                If cnt = 4 Then
+                    decision(x) = "Case #" & x.ToString & ": " & player(plyrCnt) & " won"
+                    GoTo NxtGame
+                End If
+
+            Next
+NxtGame:
+        Next
+
+        FILE_NAME = "C:\JKBDOCS\CodeJam\a-small-attemp0.out"
+        Dim objWriter As New System.IO.StreamWriter(FILE_NAME, True)
+
+        For x = 1 To gamecnt
+            If decision(x) <> Nothing Then
+                objWriter.WriteLine(decision(x))
+            ElseIf dots(x) = 1 Then
+                objWriter.WriteLine("Case #" & x & ": Game has not completed")
+            Else
+                objWriter.WriteLine("Case #" & x & ": Draw")
+            End If
+        Next
+        
+        objWriter.Close()
+    End Sub
+
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        GetReWorks()
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Dim x As Integer
+        Dim FILE_NAME As String
+        Dim y, yy As String
+        Dim data() As String = {"XXOO", "OOTO", "....", "....", _
+                                "XXOO", "XXXX", "....", "....", _
+                               "XXOO", "OOOO", ".T..", "....", _
+                               "XXOO", "TXX.", "XOXO", "XOXO", _
+                               "XXOO", "OOXX", "XXOO", "OOXX", _
+                               "XXOO", "OOTO", "....", "....", _
+                               "XXOO", "OOTO", "....", "....", _
+                               "XXOO", "OOXX", "X...", "....", _
+                               "XXOO", "OX..", "O.X.", "...X", _
+                               "XXOO", "OOTO", "....", "...."}
+
+        FILE_NAME = "C:\JKBDOCS\CodeJam\B-large-practice.in"
+        Dim objWriter As New System.IO.StreamWriter(FILE_NAME, True)
+
+        y = "10"
+        yy = ""
+
+        For x = 0 To 39
+            yy = yy & data(x) & vbLf
+        Next
+
+        objWriter.WriteLine(y & vbLf & yy)
+
+        objWriter.Close()
+    End Sub
+End Class

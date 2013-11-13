@@ -1,0 +1,62 @@
+var fs = require('fs');
+
+var lines = fs.readFileSync(process.argv[2]).toString().trim().split(/\s+/mg);
+var T = +lines.shift();
+
+for (var i = 0, CASE = 1; i < lines.length; i += 4, CASE++) {
+	var map = lines.slice(i, i + 4);
+	var str = map.join('');
+	var count = 0, freecell = 16;
+	for (var j = 0; j < 16; j++) {
+		if (str[j] == 'X' || str[j] == 'O')
+			count++, freecell--;
+		else if (str[j] == 'T')
+			freecell--;
+	}
+	map = map.map(function(row) {
+		return row.replace(/T/, 'OX'[count % 2]);
+	});
+	console.error(map.join('\n'), count);
+	if (test(map, 'X'))
+		console.log("Case #%d: X won", CASE);
+	else if (test(map, 'O'))
+		console.log("Case #%d: O won", CASE);
+	else if (freecell === 0)
+		console.log("Case #%d: Draw", CASE);
+	else
+		console.log("Case #%d: Game has not completed", CASE);
+}
+
+function test(map, symbol) {
+	for (var i = 0; i < 4; i++) {
+		var count = 0;
+		for (var j = 0; j < 4; j++)
+			if (map[i][j] == symbol)
+				count++;
+		if (count == 4)
+			return true;
+	}
+	for (var i = 0; i < 4; i++) {
+		var count = 0;
+		for (var j = 0; j < 4; j++)
+			if (map[j][i] == symbol)
+				count++;
+		if (count == 4)
+			return true;
+	}
+	var count = 0;
+	for (var i = 0; i < 4; i++) {
+		if (map[i][i] == symbol)
+			count++;
+	}
+	if (count == 4)
+		return true;
+	var count = 0;
+	for (var i = 0; i < 4; i++) {
+		if (map[i][3-i] == symbol)
+			count++;
+	}
+	if (count == 4)
+		return true;
+	return false;
+}

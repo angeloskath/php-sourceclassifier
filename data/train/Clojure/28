@@ -1,0 +1,50 @@
+(use 
+ '[clojure.string :only (split-lines)])
+ 
+(def cases-file "/home/artyom/Downloads/A-large.in")
+
+(def cases
+  (->> (slurp cases-file)      
+      split-lines
+      rest
+      (partition-by #(not= % ""))
+      (filter #(not= % [""]))
+      (map #(vec %))))
+
+(def h-proj (for [y (range 4)] (for [x (range 4)] [y x])))
+(def v-proj (for [x (range 4)] (for [y (range 4)] [y x])))
+(def d-proj [[[0 0] [1 1] [2 2] [3 3]] [[3 0] [2 1] [1 2] [0 3]]])
+
+(defn winner [proj]
+  (let [player (first proj)]
+    (cond      
+     (= player \T) (winner (rest proj))
+     (= player \.) :has-turns
+     :else (loop [pproj (rest proj)]
+             (if-let [nplayer (first pproj)]
+               (cond                
+                (#{player, \T} nplayer) (recur (rest pproj))
+                (= \. nplayer) :has-turns
+                :else nil)
+               player)))))
+                   
+(def proj-indexes (concat h-proj v-proj d-proj))
+
+(defn solve-case [case]
+  (loop [projections (map (fn [i] (map #(get-in case %1) i)) proj-indexes)
+         has-turns false]
+    (if (seq projections)
+      (let [w (winner (first projections))]
+        (cond
+         (nil? w) (recur (rest projections) has-turns)
+         (= w :has-turns) (recur (rest projections) :has-turns)
+         :else (str w " won")))
+      (if-not has-turns "Draw" "Game has not completed"))))
+         
+(defn solve-all []
+  (binding [*out* (java.io.FileWriter. "/home/artyom/jam-out.txt")]
+    (doseq [[n case] (map vector (iterate inc 1) cases)]           
+      (println (str "Case #" n ": " (solve-case case) )))
+    (flush)))
+
+(solve-all)

@@ -1,0 +1,59 @@
+#!/usr/bin/ruby env
+
+def debug(obj)
+  #p obj
+end
+
+def judge(data)
+  x_won = "X won"
+  o_won = "O won"
+  draw = "Draw"
+  not_finished = "Game has not completed"
+
+  not_finished_flag = false
+  data.each{|str|
+    if str =~ /^[XT]+$/
+      return x_won
+    elsif str =~ /^[OT]+$/
+      return o_won
+    elsif str =~ /\.+/
+      not_finished_flag = true
+    end
+  }
+  
+  if not_finished_flag
+    return not_finished
+  else
+    return draw
+  end
+  
+end
+
+def solve(data)
+  debug data
+
+  4.times{|i|
+    str = ""
+    4.times{|j| str += data[j][i]}
+    data << str
+  }
+
+  str = ""
+  4.times{|i| str += data[i][i]}
+  data << str
+
+  str = ""
+  4.times{|i| str += data[i][3 - i]}
+  data << str
+
+  judge data
+end
+
+gets.to_i.times {|index|
+  print "Case ##{index + 1}: "
+  
+  data=[]
+  4.times {|i| data << gets.strip}
+  puts solve(data)
+  gets
+}

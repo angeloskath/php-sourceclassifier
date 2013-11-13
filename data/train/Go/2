@@ -1,0 +1,181 @@
+package main
+
+import (
+    "fmt"
+	"io/ioutil"
+	"strings"
+	"strconv"
+)
+
+func checkRows(board []string) int {
+	X := true
+	O := true
+	for row := 0; row < 4; row++{
+		X = true
+		O = true
+		for col := 0; col < 4; col++{
+			if board[row][col] == '.'{
+				X = false
+				O = false
+				break
+			}
+			if board[row][col] == 'X'{
+				O = false
+			}
+			if board[row][col] == 'O'{
+				X = false
+			}
+		}
+		if X == true || O == true{
+			break
+		}
+	}
+	if X == true{
+		return 1
+	}
+	if O == true{
+		return 2
+	}
+	return 0
+}
+
+func checkDiags(board []string) int {
+	X := true
+	O := true
+	for index := 0; index < 4; index++{
+		if board[index][index] == '.'{
+			X = false
+			O = false
+			break
+		}
+		if board[index][index] == 'X'{
+			O = false
+		}
+		if board[index][index] == 'O'{
+			X = false
+		}
+	}
+	if X == true{
+		return 1
+	}
+	if O == true{
+		return 2
+	}
+	X = true
+	O = true
+	for index := 0; index < 4; index++{
+		if board[3-index][index] == '.'{
+			X = false
+			O = false
+			break
+		}
+		if board[3-index][index] == 'X'{
+			O = false
+		}
+		if board[3-index][index] == 'O'{
+			X = false
+		}
+	}
+	if X == true{
+		return 1
+	}
+	if O == true{
+		return 2
+	}	
+	return 0
+}
+
+func checkCols(board []string) int {
+	X := true
+	O := true
+	for col := 0; col < 4; col++{
+		X = true
+		O = true
+		for row := 0; row < 4; row++{
+			if board[row][col] == '.'{
+				X = false
+				O = false
+				break
+			}
+			if board[row][col] == 'X'{
+				O = false
+			}
+			if board[row][col] == 'O'{
+				X = false
+			}
+		}
+		if X == true || O == true{
+			break
+		}
+	}
+	if X == true{
+		return 1
+	}
+	if O == true{
+		return 2
+	}
+	return 0
+}
+
+func main() {
+	content, err := ioutil.ReadFile("c:/tmp/in.txt")
+	if err != nil {
+		//Do something
+	}
+	lines := strings.Split(string(content), "\n")
+	size, err := strconv.ParseInt(lines[0], 10, 64)
+	if err != nil {
+		fmt.Println(err)
+		//Do something
+	}
+	var i int64 = 1
+	for ; i <= size; i++ {
+		fmt.Print("Case #",i,": ")
+		start := 5*(i-1) + 1
+		board := lines[start:start+4]
+		full := true
+		for q := 0; q<4; q++{
+			for u := 0; u<4; u++{
+				if board[q][u] == '.'{
+					full = false
+				}
+			}
+		}
+		winner := checkRows(board)
+        if winner == 1{
+            fmt.Println("X won")
+		}
+		if winner == 2{
+            fmt.Println("O won")
+		}
+        if winner != 0{
+            continue
+		}
+		winner = checkCols(board)
+        if winner == 1{
+            fmt.Println("X won")
+		}
+		if winner == 2{
+            fmt.Println("O won")
+		}
+        if winner != 0{
+            continue
+		}
+		winner = checkDiags(board)
+        if winner == 1{
+            fmt.Println("X won")
+		}
+		if winner == 2{
+            fmt.Println("O won")
+		}
+        if winner != 0{
+            continue
+		}
+		if full == true{
+			fmt.Println("Draw")
+		}else{
+            fmt.Println("Game has not completed")
+		}
+			
+	}
+}

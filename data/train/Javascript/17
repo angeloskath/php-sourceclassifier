@@ -1,0 +1,182 @@
+<html>
+    <head>
+	<script type="text/javascript" src="../jquery.js"></script>
+	<script type="text/javascript" src="sourceCode.js"></script>
+    </head>
+    <body>
+	<div>
+	    <input type='button' id="calculate"/>
+	</div>
+	<div>
+	    <textarea rows="10" cols="50" id="input">
+	    </textarea>
+	    <textarea rows="10" cols="50" id= "output">
+	    </textarea>
+	</div>
+    </body>
+</html>
+
+$(document).ready(function() {
+	var $input = $('#input');
+	var $output = $("#output");
+	var $calculate = $("#calculate");
+
+	$calculate.click(function(){
+		$output.val(getOutputText($input.val()));
+	});
+});
+
+
+var getOutputText = (function (){
+
+    var getCase = function (startIndex , endIndex, lines){
+        var cas = [];
+        for(var i = startIndex; i<endIndex; i++){
+            cas[i-startIndex] = lines[i];
+        }
+        return cas;
+    };
+    var compareValue = function (compareArray, val, index){
+        if(index == null){
+            index = 0;
+        }
+
+        if(index <compareArray.length){
+            return  (compareArray[index] === val) || compareValue(compareArray,val, index+1);
+        }
+        return false;
+    };
+
+    var checkHorizontal = function (compareArray, cas, rowNumber){
+        rowNumber = rowNumber || 0;
+
+        if(rowNumber < cas.length){
+            var rowResult = true;
+            var row = cas[rowNumber];
+            for(var j=0; j<row.length;j++){
+                if(rowResult){
+                    var val = row[j];
+                    rowResult = rowResult && compareValue(compareArray, val);
+                }
+            }
+            return  rowResult || checkHorizontal(compareArray,cas, rowNumber+1);
+        }
+
+        return false;
+
+    };
+
+    var checkVertical = function (compareArray, cas, columnNumber ){
+        columnNumber = columnNumber || 0;
+
+        if(columnNumber < cas[0].length){
+            var columnResult = true;
+
+            for(var j=0; j<cas.length;j++){
+                if(columnResult){
+                    var val = cas[j][columnNumber];
+                    columnResult = columnResult && compareValue(compareArray,val);
+                }
+            }
+            return  columnResult || checkVertical(compareArray,cas, columnNumber+1);
+        }
+
+        return false;
+    };
+
+    var checkDiagonal = function (compareArray, cas){
+        var numberOfColumns = cas[0].length;
+        var numberOfRows = cas.length;
+
+        return  checkStraightDiagonal(numberOfRows, numberOfColumns,cas,compareArray) ||
+            checkReverseDiagonal(numberOfRows, numberOfColumns,cas,compareArray);
+
+    };
+
+    var checkStraightDiagonal = function(numberOfRows,numberOfColumns,cas, compareArray) {
+        var columnResult = true;
+        var j = 0;
+        var k = 0;
+        while (j < numberOfRows && k < numberOfColumns) {
+            if (columnResult) {
+                var val = cas[j][k];
+                columnResult = columnResult && compareValue(compareArray, val);
+            }
+            j++;
+            k++;
+        }
+        return columnResult;
+    };
+
+    var checkReverseDiagonal = function(numberOfRows, numberOfColumns, cas,compareArray) {
+        var columnResult = true;
+        var j = numberOfRows - 1;
+        var k = 0;
+        while (j > -1 && k < numberOfColumns) {
+            if (columnResult) {
+                var val = cas[j][k];
+                columnResult = columnResult && compareValue(compareArray, val);
+            }
+            j--;
+            k++;
+        }
+        return  columnResult;
+    };
+    var checkCase = function(ch, cas ){
+        return checkHorizontal(ch,cas)|| checkVertical(ch,cas) || checkDiagonal(ch,cas);
+    };
+
+    var checkForEmptyCell = function (cas){
+        var j = cas.length;
+        while(j--){
+            var row = cas[j];
+            var k = row.length;
+            while(k--){
+                var cell = row[k];
+                if(cell === '.'){
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    var getStatus = function(cas){
+        var message;
+        if(checkCase(['X','T'],cas)){
+            message = "X won";
+        }else if (checkCase(['O','T'],cas)) {
+            message = "O won";
+        }else if (checkForEmptyCell(cas)){
+            message = "Game has not completed";
+        }else {
+            message = "Draw";
+        }
+        return message;
+    };
+
+	var getOutPutText = function(text, batchSize){
+        var outPutText = "";
+		var cases = [];
+		var lines = text.split("\n");
+		var numberOfCases =  parseInt(lines[0]);
+        var index = 0;
+        var linesLength = lines.length;
+        for (var i=0; i<numberOfCases; i++){
+            var startIndex = index + 1;
+            var endIndex = startIndex + batchSize;
+            if(endIndex <= linesLength ){
+                cases[i] = getCase(index+1,endIndex ,lines );
+                outPutText = outPutText + "Case #" + (i+1)+": " + getStatus(cases[i]) +"\n";
+            }
+            index = endIndex;
+        }
+
+        return outPutText;
+	};
+
+	return function (text){
+		return getOutPutText(text, 4);
+	}
+}());
+

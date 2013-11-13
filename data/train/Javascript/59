@@ -1,0 +1,70 @@
+var regX = RegExp.prototype.test.bind(/[XT]{4}/);
+var regO = RegExp.prototype.test.bind(/[OT]{4}/);
+var regIP = RegExp.prototype.test.bind(/\./);
+
+function parse(test) {
+
+	// Cols
+	for (var i = 0; i < 4; i++) {
+		var col = [];
+		for (var j = 0; j < 4; j++)
+			col.push(test[j][i]);
+		test.push(col.join(''));
+	}
+	
+	// Diagonals
+	test.push(test[0][0] + test[1][1] + test[2][2] + test[3][3]);
+	test.push(test[0][3] + test[1][2] + test[2][1] + test[3][0]);
+	
+	if (test.some(regO))
+		return 'O won';
+	if (test.some(regX))
+		return 'X won';
+	if (test.some(regIP))
+		return 'Game has not completed';
+	return 'Draw';
+}
+
+
+function data(input) {
+	var count = 0;
+	var caseNumber = 1;
+	var currentTest = false;
+	var numberLeft;
+	
+	input.split('\n').forEach(function (line) {
+		
+		// Read how many inputs there are.
+		if (!count) {
+			count = +line;
+			return;
+		}
+		
+		// We're done with this one.
+		if (--numberLeft == 0) {
+			document.write('Case #' + (caseNumber++) + ': ' + parse(currentTest) + '<br />');
+			currentTest = false;
+			return;
+		}
+			
+		// Read the next test
+		if (!currentTest) {
+			currentTest = [];
+			numberLeft = 4;
+		}
+		
+		// Read the next circle in the test
+		currentTest.push(line);
+	});
+	
+	document.close();
+}
+
+if (typeof process != 'undefined') {
+	process.stdin.resume();
+	process.stdin.setEncoding("ascii");
+	process.stdin.on("data", data);
+} else
+	window.onload = function () {
+		data(document.body.innerHTML);
+	};

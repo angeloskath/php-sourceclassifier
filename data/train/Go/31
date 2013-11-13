@@ -1,0 +1,300 @@
+package main
+
+import (
+	"fmt"
+
+	// . "strconv"
+	"strings"
+)
+
+const (
+	XWON         = "X won"
+	OWON         = "O won"
+	DRAW         = "Draw"
+	NOTCOMPLETED = "Game has not completed"
+	FOUR_X       = "XXXX"
+	FOUR_O       = "OOOO"
+	THREE_X      = "XXX"
+	THRE_O       = "OOO"
+	DOT          = "."
+	T            = "T"
+)
+
+func solve() string {
+	fmt.Println("---------------------")
+	horizontal := make([]string, 4)
+	vertical := make([]string, 4)
+	diagonal := make([]string, 6)
+	hasdot := false
+
+	horizontal[0] = ReadString()
+	horizontal[1] = ReadString()
+	horizontal[2] = ReadString()
+	horizontal[3] = ReadString()
+	ReadString()
+
+	vertical[0] = string(horizontal[0][0]) + string(horizontal[1][0]) + string(horizontal[2][0]) + string(horizontal[3][0])
+	vertical[1] = string(horizontal[0][1]) + string(horizontal[1][1]) + string(horizontal[2][1]) + string(horizontal[3][1])
+	vertical[2] = string(horizontal[0][2]) + string(horizontal[1][2]) + string(horizontal[2][2]) + string(horizontal[3][2])
+	vertical[3] = string(horizontal[0][3]) + string(horizontal[1][3]) + string(horizontal[2][3]) + string(horizontal[3][3])
+
+	fmt.Println(horizontal[0])
+	fmt.Println(horizontal[1])
+	fmt.Println(horizontal[2])
+	fmt.Println(horizontal[3])
+	fmt.Println()
+
+	diagonal[0] = string(horizontal[2][0]) + string(horizontal[1][1]) + string(horizontal[0][2])
+	diagonal[1] = string(horizontal[3][0]) + string(horizontal[2][1]) + string(horizontal[1][2]) + string(horizontal[0][3])
+	diagonal[2] = string(horizontal[3][1]) + string(horizontal[2][2]) + string(horizontal[1][3])
+
+	diagonal[3] = string(horizontal[0][1]) + string(horizontal[1][2]) + string(horizontal[2][3])
+	diagonal[4] = string(horizontal[0][0]) + string(horizontal[1][1]) + string(horizontal[2][2]) + string(horizontal[3][3])
+	diagonal[5] = string(horizontal[1][0]) + string(horizontal[2][1]) + string(horizontal[3][2])
+
+	fmt.Println(diagonal[0])
+	fmt.Println(diagonal[1])
+	fmt.Println(diagonal[2])
+	fmt.Println(diagonal[3])
+	fmt.Println(diagonal[4])
+	fmt.Println(diagonal[5])
+
+	fmt.Println()
+	fmt.Println(vertical[0])
+	fmt.Println(vertical[1])
+	fmt.Println(vertical[2])
+	fmt.Println(vertical[3])
+
+	for i := 0; i < 4; i++ {
+		X_PATTERN := FOUR_X
+		O_PATTERN := FOUR_O
+		if strings.Contains(horizontal[i], T) {
+			X_PATTERN = "XXX"
+			O_PATTERN = "OOO"
+		}
+
+		if strings.Contains(horizontal[i], X_PATTERN) {
+			return XWON
+		}
+		if strings.Contains(horizontal[i], O_PATTERN) {
+			return OWON
+		}
+		hasdot = strings.Contains(horizontal[i], DOT)
+	}
+
+	for i := 0; i < 4; i++ {
+		X_PATTERN := FOUR_X
+		O_PATTERN := FOUR_O
+		if strings.Contains(vertical[i], T) {
+			X_PATTERN = "XXX"
+			O_PATTERN = "OOO"
+		}
+
+		if strings.Contains(vertical[i], X_PATTERN) {
+			return XWON
+		}
+		if strings.Contains(vertical[i], O_PATTERN) {
+			return OWON
+		}
+		hasdot = strings.Contains(vertical[i], DOT)
+	}
+
+	for i := 0; i < 6; i++ {
+		X_PATTERN := FOUR_X
+		O_PATTERN := FOUR_O
+		if strings.Contains(diagonal[i], T) {
+			X_PATTERN = "XXX"
+			O_PATTERN = "OOO"
+		}
+		if strings.Contains(diagonal[i], X_PATTERN) {
+			return XWON
+		}
+		if strings.Contains(diagonal[i], O_PATTERN) {
+			return OWON
+		}
+		hasdot = strings.Contains(diagonal[i], DOT)
+	}
+
+	if hasdot == true {
+		return NOTCOMPLETED
+	} else {
+		return DRAW
+	}
+
+	return ""
+}
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+)
+
+const (
+	SMALL    = "small"
+	LARGE    = "large"
+	SAMPLE   = "sample"
+	IN       = ".in"
+	OUT      = ".out"
+	SOLUTION = ".solution"
+)
+
+var (
+	cin    chan string
+	cout   chan string
+	exit   chan int
+	Small  bool
+	Large  bool
+	Sample bool
+	std    bool
+)
+
+func init() {
+	flag.BoolVar(&Small, "small", false, "small ")
+	flag.BoolVar(&Large, "large", false, "large ")
+	flag.BoolVar(&Sample, "sample", false, "sample ")
+	flag.BoolVar(&std, "std", true, "std ")
+}
+
+func main() {
+	Start(solve)
+}
+
+func Start(solve func() string) {
+	flag.Parse()
+	cin = make(chan string)
+	cout = make(chan string)
+	exit = make(chan int)
+
+	var fin, fout string
+
+	switch {
+	case Small == true:
+		fin = SMALL + ".in"
+		fout = SMALL + ".out"
+		break
+	case Large == true:
+		fin = LARGE + ".in"
+		fout = LARGE + ".out"
+		break
+	case Sample == true:
+		fin = SAMPLE + ".in"
+		fout = SAMPLE + ".out"
+		break
+	case std == true:
+		go ReopenStdin(os.Stdin)
+		go ReopenStdout(os.Stdout)
+		return
+	default:
+		panic("Select input!")
+	}
+
+	filein, err := os.Open(fin)
+	if err != nil {
+		panic(err)
+	}
+
+	fileout, err := os.Create(fout)
+	if err != nil {
+		panic(err)
+	}
+
+	go ReopenStdin(filein)
+	go ReopenStdout(fileout)
+
+	Run(solve)
+}
+
+func ReopenStdin(fin *os.File) {
+	defer fin.Close()
+	reader := bufio.NewReaderSize(fin, 1024*1024)
+
+	var line []byte
+	var err error
+	for {
+		line, _, err = reader.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				close(cin)
+				return
+			}
+			fmt.Println(err)
+		}
+		cin <- string(line)
+	}
+}
+
+func ReopenStdout(fout *os.File) {
+	defer fout.Close()
+	writer := bufio.NewWriterSize(fout, 1024)
+	for {
+		s, ok := <-cout
+		if !ok {
+			exit <- 1
+			return
+		}
+		writer.WriteString(s)
+		writer.Flush()
+	}
+}
+
+func Run(solve func() string) {
+	nTasks := ReadInt()
+	for iTask := 0; iTask < nTasks; iTask++ {
+		result := solve()
+		Solve(iTask+1, result)
+	}
+	CloseStdout()
+	Exit()
+}
+
+func Stoi(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
+}
+
+func Solve(i int, s string) {
+	cout <- fmt.Sprintf("Case #%d: %s\n", i, s)
+}
+
+func CloseStdout() {
+	close(cout)
+}
+
+func Exit() {
+	<-exit
+}
+
+func ReadString() string {
+	return <-cin
+}
+
+func ReadStringSlice() []string {
+	return strings.Split(<-cin, " ")
+}
+
+func ReadInt() int {
+	s, _ := <-cin
+	i, _ := strconv.Atoi(s)
+	return i
+}
+
+func ReadIntSlice() []int {
+	args := strings.Split(<-cin, " ")
+	out := make([]int, len(args))
+	for i := 0; i < len(args); i++ {
+		n := Stoi(args[i])
+		out[i] = n
+	}
+	return out
+}
+
+func ReadIntPair() (int, int) {
+	args := strings.Split(<-cin, " ")
+	return Stoi(args[0]), Stoi(args[1])
+}

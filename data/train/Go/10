@@ -1,0 +1,144 @@
+package main
+
+import (
+    "fmt"
+)
+
+type status int
+
+const (
+    xwon = iota
+    ywon
+    unfinished
+    draw
+)
+
+
+type grid struct {
+    in [4][4]rune
+}
+
+
+func (s status) String() string {
+    switch s {
+    case xwon:
+        return "X won"
+    case ywon:
+        return "O won"
+    case unfinished:
+        return "Game has not completed"
+    case draw:
+        return "Draw"
+    default:
+        return "hu?"
+    }
+}
+
+func won(g grid, p byte) bool {
+    var ant rune
+    if p == 'X' {
+        ant = 'O'
+    } else {
+        ant = 'X'
+    }
+
+    var ok bool
+    // horizontal
+    for i := 0; i < 4; i++ {
+        ok = true
+        for j := 0; j < 4; j++ {
+            if g.in[i][j] == ant || g.in[i][j] == '.' {
+                ok = false
+                break
+            }
+        }
+        if ok {
+            return true
+        }
+    }
+
+    // vertical
+    for j := 0; j < 4; j++ {
+        ok := true
+        for i := 0; i < 4; i++ {
+            if g.in[i][j] == ant || g.in[i][j] == '.' {
+                ok = false
+                break
+            }
+        }
+        if ok {
+            return true
+        }
+    }
+
+    // diagonal 1
+    ok = true
+    for i := 0; i < 4; i++ {
+        if g.in[i][i] == ant || g.in[i][i] == '.' {
+            ok = false
+            break
+        }
+    }
+    if ok {
+        return true
+    }
+
+    // diagonal 2
+    ok = true
+    for i := 0; i < 4; i++ {
+        if g.in[i][3-i] == ant || g.in[i][3-i] == '.' {
+            ok = false
+            break
+        }
+    }
+    if ok {
+        return true
+    }
+
+    return false
+}
+
+func has_dot(g grid) bool {
+    for i := 0; i < 4; i++ {
+        for j := 0; j < 4; j++ {
+            if g.in[i][j] == '.' {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+func solve(g grid) status {
+    statx := won(g, 'X')
+    staty := won(g, 'O')
+
+    if statx {
+        return xwon
+    } else if staty {
+        return ywon
+    } else if has_dot(g) {
+        return unfinished
+    }
+
+    return draw
+}
+
+func main() {
+    var p int
+    fmt.Scanln(&p)
+
+    for i := 1; i <= p; i++ {
+        var g grid
+        for j := 0; j < 4; j++ {
+            var a string
+            fmt.Scanln(&a)
+            for k,e := range a {
+                g.in[j][k] = e
+            }
+        }
+        fmt.Printf("Case #%v: %v\n", i, solve(g))
+        fmt.Scanln()
+    }
+
+}

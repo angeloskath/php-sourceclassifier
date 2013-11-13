@@ -1,0 +1,80 @@
+program a;
+
+const
+  InputName = 'A-small-attempt0.in';
+  InputFileName = InputName + '.in';
+  OutputFileName = InputName + '.out';
+
+function Check4(const S: string): string;
+var
+  X: string;
+begin
+  X:= S;
+  Result:= '';
+  if Pos('T', X) > 0 then
+    Delete(X, Pos('T', X), 1);
+  if (X = 'XXXX') or (X = 'XXX') then
+  begin
+    Result:= 'X won';
+  end
+  else if (X = 'OOOO') or (X = 'OOO') then
+  begin
+    Result:= 'O won'
+  end;
+end;
+
+var
+  Rows: array [1..4] of string;
+  I, CaseNo, CaseCount: Integer;
+  S, GameResult: string;
+  NotCompleted: Boolean;
+begin
+  Assign(Input, InputFileName);
+  Assign(Output, OutputFileName);
+  try
+    Reset(Input);
+    Rewrite(Output);
+
+    ReadLn(CaseCount);
+
+    for CaseNo:= 1 to CaseCount do
+    begin
+      Write('Case #', CaseNo, ': ');
+
+      for I:= 1 to 4 do
+      begin
+        ReadLn(S);
+        Rows[I]:= S;
+      end;
+      ReadLn(S);
+
+      GameResult:= '';
+      NotCompleted:= False;
+      for I:= 1 to 4 do
+      begin
+        GameResult:= Check4(Rows[I]);
+        if GameResult <> '' then
+          Break;
+
+        GameResult:= Check4(Rows[1][I]+Rows[2][I]+Rows[3][I]+Rows[4][I]);
+        if GameResult <> '' then
+          Break;
+        if Pos('.', Rows[I]) > 0 then
+          NotCompleted:= True;
+      end;
+      if GameResult = '' then
+        GameResult:= Check4(Rows[1][1]+Rows[2][2]+Rows[3][3]+Rows[4][4]);
+      if GameResult = '' then
+        GameResult:= Check4(Rows[1][4]+Rows[2][3]+Rows[3][2]+Rows[4][1]);
+      if GameResult = '' then
+        if NotCompleted then
+          GameResult:= 'Game has not completed'
+        else
+          GameResult:= 'Draw';
+      WriteLn(GameResult);
+    end;
+  finally
+    Close(Input);
+    Close(Output);
+  end;
+end.

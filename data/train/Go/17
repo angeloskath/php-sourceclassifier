@@ -1,0 +1,146 @@
+package main
+
+import (
+	"io/ioutil"
+	"fmt"
+	"strings"
+	"strconv"
+)
+
+const (
+	X rune = 88
+	O = 79
+	T = 84
+	E = 46
+)
+
+const (
+	Input = "inputA.in"
+	Output = "outputA.in"
+)
+
+func main() {
+	bytes, _ := ioutil.ReadFile(Input)
+	input := string(bytes)
+
+	lines := strings.Split(input, "\n")
+
+	cases, _ := strconv.Atoi(lines[0])
+	l := 1
+
+	for n := 1; n <= cases; n++ {
+		// Get board
+		curr := getBoard(lines, &l)
+
+		done := false
+		result := ""
+
+		done, result = checkRows(curr)
+
+		if !done {
+			done, result = checkCols(curr)
+		}
+
+		if !done {
+			done, result = checkDiagonal(curr)
+		}
+
+		if !done {
+			done, result = checkDraw(curr)
+		}
+
+		if !done {
+			result = "Game has not completed"
+		}
+
+		out := fmt.Sprintf("Case #%d: %s\n", n, result)
+		fmt.Print(out)
+	}
+}
+
+func checkDraw(board []string) (bool, string) {
+	for _, row := range board {
+		if strings.Contains(row, ".") {
+			return false, ""
+		}
+	}
+
+	return true, "Draw"
+}
+
+func checkDiagonal(board []string) (bool, string) {
+	diag := ""
+	diag2 := ""
+
+	for i := 0; i < 4; i++ {
+		diag = diag + string(board[i][i])
+		diag2 = diag2 + string(board[4-i-1][i])
+	}
+
+	if done, result := checkLine(diag); done {
+		return done, result
+	}
+
+	if done, result := checkLine(diag2); done {
+		return done, result
+	}
+
+	return false, ""
+}
+
+func checkCols(board []string) (bool, string) {
+	for i := 0; i < 4; i++ {
+		col := ""
+		for j := 0; j < 4; j++ {
+			col = col + string(board[j][i])
+		}
+
+		if done, result := checkLine(col); done {
+			return done, result
+		}
+	}
+
+	return false, ""
+}
+
+func checkRows(board []string) (bool, string) {
+	for _, row := range board {
+		if done, result := checkLine(row); done {
+			return done, result
+		}
+	}
+
+	return false, ""
+}
+
+func checkLine(row string) (bool, string) {
+	switch {
+	case checkLineForPlayer(row, X):
+		return true, "X won"
+	case checkLineForPlayer(row, O):
+		return true, "O won"
+	}
+
+	return false, ""
+}
+
+func checkLineForPlayer(row string, player rune) bool {
+	for _, p := range row {
+		if p != player && p != T {
+			return false
+		}
+	}
+
+	return true
+}
+
+func getBoard(lines []string, l *int) []string {
+	curr := make([]string, 4)
+	for j := 0; j < 4; j++ {
+		curr[j] = lines[*l]
+		*l++
+	}
+	*l++
+
+	return curr
+}

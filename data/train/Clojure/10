@@ -1,0 +1,137 @@
+(ns tic-tac-toe-tomek.core
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [clojure.test :refer [deftest is run-tests]]))
+
+(def lines-coords
+  [[[0 0] [0 1] [0 2] [0 3]]               ; rows
+   [[1 0] [1 1] [1 2] [1 3]]
+   [[2 0] [2 1] [2 2] [2 3]]
+   [[3 0] [3 1] [3 2] [3 3]]
+   [[0 0] [1 0] [2 0] [3 0]]               ; columns
+   [[0 1] [1 1] [2 1] [3 1]]
+   [[0 2] [1 2] [2 2] [3 2]]
+   [[0 3] [1 3] [2 3] [3 3]]
+   [[0 0] [1 1] [2 2] [3 3]]               ; diagonals
+   [[3 0] [2 1] [1 2] [0 3]]
+   ])
+
+(defn lines [ll]
+  (map (fn [coords]
+         (map (fn [[row col]]
+                (nth (nth ll row) col))
+              coords))
+       lines-coords))
+
+(deftest game-lines-test
+  (is (= [[\A \A \A \A] [\B \B \B \B] [\C \C \C \C] [\D \D \D \D]
+          [\A \B \C \D] [\A \B \C \D] [\A \B \C \D] [\A \B \C \D]
+          [\A \B \C \D] [\D \C \B \A]]
+         (lines ["AAAA"
+                 "BBBB"
+                 "CCCC"
+                 "DDDD"]))))
+
+(defn incomplete-line? [line]
+  (some #(= \. %) line))
+
+(deftest incomplete-line-test
+  (is (incomplete-line? [\A \B\ \C \.]))
+  (is (not (incomplete-line? [\A \B \C \D]))))
+
+(defn line->player [line]
+  (->> line (remove #(or (= \T %) (= \. %))) first))
+
+(defn winning-line? [line]
+  (if (incomplete-line? line)
+    false
+    (let [x (line->player line)
+          line' (filter #(or (= x %) (= \T %)) line)]
+      (= 4 (count line')))))
+
+(deftest winning-line-test
+  (is (winning-line? [\A \A \A \A]))
+  (is (winning-line? [\A \T \A \A]))
+  (is (winning-line? [\T \A \A \A]))
+  (is (winning-line? [\A \A \A \T]))
+  (is (not (winning-line? [\A \A \A \B])))
+  (is (not (winning-line? [\A \A \. \A]))))
+
+(defn find-winner [lines]
+  (->> lines
+       (filter winning-line?)
+       first
+       line->player))
+
+(deftest finding-winner-test
+  (is (= \A (find-winner [[\A \A \A \A]])))
+  (is (= nil (find-winner [[\A \A \A \.]]))))
+
+(defn score-game [raw-lines]
+  (let [game-lines (lines raw-lines)]
+    (if-let [winner (find-winner game-lines)]
+      (str winner " won")
+      (if (some incomplete-line? raw-lines)
+        "Game has not completed" "Draw"))))
+
+(deftest scoring-games
+  (is (= "X won"
+         (score-game ["XXXT"
+                      "...."
+                      "OO.."
+                      "...."])))
+  (is (= "Draw"
+         (score-game ["XOXT"
+                      "XXOO"
+                      "OXOX"
+                      "XXOO"])))
+  (is (= "Game has not completed"
+         (score-game ["XOX."
+                      "OX.."
+                      "...."
+                      "...."])))
+  (is (= "O won"
+         (score-game ["OOXX"
+                      "OXXX"
+                      "OX.T"
+                      "O..O"])))
+  (is (= "O won"
+         (score-game ["XXXO"
+                      "..O."
+                      ".O.."
+                      "T..."])))
+  (is (= "O won"
+         (score-game ["OXXX"
+                      "XO.."
+                      "..O."
+                      "...O"]))))
+
+(defn lines->results
+  ([lines]
+     (lines->results (drop 1 lines) 1 []))
+  ([lines i answers]
+     (if (not (empty? lines))
+       (let [answer (str "Case #" i ": " (score-game (take 4 lines)))]
+         (recur (drop 5 lines) (inc i) (conj answers answer)))
+       answers)))
+
+(deftest lines->results-test
+  (is (= ["Case #1: X won"
+          "Case #2: O won"]
+         (lines->results ["sntahosnths"
+                          "XXXX"
+                          "XXXX"
+                          "XXXX"
+                          "XXXX"
+                          ""
+                          "OOOO"
+                          "OOOO"
+                          "OOOO"
+                          "OOOO"]))))
+
+(defn process-file [fname]
+  (with-open [r (io/reader fname)
+              w (io/writer (str fname ".out"))]
+    (doseq [answer (lines->results (line-seq r))]
+      (.write w answer)
+      (.write w "\n"))))

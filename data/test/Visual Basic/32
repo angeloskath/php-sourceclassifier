@@ -1,0 +1,117 @@
+Module Module1
+
+    Sub Main()
+
+        Dim oRead As System.IO.StreamReader
+        oRead = System.IO.File.OpenText("A-small-attempt0.in")
+        Dim objWriter As New System.IO.StreamWriter("D:/Output.out")
+
+        Dim NoOfCases As Integer
+        NoOfCases = oRead.ReadLine
+        Dim LineIn As String
+
+        For num = 1 To NoOfCases
+            LineIn = ""
+            Dim finalno As String = ""
+            Dim tt(4)() As Char
+
+            For r = 0 To 3
+                LineIn = oRead.ReadLine
+                tt(r) = LineIn.ToCharArray
+            Next
+            LineIn = oRead.ReadLine
+
+            Dim chk As Char
+            ''''' checking horizontally
+            For i = 0 To 3 And finalno = ""
+                If tt(i)(0) <> "T" Then
+                    chk = tt(i)(0)
+                Else
+                    chk = tt(i)(1)
+                End If
+
+                For j = 1 To 3
+                    If (tt(i)(j) = chk Or tt(i)(j) = "T") And tt(i)(j) <> "." Then
+                        If j = 3 Then
+                            finalno = chk & " won"
+                        End If
+                    Else
+                        Exit For
+                    End If
+                Next
+            Next
+            ''''' checking vertically
+            For i = 0 To 3 And finalno = ""
+                If tt(i)(0) <> "T" Then
+                    chk = tt(0)(i)
+                Else
+                    chk = tt(1)(i)
+                End If
+
+                For j = 1 To 3
+                    If (tt(j)(i) = chk Or tt(j)(i) = "T") And tt(j)(i) <> "." Then
+                        If j = 3 Then
+                            finalno = chk & " won"
+                        End If
+                    Else
+                        Exit For
+                    End If
+                Next
+            Next
+            ''''' checking d1
+            If tt(0)(0) <> "T" Then
+                chk = tt(0)(0)
+            Else
+                chk = tt(1)(1)
+            End If
+            For i = 1 To 3 And finalno = ""
+                If (chk = tt(i)(i) Or tt(i)(i) = "T") And tt(i)(i) <> "." Then
+                    If i = 3 Then
+                        finalno = chk & " won"
+                    End If
+                Else
+                    Exit For
+                End If
+            Next
+            ''''' checking d2
+            If tt(0)(3) <> "T" Then
+                chk = tt(0)(3)
+            Else
+                chk = tt(1)(2)
+            End If
+            Dim k As Int16 = 2
+            For i = 1 To 3 And finalno = ""
+                If (chk = tt(i)(k) Or tt(i)(k) = "T") And tt(i)(k) <> "." Then
+                    If i = 3 Then
+                        finalno = chk & " won"
+                    End If
+                Else
+                    Exit For
+                End If
+                k -= 1
+            Next
+
+            If finalno = "" Then
+                For i = 0 To 3 And finalno = ""
+                    For j = 0 To 3
+                        If tt(i)(j) = "." Then
+                            finalno = "Game has not completed"
+                            Exit For
+                        End If
+                    Next
+                Next
+            End If
+
+            If finalno = "" Then
+                finalno = "Draw"
+            End If
+
+            Console.WriteLine("Case #" & num & ": " & finalno)
+            objWriter.WriteLine("Case #" & num & ": " & finalno)
+        Next
+        objWriter.Close()
+        Console.ReadLine()
+    End Sub
+
+
+End Module

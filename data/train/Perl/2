@@ -1,0 +1,43 @@
+use strict;
+use warnings;
+#use bigint;
+
+#Core module in perl 5: http://perldoc.perl.org/POSIX.html
+#use POSIX qw/ceil/;
+
+#Core module in perl 5: http://perldoc.perl.org/List/Util.html
+use List::Util qw/first max maxstr min minstr reduce shuffle sum/;
+
+#Module sources may be found at http://search.cpan.org/~adamk/List-MoreUtils-0.33/lib/List/MoreUtils.pm
+#use List::MoreUtils qw/any all none notall true false firstidx first_index lastidx last_index insert_after insert_after_string apply indexes after after_incl before before_incl firstval first_value lastval last_value each_array each_arrayref pairwise natatime mesh zip uniq distinct minmax part/;
+
+#$/ = "\r\n";
+
+my $cases = <STDIN>;
+for (1..$cases) {
+		my @case_lines = ();
+		for (1 .. 4) {
+			my $line = <STDIN>;
+			chomp $line;
+			push @case_lines, $line;
+		}
+		<STDIN>;
+		my $answer = solve(@case_lines);
+		print "Case #$_: $answer\n";
+}
+
+sub solve {
+	my @data = @_;
+	my $str = join '', @data;
+	return "X won" if (check_win('X', $str));
+	return "O won" if (check_win('O', $str));
+	return "Draw" if ($str !~ m/\./);
+	return "Game has not completed";
+}
+
+sub check_win {
+	my ($player, $board) = @_;
+	$board =~ s/T/$player/;
+	#print $board."\n";
+	return ($board =~ m/^(.{4})*($player){4}|($player.{3}){3}$player|^($player.{4}){3}$player|^...($player.{2}){4}/);
+}

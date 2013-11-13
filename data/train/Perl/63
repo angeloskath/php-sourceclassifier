@@ -1,0 +1,40 @@
+#!usr/bin/perl -w
+use strict;
+$|++;
+
+my $cases;
+my @board;
+my $n;
+while(<>){
+    chomp;
+    if(!$cases){ $cases++; }
+    elsif(/[XOT\.]/){push(@board, [split '', $_])}
+    else{
+	$n++;
+	print "Case #$n: ";
+	testB();
+	@board = ();
+    }
+}
+
+sub testB {
+    for my $winner (('X', 'O')){
+	for my $i (0..3) {
+	    if ((join '', @{$board[$i]}) =~ /($winner|T){4}/
+	     || (join '', map {@{$_}[$i]} @board) =~ /($winner|T){4}/
+	    ){
+		print "$winner won\n";
+		return;
+	    }
+	}
+	if (($board[0][0].$board[1][1].$board[2][2].$board[3][3]) =~ /($winner|T){4}/
+	 || ($board[0][3].$board[1][2].$board[2][1].$board[3][0]) =~ /($winner|T){4}/){
+	    print "$winner won\n";
+	    return;
+	}
+    }
+    if ((join '', map {join '', @$_} @board) =~ /\./) { print "Game has not completed\n"; return }
+    else {print "Draw\n"; return};
+    die "errr. No.";
+}
+

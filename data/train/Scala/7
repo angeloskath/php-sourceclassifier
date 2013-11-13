@@ -1,0 +1,91 @@
+import java.io.InputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.StringTokenizer
+import scala.collection.mutable.ArrayBuffer
+import java.io.PrintWriter
+object Main {
+  class InputReader(stream: InputStream) {
+    private val reader = new BufferedReader(new InputStreamReader(stream))
+    private var tokenizer: StringTokenizer = new StringTokenizer(reader.readLine())
+    def next(): String = {
+      while (!tokenizer.hasMoreTokens()) {
+        tokenizer = new StringTokenizer(reader.readLine())
+      }
+      tokenizer.nextToken()
+    }
+  }
+  def check(field: Array[String]): Int = {
+    for (x <- 0 until 4) {
+      var X = 0
+      var O = 0
+      var T = 0
+      for (y <- 0 until 4) field(y)(x) match {
+        case 'X' => X += 1
+        case 'O' => O += 1
+        case 'T' => T += 1
+        case _ =>
+      }
+      if (X + T == 4) return 1
+      if (O + T == 4) return -1
+    }
+    for (y <- 0 until 4) {
+      var X = 0
+      var O = 0
+      var T = 0
+      for (x <- 0 until 4) field(y)(x) match {
+        case 'X' => X += 1
+        case 'O' => O += 1
+        case 'T' => T += 1
+        case _ =>
+      }
+      if (X + T == 4) return 1
+      if (O + T == 4) return -1
+    }
+    for ((sx, sy, dx, dy) <- List((0, 0, 1, 1), (3, 0, -1, 1))) {
+      var x = sx
+      var y = sy
+      var X = 0
+      var O = 0
+      var T = 0
+      for (_ <- 0 until 4) {
+        field(y)(x) match {
+          case 'X' => X += 1
+          case 'O' => O += 1
+          case 'T' => T += 1
+          case _ =>
+        }
+        x += dx
+        y += dy
+      }
+      if (X + T == 4) return 1
+      if (O + T == 4) return -1
+    }
+    var dot = 0
+    for (y <- 0 until 4; x <- 0 until 4) {
+      if (field(y)(x) == '.') dot += 1
+    }
+    if (dot == 0) return 2
+    return 0
+  }
+  def main(args: Array[String]): Unit = {
+    val in = new InputReader(System.in)
+    val out = new PrintWriter(System.out)
+    for (caseNumber <- 1 to in.next().toInt) {
+      val field = (1 to 4).foldLeft(Array[String]())((arr, i) => {
+        arr :+ in.next()
+      })
+      out.print("Case #")
+      out.print(caseNumber)
+      out.print(": ")
+      check(field) match {
+        case 0 => out.println("Game has not completed")
+        case 1 => out.println("X won")
+        case -1 => out.println("O won")
+        case 2 => out.println("Draw")
+      }
+    }
+    out.flush()
+  }
+
+}

@@ -1,0 +1,120 @@
+{-# LANGUAGE OverloadedStrings, BangPatterns #-}
+
+module Main where
+
+import System.Environment
+import qualified Data.ByteString.Lazy.Char8 as L
+import Control.Monad
+import Data.Maybe
+import Data.List (transpose)
+import qualified Data.Attoparsec.Lazy as AL
+import qualified Data.Attoparsec.Char8 as AC
+import qualified Data.ByteString.Char8 as C
+import Data.Attoparsec.Combinator
+import Data.Attoparsec.Char8 hiding (char, space, take)
+
+
+data Cell = X | O | T | Empty deriving (Eq, Show)
+
+data Game = Game {
+    rows :: [[Cell]]
+} deriving (Eq, Show)
+
+data Status = XWon | OWon | Draw | NotCompleted deriving (Eq)
+
+instance Show Status where
+    show XWon = "X won"
+    show OWon = "O won"
+    show Draw = "Draw"
+    show NotCompleted = "Game has not completed"
+
+-- | This is the interesting bit, the rest is just setup ceremony
+decideGame :: Game -> Status
+decideGame game | wonGame X game = XWon
+decideGame game | wonGame O game = OWon
+decideGame game | notFinished game = NotCompleted
+decideGame game = Draw
+
+wonGame :: Cell -> Game -> Bool
+wonGame cell game = (any (wonSet cell) $ columns game) ||
+                    (any (wonSet cell) $ rows game) ||
+                    (any (wonSet cell) $ diagonals game)
+
+wonSet :: Cell -> [Cell] -> Bool
+wonSet x xs = all (\cell -> x == cell || T == cell) xs
+
+notFinished :: Game -> Bool
+notFinished game = any (\cell -> case cell of
+                            Empty -> True
+                            _     -> False) $ concat $ rows game
+
+diagonals :: Game -> [[Cell]]
+diagonals game = let idx = zip [0..3] [0..3]
+                     idy = zip [0..3] [3,2,1,0]
+                 in (map (fieldAt game) idx) : (map (fieldAt game) idy) : []
+
+
+fieldAt :: Game -> (Int,Int) -> Cell
+fieldAt game (x,y) = (columnAt x game) !! y
+
+columns :: Game -> [[Cell]]
+columns game = transpose $ rows game
+
+columnAt :: Int -> Game -> [Cell]
+columnAt num game = columns game !! num
+
+
+main :: IO ()
+main = do
+    args <- getArgs
+    case args of
+        (x:_) -> processFile x
+        _     -> error "Invalid input"
+
+processFile :: FilePath -> IO ()
+processFile input = do
+    content <- L.readFile input
+    case L.readInt content of
+        Just (num, rest) -> do
+                    let game = parser rest
+                        status = map decideGame game
+                        output = zip status [1..]
+                    mapM_ (\(status, num) -> putStrLn $ "Case #" ++ show num ++ ": " ++ show status) output
+        _                -> fail "Invalid input file"
+
+parser :: L.ByteString -> [Game]
+parser input = fromMaybe [] $ AL.maybeResult $ AL.parse parseGames input
+
+parseGames :: Parser [Game]
+parseGames = do
+    nl
+    many' parseGame
+
+parseGame :: Parser Game
+parseGame = do
+    rows <- count 4 parseRow
+    nl
+    return $ Game rows
+
+
+-- ================================================================================
+-- Refactor - the parser should return the correct cell straightaway
+parseRow :: Parser [Cell]
+parseRow = do
+    row <- count 4 $ choice [x, o, t, empty]
+    nl
+    return $ map toCell row
+
+toCell :: Char -> Cell
+toCell 'X' = X
+toCell 'O' = O
+toCell 'T' = T
+toCell _   = Empty
+
+x, o, t, empty, nl :: Parser Char
+x       = satisfy (== 'X')
+o       = satisfy (== 'O')
+t       = satisfy (== 'T')
+empty   = satisfy (== '.')
+nl      = satisfy (== '\n')
+

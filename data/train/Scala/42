@@ -1,0 +1,51 @@
+import scala.io.Source._
+import java.io._
+import scala.util.control.Breaks._
+
+object Tomek extends App {
+  val lines = fromFile("C:/Users/Tenzing/Desktop/ScalaProjects/CodeJam/A-large.in").getLines
+  val T = lines.next().toInt
+  val board = Array.ofDim[Char](4,4)
+  val longLines = Array.ofDim[Char](10,4)
+  val pw = new java.io.PrintWriter(new File("C:/Users/Tenzing/Desktop/ScalaProjects/CodeJam/tomek_output_large.txt"))
+  for (test <- 1 to T) {
+    var drawPossible = true
+    var decisive = false
+    pw.write("Case #" + test + ": ")
+    //Generate longlines data structure
+    for(y <- 0 to 3) board(y) = lines.next().toCharArray()
+    for(y <- 0 to 3) longLines(y) = board(y)
+    for(y <- 0 to 3) {
+      for(x <- 0 to 3) {
+        longLines(x + 4)(y) = board(y)(x)
+        if(board(y)(x) == '.') drawPossible = false
+      }
+    }
+    for(i <- 0 to 3) {
+      longLines(8)(i) = board(i)(i)
+      longLines(9)(i) = board(i)(3-i)
+    }
+    if(test < T) lines.next()
+    
+    //Process longlines
+    breakable { for(i <- 0 to 9) {
+      if(longLines(i).forall(s => (s == 'T') || (s == 'O'))) {
+        pw.write("O won")
+        decisive = true
+        break
+      }
+      if(longLines(i).forall(s => (s == 'T') || (s == 'X'))) {
+        pw.write("X won")
+        decisive = true
+        break
+      }
+    } }
+    if(!decisive) {
+      if(drawPossible) pw.write("Draw")
+      else pw.write("Game has not completed")
+    }
+    pw.write("\n")
+  }
+  pw.close()
+  
+}

@@ -1,0 +1,83 @@
+﻿import qualified Data.Array as A
+import Data.List
+import System.Environment (getArgs)
+
+main :: IO ()
+main = do
+  [fileIn, fileOut] <- getArgs
+  (_:lines) <- fmap lines $ readFile fileIn
+  let out = zipWith caseNr [1..] . map process . parse $ lines
+  writeFile fileOut $ unlines out
+
+chunksOf n = unfoldr step
+  where step [] = Nothing
+        step lst = Just $ splitAt n lst
+
+data Field = X | O | T | E
+
+instance Eq Field where
+  E == E = True
+  E == _ = False
+  _ == E = False
+  T == _ = True
+  _ == T = True
+  X == X = True
+  O == O = True
+  _ == _ = False
+
+type Problem = A.Array (Int,Int) Field
+
+
+caseNr :: Int -> Answer -> String
+caseNr n str = "Case #" ++ show n ++ ": " ++ format str
+
+
+-- parses the lines of the input into the problems.
+parse :: [String] -> [Problem]
+parse = map (A.listArray ((0,0),(3,3)) . map readField . concat) . chunksOf 5
+  where readField 'T' = T
+        readField 'X' = X
+        readField 'O' = O
+        readField '.' = E
+
+data Answer = Won Player | Draw | Uncompleted
+data Player = PX | PO
+
+-- formats the answer for the "Case #"-line
+format :: Answer -> String
+format (Won p) = formatPlayer p ++ " won"
+format (Draw)  = "Draw"
+format (Uncompleted) = "Game has not completed"
+
+formatPlayer PX = "X"
+formatPlayer PO = "O" 
+
+-- solves the problem
+process :: Problem -> Answer
+process p | Just pl <- columns p  = Won pl
+          | Just pl <- rows p     = Won pl
+          | Just pl <- diag1 p    = Won pl
+          | Just pl <- diag2 p    = Won pl
+          | any (==E) (A.elems p) = Uncompleted
+          | otherwise             = Draw
+
+columns, rows, diag1, diag2 :: Problem -> Maybe Player
+columns p | any (all (==X)) cols = Just PX
+          | any (all (==O)) cols = Just PO
+          | otherwise            = Nothing
+  where cols = [[p A.! (i,j) | i <- [0..3]] | j <- [0..3]]
+
+rows p | any (all (==X)) rs = Just PX
+       | any (all (==O)) rs = Just PO
+       | otherwise          = Nothing
+  where rs = [[p A.! (j,i) | i <- [0..3]] | j <- [0..3]]
+
+diag1 p | all (==X) d = Just PX
+        | all (==O) d = Just PO
+        | otherwise = Nothing
+  where d = [p A.! (i,i)| i <- [0..3]]
+
+diag2 p | all (==X) d = Just PX
+        | all (==O) d = Just PO
+        | otherwise = Nothing
+  where d = [p A.! (i,3-i)| i <- [0..3]]

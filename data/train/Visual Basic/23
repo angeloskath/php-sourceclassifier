@@ -1,0 +1,97 @@
+Imports System
+
+Imports CenterSpace.NMath.Core
+Imports Range = CenterSpace.NMath.Core.Range
+Imports Microsoft.VisualBasic.FileIO
+
+Namespace CenterSpace.NMath.Core.Examples.VisualBasic
+
+  ' A .NET example in VB.NET showing some of the basic functionality of the matrix classes.
+  Module MatrixExample
+        Function sum(ByVal a As Array) As Double
+            Dim summ As Double = 0
+            For Each item As Double In a
+                summ += item
+            Next
+            Return (summ)
+        End Function
+        Function lista(ByVal a As Array) As string
+            Dim summ As String = ""
+            For Each item As String In a
+                summ &= item
+            Next
+            Return (summ)
+        End Function
+
+        Sub Main()
+            Dim fileContents As String
+            fileContents = My.Computer.FileSystem.ReadAllText("C:\input.txt")
+            Dim nbr As Integer = (Val(fileContents))
+            Dim data As String = ""
+            For Each c As Char In fileContents.Replace(nbr.ToString, "")
+                If c.ToString.Trim <> "" Then
+                    data = data & (c)
+                End If
+            Next
+
+
+            Dim m_all As String = data.Replace("O", "-2 ".ToString).Replace("X", "2 ".ToString).Replace("T", "1 ".ToString).Replace(".", "0 ")
+            Dim A_All As New DoubleMatrix(nbr.ToString & "x16 [" & m_all.Trim & "]")
+            Dim i As Integer
+            Dim result As String = ""
+            For i = 1 To nbr
+                Dim m As String = (lista(A_All.Row(i - 1).ToArray)).Replace("0", "0 ").Replace("1", "1 ").Replace("2", "2 ").Replace("-2", "-2 ")
+                Dim A As New DoubleMatrix("4x4 [" & m.Trim & "]")
+
+                'diagonal
+                Dim t As New Generic.List(Of Double)
+
+
+                t.Add((A(0, 3) + A(1, 2) + A(2, 1) + A(3, 0)))
+                t.Add(sum(A.Diagonal.ToArray))
+                'col
+                t.Add(sum(A.Col(0).ToArray))
+                t.Add(sum(A.Col(1).ToArray))
+                t.Add(sum(A.Col(2).ToArray))
+                t.Add(sum(A.Col(3).ToArray))
+                'row
+                t.Add(sum(A.Row(0).ToArray))
+                t.Add(sum(A.Row(1).ToArray))
+                t.Add(sum(A.Row(2).ToArray))
+                t.Add(sum(A.Row(3).ToArray))
+                'Dim i As Integer
+                'For i = 0 To 9
+                '    MsgBox(t(i))
+                'Next
+
+                If t.Contains(8) = True Or t.Contains(7) = True Then
+                    result = ("Case #" & i & ": X won")
+
+                ElseIf t.Contains(-8) = True Or t.Contains(-5) = True Then
+                    result = ("Case #" & i & ": O won")
+
+                ElseIf m.Contains("0") = True Then
+                    result = ("Case #" & i & ": Game has not completed")
+
+                Else
+                    result = ("Case #" & i & ": Draw")
+
+
+
+
+                End If
+                My.Computer.FileSystem.WriteAllText("C:\output.txt", result & vbNewLine, True)
+            Next
+        
+
+
+           
+
+
+
+
+        End Sub
+
+    End Module
+
+End Namespace

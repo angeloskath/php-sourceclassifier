@@ -1,0 +1,194 @@
+import Control.Applicative
+import Control.Arrow (first, second)
+import Control.Monad
+import Control.Parallel.Strategies (parMap, rdeepseq)
+import Data.Function (on)
+import Data.Array (Array, (!))
+import Data.Map (Map)
+import Data.Monoid
+import Data.Ord
+import Data.Ratio
+import Data.Set (Set)
+import Debug.Trace
+import Text.ParserCombinators.Parsec hiding (State)
+import Text.Printf
+import qualified Data.Array as Array
+import qualified Data.List as List
+import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
+import qualified Data.Set as Set
+import qualified Data.Tuple as Tuple
+
+-- START BOILERPLATE --
+
+type Input = [Case]
+type Solution = [SolvedCase]
+type Output = [String]
+
+mainParser :: Parser Input
+mainParser =
+    do
+        n <- word
+        ms <- count (read n) caseParser
+        return ms
+    <?> "mainParser"
+
+word :: Parser String
+word =
+    do
+        w <- many1 nonWhite
+        spaces
+        return w
+    <?> "word"
+
+nonWhite :: Parser Char
+nonWhite = noneOf " \v\f\t\r\n" <?> "nonWhite"
+
+wholeLine :: Parser String
+wholeLine = manyTill anyChar (try newline) <?> "wholeLine"
+
+prefixes :: [String]
+prefixes = do
+    n <- [1 :: Int ..]
+    return $ "Case #" ++ show n ++ ": "
+
+main :: IO ()
+main =
+    interact $
+        unlines .
+        zipWith (++) prefixes .
+        parMap rdeepseq (formatCase . solve) .
+        either (error . show) id .
+        parse mainParser ""
+
+minimumOn :: Ord b => (a -> b) -> [a] -> a
+minimumOn = List.minimumBy . comparing
+
+maximumOn :: Ord b => (a -> b) -> [a] -> a
+maximumOn = List.maximumBy . comparing
+
+groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
+groupOn = List.groupBy . on (==)
+
+data DjikstraState a score ident = DjikstraState
+    { dsPaths :: Map ident (a, Maybe a)
+    , dsQueue :: Map (score, ident) a
+    } deriving Show
+
+-- | Generalized Djikstra algorithm.
+-- Supports time dependent timings, like traffic lights etc.
+-- Starts from multiple sources.
+djikstra ::
+    (Ord score, Ord ident) =>
+    (a -> (score, ident)) -> (a -> [a]) -> [a]
+    -> DjikstraState a score ident
+djikstra infoOf childrenOf start =
+    djikstra' infoOf childrenOf $
+    DjikstraState
+    { dsPaths = Map.fromList $ map p start
+    , dsQueue = Map.fromList $ map q start
+    }
+    where
+        p x = (snd (infoOf x), (x, Nothing))
+        q x = (infoOf x, x)
+
+-- | Pop minimum element from Map
+popMin :: Ord k => Map k v -> ((k, v), Map k v)
+popMin m =
+    (minItem, Map.delete minKey m)
+    where
+        minItem@(minKey, _) = Map.findMin m
+
+djikstra' ::
+    (Ord score, Ord ident) =>
+    (a -> (score, ident)) -> (a -> [a]) ->
+    DjikstraState a score ident -> DjikstraState a score ident
+djikstra' infoOf childrenOf state@(DjikstraState paths queue)
+    | Map.null queue = state
+    | otherwise =
+        djikstra' infoOf childrenOf $
+        List.foldl' doEdge (DjikstraState paths queueP) (childrenOf node)
+    where
+        ((_, node), queueP) = popMin queue
+        doEdge pre@(DjikstraState p q) dst
+            | maybe False ((s >=) . fst) curVal = pre
+            | otherwise = DjikstraState
+                { dsPaths = Map.insert i (dst, Just node) p
+                , dsQueue = Map.insert k dst . maybe id Map.delete curVal $ q
+                }
+            where
+                k@(s, i) = infoOf dst
+                curVal = fmap (infoOf . fst) $ Map.lookup i p
+
+djikstraPath ::
+    (Ord score, Ord ident) =>
+    DjikstraState a score ident -> (a -> (score, ident)) -> ident -> [ident]
+djikstraPath djik infoOf =
+    reverse . go
+    where
+        go x =
+            x : maybe [] (go . snd .     infoOf) src
+            where
+                (_, src) = dsPaths djik Map.! x
+
+djikstraReach ::
+    (Ord score, Ord ident) =>
+    DjikstraState a score ident -> (a -> (score, ident)) -> a -> Bool
+djikstraReach djik infoOf node =
+    Map.member (snd (infoOf node)) (dsPaths djik)
+
+nonDirectedEdgesToGraph :: Int -> [(Int, Int)] -> Array Int [Int]
+nonDirectedEdgesToGraph n xs =
+    directedEdgesToGraph n $ xs ++ map Tuple.swap xs
+
+directedEdgesToGraph :: Int -> [(Int, Int)] -> Array Int [Int]
+directedEdgesToGraph n =
+    Array.array (0, n-1) .
+    (map . second) concat .
+    groupTuples .
+    List.sort . (++ map (flip (,) []) [0..n-1]) . (map . second) (:[])
+
+groupTuples :: Eq a => [(a, b)] -> [(a, [b])]
+groupTuples =
+    map f . groupOn fst
+    where
+        f xs = (fst (head xs), map snd xs)
+
+sortOn :: Ord b => (a -> b) -> [a] -> [a]
+sortOn = List.sortBy . comparing
+
+-- END BOILERPLATE --
+-- START CODE --
+
+type Case = [[Char]]
+data SolvedCase = XWon | OWon | Draw | InProgress
+
+solve :: Case -> SolvedCase
+solve board
+    | won 'X' board = XWon
+    | won 'O' board = OWon
+    | any (== '.') (concat board) = InProgress
+    | otherwise = Draw
+    where
+        f (duration, pctDie) = negate pctDie
+
+won :: Char -> Case -> Bool
+won who board =
+    any (all mine) $
+    board ++ List.transpose board ++
+    [ zipWith (!!) board [0..]
+    , zipWith (!!) board [s-1, s-2..]
+    ]
+    where
+        mine 'T' = True
+        mine x = x == who
+        s = length board
+
+caseParser :: Parser Case
+caseParser = count 4 word
+
+formatCase :: SolvedCase -> String
+formatCase XWon = "X won"
+formatCase OWon = "O won"
+formatCase Draw = "Draw"
+formatCase InProgress = "Game has not completed"

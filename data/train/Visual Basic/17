@@ -1,0 +1,65 @@
+dd = 1
+Text1 = ""
+FileNumber = FreeFile
+FileName = App.Path & "\a.in"
+  Open FileName For Input As #FileNumber
+  Do Until EOF(FileNumber)
+  Line Input #FileNumber, a5
+    
+List1.Clear
+
+For k = 1 To 4
+    Line Input #FileNumber, a1
+    Text3 = a1
+
+For j = 0 To 3
+Text3.SelStart = j
+Text3.SelLength = 1
+If Text3.SelText = "X" Then cc = 1
+If Text3.SelText = "O" Then cc = 10
+If Text3.SelText = "T" Then cc = 100
+If Text3.SelText = "." Then cc = 1000
+List1.AddItem (cc)
+Next j
+
+Next k
+    
+    
+vv = 0
+For i = 0 To (List2.ListCount / 4 - 1)
+ab = 1 - 1 + List1.List(List2.List(i * 4) - 1) + List1.List(List2.List(i * 4 + 1) - 1) + List1.List(List2.List(i * 4 + 2) - 1) + List1.List(List2.List(i * 4 + 3) - 1)
+If ab = 4 Then
+vv = 1
+r1 = "X won"
+End If
+If ab = 40 Then
+vv = 1
+r1 = "O won"
+End If
+If ab = 103 Then
+vv = 1
+r1 = "X won"
+End If
+If ab = 130 Then
+vv = 1
+r1 = "O won"
+End If
+Next
+ 
+If vv = 0 Then
+ mm = 0
+  For p = 0 To List1.ListCount - 1
+   If List1.List(p) = "1000" Then mm = 1
+  Next
+  If mm = 1 Then
+  r1 = "Game has not completed"
+  Else
+  r1 = "Draw"
+  End If
+End If
+
+Text1 = Text1 & "Case  #" & dd & ": " & r1 & Chr(13) & Chr(10)
+dd = dd + 1
+  Loop
+    
+  Close #FileNumber

@@ -1,0 +1,83 @@
+use strict;
+
+my @inputlines = ();
+while (<STDIN>) {
+	chomp;
+	s/\r//;
+	push(@inputlines, $_);
+}
+
+my $num_test_cases = shift @inputlines;
+
+my $case_num = 0;
+
+my @test = ();
+my @test_cases = ();
+foreach my $line (@inputlines) {
+	if (length $line == 4) {
+		my @a = split(//, $line);
+		push(@test, \@a);
+	}
+	if (length $line == 0) {
+		push(@test_cases, \@test);
+		$case_num++;
+		print "Case #$case_num: ", &solve(\@test), "\n";
+		@test = ();
+	}
+}
+
+
+
+sub solve {
+	my ($ref) = @_;
+	my $result = "Game has not completed";
+
+	my $diag1 = "";
+	my $diag2 = "";
+	my $allline = "";
+	for (my $i = 0; $i < 4; $i++) {
+		my $col = "";
+		my $line = "";
+		for (my $j = 0; $j < 4; $j++) {
+			$col .= $ref->[$j]->[$i];
+			$line .= $ref->[$i]->[$j];
+			$allline .= $ref->[$i]->[$j];
+		}
+		$diag1 .= $ref->[$i]->[$i];
+		$diag2 .= $ref->[$i]->[3-$i];
+		my $res = &judge($col);
+		if ($res ne "") {
+			return $res;
+		}
+		$res = &judge($line);
+		if ($res ne "") {
+			return $res;
+		}
+	}
+	my $res = &judge($diag1);
+	if ($res ne "") {
+		return $res;
+	}
+	$res = &judge($diag2);
+	if ($res ne "") {
+		return $res;
+	}
+
+	if ($allline !~ /\./) {
+		return "Draw"
+	}
+	return $result;
+}
+
+
+sub judge {
+	my ($line) = @_;
+
+	if ($line =~ /[TX]{4}/) {
+		return "X won";
+	}
+	if ($line =~ /[TO]{4}/) {
+		return "O won";
+	}
+	return "";
+}

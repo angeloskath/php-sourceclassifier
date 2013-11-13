@@ -1,0 +1,40 @@
+import Control.Monad
+import Data.List
+
+--main :: IO []
+main = do
+        nbCases <- liftM(read) getLine :: IO Int
+        results <- sequence(replicate nbCases solveCase)
+        sequence_ $ map (putStrLn) $ zipWith(casify) results [1..nbCases]
+        return ()
+        
+solveCase :: IO String
+solveCase = do
+            veld <- leesVeld
+            let lines = filter (not . elem '.') $ (forwardDiagonal veld):(backwardDiagonal veld):veld++(columns veld)
+            let xWins = any(==True) $ map(xWin) lines
+            let oWins = any(==True) $ map(oWin) lines
+            if(xWins)
+            then return "X won"
+            else
+             if(oWins)
+             then return "O won"
+             else
+              if(length lines < 10)
+              then return "Game has not completed"
+              else return "Draw"
+            where
+             leesVeld :: IO [String]
+             leesVeld = do
+                        result <- sequence(replicate 5 getLine)
+                        return $ init $ result
+             forwardDiagonal speelveld= map (getValue speelveld) $ zip [0..3] [0..3]
+             backwardDiagonal speelveld = map (getValue speelveld) $ zip [0..3] [3,2..0]
+             columns speelveld = transpose speelveld
+             getValue speelveld (x,y) = (speelveld!!x)!!y
+             -- easier than parsec library
+             xWin = not . elem 'O'
+             oWin = not . elem 'X'
+             
+casify :: String -> Int-> String
+casify text number ="Case #"++ (show number ++ ':':' ':text)

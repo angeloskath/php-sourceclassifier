@@ -1,0 +1,142 @@
+<?php
+
+$file = 'sample';
+$file = 'small';
+$file = 'large';
+
+function transpose($array) {
+    array_unshift($array, null);
+    return call_user_func_array('array_map', $array);
+}
+
+class problemA {
+	static function problem($data) {
+		$winner = '';
+		$completed = true;
+
+		foreach ($data as $row) {
+			$c1	= array_shift($row);
+			$c2	= array_shift($row);
+			$c3	= array_shift($row);
+			$c4	= array_shift($row);
+
+			$result = self::determinWinner($c1, $c2, $c3, $c4);
+			if ($result == 'uncompleted') {
+				$completed = false;
+				continue;
+			} else if (!is_null($result)) {
+				return $result;
+			}
+		}
+
+		$invData = transpose($data);
+		foreach ($invData as $row) {
+			$c1	= array_shift($row);
+			$c2	= array_shift($row);
+			$c3	= array_shift($row);
+			$c4	= array_shift($row);
+
+			$result = self::determinWinner($c1, $c2, $c3, $c4);
+			if ($result == 'uncompleted') {
+				$completed = false;
+				continue;
+			} else if (!is_null($result)) {
+				return $result;
+			}
+		}
+
+		if (true) {
+			$c1	= $data[0][0];
+			$c2	= $data[1][1];
+			$c3	= $data[2][2];
+			$c4	= $data[3][3];
+
+			$result = self::determinWinner($c1, $c2, $c3, $c4);
+			if ($result == 'uncompleted') {
+				$completed = false;
+			} else if (!is_null($result)) {
+				return $result;
+			}
+		}
+
+		if (true) {
+			$c1	= $data[0][3];
+			$c2	= $data[1][2];
+			$c3	= $data[2][1];
+			$c4	= $data[3][0];
+
+			$result = self::determinWinner($c1, $c2, $c3, $c4);
+			if ($result == 'uncompleted') {
+				$completed = false;
+			} else if (!is_null($result)) {
+				return $result;
+			}
+		}
+
+		if ($winner == '') {
+			if ($completed) {
+				return 'Draw';
+			} else {
+				return 'Game has not completed';
+			}
+		}
+	}
+
+	static function appropriateResponse($winner) {
+		if ($winner == 'X') {
+			return 'X won';
+		} else if ($winner == 'O') {
+			return 'O won';
+		}
+	}
+
+	static function determinWinner($c1, $c2, $c3, $c4) {
+		if ($c1 == '.' || $c2 == '.' || $c3 == '.' || $c4 == '.') {
+			return 'uncompleted';
+		}
+
+		if ($c1 == 'T') {
+			$player = $c2;
+		} else {
+			$player = $c1;
+		}
+
+		if ($c2 == 'T' || $player == $c2) {
+			if ($c3 == 'T' || $player == $c3) {
+				if ($c4 == 'T' || $player == $c4) {
+					return self::appropriateResponse($player);
+				}
+			}
+		}
+	}
+}
+
+$file = getcwd() . '/' . $file;
+
+$data = explode("\n", file_get_contents($file . '.in'));
+$results = array();
+
+for ($i = 0; $i < (int)$data[0]; $i++) {
+	$result = array();
+
+	for ($j = 1; $j <= 4; $j++) {
+		$row = $data[($i * 5) + $j];
+		$resultRow = array();
+
+		for ($k = 0; $k < 4; $k++) {
+			$resultRow[] = substr($row, $k, 1);
+		}
+
+		$result[] = $resultRow;
+	}
+
+	var_dump($results[$i + 1] = problemA::problem($result));
+}
+
+$resultData = array();
+
+foreach ($results as $id => $result) {
+	$resultData[] = "Case #$id: $result";
+}
+
+file_put_contents($file . '.out', implode("\n", $resultData));

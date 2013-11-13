@@ -1,0 +1,77 @@
+#!/usr/bin/php
+<?php
+error_reporting(E_ALL ^ E_NOTICE);
+
+// Horizontals
+$_paths[] = array( "00", "01", "02", "03" );
+$_paths[] = array( "10", "11", "12", "13" );
+$_paths[] = array( "20", "21", "22", "23" );
+$_paths[] = array( "30", "31", "32", "33" );
+
+// Verticles
+$_paths[] = array( "00", "10", "20", "30" );
+$_paths[] = array( "01", "11", "21", "31" );
+$_paths[] = array( "02", "12", "22", "32" );
+$_paths[] = array( "03", "13", "23", "33" );
+
+// Diagonals
+$_paths[] = array( "00", "11", "22", "33" );
+$_paths[] = array( "30", "21", "12", "03" );
+
+function cj($data){
+	global $_paths;
+
+	$gameCompleted = true;
+
+	foreach($_paths as $path){
+
+		unset($xo);
+		$winner = true;
+		foreach($path as $xy){
+			$x = $xy{0}; $y = $xy{1};
+			
+			if (!isset($xo) && (in_array($data[$y][$x],array("X","O")))){
+				$xo = $data[$y][$x];
+			}
+
+			if ( ($data[$y][$x] !== "T") && ($data[$y][$x] !== $xo) ){
+				if ($data[$y][$x] == ".") $gameCompleted = false;
+				$winner = false;
+				continue;
+			}
+			
+		}	
+		if ($winner == true)
+			return "$xo won"; 
+
+	}
+
+	if ($gameCompleted == true)
+		return "Draw";
+	else
+		return "Game has not completed";
+
+}
+
+$filename = $argv[1];
+$outfile = $filename.".out";
+($fp = fopen($filename,"r")) || die("Can't open file $filename\n");
+($fpout = fopen($outfile,"w")) || die("Can't write to file $outfile\n");
+
+$numcases = intval(trim(fgets($fp)));
+for ($i=0; $i<$numcases; $i++){
+
+        unset($board);
+        $board[0] = str_split(trim(fgets($fp)));
+        $board[1] = str_split(trim(fgets($fp)));
+        $board[2] = str_split(trim(fgets($fp)));
+        $board[3] = str_split(trim(fgets($fp)));
+        fgets($fp);
+
+	fwrite($fpout,"Case #".($i+1).": ".cj($board)."\n");
+}
+
+fclose($fpout);
+fclose($fp);
+
+?>

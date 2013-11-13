@@ -1,0 +1,38 @@
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE PatternGuards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+import Control.Monad
+import Data.List
+import Data.Maybe
+import Text.Printf
+
+rows :: [[a]] -> [[a]]
+rows xs = xs ++ transpose xs ++ [diag xs, diag (reverse xs)]
+
+diag :: [[a]] -> [a]
+diag ((x:_):xs) = x : diag (map tail xs)
+diag [] = []
+
+winner :: [Char] -> Maybe String
+winner xs
+  | all (== 'X') xs = x_won
+  | all (== 'O') xs = o_won
+  | ('T' `elem` xs) && length (filter (== 'X') xs) == 3 = x_won
+  | ('T' `elem` xs) && length (filter (== 'O') xs) == 3 = o_won
+  | otherwise = Nothing
+  where
+    x_won = Just "X won"
+    o_won = Just "O won"
+
+testBoard :: [[Char]] -> String
+testBoard board
+  | (x:_) <- catMaybes $ map winner $ rows board = x
+  | all (all (/= '.')) board = "Draw"
+  | otherwise = "Game has not completed"
+
+main = do
+    t :: Int <- readLn 
+    forM_ [1..t] $ \x -> do
+        [a,b,c,d,_] <- replicateM 5 getLine
+        let !res = testBoard [a,b,c,d]
+        printf "Case #%d: %s\n" x res

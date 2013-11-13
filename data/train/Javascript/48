@@ -1,0 +1,142 @@
+/*
+    This file is designed to run in node.js
+*/
+
+/* Getting the file system */
+var fs = require("fs");
+
+var input = "input.in";
+var output = "output.out";
+
+/* reading input file */
+var inputData = fs.readFileSync(input, "utf8");
+
+/* parsing input file */
+var lines = inputData.split('\n');
+var T = parseInt(lines[0]);
+
+var out = '';
+
+/* processing input */
+for(var i = 0 ; i < T ; i++){
+    
+    // Parse case input
+    var nbSymbols = 0;
+    var game = [];
+    for(var j = 1 ; j < 5 ; j++){
+        game[j-1] = [];
+        for(var k = 0 ; k < 4 ; k++){
+            var c = lines[i*5+j].charAt(k);
+            game[j-1].push(c);
+            
+            if(c !== '.')
+                nbSymbols++;
+        }
+    }
+    
+    // process test case
+    var winner;
+    
+    var gameResult = 'Game has not completed';
+    
+    //If somone won
+    if((winner = checkLines(game)) || (winner = checkColumns(game)) || (winner = checkDiags(game))){
+        gameResult = winner+" won";
+    
+    // Nobody won but the grid is complete : it's a draw
+    } else if(nbSymbols == 16){
+        gameResult = "Draw";
+    }
+    // Else, the game's still on
+    
+    // Output
+    out += 'Case #'+(i+1)+': '+gameResult;
+    
+    if(i < T-1)
+        out += '\n';
+}
+
+
+// console.log(out);
+fs.writeFile(output, out);
+
+
+/* Auxiliary functions : */
+
+function checkLine(game, i){
+    // We store symbols count within the line
+    var count = {'O': 0, 'X': 0, 'T': 0, '.': 0};
+    
+    for(var j = 0 ; j < 4 ; j++){
+        count[game[i][j]]++;
+    }
+    
+    return checkCount(count);
+}
+
+function checkLines(game){
+    var w;
+    
+    for(var i = 0 ; i < 4 ; i++){
+        if(w = checkLine(game, i))
+            return w;
+    }
+}
+
+function checkColumn(game, j){
+    // We store symbols count within the line
+    var count = {'O': 0, 'X': 0, 'T': 0, '.': 0};
+    
+    for(var i = 0 ; i < 4 ; i++){
+        count[game[i][j]]++;
+    }
+    
+    return checkCount(count);
+}
+
+function checkColumns(game){
+    var w;
+    
+    for(var i = 0 ; i < 4 ; i++){
+        if(w = checkColumn(game, i))
+            return w;
+    }
+}
+
+function checkLeftDiag(game){
+    // We store symbols count within the line
+    var count = {'O': 0, 'X': 0, 'T': 0, '.': 0};
+    
+    for(var i = 0, j = 0 ; i < 4 ; i++, j++){
+        count[game[i][j]]++;
+    }
+    
+    return checkCount(count);
+}
+
+function checkRightDiag(game){
+    // We store symbols count within the line
+    var count = {'O': 0, 'X': 0, 'T': 0, '.': 0};
+    
+    for(var i = 0, j = 3 ; i < 4 ; i++, j--){
+        count[game[i][j]]++;
+    }
+    
+    return checkCount(count);
+}
+
+function checkDiags(game){
+    var w;
+    if(w = checkLeftDiag(game))
+        return w;
+    if(w = checkRightDiag(game))
+        return w;
+}
+
+function checkCount(count){
+    if(count['O'] + count['T'] == 4 && count['T'] <= 1){
+        return 'O';
+    } else if(count['X'] + count['T'] == 4 && count['T'] <= 1){
+        return 'X';
+    }
+}

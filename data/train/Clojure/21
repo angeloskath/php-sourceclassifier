@@ -1,0 +1,51 @@
+(ns codejam.core
+  (:require [clojure.java.io :as io])
+  (:gen-class))
+
+(defn check-location
+  [board row col type]
+  (let [up (inc (if-not (neg? (dec col))
+                  (get-in board [row (dec col) type 0] 0) 0))
+        across (inc (if-not (neg? (dec row))
+                      (get-in board [(dec row) col type 1] 0) 0))
+        diag-l (inc (if-not (or (neg? (dec row)) (neg? (dec col)))
+                      (get-in board [(dec row) (dec col) type 2] 0) 0))
+        diag-r (inc (if-not (or (neg? (dec row)) (>= (inc col) 4))
+                      (get-in board [(dec row) (inc col) type 3] 0) 0))]
+    {type [up across diag-l diag-r]}))
+
+(defn solve
+  [i board]
+  [(inc i) (loop [board (mapv vec board) position 0 result :draw]
+         (if (>= position 16)
+           result
+           (let [col (mod position 4)
+                 row (int (/ position 4))
+                 val (get-in board [row col])]
+             (case val
+               \. (recur (assoc-in board [row col] nil) (inc position) :not-finished)
+               \X (let [new-vals (check-location board row col :x)]
+                    (if (some #(= 4 %) (:x new-vals))
+                      :x
+                      (recur (assoc-in board [row col] new-vals) (inc position) result)))
+               \O (let [new-vals (check-location board row col :o)]
+                    (if (some #(= 4 %) (:o new-vals))
+                      :o
+                      (recur (assoc-in board [row col] new-vals) (inc position) result)))
+               \T (let [new-vals (merge (check-location board row col :o)
+                                        (check-location board row col :x))]
+                    (cond
+                     (some #(= 4 %) (:x new-vals)) :x
+                     (some #(= 4 %) (:o new-vals)) :o
+                     :else (recur (assoc-in board [row col] new-vals) (inc position) result)))))))])
+
+(defn -main [filename & args]
+  (with-open [rdr (io/reader filename)]
+    (let [lines (rest (line-seq rdr))
+          results (map-indexed solve (partition 4 5 lines))]
+      (doseq [[i result] results]
+        (println (format "Case #%d: %s" i (case result
+                                            :draw "Draw"
+                                            :not-finished "Game has not completed"
+                                            :x "X won"
+                                            :o "O won")))))))

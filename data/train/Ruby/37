@@ -1,0 +1,69 @@
+#!/usr/bin/ruby
+
+def checkwon(po, player)
+  pline = player + player + player + player
+  px = []
+  won = false
+
+  po.each do |ln|
+    lp = ln.tr("T", player)
+    if lp == pline then
+      won = true
+      break
+    end
+    px << lp
+  end
+
+  if !won then
+    for col in 0..3
+      won = (px[0][col].chr == player) &&
+        (px[1][col].chr == player) &&
+        (px[2][col].chr == player) &&
+        (px[3][col].chr == player)
+      if won then
+        break
+      end
+    end
+  end
+  if !won then
+    won = (px[0][0].chr == player) &&
+    (px[1][1].chr == player) &&
+    (px[2][2].chr == player) &&
+    (px[3][3].chr == player)
+  end
+  if !won then
+    won = (px[0][3].chr == player) &&
+    (px[1][2].chr == player) &&
+    (px[2][1].chr == player) &&
+    (px[3][0].chr == player)
+  end
+  return won ? (player + " won") : ""
+end
+
+Num = gets.chomp!.to_i
+tc = 0
+Num.times do
+  tc += 1
+
+  print "Case ##{tc}: "
+
+  po = []
+  notcompl = false
+  4.times do
+    ln = gets.chomp!
+      if ln.include?(".") then
+        notcompl = true
+      end
+    po << ln
+  end
+  gets
+
+  result = checkwon(po, "X")
+  if result == "" then
+    result = checkwon(po, "O")
+    if result == "" then
+      result = notcompl ? "Game has not completed" : "Draw"
+    end
+  end
+  puts result
+end

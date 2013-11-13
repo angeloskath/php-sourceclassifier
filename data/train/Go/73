@@ -1,0 +1,60 @@
+package main
+
+import."fmt"
+
+func all_same_char(b [4][4]int,x int,y int,dx int,dy int,ch int)bool{
+	return (ch==b[x][y])&&(b[x][y]==b[x+dx][y+dy])&&(b[x+dx][y+dy]==b[x+2*dx][y+2*dy])&&(b[x+2*dx][y+2*dy]==b[x+3*dx][y+3*dy])
+}
+
+func won(b [4][4]int,x int,y int,ch int)bool{
+	if x>=0{b[x][y]=ch}
+	for i:=0;i<4;i++{if all_same_char(b,i,0,0,1,ch){return true}}
+	for j:=0;j<4;j++{if all_same_char(b,0,j,1,0,ch){return true}}
+	if all_same_char(b,0,0,1,1,ch){return true}
+	if all_same_char(b,0,3,1,-1,ch){return true}
+	if x>=0{b[x][y]=3}
+	return false
+}
+
+func x_won(b [4][4]int,x int,y int)bool{
+	return won(b,x,y,1)
+}
+
+func o_won(b [4][4]int,x int,y int)bool{
+	return won(b,x,y,2)
+}
+
+func draw(b [4][4]int)bool{
+	for i:=0;i<4;i++{for j:=0;j<4;j++{
+		if b[i][j]==0{return false}
+	}}
+	return true
+}
+
+func main(){
+	var t,x,y int
+	var board [4][4]int
+	Scanln(&t)
+	s:=""
+	for k:=1;k<=t;k++{
+		x=-1
+		for i:=0;i<4;i++{
+			Scanln(&s)
+			for j:=0;j<4;j++{
+				if s[j]=='.'{board[i][j]=0}
+				if s[j]=='X'{board[i][j]=1}
+				if s[j]=='O'{board[i][j]=2}
+				if s[j]=='T'{board[i][j]=3}
+				if s[j]=='T'{x=i;y=j}
+			}
+		}
+		Scanln(&s)
+		ans:=""
+		if x_won(board,x,y){ans="X won"}else
+		if o_won(board,x,y){ans="O won"}else
+		if draw(board){ans="Draw"}else
+		{ans="Game has not completed"}
+		
+		Printf("Case #%d: %s\n",k,ans)
+	}
+}

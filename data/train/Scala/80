@@ -1,0 +1,57 @@
+object T4 extends App {
+	val rc_X_won = "X won"
+	val rc_O_won = "O won"
+	val rc_Draw = "Draw"
+	val rc_Game_has_not_completed = "Game has not completed"
+	val rc_Case_No = "Case #%d: "
+
+	val s_X = 'X'
+	val s_O = 'O'
+	val s_T = 'T'
+	val s_P = '.'
+	
+	val T = Integer.parseInt(readLine())
+
+	val board = Array.ofDim[Char](4, 4)
+
+	for (t <- Range(0, T)) {
+		//println(t);
+		
+		for (r <- Range(0, 4)) {
+			val line = readLine()
+			for (c <- Range(0, 4)) {
+				board(r)(c) = line(c)
+				//print(board(r)(c))
+			}
+			//println()
+		}
+		readLine() // empty line
+
+		// X
+		val wx_r = Range(0, 4).exists(r => board(r).forall(c => c == s_X || c == s_T)) // row
+		val wx_c = Range(0, 4).exists(c => board.forall(r => r(c) == s_X || r(c) == s_T)) // column
+		val wx_d1 = Range(0, 4).forall(i => board(i)(i) == s_X || board(i)(i) == s_T)
+		val wx_d2 = Range(0, 4).forall(i => board(i)(3 - i) == s_X || board(i)(3 - i) == s_T)
+		val wx = wx_r || wx_c || wx_d1 || wx_d2
+
+		// O
+		val wo_r = Range(0, 4).exists(r => board(r).forall(c => c == s_O || c == s_T)) // row
+		val wo_c = Range(0, 4).exists(c => board.forall(r => r(c) == s_O || r(c) == s_T)) // column
+		val wo_d1 = Range(0, 4).forall(i => board(i)(i) == s_O || board(i)(i) == s_T)
+		val wo_d2 = Range(0, 4).forall(i => board(i)(3 - i) == s_O || board(i)(3 - i) == s_T)
+		val wo = wo_r || wo_c || wo_d1 || wo_d2
+
+		// has empty?
+		val empty = Range(0, 4).exists(r => Range(0, 4).exists(c => board(r)(c) == s_P))
+
+		if (wx) {
+			println(rc_Case_No.format(t+1) + rc_X_won)
+		} else if (wo) {
+			println(rc_Case_No.format(t+1) + rc_O_won)
+		} else if (empty) {
+			println(rc_Case_No.format(t+1) + rc_Game_has_not_completed)
+		} else {
+			println(rc_Case_No.format(t+1) + rc_Draw)
+		}
+	}
+}

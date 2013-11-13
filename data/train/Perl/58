@@ -1,0 +1,104 @@
+use POSIX;
+
+# Declare empty array: @array = ()
+# Length of array: scalar(@array)
+# Sort array: @sorted = sort {$a <=> $b} @unsorted;
+# Reverse sort array: @sorted = sort {$b <=> $a} @unsorted;
+# Split space delimited string into array: @array = split(" ", $str);
+# Add to the end of an array: push(@array, Element)
+# Remove the last element of the array: pop(@array)	
+# Add to the beginning of an array: unshift(@array, Element)	
+# Remove the first element of an array: shift(@array)
+# Remove an element by index number: delete $array[index]
+# Determine the first position of a value in an array (-1 if n/a): firstidx { $_ eq "value" } @array
+
+$file_to_get = "A-large.in";
+open (FILE, $file_to_get) or die $!;
+
+# Skip the first line
+<FILE>;
+
+# How many lines of the input file have we processed?
+$count = 1;
+
+# Whether or not to print out debugging info
+$debug = 0;
+
+# For debugging - Skip to a specific line of the input file
+$skip_to = 0;
+if($debug)
+{
+	for(my $i = 0; $i < $skip_to; ++$i)
+	{
+		<FILE>;
+	}
+}
+
+$str = "";
+
+# Process each line of the input file
+while (<FILE>)
+{
+	chomp;
+
+	print "$count) $_ \n" if $debug;
+
+	# Parse each line 
+	$a = $_;
+
+        $str .= $a;
+	
+	$count++;
+
+        if($count % 4 == 1) {
+            $result = "Draw";
+
+            $game_not_complete = index($str, ".") >= 0;
+
+            $str_x = $str;
+            $str_x =~ s/X|T/1/g;
+            $str_x =~ s/O|\./0/g;
+
+            $str_o = $str;
+            $str_o =~ s/O|T/1/g;
+            $str_o =~ s/X|\./0/g;
+            
+            if( (oct("0b".("1111000000000000" & $str_x)) == 61440) ||
+                (oct("0b".("0000111100000000" & $str_x)) == 3840) ||
+                (oct("0b".("0000000011110000" & $str_x)) == 240) ||
+                (oct("0b".("0000000000001111" & $str_x)) == 15) ||
+                (oct("0b".("1000100010001000" & $str_x)) == 34952) ||
+                (oct("0b".("0100010001000100" & $str_x)) == 17476) ||
+                (oct("0b".("0010001000100010" & $str_x)) == 8738) ||
+                (oct("0b".("0001000100010001" & $str_x)) == 4369) ||
+                (oct("0b".("1000010000100001" & $str_x)) == 33825) ||
+                (oct("0b".("0001001001001000" & $str_x)) == 4680)) {
+                $result = "X won";
+            }
+            elsif( (oct("0b".("1111000000000000" & $str_o)) == 61440) ||
+                (oct("0b".("0000111100000000" & $str_o)) == 3840) ||
+                (oct("0b".("0000000011110000" & $str_o)) == 240) ||
+                (oct("0b".("0000000000001111" & $str_o)) == 15) ||
+                (oct("0b".("1000100010001000" & $str_o)) == 34952) ||
+                (oct("0b".("0100010001000100" & $str_o)) == 17476) ||
+                (oct("0b".("0010001000100010" & $str_o)) == 8738) ||
+                (oct("0b".("0001000100010001" & $str_o)) == 4369) ||
+                (oct("0b".("1000010000100001" & $str_o)) == 33825) ||
+                (oct("0b".("0001001001001000" & $str_o)) == 4680)) {
+                $result = "O won";
+            } elsif($game_not_complete) {
+                $result = "Game has not completed";
+            }
+
+            print "Case #" . floor($count / 4) . ": ". $result . "\n";
+
+$str = "";
+            <FILE>
+        }
+
+	# if($count == 3 && $debug) { exit; }
+}
+
+
+close(FILE);
+

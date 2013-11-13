@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+def readLine
+  begin a = gets.chop!
+  end while a == ''
+  a
+end
+
+1.upto(gets.to_i).each do |caseid|
+  a = 4.times.map { readLine }
+
+  win = nil
+
+  check = ->x {
+    t = x.count 'X'
+    win = 'X' if t == 4 or t == 3 && x.count('T') == 1
+    t = x.count 'O'
+    win = 'O' if t == 4 or t == 3 && x.count('T') == 1
+  }
+
+  a.map {|x| check[x] }
+  a.map {|x| x.split '' }.transpose.map {|x| check[x] }
+  check[4.times.map {|i| a[i][i] }]
+  check[4.times.map {|i| a[i][3-i] }]
+
+  print "Case \##{caseid}: "
+  if win
+    puts "#{win} won"
+  elsif a.join.count('.') > 0
+    puts 'Game has not completed'
+  else
+    puts 'Draw'
+  end
+end

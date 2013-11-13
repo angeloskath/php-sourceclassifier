@@ -1,0 +1,59 @@
+my $N = <>;
+   
+for my $case(1..$N){
+
+    my @board;
+    my $spaces;
+    my %won;
+
+    for my $r(0..3){
+	my $line = <>;
+	$line =~ s/\n//;
+	$spaces = 1 if($line=~/[.]/);
+	$board[$r] = [split(//, $line)];
+	$won{winningStreak(@{$board[$r]})} = 1;
+    }
+    <>;
+    for my $c(0..3){
+	my @streak = (map {$board[$_][$c]} (0..3));
+	$won{winningStreak(@streak)} = 1;	
+    }
+    my @diag1 = (map {$board[$_][$_]} (0..3));
+    $won{winningStreak(@diag1)} = 1;	
+    my @diag2 = (map {$board[$_][3-$_]} (0..3));
+    $won{winningStreak(@diag2)} = 1;	
+
+    if($debug){
+	print "Board: \n";
+	for my $row(@board){
+	    print join('', @$row)."\n";
+	}
+    }
+    print "Case #$case: ";
+    if($won{'X'} && $won{'0'}){
+	print "Draw\n";
+    }
+    elsif($won{'X'}){
+	print "X won\n";
+    }
+    elsif($won{'O'}){
+	print "O won\n";
+    }
+    elsif($spaces){
+	print "Game has not completed\n";
+    }
+    else{
+	print "Draw\n";
+    }
+}
+
+
+sub winningStreak{
+    my @streak = @_;
+    my $Xs = grep {$_ eq 'X' || $_ eq 'T'} @streak;
+    my $Os = grep {$_ eq 'O' || $_ eq 'T'} @streak;
+    return 'X' if $Xs > 3;
+    return 'O' if $Os > 3;
+    return '';
+    
+}

@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+ 
+open (FILE, 'codejam1_1.txt') 
+   or die "Failed to open file. \n";
+
+@games = <FILE> ;
+
+close(FILE);
+
+for($i=1;$i<=$games[0]; $i++) {
+    $result = "";
+        for($j=1;$j<=4;$j++) { 
+          if ($games[($i-1)*5+$j] =~ /[xtXT]{4}/) {$result = "X won" };
+          if ($games[($i-1)*5+$j] =~ /[otOT]{4}/) {$result = "O won" };
+          #if ($i==1) {print "$games[($i-1)*5+$j]" ; }
+        }
+        #check verticals
+        if ($result eq "") {
+            for($j=0;$j<4;$j++) { 
+              $testline = substr($games[($i-1)*5+1], $j, 1) . substr($games[($i-1)*5+2], $j, 1) 
+                          . substr($games[($i-1)*5+3], $j, 1) . substr($games[($i-1)*5+4], $j, 1);
+              #print "$games[($i-1)*5+1] $testline \n";
+              if ($testline =~ /[xtXT]{4}/) {$result = "X won" };
+              if ($testline =~ /[otOT]{4}/) {$result = "O won" };
+            #print "$games[($i-1)*5+$j]"
+            }
+        }
+        #check diag1 
+        if ($result eq "") {
+              $testline = substr($games[($i-1)*5+1], 0, 1) . substr($games[($i-1)*5+2], 1, 1) 
+                          . substr($games[($i-1)*5+3], 2, 1) . substr($games[($i-1)*5+4], 3, 1);
+              #print "$games[($i-1)*5+1] ". substr($games[($i-1)*5+1], 1, 1) ."\n";
+              if ($testline =~ /[xtXT]{4}/) {$result = "X won" };
+              if ($testline =~ /[otOT]{4}/) {$result = "O won" };
+            #print "$games[($i-1)*5+$j]"
+        }
+        #check diag1 
+        if ($result eq "") {
+              $testline = substr($games[($i-1)*5+1], 3, 1) . substr($games[($i-1)*5+2], 2, 1) 
+                          . substr($games[($i-1)*5+3], 1, 1) . substr($games[($i-1)*5+4], 0, 1);
+              #print "$testline \n";
+              if ($testline =~ /[xtXT]{4}/) {$result = "X won" };
+              if ($testline =~ /[otOT]{4}/) {$result = "O won" };
+            #print "$games[($i-1)*5+$j]"
+        }
+
+        if ($result eq "") { 
+            $wholecase = $games[($i-1)*5+1].$games[($i-1)*5+2]
+              .$games[($i-1)*5+3].$games[($i-1)*5+4];
+            #print "$wholecase \n";
+            if ($wholecase =~ /\./) { $result = "Game has not completed"; 
+            } else { $result = "Draw"; }
+        }
+    print "Case #$i: $result";
+    
+    print "\n";
+}
+#print @games;
+#print $teststring;

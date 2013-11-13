@@ -1,0 +1,102 @@
+program gcj13a;
+var
+    r, c: array[1..4] of shortint;
+    d1: array[2..8] of shortint;
+    d2: array[-3..3] of shortint;
+    tr, tc: array[1..4] of boolean;
+    d: boolean;
+    t, it: word;
+procedure sol;
+    var
+        i, j: shortint;
+        ch: char;
+        td1, td2: boolean;
+    begin
+        fillchar(r, sizeof(r), 0);
+        fillchar(c, sizeof(c), 0);
+        fillchar(d1, sizeof(d1), 0);
+        fillchar(d2, sizeof(d2), 0);
+        fillchar(tr, sizeof(tr), 0);
+        fillchar(tc, sizeof(tc), 0);
+        d := true; td1 := false; td2 := false;
+        for i := 1 to 4 do
+            for j := 1 to 4 do
+                begin
+                    repeat read(ch) until (upcase(ch) in ['.', 'X', 'O', 'T']);
+                    case upcase(ch) of
+                        '.': d := false;
+                        'X': begin
+                            inc(r[i]);
+                            inc(c[j]);
+                            inc(d1[i+j]);
+                            inc(d2[i-j]);
+                        end;
+                        'O': begin
+                            dec(r[i]);
+                            dec(c[j]);
+                            dec(d1[i+j]);
+                            dec(d2[i-j]);
+                        end;
+                        'T': begin
+                            tr[i] := true;
+                            tc[j] := true;
+                            td1 := ((i + j) = 5);
+                            td2 := (i = j);
+                        end;
+                    end;
+                end;
+        for i := 1 to 4 do
+            if (r[i] = 4) or ((r[i] = 3) and (tr[i])) then
+                begin
+                    writeln('Case #', it, ': X won');
+                    exit;
+                end
+            else if (r[i] = -4) or ((r[i] = -3) and (tr[i])) then
+                begin
+                    writeln('Case #', it, ': O won');
+                    exit;
+                end;
+        for i := 1 to 4 do
+            if (c[i] = 4) or ((c[i] = 3) and (tc[i])) then
+                begin
+                    writeln('Case #', it, ': X won');
+                    exit;
+                end
+            else if (c[i] = -4) or ((c[i] = -3) and (tc[i])) then
+                begin
+                    writeln('Case #', it, ': O won');
+                    exit;
+                end;
+        if (d1[5] = 4) or ((d1[5] = 3) and td1) then
+            begin
+                writeln('Case #', it, ': X won');
+                exit;
+            end
+        else if (d1[5] = -4) or ((d1[5] = -3) and td1) then
+            begin
+                writeln('Case #', it, ': O won');
+                exit;
+            end;
+        if (d2[0] = 4) or ((d2[0] = 3) and td2) then
+            begin
+                writeln('Case #', it, ': X won');
+                exit;
+            end
+        else if (d2[0] = -4) or ((d2[0] = -3) and td2) then
+            begin
+                writeln('Case #', it, ': O won');
+                exit;
+            end;
+        if d then
+            begin
+                writeln('Case #', it, ': Draw');
+                exit;
+            end;
+        writeln('Case #', it, ': Game has not completed');
+    end;
+begin
+    assign(input, 'a-large.in'); reset(input);
+    assign(output, 'output.txt'); rewrite(output);
+    readln(t);
+    for it := 1 to t do sol;
+end.

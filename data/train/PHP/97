@@ -1,0 +1,95 @@
+<?php
+
+$input = file_get_contents('A-large.in');
+$lines = explode("\n",$input);
+
+$cases = $lines[0];
+
+$boards = array();
+$outcomes = array();
+
+for($i = 0; $i < $cases; $i++) {
+    $boards[$i] = array();
+    $offset = 1 + $i * 5;
+    for($x = 0; $x < 4; $x ++) {
+        $boards[$i][$x] = array(
+            $lines[$offset][$x],
+            $lines[$offset + 1][$x],
+            $lines[$offset + 2][$x],
+            $lines[$offset + 3][$x],
+        );
+    }
+}
+ob_start();
+foreach($boards as $case => $board) {
+    $winner = false;
+    $finished = true;
+    foreach(array('X','O') as $player) {
+        if($winner !== false) {
+            break;
+        }
+        if(
+            in_array($board[0][0],array($player,'T')) &&
+            in_array($board[1][1],array($player,'T')) &&
+            in_array($board[2][2],array($player,'T')) &&
+            in_array($board[3][3],array($player,'T'))
+        ) {
+            $winner = $player;
+            break;
+        }
+
+        if(
+            in_array($board[0][3],array($player,'T')) &&
+            in_array($board[1][2],array($player,'T')) &&
+            in_array($board[2][1],array($player,'T')) &&
+            in_array($board[3][0],array($player,'T'))
+        ) {
+            $winner = $player;
+            break;
+        }
+
+        for($i = 0; $i < 4; $i++) {
+            if(
+                in_array('.',$board[$i])
+            ) {
+                $finished = false;
+            }
+
+            if(
+                (
+                    in_array($board[$i][0],array($player,'T')) &&
+                    in_array($board[$i][1],array($player,'T')) &&
+                    in_array($board[$i][2],array($player,'T')) &&
+                    in_array($board[$i][3],array($player,'T'))
+                ) || (
+                    in_array($board[0][$i],array($player,'T')) &&
+                    in_array($board[1][$i],array($player,'T')) &&
+                    in_array($board[2][$i],array($player,'T')) &&
+                    in_array($board[3][$i],array($player,'T'))
+                )
+            ) {
+                $winner = $player;
+                break;
+            }
+        }
+    }
+
+    //var_dump($board);
+
+    echo "Case #".($case + 1).": ";
+    if($winner === false) {
+        if($finished) {
+            echo "Draw";
+        } else {
+            echo "Game has not completed";
+        }
+    } else {
+        echo $winner." won";
+    }
+    echo "\n";
+}
+
+//$output = ob_get_clean();
+$output = ob_get_flush();
+
+file_put_contents('output.txt',$output);

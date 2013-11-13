@@ -1,0 +1,100 @@
+var
+ a:array [1..100,1..100] of char;
+ i,j,n,m,t,k,test,ans:longint;
+
+ function check:longint;
+ var
+  i,j:longint;
+  ch:char;
+  ok:boolean;
+ begin
+  for i:=1 to 4 do
+   begin
+    ok:=true;
+    ch:=a[i,1];
+    if ch='T' then ch:=a[i,2];
+    for j:=1 to 4 do
+      begin
+       if a[i,j]='T' then continue;
+       if a[i,j]='.' then ok:=false;
+       if a[i,j]<>ch then ok:=false;
+      end;
+    if ok then
+                begin
+                 if ch='X' then exit(1)
+                 else exit(2);
+                end;
+   end;
+  for  j:=1 to 4 do
+   begin
+    ok:=true;
+    ch:=a[1,j];
+    if ch='T' then ch:=a[2,j];
+    for i:=1 to 4 do
+     begin
+      if a[i,j]='T' then continue;
+      if a[i,j]='.' then ok:=false;
+      if a[i,j]<>ch then ok:=false;
+     end;
+    if ok then
+                begin
+                 if ch='X' then exit(1)
+                 else exit(2);
+                end;
+   end;
+  ok:=true;
+  ch:=a[1,1];
+  if ch='T' then ch:=a[2,2];
+  for i:=1 to 4 do
+  begin
+   if a[i,i]='T' then continue;
+   if a[i,i]='.' then ok:=false;
+   if a[i,i]<>ch then ok:=false;
+  end;
+  if ok then
+                begin
+                 if ch='X' then exit(1)
+                  else exit(2);
+                end;
+  ok:=true;
+  ch:=a[1,4];
+  if ch='T' then ch:=a[2,3];
+  for i:=1 to 4 do
+   begin
+    if a[i,4-i+1]='T' then continue;
+    if a[i,4-i+1]='.' then ok:=false;
+    if a[i,4-i+1]<>ch then ok:=false;
+   end;
+  if ok then
+                begin
+                 if ch='X' then exit(1)
+                 else exit(2);
+                end;
+  for i:=1 to 4 do
+  for j:=1 to 4 do
+   if a[i,j]='.' then exit(-1)  ;
+  exit(0);
+ end;
+
+
+
+begin
+ assign(input,'A-large.in') ; reset(input);
+ assign(output,'output.txt'); rewrite(output);
+ readln(test);
+ for t:=1 to test do
+  begin
+    for i:=1 to 4 do
+     begin
+      for j:=1 to 4 do
+       read(a[i,j]);
+      readln;
+     end;
+    readln;
+    ans:=check;
+    if ans=1 then writeln('Case #',t,': X won')
+     else if ans=2 then writeln('Case #',t,': O won')
+      else if ans=0 then writeln('Case #',t,': Draw')
+       else if ans=-1 then writeln('Case #',t,': Game has not completed');
+  end;
+end.

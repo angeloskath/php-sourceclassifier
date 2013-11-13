@@ -1,0 +1,50 @@
+package codejam2013
+
+import scala.io.Source
+
+class T4(l1: String, l2: String, l3: String, l4: String) {
+  private val state = (l1 + l2 + l3 + l4).toCharArray
+
+//  println(l1)
+//  println(l2)
+//  println(l3)
+//  println(l4)
+//  println
+//  combinations.foreach(c => println(c.mkString))
+
+  private def indices: Seq[Seq[Pair[Int, Int]]] = {
+    (for (row <- 0 to 3) yield List((row, 0), (row, 1), (row, 2), (row, 3))) ++
+    (for (col <- 0 to 3) yield List((0, col), (1, col), (2, col), (3, col))) ++
+    List(List((0, 0), (1, 1), (2, 2), (3, 3))) ++
+    List(List((0, 3), (1, 2), (2, 1), (3, 0)))
+  }
+
+  private def combinations: Seq[Seq[Char]] = indices.map(s => s.map(x => state(x._1*4 + x._2)))
+
+  private def xWon: Boolean = combinations.exists(s => s.forall(c => c == 'X' || c == 'T') && debug(s))
+  private def oWon: Boolean = combinations.exists(s => s.forall(c => c == 'O' || c == 'T') && debug(s))
+  private def notComplete: Boolean = combinations.exists(s => s.exists(c => c == '.') && debug(s))
+
+  private def debug(s: Seq[Char]): Boolean = {
+    // println("x=" + s.mkString)
+    true
+  }
+
+  def evaluate: String =
+    if (xWon) "X won"
+    else if (oWon) "O won"
+    else if (notComplete) "Game has not completed"
+    else "Draw"
+}
+
+object TicTacToeTomek {
+
+  def main(args: Array[String]): Unit = {
+    val lines = Source.fromFile(args(0)).getLines
+    val cases = lines.next.toInt
+    for (c <- 1 to cases) {
+      println("Case #" + c + ": " + new T4(lines.next, lines.next, lines.next, lines.next).evaluate)
+      lines.next
+    }
+  }
+}

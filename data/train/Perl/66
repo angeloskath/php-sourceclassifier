@@ -1,0 +1,65 @@
+#! /bin/env perl
+# Usage:
+#   perl A.pl <input_file>
+
+use strict;
+use warnings;
+use utf8;
+
+my $num_inputs = <>;
+chomp $num_inputs;
+
+sub explode {
+    my $s = shift || q{};
+    return split('', $s);
+}
+
+sub implode {
+    return join(q{}, @_);
+}
+
+sub transpose {
+    my @mat = @_;
+    my @t_mat;
+    my $m = scalar @mat;
+    my $n = $m > 0 ? length($mat[0]) : 0;
+    for (my $i = 0; $i < $n; $i++) {
+        push @t_mat, implode(map { substr $_, $i, 1 } @mat);
+    }
+    return @t_mat;
+}
+
+sub get_board {
+    my @rows = @_;
+    my @cols = transpose @rows;
+    my $last = (scalar @rows) - 1;
+    my $diag1 = implode(map { substr $rows[$_], $_, 1 } 0..$last);
+    my $diag2 = implode(map { substr $rows[$_], $last - $_, 1 } 0..$last);
+    return @rows, @cols, $diag1, $diag2;
+}
+
+sub check_board {
+    my @board = @_;
+    foreach my $arrangement (@board) {
+        my @arr = explode $arrangement;
+        my $has_t = index($arrangement, 'T') != -1;
+        my $num_x = scalar (grep /X/, @arr);
+        my $num_o = scalar (grep /O/, @arr);
+        # print "arrangement: $arrangement\n";
+        # print "has_t: $has_t, num_x: $num_x, num_o: $num_o\n";
+        return "X won" if ($num_x == 4 || ($has_t && ($num_x == 3)));
+        return "O won" if ($num_o == 4 || ($has_t && ($num_o == 3)));
+    }
+    return index(implode(@board), q{.}) == -1 ? "Draw"
+        :                                       "Game has not completed";;
+}
+
+for (my $i = 1; $i <= $num_inputs; $i++) {
+    my @rows;
+    $rows[0] = <>; $rows[1] = <>; $rows[2] = <>; $rows[3] = <>;
+    chomp $rows[0]; chomp $rows[1]; chomp $rows[2]; chomp $rows[3];
+    my @board = get_board(@rows);
+    my $result = check_board(@board);
+    print "Case #$i: $result\n";
+    my $dummy = <>;
+}

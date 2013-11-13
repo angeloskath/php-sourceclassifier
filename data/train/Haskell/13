@@ -1,0 +1,36 @@
+import Control.Monad
+import Data.Array
+import Text.Printf
+
+type Board = Array (Int,Int) Char
+
+main :: IO ()
+main = do
+  t <- readLn
+  forM_ [(1::Int)..t] $ \i -> do
+    b <- readBoard
+    printf "Case #%d: %s\n" i (solve b)
+
+readBoard :: IO Board
+readBoard = do
+  ls <- replicateM 4 getLine
+  _ <- getLine
+  return $ array ((0,0),(3,3)) [((i,j),c) | (i,l) <- zip [0..3] ls, (j,c) <- zip [0..3] l]
+
+solve :: Board -> String
+solve b
+  | checkWin 'X' b = "X won"
+  | checkWin 'O' b = "O won"
+  | isCompleted b  = "Draw"
+  | otherwise      = "Game has not completed"
+
+checkWin :: Char -> Board -> Bool
+checkWin c b = or [all (`elem` [c,'T']) xs | xs <- xss ]
+  where
+    xss = [ [b!(i,j) | j <- [0..3]] | i <- [0..3] ]
+       ++ [ [b!(i,j) | i <- [0..3]] | j <- [0..3] ]
+       ++ [ [b!(i,i) | i <- [0..3]] ]
+       ++ [ [b!(i,3-i) | i <- [0..3]] ]
+
+isCompleted :: Board -> Bool
+isCompleted b = not $ '.' `elem` elems b

@@ -1,0 +1,90 @@
+#!/usr/local/bin/node
+(function () {
+	function EXIT () {
+		console.log(new Error().stack);
+		return process.exit();
+	}
+
+	function atoi (str) {
+		if (!/^[0-9]+$/.test(str)) return EXIT();
+		return parseInt(str);
+	}
+
+	var input = [];
+
+	process.stdin.resume();
+	process.stdin.setEncoding('utf8');
+
+	process.stdin.on('data', function (chunk) {
+		input.push(chunk);
+	});
+	process.stdin.on('end', function () {
+		input = input.join().split('\n');
+		return processInput(input, function (res) {
+			res = res.map(function (phrase) {
+				if (phrase === undefined) return 'Game has not completed';
+				if (phrase === null)      return 'Draw';
+				if (phrase === 'X')       return 'X won';
+				if (phrase === 'O')       return 'O won';
+			});
+			for (var i = 0; i < res.length; ++i) {
+				console.log('Case #%d: %s', (i + 1), res[i]);
+			}
+			process.exit();
+		});
+	});
+
+	function processInput (input, cb) {
+		var lines = atoi(input.shift());
+		var boards = [];
+		for (var i = 0; i < lines; ++i) {
+			// Store separate boards
+			boards[i] = [];
+			boards[i].push(input.shift());
+			boards[i].push(input.shift());
+			boards[i].push(input.shift());
+			boards[i].push(input.shift());
+			// Remove that pesky newline =)
+			input.shift();
+		}
+		// Save functions to win process time (why not, just trying)
+		var didXWin = didHeWin('X', 'O');
+		var didOWin = didHeWin('O', 'X');
+		// Now let's process these bad boys
+		var results = boards.map(function (board) {
+			if (didXWin(board) === true) return 'X';
+			if (didOWin(board) === true) return 'O';
+			if (isOver(board)  === true) return undefined;
+			return null;
+		});
+		return cb(results);
+	}
+
+	function didHeWin (xo, ox) {
+		return function (board) {
+			function winLine (line) {
+				if (~line.indexOf('.')) return false;
+				if (~line.indexOf(ox))  return false;
+				return true;
+			}
+			var lines = [ board[0], board[1], board[2], board[3] ];
+			for (var i = 0; i < 4; ++i) {
+				lines.push(board[0][i] + board[1][i] + board[2][i] + board[3][i]);
+			}
+			lines.push(board[0][0] + board[1][1] + board[2][2] + board[3][3]);
+			lines.push(board[0][3] + board[1][2] + board[2][1] + board[3][0]);
+			for (var i = 0; i < 10; ++i) {
+				if (winLine(lines[i])) return true;
+			}
+			return false;
+		};
+	};
+
+	function isOver (board) {
+		for (var i = 0; i < 4; ++i) {
+			if (~board[i].indexOf('.')) return true;
+		}
+		return false;
+	}
+
+})();

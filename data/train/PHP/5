@@ -1,0 +1,54 @@
+<?php
+	// Taylor Reece, Google Code Jam
+	// Qualification Round, Problem 1
+	
+	function checkRow($row){
+		$unique = array_unique($row);
+		if(count($unique) == 1 && $row[0] != ".") return $row[0];
+		if(count($unique) == 2) {
+			$val1 = array_pop($unique); $val2 = array_pop($unique);
+			if($val1 == "T" && $val2 != ".") return $val2;
+			if($val2 == "T" && $val1 != ".") return $val1;
+		}
+		return false;
+	}
+		
+	function getGameStatus($g){
+		$status = "Draw";
+		
+		for($i = 0; $i < 4; $i++)
+			foreach($g[$i] as $value)
+				if($value == ".")
+					$status = "Game has not completed";
+		
+		//Check for a winner:
+		for($i = 0; $i < 4; $i++){
+			$result = checkRow($g[$i]);
+			if($result) $status = $result . " won";
+			$result = checkRow(array($g[0][$i],$g[1][$i],$g[2][$i],$g[3][$i]) );
+			if($result) $status = $result . " won";
+		}
+		$result = checkRow(array($g[0][0],$g[1][1],$g[2][2],$g[3][3]) );
+		if($result) $status = $result . " won";
+		$result = checkRow(array($g[3][0],$g[2][1],$g[1][2],$g[0][3]) );
+		if($result) $status = $result . " won";
+		
+		return $status;
+	}
+
+	$inputfile = fopen("input.txt", "r");
+	$numProblems = (int)fgets($inputfile);
+
+	for($i = 0; $i < $numProblems; $i++){
+		$gameArray = array();
+		for($j=0; $j<4; $j++){ // get 4 rows
+			$string = fgets($inputfile);
+			$gameArray[] =  str_split(  preg_replace('/\s+/', '', $string ) );
+		}
+		$gameStatus = getGameStatus($gameArray);
+		echo "Case #" . ($i+1) . ": $gameStatus\r\n";
+		fgets($inputfile); // clear blank line.
+	}
+	fclose($inputfile);
+
+?>

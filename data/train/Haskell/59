@@ -1,0 +1,58 @@
+module Main where
+
+import qualified Data.IntMap as IM
+import Data.List 
+import System.Environment 
+
+type Input = IM.IntMap Game
+
+type Game = [String]
+
+data GameResult = X | O | D | I
+  deriving Eq
+
+instance Show GameResult where
+ show X = "X won"
+ show O = "O won"
+ show D = "Draw"
+ show I = "Game has not completed"
+
+main :: IO ()
+main = do args <- getArgs
+          s <- readFile $ head args
+          let gs = process $ lines s
+              gsr = IM.map check gs
+          mapM_ outputGame $ IM.toList gsr
+
+process :: [String] -> Input
+process (x:xs) = let i = read x :: Int 
+                 in foldr (\(k,v) r -> IM.insert k v r) IM.empty $ zip [1..i] $ getGames xs
+
+getGames :: [String] -> [Game]
+getGames [] = []
+getGames xs = let (x,y) = splitAt 5 xs
+                  z = getGames y
+              in (init x):z
+
+outputGame :: (Int, GameResult) -> IO ()
+outputGame (i,r) = putStrLn $ "Case #" ++ show i ++ ": " ++ show r 
+
+check :: Game -> GameResult
+check l@[[a0,a1,a2,a3],[b0,b1,b2,b3],[c0,c1,c2,c3],[d0,d1,d2,d3]] = 
+  let tr = map checkXO $ (transpose l)
+      lrs = map checkXO l
+      dg = [checkXO [a0,b1,c2,d3], checkXO [d0,c1,b2,a3]]
+  in checkResult $ tr++lrs++dg 
+check x = error "Invalid Game"
+
+checkXO :: String -> GameResult
+checkXO x | all (\c -> c=='X' || c=='T') x = X
+checkXO x | all (\c -> c=='O' || c=='T') x = O
+checkXO x | any (=='.') x = I
+checkXO x | otherwise = D
+
+checkResult :: [GameResult] -> GameResult
+checkResult l | any (==X) l = X
+checkResult l | any (==O) l = O
+checkResult l | all (==D) l = D
+checkResult l | otherwise = I

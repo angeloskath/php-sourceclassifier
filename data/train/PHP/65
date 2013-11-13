@@ -1,0 +1,130 @@
+<?php
+
+function VerificaTabuleiro($mTab) {
+	//Verifica Linhas
+	$bXWin = false;
+	$bOWin = false;
+	$bCompleto = true;
+	for ($x=0;$x<4;$x++) {
+		$nX = 0;
+		$nO = 0;
+		$nPonto = 0;
+		for ($y=0;$y<4;$y++) {
+			switch($mTab[$x][$y]) {
+				case 'X': $nX++; break;
+				case 'O': $nO++; break;
+				case 'T': $nO++; $nX++; break;
+				case '.': $nPonto++;
+			}
+		}
+		if ($nX == 4) {
+			$bXWin = true;
+		}
+		if ($nO == 4) {
+			$bOWin = true;
+		}
+		if ($nPonto <> 0) {
+			$bCompleto = false;
+		}
+	}
+
+	//Verifica Colunas
+	for ($x=0;$x<4;$x++) {
+		$nX = 0;
+		$nO = 0;
+		for ($y=0;$y<4;$y++) {
+			switch($mTab[$y][$x]) {
+				case 'X': $nX++; break;
+				case 'O': $nO++; break;
+				case 'T': $nO++; $nX++; break;
+			}
+		}
+		if ($nX == 4) {
+			$bXWin = true;
+		}
+		if ($nO == 4) {
+			$bOWin = true;
+		}
+	}
+
+	//Verifica Diagonais
+	$nX = 0;
+	$nO = 0;
+	for ($x=0;$x<4;$x++) {
+		for ($y=0;$y<4;$y++) {
+			if ($x == $y) {
+				switch($mTab[$y][$x]) {
+					case 'X': $nX++; break;
+					case 'O': $nO++; break;
+					case 'T': $nO++; $nX++; break;
+				}
+			}
+		}
+	}
+	if ($nX == 4) {
+		$bXWin = true;
+	}
+	if ($nO == 4) {
+		$bOWin = true;
+	}
+
+	$nX = 0;
+	$nO = 0;
+	for ($x=3;$x>=0;$x--) {
+		for ($y=3;$y>=0;$y--) {
+			if (($x + $y) == 3) {
+				switch($mTab[$y][$x]) {
+					case 'X': $nX++; break;
+					case 'O': $nO++; break;
+					case 'T': $nO++; $nX++; break;
+				}
+			}
+		}
+	}
+	if ($nX == 4) {
+		$bXWin = true;
+	}
+	if ($nO == 4) {
+		$bOWin = true;
+	}
+	
+
+	if ($bXWin) {
+		return "X won";
+	}
+	if ($bOWin) {
+		return "O won";
+	}
+	if ($bCompleto) {
+		return "Draw";
+	} else {
+		return "Game has not completed";
+	}
+	return(print_r($mTab,true));
+
+}
+
+$arq = './A-large';
+//$arq = './tictactoe_sample';
+$in = fopen( $arq . '.in','r');
+$out = fopen($arq . '.out','w');
+
+$casos = fgets($in);
+//echo "<pre>";
+for($x=1;$x<=$casos;$x++) {
+	$mTabuleiro = array();	
+	for ($y=0;$y<4;$y++) {
+		$sLinha = fgets($in);
+		$mTabuleiro[$y] = array();
+		for ($z=0;$z<4;$z++) {
+			$mTabuleiro[$y][$z] = substr($sLinha,$z,1);
+		}
+	}
+	$sLinha = fgets($in);
+	
+	fwrite($out,"Case #" . $x . ": " . VerificaTabuleiro($mTabuleiro) . "\n");
+//	echo "<br/> Case #" . $x . ": " . VerificaTabuleiro($mTabuleiro);
+}
+//echo "</pre>";
+
+?>

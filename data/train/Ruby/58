@@ -1,0 +1,144 @@
+num = 0
+
+boards_r = []
+board_r = []
+boards_c = []
+
+col0 = ""
+col1 = ""
+col2 = ""
+col3 = ""
+
+PENDING = 0
+X_WIN = 1
+O_WIN = 2
+FULL = 3
+
+def check_full(b)
+  b.each { |row|
+    if (row.index("."))
+      return PENDING
+    end
+  }
+  return FULL
+end
+
+def check_rows(b)
+  b.each { |row|
+    _row = row.sub("T","")
+    if (_row == "XXXX")
+      return X_WIN
+    elsif (_row == "OOOO")
+      return O_WIN
+    elsif (_row == "XXX")
+      return X_WIN
+    elsif (_row == "OOO")
+      return O_WIN
+    end
+  }
+  return PENDING
+end
+
+def get_result(row)
+  _row = row.sub("T","")
+  if (_row == "XXXX")
+    return X_WIN
+  elsif (_row == "OOOO")
+    return O_WIN
+  elsif (_row == "XXX")
+    return X_WIN
+  elsif (_row == "OOO")
+    return O_WIN
+  else
+    return PENDING
+  end
+end
+
+def check_diag1(b)
+  diag = ""
+  b.each_with_index { |row, i|
+    diag += row[i,1]
+  }
+  return get_result(diag)
+end
+
+def check_diag2(b)
+  diag = ""
+  b.each_with_index { |row, i|
+    diag += row[3-i,1]
+  }
+  return get_result(diag)
+end
+
+
+def output_result(result, i)
+  case (result)
+  when X_WIN: puts "Case #{i}: X won"
+  when O_WIN: puts "Case #{i}: O won"
+  end
+end
+
+
+ARGF.each_with_index { |line, index|
+  if (index == 0)
+    num = line.chop.to_i
+  elsif (index % 5 == 0)
+    boards_r << board_r
+    boards_c << [col0, col1, col2, col3]
+    board_r = []
+    col0 = ""
+    col1 = ""
+    col2 = ""
+    col3 = ""
+  else
+    board_r << line.chop
+    col0 += line[0,1]
+    col1 += line[1,1]
+    col2 += line[2,1]
+    col3 += line[3,1]
+  end
+}
+
+results = Array.new(num, PENDING)
+
+#p boards_r
+#p boards_c
+
+boards_r.each_with_index { |b, i|
+  res = check_full(b)
+  if (res > 0)
+    results[i] = res
+  end
+  res = check_rows(b)
+  if (res > 0)
+    results[i] = res
+  end
+  res = check_diag1(b)
+  if (res > 0)
+    results[i] = res
+  end
+  res = check_diag2(b)
+  if (res > 0)
+    results[i] = res
+  end
+}
+
+#p boards_c
+
+boards_c.each_with_index { |b, i|
+  res = check_rows(b)
+  if (res > 0)
+    results[i] = res
+  end
+}
+
+results.each_with_index { |res, ind|
+  index = ind+1
+  case (res)
+  when PENDING: puts("Case ##{index}: Game has not completed")
+  when X_WIN: puts("Case ##{index}: X won")
+  when O_WIN: puts("Case ##{index}: O won")
+  when FULL: puts("Case ##{index}: Draw")
+  end
+}
+

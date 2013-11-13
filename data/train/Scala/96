@@ -1,0 +1,66 @@
+object Main extends App {
+    type Board = List[List[Char]]
+
+    val lines = io.Source.fromFile(args(0)).getLines()
+    val n = Integer.parseInt(lines.next)
+
+    (1 to n).foreach { i =>
+       val board = List(
+           lines.next.toList,
+           lines.next.toList,
+           lines.next.toList,
+           lines.next.toList)
+       lines.next // advance over empty line
+
+       val outcome =
+           if ( didPlayerWin(board, 'X') ) {
+              "X won"
+           } else if ( didPlayerWin(board, 'O') ) {
+              "O won"
+           } else if ( finished(board) ) {
+              "Draw"
+           } else {
+              "Game has not completed"
+           }
+       
+       println(String.format("Case #%s: %s",i.toString,outcome))
+    }
+
+    def finished(board: Board) = {
+        board.forall( row => row.forall( c => c != '.' ) )
+    }
+    
+    def didPlayerWin(board: Board, plyr: Char): Boolean = {
+        testDiag(board,plyr) ||
+        testRow(board,0,plyr) ||
+        testRow(board,1,plyr) ||
+        testRow(board,2,plyr) ||
+        testRow(board,3,plyr) ||
+        testCol(board,0,plyr) ||
+        testCol(board,1,plyr) ||
+        testCol(board,2,plyr) ||
+        testCol(board,3,plyr)
+    }
+    
+    def testRow(board: Board, row: Int, plyr: Char): Boolean = {
+        board(row).forall( c => c == plyr || c == 'T' )
+    }
+    
+    def testCol(board: Board, col: Int, plyr: Char): Boolean = {
+        board.forall( row => row(col) == plyr || row(col) == 'T' )
+    }
+    
+    def testDiag(board: Board, plyr: Char): Boolean = {
+        (0 to 3).reverse
+           .zip(board)
+           .forall( ir => {
+               ir._2(ir._1) == plyr || ir._2(ir._1) == 'T'
+           } ) ||
+        (0 to 3)
+           .zip(board)
+           .forall( ir => {
+               ir._2(ir._1) == plyr || ir._2(ir._1) == 'T'
+            } )
+    }
+    
+}

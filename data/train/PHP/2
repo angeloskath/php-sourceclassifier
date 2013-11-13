@@ -1,0 +1,94 @@
+<?php
+	
+	// Read input
+	$input = fopen("A-large.in", "r");
+	
+	list($numberOfTests) = fscanf($input, "%d\n");
+	
+	function match($a, $b, $c, $d) {
+		$matches = array();
+		$matches['X'] = 0;
+		$matches['O'] = 0;
+		$matches['T'] = 0;
+		$matches['.'] = 0;
+		$matches[$a] += 1;
+		$matches[$b] += 1;
+		$matches[$c] += 1; 
+		$matches[$d] += 1;
+		if ($matches['X'] == 3 && $matches['T'] == 1) {
+			return "X won";
+		}
+		if ($matches['O'] == 3 && $matches['T'] == 1) {
+			return "O won";
+		}
+		if ($matches['X'] == 4 || $matches['O'] == 4) {
+			return $a . " won";
+		}
+		return false;
+	}
+	
+	function vertical($board) {
+		for ($i = 0; $i < 4; $i++) {
+			$winner = match($board[0]{$i}, $board[1]{$i}, $board[2]{$i}, $board[3]{$i});
+			
+			if ($winner) {
+				return $winner;
+			}
+		}
+		return false;
+	}
+	function horizontal($board) {
+		for ($i = 0; $i < 4; $i++) {
+			$winner = match($board[$i]{0}, $board[$i]{1}, $board[$i]{2}, $board[$i]{3});
+			if ($winner) {
+				return $winner;
+			}
+		}
+		return false;
+	}
+	
+	function diagonal($board) {
+		$winner = match($board[0]{0}, $board[1]{1}, $board[2]{2}, $board[3]{3});
+		if (!$winner) {
+			$winner = match($board[3]{0}, $board[2]{1}, $board[1]{2}, $board[0]{3});
+		}
+		return $winner;
+	}
+	
+	function draw($board) {
+		for ($i = 0; $i < 4; $i++) {
+			for ($j = 0; $j < 4; $j++) {
+				if ($board[$i]{$j} == ".") {
+					return false;
+				}
+			}
+		}
+		return "Draw";
+	}
+	
+	for ($i = 0 ; $i < $numberOfTests ; $i ++) {
+		$board = array();
+		for ($j = 0; $j < 4; $j++) {
+			$line = fgets($input);
+			array_push($board, $line);
+			//echo $line;
+		}
+		fgets($input);
+		$winner = horizontal($board);
+		if (!$winner) {
+			$winner = vertical($board);
+		}
+		if (!$winner) {
+			$winner = diagonal($board);
+		}
+		if (!$winner) {
+			$winner = draw($board);
+		}
+		if (!$winner) {
+			$winner = "Game has not completed";
+		}
+		echo "Case #" . ($i+1) . ": " . $winner . "\n";
+		
+	}
+	
+?>

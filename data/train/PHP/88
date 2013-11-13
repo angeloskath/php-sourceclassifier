@@ -1,0 +1,142 @@
+<?php
+$input=""; // < input here
+$iarray=explode("\n", $input);
+$anzahl=intval($iarray[0]);
+//echo "es sind ".$anzahl."\n";
+$ar=array();
+for($i=1;$i<=$anzahl*4;$i++)
+{
+  $ar[$i-1]=str_split($iarray[$i]);
+}
+//print_r($ar);
+for($i=0;$i<$anzahl*4;$i=$i+4)
+{
+  $ncomp=false;
+  $xwon=false;
+  $owon=false;
+  //line
+  for($j=0;$j<4;$j++) // line 0-3
+  {
+    $oc=0;
+    $xc=0;
+    $tc=0;
+    for($k=0;$k<4;$k++) // field 0-3
+    {
+	  if($ar[$i+$j][$k]=="X")
+	    $xc++;
+	  if($ar[$i+$j][$k]=="O")
+	    $oc++;
+	  if($ar[$i+$j][$k]=="T")
+        $tc++;
+	  if($ar[$i+$j][$k]==".")
+	    $ncomp=true;
+	}
+	if($tc<4)
+	{
+	  if($xc+$tc==4)
+	    $xwon=true;
+	  if($oc+$tc==4)
+	    $owon=true;
+	}
+  }
+  //column  
+  for($j=0;$j<4;$j++) // col
+  {
+    $oc=0;
+    $xc=0;
+    $tc=0;
+    for($k=0;$k<4;$k++) // field down 0-3
+    {
+	  if($ar[$i+$k][$j]=="X")
+	    $xc++;
+	  if($ar[$i+$k][$j]=="O")
+	    $oc++;
+	  if($ar[$i+$k][$j]=="T")
+        $tc++;
+	}
+	if($tc<4)
+	{
+	  if($xc+$tc==4)
+	    $xwon=true;
+	  if($oc+$tc==4)
+	    $owon=true;
+	}
+  }
+  //diag
+  // 1
+  $oc=0;
+  $xc=0;
+  $tc=0;
+  for($j=0;$j<4;$j++) // col
+  {
+	if($ar[$i+$j][$j]=="X")
+      $xc++;
+	if($ar[$i+$j][$j]=="O")
+      $oc++;
+	if($ar[$i+$j][$j]=="T")
+      $tc++;
+  }
+  if($tc<4)
+  {
+    if($xc+$tc==4)
+      $xwon=true;
+    if($oc+$tc==4)
+      $owon=true;
+  }
+  //diag
+  // 2  $oc=0;
+  $oc=0;
+  $xc=0;
+  $tc=0;
+  for($j=0;$j<4;$j++) // col
+  {
+	if($ar[$i+$j][3-$j]=="X")
+      $xc++;
+	if($ar[$i+$j][3-$j]=="O")
+      $oc++;
+	if($ar[$i+$j][3-$j]=="T")
+      $tc++;
+  }
+  if($tc<4)
+  {
+    if($xc+$tc==4)
+      $xwon=true;
+    if($oc+$tc==4)
+      $owon=true;
+  }
+  //end test
+  //echo ($i/4)+1;
+  if($owon)
+  {
+    echo "Case #"; 
+	echo ($i/4)+1;
+	echo ": O won\n";
+  }
+  else
+  {
+    if($xwon)
+	{
+	  echo "Case #"; 
+	  echo ($i/4)+1;
+	  echo ": X won\n";
+	}
+	else
+	{
+	  if($ncomp)
+	  {
+	    echo "Case #"; 
+	    echo ($i/4)+1;
+	    echo ": Game has not completed\n";
+	  }
+	  else
+	  {
+	    echo "Case #"; 
+	    echo ($i/4)+1;
+	    echo ": Draw\n";
+	  }
+	}
+  }
+}
+
+
+?>

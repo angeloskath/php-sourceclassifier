@@ -1,0 +1,125 @@
+program GCJA;
+
+uses crt;
+var i,j,k,n,sor,osz : integer;
+	tab : array[1..4,1..4] of char;
+	f,g: text;
+	draw,x,o,p,kesz : boolean;
+
+
+
+BEGIN
+	assign(f,'A-large.in');
+	reset(f);
+	assign(g,'A.out');
+	rewrite(g);
+	readln(f,n);
+	for i:=1 to n do
+		begin
+			x:=false;
+			p:=false;
+			o:=false;
+			draw:=false;
+			kesz:=false;
+			//Beolvas, sorok
+			j:=0;
+			while (j<4){and(not kesz)} do
+				begin
+					inc(j);
+					k:=0;
+					x:=false;
+					p:=false;
+					o:=false;
+					while (k<4) do
+						begin
+							inc(k);
+							read(f,tab[j,k]);
+							case tab[j,k] of
+								'.' : begin draw:=true; p:=true; end;
+								'O' : o:=true;
+								'X' : x:=true;
+							end;
+							
+							
+						end;
+						
+					if (not p) and (x xor o)
+								then begin kesz:=true;
+									if x then writeln(g,'Case #',i,': X won')
+										else writeln(g,'Case #',i,': O won')
+							end;
+					readln(f);
+				end;
+			j:=0;
+			x:=false;
+			p:=false;
+			o:=false;
+			//oszlopok
+			while (j<4)and(not kesz) do
+				begin
+							x:=false;
+							p:=false;
+							o:=false;
+					inc(j);
+					k:=0;
+					while (k<4) do
+						begin
+							inc(k);
+							case tab[k,j] of
+								'.' : p:=true;
+								'O' : o:=true;
+								'X' : x:=true;
+							end;
+							
+							
+						end;
+					if (not p) and (x xor o) then begin kesz:=true;
+							if x then writeln(g,'Case #',i,': X won')
+								else writeln(g,'Case #',i,': O won')
+							end;
+				end;
+			//átlók	
+			j:=0;
+			x:=false;
+			p:=false;
+			o:=false;
+			while (j<4)and(not kesz) do
+				begin
+					inc(j);
+					case tab[j,j] of
+						'.' : p:=true;
+						'O' : o:=true;
+						'X' : x:=true;
+					end;
+					
+				end;
+			if (not p) and (x xor o) then begin kesz:=true;
+							if x then writeln(g,'Case #',i,': X won')
+								else writeln(g,'Case #',i,': O won')
+							end;
+			j:=0;
+			x:=false;
+			p:=false;
+			o:=false;
+			while (j<4)and(not kesz) do
+				begin
+					inc(j);
+					case tab[j,5-j] of
+						'.' : p:=true;
+						'O' : o:=true;
+						'X' : x:=true;
+					end;
+					
+				end;
+			if (not p) and (x xor o) then begin kesz:=true;
+							if x then writeln(g,'Case #',i,': X won')
+								else writeln(g,'Case #',i,': O won')
+								end;
+			if not kesz then if not draw then writeln(g,'Case #',i,': Draw') else writeln(g,'Case #',i,': Game has not completed');
+			readln(f);
+		end;
+		close(f);
+		close(g);
+	
+END.
+

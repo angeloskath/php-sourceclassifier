@@ -1,0 +1,87 @@
+<?php
+$input = file("php://stdin");
+$input = array_map('trim', $input);
+
+$len = $input[0];
+for ($i = 0; $i < $len; ++$i) {
+  $arr = array(
+    $input[$i * 5 + 1],
+    $input[$i * 5 + 2],
+    $input[$i * 5 + 3],
+    $input[$i * 5 + 4],
+  );
+
+  echo sprintf("Case #%d: %s\r\n", $i + 1, check($arr));
+}
+
+
+function check($arr) {
+  if (checkXWon($arr)) {
+    return 'X won';
+  }
+
+  if (checkOWon($arr)) {
+    return 'O won';
+  }
+  
+  if (hasDot($arr)) {
+    return 'Game has not completed';
+  }
+  return 'Draw';
+}
+
+function checkXWon(&$arr) {
+  return checkWon('X', $arr);
+}
+
+function checkOWon(&$arr) {
+  return checkWon('O', $arr);
+}
+
+function checkWon($token, &$arr) {
+  return checkHorizontalLine($token, 0, $arr)
+    || checkVerticalLine($token, 0, $arr)
+    || checkHorizontalLine($token, 1, $arr)
+    || checkVerticalLine($token, 1, $arr)
+    || checkHorizontalLine($token, 2, $arr)
+    || checkVerticalLine($token, 2, $arr)
+    || checkHorizontalLine($token, 3, $arr)
+    || checkVerticalLine($token, 3, $arr)
+    || checkDiagonal($token, $arr);
+}
+
+function checkHorizontalLine($token, $index, &$arr) {
+  return ($arr[$index][0] == $token || $arr[$index][0] == 'T')
+    && ($arr[$index][1] == $token || $arr[$index][1] == 'T')
+    && ($arr[$index][2] == $token || $arr[$index][2] == 'T')
+    && ($arr[$index][3] == $token || $arr[$index][3] == 'T');
+}
+
+function checkVerticalLine($token, $index, &$arr) {
+  return ($arr[0][$index] == $token || $arr[0][$index] == 'T')
+    && ($arr[1][$index] == $token || $arr[1][$index] == 'T')
+    && ($arr[2][$index] == $token || $arr[2][$index] == 'T')
+    && ($arr[3][$index] == $token || $arr[3][$index] == 'T');
+}
+
+function checkDiagonal($token, &$arr) {
+  return (($arr[0][0] == $token || $arr[0][0] == 'T')
+    && ($arr[1][1] == $token || $arr[1][1] == 'T')
+    && ($arr[2][2] == $token || $arr[2][2] == 'T')
+    && ($arr[3][3] == $token || $arr[3][3] == 'T'))
+    || (($arr[0][3] == $token || $arr[0][3] == 'T')
+    && ($arr[1][2] == $token || $arr[1][2] == 'T')
+    && ($arr[2][1] == $token || $arr[2][1] == 'T')
+    && ($arr[3][0] == $token || $arr[3][0] == 'T'));
+}
+
+function hasDot($arr) {
+  for ($i = 0; $i < 4; ++$i) {
+    for ($j = 0; $j < 4; ++$j) {
+      if ($arr[$i][$j] == '.') {
+        return true;
+      }
+    }
+  }
+  return false;
+}

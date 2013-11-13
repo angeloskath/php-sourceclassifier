@@ -1,0 +1,83 @@
+function results = aSol(I)
+    U = [0 0 0 1; 0 0 1 0; 0 1 0 0; 1 0 0 0];
+    
+    file = fopen(I);
+    T = fscanf(file,'%d');
+    
+    S = fscanf(file,'%s');
+    
+    X = regexprep(S,'[O.]','0');
+    X = regexprep(X,'[XT]','1');
+    
+    Y = regexprep(S,'[X.]','0');
+    Y = regexprep(Y,'[OT]','1');
+    
+    X = arrayfun(@str2double,X)';
+    Y = arrayfun(@str2double,Y)';
+    
+    results = '';
+    
+    for i=1:T
+        result = 0;
+        r = 16*(i-1)+1;
+        
+        s = S(r:r+15);
+        x = X(r:r+15);
+        y = Y(r:r+15);
+        
+        x = reshape(x,4,4);
+        y = reshape(y,4,4);
+        
+        
+        if ismember(4,x*x')
+            result = strcat('Case #',num2str(i),': X Won');
+        elseif ismember(4,x'*x)
+            result = strcat('Case #',num2str(i),': X Won');
+        elseif trace(x) == 4
+            result = strcat('Case #',num2str(i),': X Won');
+        elseif trace(U*x) == 4
+            result = strcat('Case #',num2str(i),': X Won');
+        elseif ismember(4,y*y')
+            result = strcat('Case #',num2str(i),': O Won');
+        elseif ismember(4,y'*y)
+            result = strcat('Case #',num2str(i),': O Won');
+        elseif trace(y) == 4
+            result = strcat('Case #',num2str(i),': O Won');
+        elseif trace(U*y) == 4
+            result = strcat('Case #',num2str(i),': O Won');
+        end
+        
+        if result == 0
+            L = length(strfind(s,'.'));
+            if L == 0
+                result = strcat('Case #',num2str(i),': Draw');
+            else
+                result = strcat('Case #',num2str(i),': Game has not completed');
+            end
+        end
+        
+        results = strcat(results,'\n',result);
+    
+    end
+    
+    results = results(3:length(results));
+    
+    sprintf(results)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

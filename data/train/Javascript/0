@@ -1,0 +1,38 @@
+// run with v8: d8 file.js < file.in
+
+var m, res, dot
+
+function check(x0, y0, dx, dy) {
+	var x = 0
+	var o = 0
+	var t = 0
+	for (var i = 0; i < 4; ++i) {
+		switch (m[x0 + i * dx][y0 + i * dy]) {
+		case 'X':x++;break
+		case 'O':o++;break
+		case 'T':t++;break
+		case '.':dot=1;break
+		}
+	}
+	if (x + t == 4) res = 'X'
+	if (o + t == 4) res = 'O'
+}
+
+var t = readline()
+for (var i = 1; i <= t; ++i) {
+	m = []
+	for (var j = 0; j < 4; ++j) {
+		m[j] = readline()
+	}
+	readline()
+	res = null
+	dot = 0
+	for (var j = 0; j < 4; ++j) {
+		check(j, 0, 0, 1)
+		check(0, j, 1, 0)
+	}
+	check(0, 0, 1, 1)
+	check(3, 0, -1, 1)
+	res = res ? res + ' won' : dot ? 'Game has not completed' : 'Draw'
+	print('Case #' + i + ': ' + res)
+}

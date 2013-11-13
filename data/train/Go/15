@@ -1,0 +1,226 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"io"
+	"os"
+)
+
+const PRINT_BOARD = false
+const (
+	TIE = iota
+	INCOMPLETE
+	XWON
+	OWON
+)
+
+func main() {
+	f, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(fmt.Errorf("Can't open file %s: %s", os.Args[1], err))
+	}
+	defer f.Close()
+
+	in := bufio.NewReader(f)
+	var numCases int
+	fmt.Fscanln(in, &numCases)
+
+	for i := 1; i <= numCases; i++ {
+		outcome := CheckBoard(in)
+
+		fmt.Printf("Case #%d: ", i)
+		switch outcome {
+		case TIE:
+			fmt.Println("Draw")
+		case INCOMPLETE:
+			fmt.Println("Game has not completed")
+		case XWON:
+			fmt.Println("X won")
+		case OWON:
+			fmt.Println("O won")
+		}
+	}
+}
+
+func CheckBoard(r io.Reader) int {
+	b := LoadBoard(r)
+
+	if PRINT_BOARD {
+		fmt.Print(b)
+	}
+
+	hasEmpty := false
+
+	// Search rows for win
+NextColSearch1:
+	for row := 0; row < 4; row++ {
+		rX := 0
+		rO := 0
+
+		for col := 0; col < 4; col++ {
+			c := b.Get(row, col)
+			switch c {
+			case EMPTY:
+				hasEmpty = true
+				continue NextColSearch1
+			case XMARK:
+				rX += 1
+			case OMARK:
+				rO += 1
+			case TOMEK:
+				rX += 1
+				rO += 1
+			}
+		}
+
+		if rX == 4 {
+			return XWON
+		}
+		if rO == 4 {
+			return OWON
+		}
+	}
+
+	// Search cols for win
+NextColSearch2:
+	for col := 0; col < 4; col++ {
+		cX := 0
+		cO := 0
+
+		for row := 0; row < 4; row++ {
+			c := b.Get(row, col)
+
+			switch c {
+			case EMPTY:
+				continue NextColSearch2
+			case XMARK:
+				cX += 1
+			case OMARK:
+				cO += 1
+			case TOMEK:
+				cX += 1
+				cO += 1
+			}
+		}
+
+        if cX == 4 {
+            return XWON
+        }
+        if cO == 4 {
+            return OWON
+        }
+	}
+
+	// Search 2 diags for win
+    dX := 0
+    dO := 0
+	for col, row := 0, 0; col < 4; col, row = col+1, row+1 {
+		c := b.Get(row, col)
+		switch c {
+		case EMPTY:
+			break
+		case XMARK:
+			dX += 1
+		case OMARK:
+			dO += 1
+		case TOMEK:
+			dX += 1
+			dO += 1
+		}
+	}
+
+    if dX == 4 {
+        return XWON
+    }
+    if dO == 4 {
+        return OWON
+    }
+
+
+    dX = 0
+    dO = 0
+	for col, row := 3, 0; col >= 0; col, row = col-1, row+1 {
+		c := b.Get(row, col)
+		switch c {
+		case EMPTY:
+			break
+		case XMARK:
+			dX += 1
+		case OMARK:
+			dO += 1
+		case TOMEK:
+			dX += 1
+			dO += 1
+		}
+
+	}
+    if dX == 4 {
+        return XWON
+    }
+    if dO == 4 {
+        return OWON
+    }
+
+
+	// No empty squares is tie
+    if !hasEmpty {
+        return TIE
+    }
+
+	// Else, not completed
+	return INCOMPLETE
+}
+
+const (
+	EMPTY = iota
+	XMARK
+	OMARK
+	TOMEK
+)
+
+type TomekBoard []int
+
+func LoadBoard(r io.Reader) TomekBoard {
+	h := 4
+	w := 4
+
+	conv := map[byte]int{'.': EMPTY, 'X': XMARK, 'O': OMARK, 'T': TOMEK}
+	in := bufio.NewReader(r)
+
+	m := make([]int, h*w)
+	for row := 0; row < h; row++ {
+		line, err := in.ReadBytes('\n')
+		if err != nil {
+			panic(err)
+		}
+
+		m[row*w+0] = conv[line[0]]
+		m[row*w+1] = conv[line[1]]
+		m[row*w+2] = conv[line[2]]
+		m[row*w+3] = conv[line[3]]
+	}
+
+	in.ReadBytes('\n')
+
+	return TomekBoard(m)
+}
+
+func (tb TomekBoard) Get(row, col int) int {
+    return tb[row*4+col]
+}
+
+func (tb TomekBoard) String() string {
+	conv := map[int]byte{EMPTY: '.', XMARK: 'X', OMARK: 'O', TOMEK: 'T'}
+
+	buf := &bytes.Buffer{}
+	for row := 0; row < 4; row++ {
+		for col := 0; col < 4; col++ {
+			fmt.Fprintf(buf, "%c", conv[tb[row*4+col]])
+		}
+		fmt.Fprintln(buf)
+	}
+
+	return buf.String()
+}

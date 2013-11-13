@@ -1,0 +1,96 @@
+function [winner] = check_trace(temp2)
+
+temp2 = double(temp2);
+
+tr = trace(temp2);
+
+if(tr==(88*4) || tr == (88*3)+ 84)
+
+	winner = 'X won';
+end
+
+if(tr==79*4 || tr == (79*3)+84)
+	winner = 'O won';
+
+end
+
+end
+
+clear all
+close all
+clc
+f1=fopen('A-large.in','r');
+tline=fgetl(f1);
+num_cases =str2num(tline);
+for i = 1:num_cases
+
+	for j = 1:4
+		tline=fgetl(f1);
+		temp{j}=tline;
+	end
+%	temp2	=cell2mat(temp);
+%	temp2	=reshape(temp2,4,4);	
+%	temp2   =double(temp2);
+	cell_a	=cell2mat(temp);
+	temp1	=reshape(cell_a,4,4);
+	temp2	=temp1;
+
+	[winner{i}] = check_matrix(temp2,'X','O');
+	if(isempty(winner{i})==1)
+		winner{i} = check_trace(temp2);
+	end
+
+	if(isempty(winner{i})==1)
+		winner{i} = check_matrix(temp2','X','O');
+	end
+	
+	if(isempty(winner{i})==1)
+		temp3 = flipdim(temp2,1);  
+		temp3 = flipdim(temp2,2);
+		
+		winner{i}= check_trace(temp3);
+	end
+	if(isempty(winner{i})==1)
+		cond1 = findstr('.',cell_a);
+		if(isempty(cond1)==0)
+			winner{i}='Game has not completed';
+		else
+			winner{i}='Draw';
+		end
+	end
+
+	%Removes empty line
+	tline	=fgetl(f1);
+
+end
+
+
+f2=fopen('output.txt','w');
+for i = 1:num_cases
+str = strcat(['Case #' num2str(i) ':' ' ' winner{i}]);
+%str	= num2str(cell2mat(str));
+fprintf(f2,'%s\n',str);
+end
+fclose(f2);
+fclose(f1);
+function [winner] = check_matrix(temp2,player1,player2)
+temp2 = double(temp2);
+for i = 1: 4
+
+	sum1 = sum(temp2(i,:));
+	if(sum1==(88*4) || sum1==(88*3)+84)
+		winner = 'X won';
+		i=4;
+		break;
+	end
+
+	if(sum1==79*4 || sum1==(79*3)+84)
+		winner = 'O won';
+		i=4;
+		break;
+
+	end
+	
+
+end
+

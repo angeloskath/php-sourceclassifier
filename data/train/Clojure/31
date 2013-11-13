@@ -1,0 +1,83 @@
+(ns codejam.core)
+
+(defn tttt-board
+  "Parses a string for groups of strs as boards"
+  [str]
+  (partition-all 4 (filter
+                    (complement clojure.string/blank?) 
+                    (clojure.string/split-lines str))))
+
+(defn describe-major-diagonal 
+  ([board]
+     (describe-major-diagonal board 0 nil))
+  ([board n res]
+     (if (empty? board)
+       res
+       (describe-major-diagonal
+        (rest board)
+        (+ n 1)
+        (str res 
+             (nth (first board) n))))))
+
+(defn describe-minor-diagonal 
+  ([board]
+     (describe-minor-diagonal board nil))
+  ([board res]
+     (if (empty? board)
+       (describe-major-diagonal res)
+       (describe-minor-diagonal
+        (rest board)
+        (conj res (first board))))))
+
+(defn describe-vertical 
+  ([board n]
+  (describe-vertical board n ""))
+  ([board n res]
+     (if (empty? board)
+       res
+       (describe-vertical
+        (rest board)
+        n
+        (str res (nth (first board) n))))))
+
+(defn describe-verticals 
+  ([board]
+     (describe-verticals board 0 nil))
+  ([board n res]
+     (if (>= n (count (first board)))
+       res
+       (describe-verticals board 
+                           (+ n 1) 
+                           (conj res (describe-vertical board n))))))
+
+(defn describe-horizontals
+  ([board]
+     (describe-horizontals board nil))
+  ([board res]
+     (if (empty? board)
+       res
+       (describe-horizontals (rest board) (conj res (first board))))))
+  
+(defn determine-winner [& board]
+  (let [positions (flatten (conj
+                   board
+                   (describe-verticals board) 
+                   (describe-major-diagonal board)
+                   (describe-minor-diagonal board)))]
+    (cond (some #(re-seq #"^[XT]+$" %) positions) "X won"
+          (some #(re-seq #"^[OT]+$" %) positions) "O won"
+          (some #(re-seq #"[.]" %) positions) "Game has not completed"
+     :else "Draw")))
+
+(defn printloop [num results]
+  (if (empty? results)
+    nil
+    (do
+      (printf "Case #%d: %s\n" num (first results))
+      (printloop (+ num 1) (rest results)))))
+
+(defn -main
+  []
+  (let [input (slurp "/home/jouiswalker/workspace/codejam/resources/A-large.in")]
+    (printloop 1 (map #(apply determine-winner %) (tttt-board input)))))
+(-main)

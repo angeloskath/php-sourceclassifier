@@ -1,0 +1,281 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+open( my $in, "<", "A-large.in" ) or die "Can't open the file!\n";
+open( OUT, "> output.txt" ) or die "Can't open file for writing";
+my $T = <$in>;
+
+my $i;
+my $j;
+my $k;
+my $statement;
+for ($i=0;$i<$T;$i++){
+	
+	if ($i>0){
+		if ($statement == 1){
+		print OUT "Case #$i: X won\n";
+		print "Case #$i: X won\n";
+		}
+		else{
+			if ($statement == 2){
+				print OUT "Case #$i: O won\n";
+				print "Case #$i: O won\n";
+			}
+			else{
+				if ($statement == 3){
+					print OUT "Case #$i: Draw\n";
+					print "Case #$i: Draw\n";
+				}
+				else{
+					if ($statement == 4){
+						print OUT "Case #$i: Game has not completed\n";
+						print "Case #$i: Game has not completed\n";
+					}
+				}
+			}
+		}
+	}
+	
+	my $line1 = <$in>;
+	my $line2 = <$in>;
+	my $line3 = <$in>;
+	my $line4 = <$in>;
+	
+	chop $line1;
+	chop $line2;
+	chop $line3;
+	chop $line4;
+	
+	my @line1 = split(//,$line1);
+	my @line2 = split(//,$line2);
+	my @line3 = split(//,$line3);
+	my @line4 = split(//,$line4);
+	
+	my @columns1;
+	my @columns2;
+	my @columns3;
+	my @columns4;
+	
+	$columns1[0] = $line1[0];
+	$columns1[1] = $line2[0];
+	$columns1[2] = $line3[0];
+	$columns1[3] = $line4[0];
+	
+	$columns2[0] = $line1[1];
+	$columns2[1] = $line2[1];
+	$columns2[2] = $line3[1];
+	$columns2[3] = $line4[1];
+	
+	$columns3[0] = $line1[2];
+	$columns3[1] = $line2[2];
+	$columns3[2] = $line3[2];
+	$columns3[3] = $line4[2];
+	
+	$columns4[0] = $line1[3];
+	$columns4[1] = $line2[3];
+	$columns4[2] = $line3[3];
+	$columns4[3] = $line4[3];
+	
+	my $col1 = $columns1[0].$columns1[1].$columns1[2].$columns1[3];
+	my $col2 = $columns2[0].$columns2[1].$columns2[2].$columns2[3];
+	my $col3 = $columns3[0].$columns3[1].$columns3[2].$columns3[3];
+	my $col4 = $columns4[0].$columns4[1].$columns4[2].$columns4[3];
+	
+	my @primerDiagonal;
+	my @secondaryDiagonal;
+	
+	$primerDiagonal[0] = $line1[0];
+	$primerDiagonal[1] = $line2[1];
+	$primerDiagonal[2] = $line3[2];
+	$primerDiagonal[3] = $line4[3];
+	
+	$secondaryDiagonal[0] = $line1[3];
+	$secondaryDiagonal[1] = $line2[2];
+	$secondaryDiagonal[2] = $line3[1];
+	$secondaryDiagonal[3] = $line4[0];
+	
+	my $pDiag = $primerDiagonal[0].$primerDiagonal[1].$primerDiagonal[2].$primerDiagonal[3];
+	my $sDiag = $secondaryDiagonal[0].$secondaryDiagonal[1].$secondaryDiagonal[2].$secondaryDiagonal[3];
+	
+	<$in>;
+	
+	#First IF
+	if ($line1 eq 'XXXX' || $line1 eq 'TXXX' || $line1 eq 'XTXX' || $line1 eq 'XXTX' || $line1 eq 'XXXT'){
+		$statement = 1;
+		next;
+	}
+	else{
+		if ($line2 eq 'XXXX' || $line2 eq 'TXXX' || $line2 eq 'XTXX' || $line2 eq 'XXTX' || $line2 eq 'XXXT'){
+			$statement = 1;
+			next;
+		}
+		else{
+			if ($line3 eq 'XXXX' || $line3 eq 'TXXX' || $line3 eq 'XTXX' || $line3 eq 'XXTX' || $line3 eq 'XXXT'){
+				$statement = 1;
+				next;
+			}
+			else{
+				if ($line4 eq 'XXXX' || $line4 eq 'TXXX' || $line4 eq 'XTXX' || $line4 eq 'XXTX' || $line4 eq 'XXXT'){
+					$statement = 1;
+					next;
+				}
+			}
+		}	
+	}#end of first IF
+	
+	#Second IF
+	if ($line1 eq 'OOOO' || $line1 eq 'TOOO' || $line1 eq 'OTOO' || $line1 eq 'OOTO' || $line1 eq 'OOOT'){
+		$statement = 2;
+		next;
+	}
+	else{
+		if ($line2 eq 'OOOO' || $line2 eq 'TOOO' || $line2 eq 'OTOO' || $line2 eq 'OOTO' || $line2 eq 'OOOT'){
+			$statement = 2;
+			next;
+		}
+		else{
+			if ($line3 eq 'OOOO' || $line3 eq 'TOOO' || $line3 eq 'OTOO' || $line3 eq 'OOTO' || $line3 eq 'OOOT'){
+				$statement = 2;
+				next;
+			}
+			else{
+				if ($line4 eq 'OOOO' || $line4 eq 'TOOO' || $line4 eq 'OTOO' || $line4 eq 'OOTO' || $line4 eq 'OOOT'){
+					$statement = 2;
+					next;
+				}
+			}
+		}	
+	}#end of Second IF
+	
+	#Third IF
+	if ($col1 eq 'XXXX' || $col1 eq 'TXXX' || $col1 eq 'XTXX' || $col1 eq 'XXTX' || $col1 eq 'XXXT'){
+		$statement = 1;
+		next;
+	}
+	else{
+		if ($col2 eq 'XXXX' || $col2 eq 'TXXX' || $col2 eq 'XTXX' || $col2 eq 'XXTX' || $col2 eq 'XXXT'){
+			$statement = 1;
+			next;
+		}
+		else{
+			if ($col3 eq 'XXXX' || $col3 eq 'TXXX' || $col3 eq 'XTXX' || $col3 eq 'XXTX' || $col3 eq 'XXXT'){
+				$statement = 1;
+				next;
+			}
+			else{
+				if ($col4 eq 'XXXX' || $col4 eq 'TXXX' || $col4 eq 'XTXX' || $col4 eq 'XXTX' || $col4 eq 'XXXT'){
+					$statement = 1;
+					next;
+				}
+			}
+		}	
+	}#end of third IF
+	
+	#Forth IF
+	if ($col1 eq 'OOOO' || $col1 eq 'TOOO' || $col1 eq 'OTOO' || $col1 eq 'OOTO' || $col1 eq 'OOOT'){
+		$statement = 2;
+		next;
+	}
+	else{
+		if ($col2 eq 'OOOO' || $col2 eq 'TOOO' || $col2 eq 'OTOO' || $col2 eq 'OOTO' || $col2 eq 'OOOT'){
+			$statement = 2;
+			next;
+		}
+		else{
+			if ($col3 eq 'OOOO' || $col3 eq 'TOOO' || $col3 eq 'OTOO' || $col3 eq 'OOTO' || $col3 eq 'OOOT'){
+				$statement = 2;
+				next;
+			}
+			else{
+				if ($col4 eq 'OOOO' || $col4 eq 'TOOO' || $col4 eq 'OTOO' || $col4 eq 'OOTO' || $col4 eq 'OOOT'){
+					$statement = 2;
+					next;
+				}
+			}
+		}	
+	}#end of forth IF
+	
+	#Fifth IF
+	if ($pDiag eq 'XXXX' || $pDiag eq 'TXXX' || $pDiag eq 'XTXX' || $pDiag eq 'XXTX' || $pDiag eq 'XXXT'){
+		$statement = 1;
+		next;
+	}
+	else{
+		if ($pDiag eq 'OOOO' || $pDiag eq 'TOOO' || $pDiag eq 'OTOO' || $pDiag eq 'OOTO' || $pDiag eq 'OOOT'){
+			$statement = 2;
+			next;
+		}
+		else{
+			if ($sDiag eq 'XXXX' || $sDiag eq 'TXXX' || $sDiag eq 'XTXX' || $sDiag eq 'XXTX' || $sDiag eq 'XXXT'){
+				$statement = 1;
+				next;
+			}
+			else{
+				if ($sDiag eq 'OOOO' || $sDiag eq 'TOOO' || $sDiag eq 'OTOO' || $sDiag eq 'OOTO' || $sDiag eq 'OOOT'){
+					$statement = 2;
+					next;
+				}
+			}
+		}	
+	}#end of fifth IF
+	
+	my $counter = 0;
+	for ($k=0;$k<4;$k++){
+		if ($line1[$k] eq '.'){
+			$counter++;	
+		}
+	}
+	
+	for ($k=0;$k<4;$k++){
+		if ($line2[$k] eq '.'){
+			$counter++;	
+		}
+	}
+	
+	for ($k=0;$k<4;$k++){
+		if ($line3[$k] eq '.'){
+			$counter++;	
+		}
+	}
+	
+	for ($k=0;$k<4;$k++){
+		if ($line4[$k] eq '.'){
+			$counter++;	
+		}
+	}
+	
+	if ($counter == 0){
+		$statement = 3;
+	}
+	else{
+		$statement = 4;
+	}
+	
+}
+
+if ($statement == 1){
+		print OUT "Case #$i: X won\n";
+		print "Case #$i: X won\n";
+	}
+	else{
+		if ($statement == 2){
+			print OUT "Case #$i: O won\n";
+			print "Case #$i: O won\n";
+		}
+		else{
+			if ($statement == 3){
+				print OUT "Case #$i: Draw\n";
+				print "Case #$i: Draw\n";
+			}
+			else{
+				if ($statement == 4){
+					print OUT "Case #$i: Game has not completed\n";
+					print "Case #$i: Game has not completed\n";
+				}
+			}
+		}
+	}
+
+close $in;
+close OUT;

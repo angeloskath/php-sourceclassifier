@@ -1,0 +1,150 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+)
+
+var in = flag.String("in", "sample.txt", "Input file")
+
+func readInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return i
+}
+
+func main() {
+	flag.Parse()
+
+	//Read file
+	f, err := os.Open(*in)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	sdata, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := strings.Split(string(sdata), "\n")
+	iLineCount := len(lines)
+	if len(lines[iLineCount-1]) == 0 {
+		iLineCount--
+	}
+	log.Printf("INFO: %d readed lines\n", iLineCount)
+
+	//Pb count is on first line.
+	pbCount := readInt(lines[0])
+	log.Printf("INFO: %d problems\n", pbCount)
+
+	//Create output writer
+	output := *in + ".out"
+	w, err := os.Create(output)
+	defer w.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for iPb := 0; iPb < pbCount; iPb++ {
+		//Read board
+		board := make([]string, 4)
+		for i := 0; i < 4; i++ {
+			board[i] = lines[i+iPb*5+1]
+		}
+		xWin := false
+		oWin := false
+		empty := false
+
+		//Check horizontal
+		for i := 0; i < 4; i++ {
+			if (board[i][0] == 'X' || board[i][0] == 'T') &&
+				(board[i][1] == 'X' || board[i][1] == 'T') &&
+				(board[i][2] == 'X' || board[i][2] == 'T') &&
+				(board[i][3] == 'X' || board[i][3] == 'T') {
+				xWin = true
+			}
+			if (board[i][0] == 'O' || board[i][0] == 'T') &&
+				(board[i][1] == 'O' || board[i][1] == 'T') &&
+				(board[i][2] == 'O' || board[i][2] == 'T') &&
+				(board[i][3] == 'O' || board[i][3] == 'T') {
+				oWin = true
+			}
+			if board[i][0] == '.' || board[i][1] == '.' || board[i][2] == '.' || board[i][3] == '.' {
+				empty = true
+			}
+		}
+		//Check vertical
+		for i := 0; i < 4; i++ {
+			if (board[0][i] == 'X' || board[0][i] == 'T') &&
+				(board[1][i] == 'X' || board[1][i] == 'T') &&
+				(board[2][i] == 'X' || board[2][i] == 'T') &&
+				(board[3][i] == 'X' || board[3][i] == 'T') {
+				xWin = true
+			}
+			if (board[0][i] == 'O' || board[0][i] == 'T') &&
+				(board[1][i] == 'O' || board[1][i] == 'T') &&
+				(board[2][i] == 'O' || board[2][i] == 'T') &&
+				(board[3][i] == 'O' || board[3][i] == 'T') {
+				oWin = true
+			}
+			if board[0][i] == '.' || board[1][i] == '.' || board[2][i] == '.' || board[3][i] == '.' {
+				empty = true
+			}
+		}
+
+		//Check diag
+		if (board[0][0] == 'X' || board[0][0] == 'T') &&
+			(board[1][1] == 'X' || board[1][1] == 'T') &&
+			(board[2][2] == 'X' || board[2][2] == 'T') &&
+			(board[3][3] == 'X' || board[3][3] == 'T') {
+			xWin = true
+		}
+		if (board[0][0] == 'O' || board[0][0] == 'T') &&
+			(board[1][1] == 'O' || board[1][1] == 'T') &&
+			(board[2][2] == 'O' || board[2][2] == 'T') &&
+			(board[3][3] == 'O' || board[3][3] == 'T') {
+			oWin = true
+		}
+		if board[0][0] == '.' || board[1][1] == '.' || board[2][2] == '.' || board[3][3] == '.' {
+			empty = true
+		}
+
+		if (board[0][3] == 'X' || board[0][3] == 'T') &&
+			(board[1][2] == 'X' || board[1][2] == 'T') &&
+			(board[2][1] == 'X' || board[2][1] == 'T') &&
+			(board[3][0] == 'X' || board[3][0] == 'T') {
+			xWin = true
+		}
+		if (board[0][3] == 'O' || board[0][3] == 'T') &&
+			(board[1][2] == 'O' || board[1][2] == 'T') &&
+			(board[2][1] == 'O' || board[2][1] == 'T') &&
+			(board[3][0] == 'O' || board[3][0] == 'T') {
+			oWin = true
+		}
+		if board[0][3] == '.' || board[1][2] == '.' || board[2][1] == '.' || board[3][0] == '.' {
+			empty = true
+		}
+
+		result := "Draw"
+		if xWin {
+			result = "X won"
+		} else if oWin {
+			result = "O won"
+		} else if empty {
+			result = "Game has not completed"
+		}
+
+		w.WriteString(fmt.Sprintf("Case #%d: %s\n", iPb+1, result))
+	}
+
+	//Exit
+	log.Printf("THE END (result written in %s)\n", output)
+}

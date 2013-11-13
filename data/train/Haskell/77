@@ -1,0 +1,76 @@
+import CodeJam
+
+tTTTSplitter :: [String] -> [[String]]
+tTTTSolver :: [String] -> String
+main = doTheCodeJam tTTTSplitter tTTTSolver
+
+tTTTSplitter (a:b:c:d:e:rest)
+    | length rest >= 4 = four ++ (tTTTSplitter rest)
+    | otherwise = four
+    where four = [[a,b,c,d]]
+
+tTTTSplitter ltFive = [ltFive] --shouldn't reach
+
+strip :: String -> String --Removes WS
+strip [] = []
+strip (x:xs)
+    | elem x [' ','\t','\n','\r'] = strip xs
+    | otherwise = x : (strip xs)
+
+{-- Would a real type help here?
+type [[a]] a = [[a]]
+--}
+isTable :: [[a]] -> Bool --Can this be done in the constructor data type?
+isTable [[]] = True
+isTable a = all (== length a) (map length a)
+tRows :: [[a]] -> [[a]]
+tCols :: [[a]] -> [[a]]
+tDiag :: [[a]] -> [[a]]
+
+tRows x = x
+tCols xs = [map (!! n) xs | n <- [0..(length xs - 1)]]
+tDiag xs = let l = length xs - 1
+           in  [[(xs !! n) !! n |  n <- [0..l] ],
+               [ (xs !! n) !! (l-n) |  n <- [0..l] ]]
+
+(===) :: Char -> Char -> Bool
+'T' === _ = True
+_ === 'T' = True
+x === y = x == y
+
+tAll :: (a -> Bool) -> [[a]] -> Bool
+tAll p t = foldr1 (||) $  map (all p) (tRows t)
+                       ++ map (all p) (tCols t)
+                       ++ map (all p) (tDiag t)
+   -- | not (isTable t) = False
+
+tHas :: (Eq a) => a -> [[a]] -> Bool
+tHas x xs = foldr (||) False (map (elem x) xs)
+
+tTTTSolver str
+    | tAll (=== 'X') t = "X won"
+    | tAll (=== 'O') t = "O won"
+    | tHas '.' t = "Game has not completed"
+    | otherwise = "Draw"
+    where t = map strip str --[String] == [[a]]
+module CodeJam ( doTheCodeJam) where
+import System.Environment
+
+type InputSplitter = [String] -> [[String]]
+type ProblemSolver = [String] -> String
+
+caseStrs :: [String]
+caseStrs = ["Case #" ++ show n ++ ": " | n <- [1..]]
+
+solveNProblem :: [String] -> InputSplitter -> ProblemSolver -> [String]
+solveNProblem (s:ss) = solveProblem ss
+
+--Solves whole file (excluding traditional number at start)
+solveProblem :: [String] -> InputSplitter -> ProblemSolver -> [String]
+solveProblem strs im ps = map ps $ im strs
+
+doTheCodeJam :: InputSplitter -> ProblemSolver -> IO ()
+doTheCodeJam im ps = do
+    (fin:_) <- getArgs
+    input <- readFile fin
+    putStr $ unlines $ zipWith (++) caseStrs $ solveNProblem (lines input) im ps

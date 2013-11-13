@@ -1,0 +1,267 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace ProblemA
+{
+    class funcs
+    {
+        public static int findch(string str, char ch, int pos)
+        {
+            for (int i = pos; i < str.Length; i++)
+            {
+                if (str[i].Equals(ch)) return i;
+            }
+            return 0;
+        }
+
+        public static int backfindch(string str, char ch, int pos)
+        {
+            for (int i = pos; i >= 0; i--)
+                if (str[i].Equals(ch)) return i;
+            return 0;
+        }
+
+        public static List<string> I_WashLine(string[] input_str)
+        {
+            List<string> ret_lines = new List<string>();
+            for (int i = 0; i < input_str.Length; i++)
+                if ((!input_str[i].StartsWith("I :")) && (!(input_str[i].Length == 0)))
+                    ret_lines.Add(input_str[i]);
+                else
+                {
+                    if (input_str[i].Length == 0)
+                    {
+                        Console.WriteLine("NONE");
+                        //Console.Read();
+                        //Console.Read();
+                    }
+                }
+            return ret_lines;
+        }
+
+        public static void WriteLines(string filename, List<string> newlines)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            for (int i = 0; i < newlines.Count; i++) sw.WriteLine(newlines[i]);
+            sw.Close();
+            fs.Close();
+        }
+
+        public static void WriteLines(string filename, List<double> newlines)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            for (int i = 0; i < newlines.Count; i++) sw.WriteLine(newlines[i].ToString());
+            sw.Close();
+            fs.Close();
+        }
+
+        public static void WriteInts(string filename, int[] lines)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            for (int i = 0; i < lines.Length; i++) sw.WriteLine(lines[i].ToString());
+            sw.Close();
+            fs.Close();
+        }
+
+        public static void WriteDoubles(string filename, double[] lines)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            for (int i = 0; i < lines.Length; i++) sw.WriteLine(lines[i].ToString());
+            sw.Close();
+            fs.Close();
+        }
+
+        public static void WriteLines(string filename, string[] newlines)
+        {
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            for (int i = 0; i < newlines.Length; i++) sw.WriteLine(newlines[i]);
+            sw.Close();
+            fs.Close();
+        }
+
+        public static int[] getInts(string file)
+        {
+            List<int> ret = new List<int>();
+            StreamReader sr = new StreamReader(file, Encoding.Default);
+            string temp;
+            while ((temp = sr.ReadLine()) != null)
+            {
+                ret.Add(int.Parse(temp));
+            }
+            sr.Close();
+            return ret.ToArray();
+        }
+
+        public static double[] getDouble(string file)
+        {
+            List<double> ret = new List<double>();
+            StreamReader sr = new StreamReader(file, Encoding.Default);
+            string temp;
+            while ((temp = sr.ReadLine()) != null)
+            {
+                ret.Add(double.Parse(temp));
+            }
+            sr.Close();
+            return ret.ToArray();
+        }
+
+        public static string[] getInputDocs(string file)
+        {
+            List<string> ret = new List<string>();
+            StreamReader sr = new StreamReader(file, Encoding.Default);
+            string temp;
+            while ((temp = sr.ReadLine()) != null)
+            {
+                ret.Add(temp);
+            }
+            sr.Close();
+            return ret.ToArray();
+        }
+
+        public static List<string> getInputDocs2(string file)
+        {
+            List<string> ret = new List<string>();
+            StreamReader sr = new StreamReader(file, Encoding.Default);
+            string temp;
+            while ((temp = sr.ReadLine()) != null)
+            {
+                ret.Add(temp);
+            }
+            sr.Close();
+            return ret;
+        }
+
+        public static int maptype(string mytype)
+        {
+            if (mytype == "anger") return 1;
+            if (mytype == "disgust") return 2;
+            if (mytype == "fear") return 3;
+            if (mytype == "happy") return 4;
+            if (mytype == "sad") return 5;
+            return 0;
+        }
+    }
+}
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ProblemA
+{
+    class program
+    {
+        public static int GetOutcome(char[,] matrix)
+        {
+            int total = 0;           
+            //X won
+            for (int i = 0; i < 4; i++)
+            {
+                bool flag = true;
+                for (int j = 0; j < 4; j++)
+                    if ((matrix[i, j] == '.') || (matrix[i, j] == 'O'))
+                        flag = false;
+                if (flag) return 1;
+            }
+            for (int j = 0; j < 4; j++)
+            {
+                bool flag = true;
+                for (int i = 0; i < 4; i++)
+                    if ((matrix[i, j] == '.') || (matrix[i, j] == 'O'))
+                        flag = false;
+                if (flag) return 1;
+            }
+
+            bool flag2 = true;
+            for (int i = 0; i < 4; i++)
+                if ((matrix[i, i] == '.') || (matrix[i, i] == 'O'))
+                    flag2 = false;                                                    
+            if (flag2) return 1;
+
+            flag2 = true;
+            for (int i = 0; i < 4; i++)
+                if ((matrix[i, 3 - i] == '.') || (matrix[i, 3 - i] == 'O'))
+                    flag2 = false;
+            if (flag2) return 1;
+
+            //O won
+            for (int i = 0; i < 4; i++)
+            {
+                bool flag = true;
+                for (int j = 0; j < 4; j++)
+                    if ((matrix[i, j] == '.') || (matrix[i, j] == 'X'))
+                        flag = false;
+                if (flag) return 2;
+            }
+            for (int j = 0; j < 4; j++)
+            {
+                bool flag = true;
+                for (int i = 0; i < 4; i++)
+                    if ((matrix[i, j] == '.') || (matrix[i, j] == 'X'))
+                        flag = false;
+                if (flag) return 2;
+            }
+
+            flag2 = true;
+            for (int i = 0; i < 4; i++)
+                if ((matrix[i, i] == '.') || (matrix[i, i] == 'X'))
+                    flag2 = false;
+            if (flag2) return 2;
+
+            flag2 = true;
+            for (int i = 0; i < 4; i++)
+                if ((matrix[i, 3 - i] == '.') || (matrix[i, 3 - i] == 'X'))
+                    flag2 = false;
+            if (flag2) return 2;
+
+            //All Full
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
+                    if (matrix[i, j] != '.')
+                        total++;
+            if (total == 16) return 3;
+            
+            return 0;
+        }
+
+        public static void Main()
+        {
+            //List<string> input_lines = funcs.getInputDocs2(@"input.txt");
+            List<string> input_lines = funcs.getInputDocs2(@"A-large.in");
+            
+            int num = int.Parse(input_lines[0]);
+            int count = 1;
+            List<string> outlines = new List<string>();
+            for (int samples = 0; samples < num; samples++)
+            {
+                char[,] matrix = new char[4, 4];
+                for (int i = 0; i < 4; i++)
+                {                    
+                    string thisline = input_lines[count];
+                    matrix[i, 0] = thisline[0]; matrix[i, 1] = thisline[1];
+                    matrix[i, 2] = thisline[2]; matrix[i, 3] = thisline[3];
+                    count++;
+                }
+                count++;                
+                //Start Manipulating
+                int outcome = GetOutcome(matrix);
+                string t_out = "Case #" + (samples + 1).ToString() + ": ";
+                if (outcome == 0) t_out += "Game has not completed";
+                if (outcome == 1) t_out += "X won";
+                if (outcome == 2) t_out += "O won";
+                if (outcome == 3) t_out += "Draw";
+                outlines.Add(t_out);
+            }
+            funcs.WriteLines(@"output.txt", outlines);
+            funcs.WriteLines(@"A-large.out", outlines);
+        }
+    }
+}

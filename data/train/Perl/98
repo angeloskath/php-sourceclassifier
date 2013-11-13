@@ -1,0 +1,84 @@
+#! /usr/bin/perl
+
+use strict;
+
+my $T = <>;
+chomp($T);
+
+for (my $i = 1; $i <= $T; $i++) {
+    # load the grid for this test case
+    my $line1 = <>; chomp($line1);
+    my $line2 = <>; chomp($line2);
+    my $line3 = <>; chomp($line3);
+    my $line4 = <>; chomp($line4);
+
+    my $result = "Game has not completed";
+
+    # check horizontal cases
+    if ($line1 =~ m/^[XT][XT][XT][XT]$/ or
+        $line2 =~ m/^[XT][XT][XT][XT]$/ or
+        $line3 =~ m/^[XT][XT][XT][XT]$/ or
+        $line4 =~ m/^[XT][XT][XT][XT]$/) {
+        $result = "X won";
+    } elsif ($line1 =~ m/^[OT][OT][OT][OT]$/ or
+             $line2 =~ m/^[OT][OT][OT][OT]$/ or
+             $line3 =~ m/^[OT][OT][OT][OT]$/ or
+             $line4 =~ m/^[OT][OT][OT][OT]$/) {
+	$result = "O won";
+    } else {
+
+        # check vertical cases
+        for (my $c = 0; $c < 4; $c++) {
+            if (substr($line1, $c, 1) =~ m/[XT]/ and
+                substr($line2, $c, 1) =~ m/[XT]/ and
+                substr($line3, $c, 1) =~ m/[XT]/ and
+                substr($line4, $c, 1) =~ m/[XT]/) {
+                $result = "X won";
+                last;
+            } elsif (substr($line1, $c, 1) =~ m/[OT]/ and
+                     substr($line2, $c, 1) =~ m/[OT]/ and
+                     substr($line3, $c, 1) =~ m/[OT]/ and
+                     substr($line4, $c, 1) =~ m/[OT]/) {
+                $result = "O won";
+                last;
+            } 
+        }
+
+        if ($result eq "Game has not completed") {
+	    # check diagonal cases
+            if ((substr($line1, 0, 1) =~ m/[XT]/ and
+                 substr($line2, 1, 1) =~ m/[XT]/ and
+                 substr($line3, 2, 1) =~ m/[XT]/ and
+                 substr($line4, 3, 1) =~ m/[XT]/) or 
+                (substr($line1, 3, 1) =~ m/[XT]/ and
+                 substr($line2, 2, 1) =~ m/[XT]/ and
+                 substr($line3, 1, 1) =~ m/[XT]/ and
+                 substr($line4, 0, 1) =~ m/[XT]/)) {
+                $result = "X won";
+            } elsif ((substr($line1, 0, 1) =~ m/[OT]/ and
+                      substr($line2, 1, 1) =~ m/[OT]/ and
+                      substr($line3, 2, 1) =~ m/[OT]/ and
+                      substr($line4, 3, 1) =~ m/[OT]/) or 
+                     (substr($line1, 3, 1) =~ m/[OT]/ and
+                      substr($line2, 2, 1) =~ m/[OT]/ and
+                      substr($line3, 1, 1) =~ m/[OT]/ and
+                      substr($line4, 0, 1) =~ m/[OT]/)) {
+                $result = "O won";
+           } else {
+              # check for draw
+              if ($line1 !~ m/\./ or
+                  $line2 !~ m/\./ or
+                  $line3 !~ m/\./ or
+                  $line4 !~ m/\./) {
+                  $result = "Draw";
+              }
+           }
+        }
+   }
+
+
+    print "Case #", $i, ": ", $result, "\n";
+
+    # read and discard the blank line
+    my $line5 = <>;
+}

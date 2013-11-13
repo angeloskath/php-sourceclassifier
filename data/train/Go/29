@@ -1,0 +1,85 @@
+// Problem A of the Qualification Round of Google Code Jam 2013.
+package main
+
+import (
+	"fmt"
+	"bufio"
+	"os"
+)
+
+func main() {
+	var T int
+	stdin := bufio.NewReader(os.Stdin)
+	_, err := fmt.Fscanf(stdin, "%d", &T)
+	if err != nil {
+		panic(err)
+	}
+	board := make([]byte, 16)
+	for t := 1; t <= T; t++ {
+		stdin.ReadByte()
+		for i := 0; i < 4 ; i++ {
+			_, err := stdin.Read(board[i*4:(i+1)*4])
+			if err != nil {
+				panic(err)
+			}
+			stdin.ReadByte()
+		}
+		if won(board, 'X') {
+			fmt.Printf("Case #%d: X won\n", t)
+			continue
+		}
+		if won(board, 'O') {
+			fmt.Printf("Case #%d: O won\n", t)
+			continue
+		}
+		if !hasdot(board) {
+			fmt.Printf("Case #%d: Draw\n", t)
+			continue
+		}
+		fmt.Printf("Case #%d: Game has not completed\n", t)
+	}
+}
+
+func hasdot(b []byte) bool {
+	for _, c := range b {
+		if c == '.' {
+			return true
+		}
+	}
+	return false
+}
+
+func won(b []byte, player byte) bool {
+	for i := 0; i<4; i++ {
+		if isok(b[4*i], b[4*i+1], b[4*i+2], b[4*i+3], player) {
+			return true
+		}
+		if isok(b[i], b[i+4], b[i+8], b[i+12], player) {
+			return true
+		}
+	}
+	if isok(b[0], b[5], b[10], b[15], player) {
+		return true
+	}
+	if isok(b[3], b[6], b[9], b[12], player) {
+		return true
+	}
+	return false
+}
+
+func isok(a, b, c, d, p byte) bool {
+	if a != p && a != 'T' {
+		return false
+	}
+	if b != p && b != 'T' {
+		return false
+	}
+	if c != p && c != 'T' {
+		return false
+	}
+	if d != p && d != 'T' {
+		return false
+	}
+	return true
+}
+

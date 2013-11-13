@@ -1,0 +1,15 @@
+gets.to_i.times do |case_number|
+  board = 4.times.map { gets.chomp.chars.to_a }; gets
+  seqs = board + board.transpose + [4.times.map { |i| board[i][i] }, 4.times.map { |i| board[i][3 - i] }]
+  if seqs.any? { |seq| seq.all? { |cell| cell == "X" || cell == "T" } }
+    answer = "X won"
+  elsif seqs.any? { |seq| seq.all? { |cell| cell == "O" || cell == "T" } }
+    answer = "O won"
+  elsif seqs.all? { |seq| seq.none? { |cell| cell == "." } }
+    answer = "Draw"
+  else
+    answer = "Game has not completed"
+  end
+
+  puts "Case ##{case_number + 1}: #{answer}"
+end

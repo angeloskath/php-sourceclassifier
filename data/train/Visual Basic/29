@@ -1,0 +1,199 @@
+﻿Imports System.IO
+
+Module modMain
+
+    Sub Main()
+        Dim timer As New System.Diagnostics.Stopwatch()
+        timer.Start()
+
+        ' Load the input file
+        Dim strFilename As String = "C:\Users\LAURIE\Documents\GoogleCodeJam2013\A-large"
+        Dim strInputFilename As String = strFilename & ".in"
+        Dim strOutputFilename As String = strFilename & ".out"
+        Dim arr_strInput() As String = File.ReadAllLines(strInputFilename)
+
+        Dim strOutput As String = ""
+
+        strOutput = doProblemTicTacToeTomek(arr_strInput)
+
+        File.WriteAllText(strOutputFilename, strOutput)
+
+        timer.Stop()
+
+        Console.Write(strOutput)
+        Console.WriteLine(timer.Elapsed.ToString())
+        Threading.Thread.Sleep(5000)
+    End Sub
+
+    Function doProblemTicTacToeTomek(ByVal Input() As String) As String
+        Dim intCaseCount As Integer = Input(0)
+        Dim sbOutput As New System.Text.StringBuilder()
+
+        Dim arr_GridLines(3) As String
+
+        Dim intIndex As Integer = 0
+
+        For intCaseNumber As Integer = 1 To intCaseCount
+
+            For intRowIndex As Integer = 0 To 3
+                intIndex += 1
+                arr_GridLines(intRowIndex) = Input(intIndex)
+            Next
+
+            ' Get Winner
+            sbOutput.AppendLine("Case #" & intCaseNumber & ": " & GetGameOutcome(arr_GridLines))
+
+            intIndex += 1
+        Next
+
+        Return sbOutput.ToString()
+    End Function
+
+    Function GetGameOutcome(ByVal GridLines() As String) As String
+        Dim strOutcome As String = ""
+
+        Dim bXWins As Boolean = False
+        Dim bOWins As Boolean = False
+
+        Dim intJoinLength As Integer = 4
+
+        Dim chrCurrentPiece As Char = ""
+
+        Dim bCheckLeft As Boolean = False
+        Dim bCheckRight As Boolean = False
+        Dim bCheckUp As Boolean = False
+
+        Dim bBoardFull As Boolean = True
+
+        ' Process all directions
+        For intColumnIndex As Integer = 0 To GridLines(0).Length - 1
+            For intRowIndex As Integer = GridLines.Count - 1 To 0 Step -1
+                bCheckLeft = False
+                bCheckRight = False
+                bCheckUp = False
+
+                ' Get current K piece
+                chrCurrentPiece = GridLines(intRowIndex).Substring(intColumnIndex, 1)
+
+                If chrCurrentPiece <> "."c Then
+
+                    If intColumnIndex - (intJoinLength - 1) >= 0 Then bCheckLeft = True
+                    If intColumnIndex + (intJoinLength - 1) <= (GridLines(0).Length - 1) Then bCheckRight = True
+                    If intRowIndex - (intJoinLength - 1) >= 0 Then bCheckUp = True
+
+                    Dim strCheckLine As String = ""
+
+                    If Not (bXWins And bOWins) Then ' While both players haven't won, keep checking for a winner
+
+                        If bCheckRight Then
+                            strCheckLine = GridLines(intRowIndex).Substring(intColumnIndex, intJoinLength)
+
+                            If AllCharsMatch(strCheckLine, intJoinLength) Then
+                                If strCheckLine.Substring(0, 1) = "O" Or strCheckLine.Substring(1, 1) = "O" Then
+                                    bOWins = True
+                                Else
+                                    bXWins = True
+                                End If
+                            End If
+                        End If
+
+                        If bCheckUp Then
+                            strCheckLine = ""
+                            For intCheckRowIndex As Integer = intRowIndex To intRowIndex - (intJoinLength - 1) Step -1
+                                strCheckLine &= GridLines(intCheckRowIndex).Substring(intColumnIndex, 1)
+                            Next
+
+                            If AllCharsMatch(strCheckLine, intJoinLength) Then
+                                If strCheckLine.Substring(0, 1) = "O" Or strCheckLine.Substring(1, 1) = "O" Then
+                                    bOWins = True
+                                Else
+                                    bXWins = True
+                                End If
+                            End If
+                        End If
+
+                        If bCheckUp And bCheckLeft Then ' Match diagonal left
+                            strCheckLine = ""
+                            For intCheckOffset As Integer = 0 To intJoinLength - 1
+                                strCheckLine &= GridLines(intRowIndex - intCheckOffset).Substring(intColumnIndex - intCheckOffset, 1)
+                            Next
+
+                            If AllCharsMatch(strCheckLine, intJoinLength) Then
+                                If strCheckLine.Substring(0, 1) = "O" Or strCheckLine.Substring(1, 1) = "O" Then
+                                    bOWins = True
+                                Else
+                                    bXWins = True
+                                End If
+                            End If
+                        End If
+
+                        If bCheckUp And bCheckRight Then ' Match diagonal left
+                            strCheckLine = ""
+                            For intCheckOffset As Integer = 0 To intJoinLength - 1
+                                strCheckLine &= GridLines(intRowIndex - intCheckOffset).Substring(intColumnIndex + intCheckOffset, 1)
+                            Next
+
+                            If AllCharsMatch(strCheckLine, intJoinLength) Then
+                                If strCheckLine.Substring(0, 1) = "O" Or strCheckLine.Substring(1, 1) = "O" Then
+                                    bOWins = True
+                                Else
+                                    bXWins = True
+                                End If
+                            End If
+                        End If
+
+                    End If
+                Else
+                    bBoardFull = False
+                End If
+
+            Next
+        Next
+
+        If bXWins And bOWins Then
+            strOutcome = "Draw"
+        ElseIf bXWins Then
+            strOutcome = "X won"
+        ElseIf bOWins Then
+            strOutcome = "O won"
+        Else
+            If bBoardFull Then
+                strOutcome = "Draw"
+            Else
+                strOutcome = "Game has not completed"
+            End If
+        End If
+
+        Return strOutcome
+    End Function
+
+    Function AllCharsMatch(ByVal Match As String, ByVal JoinLength As Integer) As Boolean
+        Dim bResult As Boolean = True
+        Dim chrMatchChar As Char = Match.Substring(0, 1)
+
+        If Match.Contains("."c) Then Return False
+
+        If chrMatchChar = "T"c Then
+            chrMatchChar = Match.Substring(1, 1)
+        End If
+
+        ' Detect problems
+        'If chrMatchChar <> "X"c And chrMatchChar <> "O"c And chrMatchChar <> "T"c Then
+        '    Throw New ApplicationException("Invalid char")
+        'End If
+        If Match.Length <> JoinLength Then
+            Throw New ApplicationException("Doh!")
+        End If
+
+        ' Match
+        For Each myChar In Match
+            If myChar <> chrMatchChar And myChar <> "T"c Then
+                bResult = False
+                Exit For
+            End If
+        Next
+
+        Return bResult
+    End Function
+
+End Module

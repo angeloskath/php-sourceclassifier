@@ -1,0 +1,128 @@
+PROGRAM tic;
+	TYPE
+		tiqui = array [1..4] of array [1..4] of char;
+	VAR
+		t : integer;
+		i : integer;
+
+PROCEDURE LEER(VAR tictactoe : tiqui);
+	VAR
+		f : integer;
+		g : integer;
+BEGIN
+	for f:=1 to 4 DO BEGIN
+		for g:=1 to 4 DO BEGIN
+			read(tictactoe[f][g]);
+		END;
+		readln;
+	END;
+END;
+
+PROCEDURE GANAHOR(tictactoe : tiqui; letra : char; VAR gana : boolean; fila: integer);
+	VAR
+		c : integer;
+BEGIN
+	gana := true;
+	for c := 1 TO 4 DO BEGIN
+		gana := gana AND ((tictactoe[fila][c] = letra) OR (tictactoe[fila][c] = 'T'));
+	END;
+END;
+
+PROCEDURE GANAVER(tictactoe : tiqui; letra : char; VAR gana : boolean; colu: integer);
+	VAR
+		f: integer;
+BEGIN
+	gana :=  true;
+	for f := 1 TO 4 DO BEGIN
+		gana:= gana AND ((tictactoe[f][colu] = letra) OR (tictactoe[f][colu] = 'T'));
+	END;
+END;
+
+PROCEDURE GANADI1(tictactoe : tiqui; letra : char; VAR gana : boolean);
+	VAR
+		d : integer;
+BEGIN
+	gana := true;
+	FOR d:=1 TO 4 DO BEGIN
+		gana := gana AND ((tictactoe[d][d] = letra) OR (tictactoe[d][d] = 'T'));
+	END;
+END;
+
+PROCEDURE GANADI2(tictactoe : tiqui; letra : char; VAR gana : boolean);
+	VAR
+		d : integer;
+BEGIN
+	gana := true;
+	FOR d:=1 TO 4 DO BEGIN
+		gana := gana AND ((tictactoe[d][5-d] = letra) OR (tictactoe[d][5-d] = 'T'));
+	END;
+END;
+
+PROCEDURE GANADOR(tictactoe : tiqui; letra : char; VAR gana : boolean);
+BEGIN
+	GANAHOR(tictactoe, letra, gana, 1);
+	IF NOT gana THEN
+		GANAHOR(tictactoe, letra, gana, 2);
+	IF NOT gana THEN
+		GANAHOR(tictactoe, letra, gana, 3);
+	IF NOT gana THEN
+		GANAHOR(tictactoe, letra, gana, 4);
+	IF NOT gana THEN
+		GANAVER(tictactoe, letra, gana, 1);
+	IF NOT gana THEN
+		GANAVER(tictactoe, letra, gana, 2);
+	IF NOT gana THEN
+		GANAVER(tictactoe, letra, gana, 3);
+	IF NOT gana THEN
+		GANAVER(tictactoe, letra, gana, 4);
+	IF NOT gana THEN
+		GANADI1(tictactoe, letra, gana);
+	IF NOT gana THEN
+		GANADI2(tictactoe, letra, gana);
+END;
+
+PROCEDURE HAYVACIOS(tictactoe: tiqui; VAR fin: boolean);
+BEGIN
+	fin := (
+		(tictactoe[1][1] = '.' ) OR (tictactoe[1][2] = '.' ) OR (tictactoe[1][3] = '.' ) OR (tictactoe[1][4] = '.' ) OR 
+		(tictactoe[2][1] = '.' ) OR (tictactoe[2][2] = '.' ) OR (tictactoe[2][3] = '.' ) OR (tictactoe[2][4] = '.' ) OR 
+		(tictactoe[3][1] = '.' ) OR (tictactoe[3][2] = '.' ) OR (tictactoe[3][3] = '.' ) OR (tictactoe[3][4] = '.' ) OR 
+		(tictactoe[4][1] = '.' ) OR (tictactoe[4][2] = '.' ) OR (tictactoe[4][3] = '.' ) OR (tictactoe[4][4] = '.' )
+	);
+END;
+
+PROCEDURE RESOLVER(i : integer);
+VAR 
+	tictactoe : tiqui;
+	ganax : boolean;
+	ganao : boolean;
+	fin: boolean;
+BEGIN
+	ganax:=false;
+	ganao:=false;
+	LEER(tictactoe);
+	GANADOR(tictactoe,'X',ganax);
+	IF NOT ganax THEN
+		GANADOR(tictactoe,'O',ganao);
+	IF not (ganax OR ganao) THEN BEGIN
+		HAYVACIOS(tictactoe,fin);
+		IF fin THEN
+			writeln('Case #',i,': Game has not completed')
+		ELSE
+			writeln('Case #',i,': Draw');
+	END;
+	IF ganax THEN
+		writeln('Case #',i,': X won');
+	IF ganao THEN
+		writeln('Case #',i,': O won');
+END;
+
+BEGIN
+	readln(t);
+	i:=1;
+	WHILE i<>t+1 DO BEGIN
+		RESOLVER(i);
+		i:=i+1;
+		readln;
+	END;
+END.

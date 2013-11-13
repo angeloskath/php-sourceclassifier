@@ -1,0 +1,77 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my $numcases = <>;
+for (my $case = 1; $case <= $numcases; ++$case) {
+	my @board;
+	for (my $i = 0; $i < 4; ++$i) {
+		my $line = <>;
+		chomp($line);
+		push @board, [ split(//, $line) ];
+	}
+	my $dummy = <>;
+	my $ans = solve(\@board);
+	print "Case #$case: ", $ans, "\n";
+}
+
+sub solve {
+	my $board = $_[0];
+
+	for (my $x = 0; $x < 4; ++$x) {
+		my $nx = 0;
+		my $no = 0;
+		my $nt = 0;
+		for (my $y = 0; $y < 4; ++$y) {
+			++$nx if $board->[$x][$y] eq 'X';
+			++$no if $board->[$x][$y] eq 'O';
+			++$nt if $board->[$x][$y] eq 'T';
+		}
+		return "X won" if ($nx + $nt == 4);
+		return "O won" if ($no + $nt == 4);
+	}
+
+	for (my $y = 0; $y < 4; ++$y) {
+		my $nx = 0;
+		my $no = 0;
+		my $nt = 0;
+		for (my $x = 0; $x < 4; ++$x) {
+			++$nx if $board->[$x][$y] eq 'X';
+			++$no if $board->[$x][$y] eq 'O';
+			++$nt if $board->[$x][$y] eq 'T';
+		}
+		return "X won" if ($nx + $nt == 4);
+		return "O won" if ($no + $nt == 4);
+	}
+
+	my $nx = 0;
+	my $no = 0;
+	my $nt = 0;
+	for (my $x = 0; $x < 4; ++$x) {
+		++$nx if $board->[$x][$x] eq 'X';
+		++$no if $board->[$x][$x] eq 'O';
+		++$nt if $board->[$x][$x] eq 'T';
+	}
+	return "X won" if ($nx + $nt == 4);
+	return "O won" if ($no + $nt == 4);
+
+	$nx = 0;
+	$no = 0;
+	$nt = 0;
+	for (my $x = 0; $x < 4; ++$x) {
+		++$nx if $board->[$x][3 - $x] eq 'X';
+		++$no if $board->[$x][3 - $x] eq 'O';
+		++$nt if $board->[$x][3 - $x] eq 'T';
+	}
+	return "X won" if ($nx + $nt == 4);
+	return "O won" if ($no + $nt == 4);
+
+	for (my $x = 0; $x < 4; ++$x) {
+		for (my $y = 0; $y < 4; ++$y) {
+			return "Game has not completed" if $board->[$x][$y] eq '.';
+		}
+	}
+
+	return "Draw";
+}
+

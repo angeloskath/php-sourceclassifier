@@ -1,0 +1,59 @@
+<fieldset>
+	<legend>Input</legend>
+	<textarea id="input" rows="25" cols="80"></textarea>
+</fieldset>
+
+<button onclick="run()">Solve</button>
+
+<fieldset>
+	<legend>Output</legend>
+	<textarea id="output" rows="25" cols="80"></textarea>
+</fieldset>
+
+<script>
+function run() {
+	var lines = document.getElementById('input').value.split('\n');
+	var T = lines.shift()-0;
+
+	for (var c = 1; c <= T; c++) {
+		var board = [
+			lines.shift().split(''),
+			lines.shift().split(''),
+			lines.shift().split(''),
+			lines.shift().split('')
+		];
+		lines.shift();
+		var ans = solve(board);
+		output(c, ans);
+	}
+}
+
+function solve(board) {
+	function line(a,b,c,d,e,f,g,h) {return board[a][b]+board[c][d]+board[e][f]+board[g][h];}
+	var lines = [
+		line(0,0, 0,1, 0,2, 0,3),
+		line(1,0, 1,1, 1,2, 1,3),
+		line(2,0, 2,1, 2,2, 2,3),
+		line(3,0, 3,1, 3,2, 3,3),
+		line(0,0, 1,0, 2,0, 3,0),
+		line(0,1, 1,1, 2,1, 3,1),
+		line(0,2, 1,2, 2,2, 3,2),
+		line(0,3, 1,3, 2,3, 3,3),
+		line(0,0, 1,1, 2,2, 3,3),
+		line(0,3, 1,2, 2,1, 3,0)
+	];
+	for (var i = 0; i < 10; i++) {
+		if (lines[i].match(/[XT]{4}/)) return 'X won';
+		if (lines[i].match(/[OT]{4}/)) return 'O won';
+	}
+	for (var i = 0; i < 4; i++) {
+		if (lines[i].indexOf('.') > -1) return 'Game has not completed';
+	}
+	return 'Draw';
+}
+
+function output(c, ans) {
+	var txt = document.getElementById('output');
+	txt.value = txt.value + 'Case #' + c + ': ' + ans + '\n';
+}
+</script>

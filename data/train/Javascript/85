@@ -1,0 +1,157 @@
+
+//Tic-Tac-Toe-Tomek
+
+
+fs = require('fs');
+var stream = fs.createWriteStream("output");
+stream.once('open', function(fd) {
+    fs.readFile("input", function(err, data) {
+
+        if(err)
+            console.log("ERROR: " + err);
+        
+        var lines = data.toString().split("\n");
+        
+        var amtSolutions = lines[0]; //how many puzzles there are to sole
+        
+        console.log("Total Solving: " + amtSolutions);
+
+
+        var caseNumber = 1;
+        var lineIndex = 1;
+        
+        while(caseNumber <= amtSolutions)
+        {
+            var result = solvePuzzle(lineIndex, lines);
+            
+            var output = "Case #" + caseNumber + ": " + result + "\n";
+            stream.write(output);
+            console.log(output);
+            
+            lineIndex+=5;
+            caseNumber++;
+        }
+    });
+});
+
+var EMPTY = ".";
+var BOTH = "T";
+
+
+function solvePuzzle(startIndex, data)
+{
+    var board = []; //4x4
+    
+    //populate 4x4 array
+    for(var i=0; i<4; i++)
+    {
+        board[i] = [];
+        
+        for(var z=0; z<4; z++)
+        {
+            board[i][z] = data[i + startIndex].substr(z, 1);
+        }
+    }
+    console.log(board);
+    
+    
+    //start solving
+    
+    //check straight lines across
+    for(var row=0; row<4; row++)
+    {
+    
+        //check straight row
+        var lastPlayer = board[row][0];
+        var allCorrect = true;
+        if(lastPlayer == BOTH)
+            lastPlayer = board[row][1]
+        for(var col=1; col<4; col++)
+        {
+            if( !isSamePlayer(lastPlayer, board[row][col]))
+                allCorrect = false;
+        }
+        
+    
+        if(allCorrect)
+            return lastPlayer + " won";
+    
+    }
+    
+    //check straight lines down
+    for(var col=0; col<4; col++)
+    {
+    
+        //check straight row
+        var lastPlayer = board[0][col];
+        var allCorrect = true;
+        if(lastPlayer == BOTH)
+            lastPlayer = board[1][col]
+        for(var row=1; row<4; row++)
+        {
+            if( !isSamePlayer(lastPlayer, board[row][col]))
+                allCorrect = false;
+        }
+        
+    
+        if(allCorrect)
+            return lastPlayer + " won";
+    
+    }
+    
+    //check diagonals
+    //top left to bottom right
+    var diagCorrect = true;
+    var lastPlayer = board[0][0];
+    if(lastPlayer == BOTH)
+        lastPlayer = board[1][1];
+    for(var i=1; i<4; i++)
+    {
+        if( !isSamePlayer(lastPlayer, board[i][i]))
+            diagCorrect = false;
+    }
+    
+    if(diagCorrect)
+        return lastPlayer + " won";
+        
+    //top right to bottomLeft
+    diagCorrect = true;
+    lastPlayer = board[3][0];
+    if(lastPlayer == BOTH)
+        lastPlayer = board[2][1];
+    for(var i=1; i<4; i++)
+    {
+        if( !isSamePlayer(lastPlayer, board[3-i][i]))
+            diagCorrect = false;
+    }
+    
+    if(diagCorrect)
+        return lastPlayer + " won";
+    
+    
+    //check if game is not completed
+    var allMovesDone = true;
+    for(var row=0; row<4; row++)
+        for(var col=0; col<4; col++)
+            if(board[row][col] == EMPTY)
+                allMovesDone = false;
+    
+    if(!allMovesDone)
+        return "Game has not completed";
+    else
+        return "Draw"
+}
+
+
+
+function isSamePlayer(player, value)
+{
+    if(player != EMPTY && value != EMPTY)
+    {
+        if(player == value || player == BOTH || value == BOTH)
+            return true;
+    }
+    
+    return false;
+}
+

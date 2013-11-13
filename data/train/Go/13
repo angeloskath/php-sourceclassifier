@@ -1,0 +1,144 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
+const (
+	DIMENSION = 4
+)
+
+type Rows [DIMENSION][DIMENSION]byte
+
+type TestCase struct {
+	Board Rows
+}
+
+func parseInt(s string, errMsg string) int64 {
+	result, err := strconv.ParseInt(strings.Trim(s, "\n"), 10, 64)
+	if err != nil {
+		log.Println(err)
+		log.Fatal(errMsg)
+	}
+	return result
+}
+
+func readTestCases(file *os.File) (testCasesCount int64) {
+	buffer := bufio.NewReader(file)
+
+	// First line contains number of test cases
+	line, err := buffer.ReadString('\n')
+	if err != nil {
+		log.Println(err)
+		log.Fatal("Could not read first line")
+	}
+	testCasesCount = parseInt(line, "Could not parse testCasesCount")
+
+	var (
+		board Rows
+	)
+
+	for i := 1; ; i += 1 {
+		// A test case is comprised of 4 lines
+		for rowIndex := 0; rowIndex < DIMENSION; rowIndex += 1 {
+			for columnIndex := 0; columnIndex < DIMENSION; columnIndex += 1 {
+				cell, err := buffer.ReadByte()
+				if err != nil {
+					return
+				}
+				board[rowIndex][columnIndex] = cell
+				if cell == '\n' {
+					// throw away line breaks from previous line here
+					columnIndex -= 1
+				}
+			}
+		}
+
+		fmt.Printf("Case #%d: %s\n", i, process(TestCase{Board: board}))
+	}
+
+	return
+}
+
+func rowCheckWin(row []byte, candidate string) (matched bool) {
+	matched, err := regexp.Match(fmt.Sprintf("^(%s|T)+$", candidate), row)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+func rowCheck(row []byte) (bool, string) {
+	for _, candidate := range []string{"X", "O"} {
+		if rowCheckWin(row, candidate) {
+			return true, candidate
+		}
+	}
+	return false, ""
+}
+
+func rowEvaluation(board Rows) (bool, string) {
+	for _, row := range board {
+		if won, who := rowCheck(row[:]); won {
+			return true, who
+		}
+	}
+
+	diagonal := make([]byte, DIMENSION)
+	for i, row := range board {
+		diagonal[i] = row[i]
+	}
+
+	if won, who := rowCheck(diagonal); won {
+		return true, who
+	}
+
+	return false, ""
+}
+
+func hasEmptyCell(board Rows) bool {
+	for _, row := range board {
+		if -1 != bytes.IndexByte(row[:], '.') {
+			return true
+		}
+	}
+	return false
+}
+
+func rotated(board Rows) (flippedBoard Rows) {
+	for rowIndex, row := range board {
+		for columnIndex, cell := range row {
+			flippedBoard[columnIndex][DIMENSION-1-rowIndex] = cell
+		}
+	}
+	return
+}
+
+func boardEvaluation(board Rows) string {
+	for _, b := range []Rows{board, rotated(board)} {
+		if won, who := rowEvaluation(b); won {
+			return fmt.Sprintf("%s won", who)
+		}
+	}
+
+	if hasEmptyCell(board) {
+		return "Game has not completed"
+	}
+
+	return "Draw"
+}
+
+func process(testCase TestCase) string {
+	return boardEvaluation(testCase.Board)
+}
+
+func main() {
+	readTestCases(os.Stdin)
+}

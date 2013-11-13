@@ -1,0 +1,88 @@
+-- Google Code Jam 2013 Qualification Round
+-- Problem C. Fair and Square
+
+import System.Environment
+import System.IO
+import Control.Applicative
+import Control.Monad
+import Data.List
+
+data Case = Case [String]
+type Solution = String
+
+diag :: [[a]] -> [a]
+diag [] = []
+diag ([]:_) = []
+diag (a:as) = head a : diag (map tail as)
+
+rowOf x = all (match x)
+  where
+    match x y = y == 'T' || y == x
+
+won xs x = w xs || w (transpose xs) || d xs || d (reverse xs)
+  where
+    w = any (rowOf x)
+    d = rowOf x . diag
+
+gameStatus :: [String] -> String
+gameStatus xs
+  | wonX = "X won"            
+  | wonO = "O won"            
+  | isOver = "Draw"
+  | otherwise = "Game has not completed"
+  where
+    wonX = won xs 'X'
+    wonO = won xs 'O'
+    isOver = all (/='.') (concat xs)
+
+solve :: Case -> Solution
+solve (Case xs) = gameStatus xs
+
+readCase :: Handle -> IO Case
+readCase h = do
+    xs <- readLines 4 h
+    hGetLine h
+    return (Case xs)
+
+instance Show Case where
+    show (Case xs) = unlines xs
+
+
+-- GCJ
+
+readLines :: Int -> Handle -> IO [String]
+readLines n = replicateM n . hGetLine
+
+readCases :: Int -> Handle -> IO [Case]
+readCases n = replicateM n . readCase
+
+showListSpaces :: Show a => [a] -> String
+showListSpaces (a:as) = foldl (\xs x -> xs ++ " " ++ show x) (show a) as
+
+showResults :: [Solution] -> IO ()
+showResults rs = mapM_ (putStrLn . output) (zip [1..] rs)
+    where output (i,r) = "Case #" ++ show i ++ ": " ++ r
+
+readCount :: Handle -> IO Int
+readCount h = read <$> hGetLine h
+
+readInput :: Handle -> IO [Case]
+readInput h = do
+    n <- readCount h
+    readCases n h
+
+solveCases :: [Case] -> [Solution]
+solveCases = map solve
+
+openInput :: [String] -> IO Handle
+openInput [] = return stdin
+openInput [txt] = openFile txt ReadMode
+openInput _ = fail "Oops!"
+
+closeInput :: Handle -> IO ()
+closeInput h = if h == stdin then return () else hClose h
+
+main = do
+    h <- openInput =<< getArgs
+    showResults =<< solveCases <$> readInput h
+    closeInput h

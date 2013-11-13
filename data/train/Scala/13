@@ -1,0 +1,25 @@
+package qual2013
+
+object A {
+  def calculate: String = {
+    val input = for (i <- 0 until 4) yield readLine.toArray
+    readLine
+    val hor = for (i <- 0 until 4) yield (for (j <- 0 until 4) yield input(i)(j))
+    val ver = for (j <- 0 until 4) yield (for (i <- 0 until 4) yield input(i)(j))
+    val diag = Array((for (i <- 0 until 4) yield input(i)(i)),
+      (for (i <- 0 until 4) yield input(i)(3 - i)))
+    val lines = hor ++ ver ++ diag
+    val owin = lines.exists(_.count((p:Char) => p == 'O' || p == 'T') == 4)
+    val xwin = lines.exists(_.count((p:Char) => p == 'X' || p == 'T') == 4)
+    val incomplete = lines.exists(_.count(_ == '.') > 0)
+    if(xwin) "X won"
+    else if(owin) "O won"
+    else if(incomplete) "Game has not completed"
+    else "Draw"
+  }
+
+  def main(a: Array[String]) {
+    val t = readLine.toInt
+    for (casenum <- 1 to t) println("Case #" + casenum + ": " + calculate)
+  }
+}

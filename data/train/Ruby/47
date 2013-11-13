@@ -1,0 +1,69 @@
+def rotate_90(board)
+  result = []
+  4.times do |x|
+    result[x] = []
+    4.times do |y|
+      result[x][y] = board[y][3 - x]
+    end
+  end
+  result
+end
+
+def extract_diags(board)
+  [
+    [board[0][0], board[1][1], board[2][2], board[3][3]],
+    [board[3][0], board[2][1], board[1][2], board[0][3]]
+  ]
+end
+
+def solve(board)
+  unplayed_square_seen = false
+
+  3.times do |i|
+    board.each do |row|
+      row_owner = nil
+      winning_row = true
+      row.each do |c|
+        case c
+        when 'O','X'
+          case row_owner
+          when nil
+            row_owner = c
+          when 'O', 'X'
+            winning_row = false if c != row_owner
+          end
+        when '.'
+          winning_row = false
+          unplayed_square_seen = true
+          next
+        # T is ignored...doesn't matter
+        end
+      end
+
+      return "#{row_owner} won" if winning_row
+    end
+
+    case i
+    when 0 # first rotate 90
+      board = rotate_90(board)
+    when 1 # now extract diagonals
+      board = extract_diags(board)
+    end
+  end
+
+  if unplayed_square_seen
+    'Game has not completed'
+  else
+    'Draw'
+  end
+end
+
+gets.to_i.times do |i|
+  i += 1
+
+  board = []
+  4.times { board << gets.chomp.split('') }
+  r = solve board
+  puts "Case ##{i}: #{r}"
+  gets # newline
+end

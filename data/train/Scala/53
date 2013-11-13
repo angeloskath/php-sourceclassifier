@@ -1,0 +1,33 @@
+package qual
+
+import io.Source
+import collection.mutable
+
+object A extends App {
+  Source.fromFile("data/qual/A.txt").getLines().toList match {
+    case numberOfTests :: testLines =>
+      val tests = testLines.grouped(5).toList.map(_.take(4).map(_.toCharArray.toList))
+      for ((testNumber, test) <- (1 to numberOfTests.toInt) zip tests) {
+        val ls = mutable.Set.empty[Set[Char]]
+        for (l <- test)
+          ls.add(l.toSet)
+        for (l <- (0 until 4).map( i => test.map(_(i)) ) )
+          ls.add(l.toSet)
+        for (l <- (0 until 4).map( i => (test.zip(0 until 4).map({ p => p._1(p._2) }))))
+          ls.add(l.toSet)
+        for (l <- (0 until 4).map( i => (test.zip((0 until 4).reverse).map({ p => p._1(p._2) }))))
+          ls.add(l.toSet)
+
+        val result = if (ls.contains(Set('X')) || ls.contains(Set('X', 'T')))
+          "X won"
+        else if (ls.contains(Set('O')) || ls.contains(Set('O', 'T')))
+          "O won"
+        else if (ls.exists(_.contains('.')))
+          "Game has not completed"
+        else
+          "Draw"
+
+        println(s"Case #$testNumber: $result")
+      }
+  }
+}

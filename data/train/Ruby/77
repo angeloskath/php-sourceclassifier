@@ -1,0 +1,81 @@
+class GCJSolution
+  def initialize(input = STDIN, output = STDOUT)
+    @input = input
+    @output = output
+  end
+
+  def read_strings
+    @input.gets.chomp.split(' ')
+  end
+
+  def read_ints
+    read_strings.map(&:to_i)
+  end
+
+  def read_int
+    @input.gets.to_i
+  end
+
+  def read_solve_write_all
+    number_of_tests = read_int
+    for test_no in 1..number_of_tests
+      test_case = parse_input()
+      ans = solve(test_case)
+      @output.puts "Case ##{test_no}: #{ans}"
+    end
+    number_of_tests
+  end
+end
+
+require 'set'
+
+class TicTacToeTomek < GCJSolution
+  def parse_input
+    a = Array.new(4) do
+      gets[0..3].chars.to_a
+    end
+    gets
+    a
+  end
+
+  def diag(a)
+    (0..3).map {|i| a[i][i]}
+  end
+
+  def diag2(a)
+    (0..3).map {|i| a[3-i][i]}
+  end
+
+  def solve(a)
+    cts = a.flatten.group_by(&:to_s)
+    xx = (cts['X'] || []).size
+    oo = (cts['O'] || []).size
+
+    who = xx == oo ? 'O' : 'X'
+
+    a.each do |row|
+      return "#{who} won" if row.all? { |c| c == who || c == 'T' }
+    end
+
+    return "#{who} won" if diag(a).all? { |c| c == who || c == 'T' }
+    return "#{who} won" if diag2(a).all? { |c| c == who || c == 'T' }
+
+    a = a.transpose
+
+    a.each do |row|
+      return "#{who} won" if row.all? { |c| c == who || c == 'T' }
+    end
+
+    if cts['.']
+      'Game has not completed'
+    else
+      'Draw'
+    end
+  end
+end
+
+TicTacToeTomek.new.read_solve_write_all
+# p TicTacToeTomek.new.solve('XXXO
+# ..O.
+# .O..
+# T...'.lines.map{|l| l.chars.to_a[0..3]})

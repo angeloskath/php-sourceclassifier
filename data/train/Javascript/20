@@ -1,0 +1,56 @@
+var fs = require('fs');
+
+var checkRow = function (row) {
+    if (row.indexOf('.') !== -1) {
+        return 'N';
+    }
+    if (row.indexOf('X') !== -1) {
+        if (row.indexOf('O') !== -1) {
+            return 'D';
+        } else {
+            return 'X';
+        }
+    } else {
+        return 'O';
+    }
+};
+
+var checkData = function (data) {
+    var res = '';
+    // rows
+    for (var i = 0; i < 4; ++i) {
+        res += checkRow(data[i]);
+        res += checkRow(data[0][i] + data[1][i] + data[2][i] + data[3][i]);
+    }
+    res += checkRow(data[0][0] + data[1][1] + data[2][2] + data[3][3]);
+    res += checkRow(data[0][3] + data[1][2] + data[2][1] + data[3][0]);
+
+    console.log(res.indexOf('N'));
+    if (res.indexOf('X') !== -1) {
+        return 'X won';
+    } else if (res.indexOf('O') !== -1) {
+        return 'O won';
+    } else if (res.indexOf('N') === -1) {
+        return 'Draw';
+    } else {
+        return 'Game has not completed';
+    }
+};
+
+var input = fs.readFileSync('a.in').toString().split('\n');
+var output = fs.createWriteStream('a.out');
+//var t = input\
+var tests = Number(input[0]);
+for (var i = 0; i < tests; ++i) {
+    var data = [
+        input[i * 5 + 1],
+        input[i * 5 + 2],
+        input[i * 5 + 3],
+        input[i * 5 + 4]
+    ];
+
+    var res = checkData(data);
+    output.write('Case #' + (i + 1) + ': ' + res + '\n');
+    console.log(res);
+}
+output.end();

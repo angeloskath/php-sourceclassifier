@@ -1,0 +1,91 @@
+program qc;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils, Math;
+
+Var T, i, j, k, D, N: LongInt;
+    C: Double;
+    A: Array[1..4, 1..4] of Char;
+    B: Char;
+    R : Integer;
+
+begin
+  Assign(input,'test.in');
+  Reset(input);
+  Assign(output,'outs.txt');
+  ReWrite(output);
+  Readln(T);
+
+  For i := 1 To T Do Begin
+    For j := 1 To 4 Do Begin
+      For k := 1 To 4 Do Begin
+        Read(B);
+        A[j, k] := B;
+      End;
+      ReadLn;
+    End;
+    ReadLn;
+
+    R := 0;
+    For j := 1 To 4 Do Begin
+      If ((A[j, 1] = 'X')Or(A[j, 1] = 'T'))And
+         ((A[j, 2] = 'X')Or(A[j, 2] = 'T'))And
+         ((A[j, 3] = 'X')Or(A[j, 3] = 'T'))And
+         ((A[j, 4] = 'X')Or(A[j, 4] = 'T'))
+         Then R := 1;
+      If ((A[j, 1] = 'O')Or(A[j, 1] = 'T'))And
+         ((A[j, 2] = 'O')Or(A[j, 2] = 'T'))And
+         ((A[j, 3] = 'O')Or(A[j, 3] = 'T'))And
+         ((A[j, 4] = 'O')Or(A[j, 4] = 'T'))
+         Then R := 2;
+      If ((A[1, j] = 'X')Or(A[1, j] = 'T'))And
+         ((A[2, j] = 'X')Or(A[2, j] = 'T'))And
+         ((A[3, j] = 'X')Or(A[3, j] = 'T'))And
+         ((A[4, j] = 'X')Or(A[4, j] = 'T'))
+         Then R := 1;
+      If ((A[1, j] = 'O')Or(A[1, j] = 'T'))And
+         ((A[2, j] = 'O')Or(A[2, j] = 'T'))And
+         ((A[3, j] = 'O')Or(A[3, j] = 'T'))And
+         ((A[4, j] = 'O')Or(A[4, j] = 'T'))
+         Then R := 2;
+    End;
+    If ((A[1, 1] = 'O')Or(A[1, 1] = 'T'))And
+       ((A[2, 2] = 'O')Or(A[2, 2] = 'T'))And
+       ((A[3, 3] = 'O')Or(A[3, 3] = 'T'))And
+       ((A[4, 4] = 'O')Or(A[4, 4] = 'T'))
+       Then R := 2;
+    If ((A[1, 1] = 'X')Or(A[1, 1] = 'T'))And
+       ((A[2, 2] = 'X')Or(A[2, 2] = 'T'))And
+       ((A[3, 3] = 'X')Or(A[3, 3] = 'T'))And
+       ((A[4, 4] = 'X')Or(A[4, 4] = 'T'))
+       Then R := 1;
+    If ((A[1, 4] = 'O')Or(A[1, 4] = 'T'))And
+       ((A[2, 3] = 'O')Or(A[2, 3] = 'T'))And
+       ((A[3, 2] = 'O')Or(A[3, 2] = 'T'))And
+       ((A[4, 1] = 'O')Or(A[4, 1] = 'T'))
+       Then R := 2;
+    If ((A[1, 4] = 'X')Or(A[1, 4] = 'T'))And
+       ((A[2, 3] = 'X')Or(A[2, 3] = 'T'))And
+       ((A[3, 2] = 'X')Or(A[3, 2] = 'T'))And
+       ((A[4, 1] = 'X')Or(A[4, 1] = 'T'))
+       Then R := 1;
+    For j := 1 To 4 Do Begin
+      For k := 1 To 4 Do Begin
+        If A[j, k] = '.' Then R := 3;
+      End;
+    End;
+
+    WriteLn('Case #', i, ': ', N);
+    If R = 0 Then WriteLn('Draw');
+    If R = 1 Then WriteLn('X won');
+    If R = 2 Then WriteLn('O won');
+    If R = 3 Then WriteLn('Game has not completed');
+  End;
+
+
+  Close(input);
+  Close(output);
+end.
+

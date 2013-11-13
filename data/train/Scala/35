@@ -1,0 +1,52 @@
+
+object TicTacToeTomek extends App {
+  val lines = io.Source.fromFile(args(0)).getLines()
+  val cases = lines.next().toInt
+
+  for (caseCounter <- 1 to cases) {
+    val problem = lines.take(4).map(_.toArray).toArray
+    lines.drop(1) // drop empty line
+    println("Case #" + caseCounter + ": " + calculate(problem))
+  }
+
+  def calculate(problem: Array[Array[Char]]): PartialResult = {
+    var isIncomplete = false
+    dissect(problem).par.foreach { v =>
+      val pResult = analyseVector(v)
+      if (pResult.isInstanceOf[WinningResult]) return pResult
+      else if (pResult == Incomplete) isIncomplete = true
+    }
+
+    if (isIncomplete) Incomplete else Draw
+  }
+
+  def dissect(matrix: Array[Array[Char]]): List[Array[Char]] = {
+    matrix.toList ++ // rows
+    (0 to 3).map(column => Array[Char](matrix(0)(column), matrix(1)(column), matrix(2)(column), matrix(3)(column))).toList ++ // columns
+    List((0 to 3).map(idx => matrix(idx)(idx)).toArray, (0 to 3).map(idx => matrix(idx)(3 - idx)).toArray)
+  }
+
+  def analyseVector(partialVector: Array[Char]): PartialResult = {
+    var xCounter = 0
+    var yCounter = 0
+    var tCounter = 0
+
+    partialVector.foreach { c =>
+      if (c == '.') return Incomplete
+      if (c == 'X') xCounter += 1
+      else if (c == 'O') yCounter += 1
+      else if (c == 'T') tCounter += 1
+    }
+
+    if (xCounter + tCounter == 4) XWinner
+    else if (yCounter + tCounter == 4) OWinner
+    else Draw
+  }
+}
+
+trait PartialResult
+trait WinningResult extends PartialResult
+object XWinner extends WinningResult    { override def toString = "X won" }
+object OWinner extends WinningResult    { override def toString = "O won" }
+object Draw extends PartialResult       { override def toString = "Draw"  }
+object Incomplete extends PartialResult { override def toString = "Game has not completed"  }

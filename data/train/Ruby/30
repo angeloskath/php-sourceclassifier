@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+lines = File.read("A-large-0.in").lines.to_a
+
+tests = lines.shift.chomp.to_i
+
+def _won(game, char, x, y, dx, dy, c)
+  if c == 0
+    return true
+  end
+  
+  return false if x < 0 or y < 0
+  return false if x > 3 or y > 3
+  
+  cc = game[y].slice(x, 1)
+  return false if cc != char and cc != 'T'
+  _won(game, char, x+dx, y+dy, dx, dy, c-1)
+end
+
+DIRS = [[1, 0], [0, 1], [1, -1], [1, 1]]
+
+def won(game, char)
+  (0..3).any? do |y|
+    (0..3).any? do |x|
+      DIRS.any? do |d|
+        dx, dy = *d
+        _won game, char, x, y, dx, dy, 4
+      end
+    end
+  end
+end
+
+tests.times do |i|
+  print "Case ##{i+1}: "
+  game = lines.shift(4).map(&:chomp)
+  
+  if won(game, "X")
+    puts "X won"
+  elsif won(game, "O")
+    puts "O won"
+  elsif game.any? { |l| l.include?(".") }
+    puts "Game has not completed"
+  else
+    puts "Draw"
+  end
+  
+  lines.shift
+end

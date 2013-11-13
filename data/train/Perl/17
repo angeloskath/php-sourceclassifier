@@ -1,0 +1,124 @@
+#!c:\Perl\bin\perl
+
+use strict;
+use Time::HiRes qw( gettimeofday tv_interval );
+
+my $t0 = [gettimeofday];
+my $DEBUG = 0;
+my $COST = 0;
+
+print "usage: $0 input-file\n" if (0 > $#ARGV);
+
+my $file_name = $ARGV[0];
+open (FILE, "$file_name") || die $@;
+my @data = <FILE>;
+
+my $T = 0;
+
+chomp($data[0]);
+$T = $data[0];
+$DEBUG and print "T: $T\n";
+
+my $case = 0;
+for (my $i=1;$i<=$#data;$i+=5) {
+	my $line = $data[$i];
+	chomp($line);
+	my $line1 = $data[$i+1];
+	chomp($line1);
+	my $line2 = $data[$i+2];
+	chomp($line2);
+	my $line3 = $data[$i+3];
+	chomp($line3);
+	
+	my @a1 = split(//, $line);
+	my @a2 = split(//, $line1);
+	my @a3 = split(//, $line2);
+	my @a4 = split(//, $line3);
+	my @a5 = ($a1[0], $a2[0], $a3[0], $a4[0]);
+	my @a6 = ($a1[1], $a2[1], $a3[1], $a4[1]);
+	my @a7 = ($a1[2], $a2[2], $a3[2], $a4[2]);
+	my @a8 = ($a1[3], $a2[3], $a3[3], $a4[3]);
+	my @a9 = ($a1[0], $a2[1], $a3[2], $a4[3]);
+	my @a10 = ($a1[3], $a2[2], $a3[1], $a4[0]);
+	
+	my $status = 3;
+	my $finished = 0;
+	
+	my @test = (\@a1, \@a2, \@a3, \@a4, \@a5, \@a6, \@a7, \@a8, \@a9, \@a10);
+	foreach my $ref (@test)
+	{
+		my $rc = test_if_win(@$ref);
+		$DEBUG and print "r: $rc\n";
+		if ($rc != 0)
+		{
+			$status = $rc;
+			$finished = 1;
+			last;
+		}
+	}
+	
+	if ($finished == 0)
+	{
+		my @all = (@a1, @a2, @a3, @a4);
+		foreach (@all)
+		{
+			if ($_ eq '.')
+			{
+				$status = 0;
+				last;
+			}
+		}
+	}
+	
+	my $ans = "Game has not completed";
+	if ($status == 1)
+	{
+		$ans = "X won";
+	}
+	elsif ($status == 2)
+	{
+		$ans = "O won";
+	}
+	elsif ($status == 3)
+	{
+		$ans = "Draw";
+	}
+	$case++;
+	print "Case \#$case: $ans\n";
+}
+
+my $elapsed = tv_interval ( $t0, [gettimeofday]);
+$COST and print "cost $elapsed ms\n";
+
+sub test_if_win
+{
+	my @a = @_;
+	my $tmp = '';
+	
+	$DEBUG and print join(",", @a)."\n";
+	
+	foreach (@a)
+	{
+		if ($_ eq '.')
+		{
+			return 0;
+		}
+		if ($tmp eq '' && $_ ne 'T' && $_ ne '.')
+		{
+			$tmp = $_;
+		}
+		if ($tmp ne '' && $_ ne $tmp && $_ ne 'T')
+		{
+			return 0;
+		}
+	}
+	if ($tmp eq 'X')
+	{
+		return 1;
+	}
+	elsif ($tmp eq 'O')
+	{
+		return 2;
+	}
+	return 0;
+}

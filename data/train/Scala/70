@@ -1,0 +1,48 @@
+object Tt extends App {
+
+    val source = scala.io.Source.fromFile("ttt.in")
+    val allLines = source.getLines.toList
+    val nb = Integer.parseInt(allLines.head)
+
+  
+    val l = allLines.tail.sliding(4,5).toList.map(_.map(_.toIndexedSeq).toIndexedSeq)
+    val z = l.zip(1 to l.length)
+
+    def toStr(c:Char):String = c match {
+      case 'D' => "Draw"
+      case '.' => "Game has not completed"
+      case 'O' => "O won"
+      case 'X' => "X won"
+    }
+
+    def toStr(c:Char,i:Int):String = "Case #"+i+": "+toStr(c) 
+
+    def win(l:List[Char]):Option[Char] =  {
+      if (defined(l)) {
+	val char = if (l(0) == 'T') l(1) else l(0)	
+	if (l.forall(x => x == char || x == 'T'))
+	  Some(char)
+	else None
+      }
+      else None
+    }
+
+    def defined(l:List[Char]):Boolean = l.forall(_ != '.')
+
+    def win(is:IndexedSeq[IndexedSeq[Char]]):Char ={
+      def column(c:Int)=List(is(0)(c),is(1)(c),is(2)(c),is(3)(c))
+      def line(l:Int)=is(l).toList
+      val diag=List(List(is(0)(0),is(1)(1),is(2)(2),is(3)(3)),List(is(0)(3),is(1)(2),is(2)(1),is(3)(0)))
+      def ar = (0 to 3).toList.map(column(_)):::(0 to 3).toList.map(line(_)):::diag
+      ar.find(win(_).isDefined).map(win(_)).getOrElse(Some(empty(is))).get
+    }
+
+  def empty(is:IndexedSeq[IndexedSeq[Char]]):Char = {
+    if (is.forall(_.forall(_ != '.'))) 'D'
+    else '.'
+  }
+
+    val fw = new java.io.PrintWriter("output.out")
+    z.map(x => toStr(win(x._1),x._2)).foreach(fw.println(_))    
+    fw.close()
+}

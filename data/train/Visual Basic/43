@@ -1,0 +1,105 @@
+Imports System.IO
+Imports System.Text
+Module Module1
+
+
+
+
+    Private Result As String
+    Private OutPutResult As StringBuilder = New StringBuilder()
+
+    Private Sub CaseChecking(ByVal strListGrid As List(Of String))
+
+
+        If CheckInDetail(0, 4, 8, 12, strListGrid) Then Exit Sub
+        If CheckInDetail(1, 5, 9, 13, strListGrid) Then Exit Sub
+        If CheckInDetail(2, 6, 10, 14, strListGrid) Then Exit Sub
+        If CheckInDetail(3, 7, 11, 15, strListGrid) Then Exit Sub
+        If CheckInDetail(0, 1, 2, 3, strListGrid) Then Exit Sub
+        If CheckInDetail(4, 5, 6, 7, strListGrid) Then Exit Sub
+        If CheckInDetail(8, 9, 10, 11, strListGrid) Then Exit Sub
+        If CheckInDetail(12, 13, 14, 15, strListGrid) Then Exit Sub
+        If CheckInDetail(0, 5, 10, 15, strListGrid) Then Exit Sub
+        If CheckInDetail(3, 6, 9, 12, strListGrid) Then Exit Sub
+
+        For Each item As String In strListGrid
+            If item = "." Then
+                Result = "Game has not completed"
+                Exit Sub
+            End If
+        Next
+        ' No ".", No winning, so Draw
+        Result = "Draw"
+
+
+    End Sub
+
+    Private Function CheckInDetail(ByVal a As Integer, ByVal b As Integer, ByVal c As Integer, ByVal d As Integer, ByVal strListGrid As List(Of String)) As Boolean
+        If 1 = 1 _
+           And (strListGrid(a) = "X" Or strListGrid(a) = "T") _
+           And (strListGrid(b) = "X" Or strListGrid(b) = "T") _
+           And (strListGrid(c) = "X" Or strListGrid(c) = "T") _
+           And (strListGrid(d) = "X" Or strListGrid(d) = "T") Then
+            Result = "X won"
+            Return True
+        End If
+
+        If 1 = 1 _
+           And (strListGrid(a) = "O" Or strListGrid(a) = "T") _
+           And (strListGrid(b) = "O" Or strListGrid(b) = "T") _
+           And (strListGrid(c) = "O" Or strListGrid(c) = "T") _
+           And (strListGrid(d) = "O" Or strListGrid(d) = "T") Then
+            Result = "O won"
+            Return True
+        End If
+
+        Return False
+
+    End Function
+
+    Sub Main()
+        Dim FILE_NAME As String = "C:\CodeJam2013\Round1Small.in"
+        Dim intLineInCase As Integer = 4
+        Dim strLineContent As String = ""
+        Dim arrayLetters As Array
+        Dim strListGrid As New List(Of String)
+
+        Dim objReader As New System.IO.StreamReader(FILE_NAME)
+
+        If objReader.Peek() <> -1 Then
+
+            Dim scontect As String = objReader.ReadLine()
+            Dim intCaseNumber As Integer = CInt(scontect)
+            For i = 1 To intCaseNumber
+
+
+
+                For j = 1 To intLineInCase
+                    strLineContent = objReader.ReadLine()
+                    arrayLetters = strLineContent.ToCharArray()
+                    For k = 1 To arrayLetters.Length
+                        strListGrid.Add(arrayLetters(k - 1))
+                    Next
+                Next
+
+                CaseChecking(strListGrid)
+
+                If i < intCaseNumber Then
+                    OutPutResult.Append("Case #" & i & ": " & Result & vbNewLine)
+                Else
+                    OutPutResult.Append("Case #" & i & ": " & Result)
+                End If
+
+                strListGrid.Clear()
+                objReader.ReadLine()
+            Next
+            objReader.Close()
+
+        End If
+
+        Using outfile As New StreamWriter("C:\result.txt")
+            outfile.Write(OutPutResult.ToString())
+        End Using
+    End Sub
+
+End Module

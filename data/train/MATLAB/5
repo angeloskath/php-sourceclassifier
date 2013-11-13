@@ -1,0 +1,32 @@
+function y = A_large()
+fid_in = fopen('A-large.in','r');
+fid_out = fopen('A-large.out','w');
+N = fscanf(fid_in,'%d',1);
+for i = 1:N
+    in = zeros(4);
+    for j=1:4
+        in(j,:) = fscanf(fid_in,'%s',1);
+    end
+    out = solve_case(in);
+    fprintf(fid_out,'Case #%u: %s\n',i,out);
+end
+
+function out = solve_case(in)
+if checkwin((in=='X')|(in=='T'))
+    out = 'X won';
+elseif checkwin((in=='O')|(in=='T'))
+    out = 'O won';
+elseif sum(sum(in=='.'))==0
+    out = 'Draw';
+else
+    out = 'Game has not completed';
+end
+
+
+function y = checkwin(x)
+if (max(sum(x))==4)||(max(sum(x'))==4)...
+        ||(sum(diag(x))==4)||(sum(diag(fliplr(x)))==4)
+    y = 1;
+else
+    y = 0;
+end

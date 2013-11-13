@@ -1,0 +1,34 @@
+object Main extends App {
+    
+  val T = readInt
+  1 to T foreach { n =>
+    Console println "Case #" + n + ": " + result(readBoard)
+  }
+
+  type Board = IndexedSeq[IndexedSeq[Char]]
+
+  def readBoard: Board = 1 to 5 map { _ =>
+    readLine.toCharArray.toIndexedSeq
+  } take 4 toIndexedSeq
+
+  def result(board: Board) = {
+    List('X', 'O') find(won(board, _)) map Won getOrElse {
+      if (full(board)) Draw() else NotCompleted()
+    }
+  }
+
+  def full(board: Board): Boolean = !(board exists(_ exists(_ == '.')))
+
+  def won(board: Board, player: Char): Boolean = {
+    (board toList) ::: (board.transpose toList) :::
+    (for (i <- 0 to 3) yield board(i)(i)) ::
+    (for (i <- 0 to 3) yield board(i)(3-i)) ::
+    Nil exists(_ forall(player :: 'T' :: Nil contains _))
+  }
+
+}
+
+sealed class Result {}
+case class Won(player: Char) { override val toString = player + " won" }
+case class Draw() { override val toString = "Draw" }
+case class NotCompleted() { override val toString = "Game has not completed" }

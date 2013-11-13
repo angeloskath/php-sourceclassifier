@@ -1,0 +1,65 @@
+<?php
+/**
+  * Code Jam Question: 
+ **/
+
+$infile = $argv[1];
+$input = file_get_contents('./' . $infile, true);
+$row = preg_split("/((\r?\n)|(\r\n?))/", $input);
+
+global $checks;
+init();
+
+$N = $row[0];
+for ($i=0;$i<$N;$i++) { 	
+	$board = array(
+		0=>str_split($row[5*$i+1]),
+		1=>str_split($row[5*$i+2]),
+		2=>str_split($row[5*$i+3]),
+		3=>str_split($row[5*$i+4]));	
+	echo "Case #".($i+1).": " . whoWon($board) . "\n";				
+}
+
+function init() { 
+	global $checks;
+	// diagnoals
+	$checks[0] = array(array(0,0),array(1,1),array(2,2),array(3,3));
+	$checks[1] = array(array(3,0),array(2,1),array(1,2),array(0,3));
+	// Rows
+	for ($j=0;$j<4;$j++) { 		
+		for ($k=0;$k<4;$k++) { 						
+			$checks[2+$j][$k] = array($j,$k);
+		}
+	}
+	// Cols
+	for ($k=0;$k<4;$k++) { 						
+		for ($j=0;$j<4;$j++) { 
+			$checks[6+$j][$k] = array($k,$j);
+		}			
+	}
+}
+
+function whoWon($board) {
+	global $checks;
+	$game_complete = 1;	
+			
+	$count["."] = $count["T"] = 0;
+	for ($i=0;$i<10;$i++) { 		
+		$count['X'] = $count['O'] = 0;
+		for ($j=0;$j<4;$j++) { 					
+			$pos = $board[$checks[$i][$j][0]][$checks[$i][$j][1]];						
+			$count[$pos]++;
+			if ($pos == "T") { 
+				$count['X']++;
+				$count['O']++;
+			}
+		}				
+		if ($count['X'] == 4) return "X won";		
+		if ($count['O'] == 4) return "O won";					
+	}
+	if ($count['.'] > 0) {
+		return "Game has not completed";
+	} else { 
+		return "Draw";
+	}		
+}

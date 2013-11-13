@@ -1,0 +1,84 @@
+#! /usr/bin/perl 
+use Data::Dumper;
+
+$file_name = $ARGV[0];
+
+#print "\nFile:" . $file_name;
+
+open FIN, "<$file_name";
+my $fout = $file_name . "_out";
+open FOUT, ">$fout";
+
+$no_of_lines = <FIN>;
+chomp $no_of_lines;
+#print "\nNo. of lines :" . $no_of_lines;
+
+for(my $i=0; $i<$no_of_lines; $i++){
+	my $line0 = [];
+	my $line1 = [];
+	my $line2 = [];
+	my $line3 = [];
+	my $diag1 = [];
+	my $diag2 = [];
+	
+	my $is_empty = 0;
+	my $hash = {};
+
+	for(my $j=0; $j<=3; $j++){
+
+		my $line = <FIN>;
+		chomp $line;
+
+#		print "\n j = $j, line = $line";
+
+		$hash->{trim($line)} = 1;
+
+		if ($line =~ /\./){
+			$is_empty = 1;
+		}
+
+		my @line_char = split (//, $line);
+		
+		push @$line0, $line_char[0];
+		push @$line1, $line_char[1];
+		push @$line2, $line_char[2];
+		push @$line3, $line_char[3];
+		
+		push @$diag1, $line_char[$j];
+		push @$diag2, $line_char[3-$j];
+	}
+
+	$hash->{trim(join("", @$line0))} = 1;
+	$hash->{trim(join("", @$line1))} = 1;
+	$hash->{trim(join("", @$line2))} = 1;
+	$hash->{trim(join("", @$line3))} = 1;
+
+	$hash->{trim(join("", @$diag1))} = 1;
+	$hash->{trim(join("", @$diag2))} = 1;
+
+#	print "\n" . Dumper($hash);
+	<FIN>;
+	
+	my $idx = $i+1;
+	if (exists $hash->{XXX} || exists $hash->{XXXX}) { 
+		print FOUT "\nCase #$idx: X won";
+	} elsif (exists $hash->{OOO} || exists $hash->{OOOO}) {
+		print FOUT "\nCase #$idx: O won";
+	} elsif ($is_empty) {
+		print FOUT "\nCase #$idx: Game has not completed";
+	} else {
+		print FOUT "\nCase #$idx: Draw";
+	}
+}
+
+close FIN;
+close FOUT;
+
+sub trim {
+	my ($str) = @_;
+	$str =~ s/T//;
+	return $str;
+}
+
+
+

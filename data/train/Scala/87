@@ -1,0 +1,216 @@
+package com.google.codejam
+
+import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.FlatSpec
+import com.google.codejam.TicTacToeTomek._
+
+class TicTacToeTomekTest extends FlatSpec with ShouldMatchers {
+
+  val games =
+    """XXXT
+....
+OO..
+....""" ::
+      """XOXT
+XXOO
+OXOX
+XXOO""" ::
+      """XOX.
+OX..
+....
+....""" ::
+      """OOXX
+OXXX
+OX.T
+O..O""" ::
+      """XXXO
+..O.
+.O..
+T...""" ::
+      """OXXX
+XO..
+..O.
+...O""" :: Nil
+
+  val solutions =
+    "Case #1: X won" ::
+      "Case #2: Draw" ::
+      "Case #3: Game has not completed" ::
+      "Case #4: O won" ::
+      "Case #5: O won" ::
+      "Case #6: O won" :: Nil
+
+  var round = 0
+
+  games zip solutions foreach { case (game, solution) =>
+    round += 1
+
+    val myRound = round
+    "round #%s".format(myRound) should "be solved" in {
+      TicTacToeTomek.solve(myRound, game).toString should equal(solution)
+    }
+
+  }
+
+  "diagonal" should """detect \""" in {
+    // given
+    val game =
+      """OX..
+        |.O..
+        |..OX
+        |XX.O""".stripMargin
+
+    // when
+    val result = diagonal('O', game.split("\n").toList)
+
+    // then
+    result should equal(true)
+  }
+
+  it should """detect /""" in {
+    // given
+    val game =
+      """OX.X
+        |.OX.
+        |.XXX
+        |XX.O""".stripMargin
+
+    // when
+    val result = diagonal('X', game.split("\n").toList)
+
+    // then
+    result should equal(true)
+  }
+
+  "horizontal" should "work with simple case" in {
+    // given
+    val example = """XXXX"""
+
+    // when
+    val result = horizontal('X', List(example))
+
+    // then
+    result should equal (true)
+  }
+
+  it should "work with T case" in {
+    // given
+    val example = """XXTX"""
+
+    // when
+    val result = horizontal('X', List(example))
+
+    // then
+    result should equal (true)
+  }
+
+  it should "work with bad T case" in {
+    // given
+    val example = """XOTX"""
+
+    // when
+    val result = horizontal('X', List(example))
+
+    // then
+    result should equal (false)
+  }
+
+}
+package com.google.codejam
+
+import java.io.File
+import com.google.common.io.Files
+import com.google.common.base.Charsets
+
+
+object TicTacToeTomek {
+
+  abstract class Result
+
+  case class OWon(round: Int) extends Result {
+    override def toString = """Case #%s: O won""".format(round)
+  }
+
+  case class XWon(round: Int) extends Result {
+    override def toString = """Case #%s: X won""".format(round)
+  }
+
+  case class Draw(round: Int) extends Result {
+    override def toString = """Case #%s: Draw""".format(round)
+  }
+
+  case class NotOver(round: Int) extends Result {
+    override def toString = """Case #%s: Game has not completed""".format(round)
+  }
+
+  @inline def solve(round: Int, in: String): Result = {
+    val lines = in.split("\n").toList
+    val finished = !in.contains(".")
+    solve(round, lines, finished)
+  }
+
+  @inline def solve(round: Int, lines: List[String], finished: Boolean): Result =
+         if (diagonal('X', lines)) XWon(round)
+    else if (diagonal('O', lines)) OWon(round)
+    else if (horizontal('X', lines)) XWon(round)
+    else if (horizontal('O', lines)) OWon(round)
+    else if (vertical('X', lines)) XWon(round)
+    else if (vertical('O', lines)) OWon(round)
+    else if (finished) Draw(round)
+    else NotOver(round)
+
+  @inline def diagonal(who: Char, field: List[String]): Boolean = {
+    val slash = 0 to 3 map { i => field(i)(i) }
+    val backslash = 0 to 3 map { i => field(i)(3 - i) }
+
+    ((slash.count(_ == who) == 4) || (slash.count(_ == who) == 3 && slash.count(_ == 'T') == 1)) ||
+      ((backslash.count(_ == who) == 4) || (backslash.count(_ == who) == 3 && backslash.count(_ == 'T') == 1))
+  }
+
+  @inline def horizontal(who: Char, field: List[String]): Boolean = {
+    for {
+      line <- field
+      count = line.count(_ == who)
+      if count == 4 || (count == 3 && line.count(_ == 'T') == 1)
+    } return true
+
+    false
+  }
+
+  @inline def vertical(who: Char, field: List[String]): Boolean = {
+    for {
+      i <- 0 to 3
+      column = field map { _(i) }
+      count = column.count(_ == who)
+      if count == 4 || (count == 3 && column.count(_ == 'T') == 1)
+    } return true
+
+    false
+  }
+}
+
+object TicTacToeTomekRunner extends App {
+  val from = args(0)
+
+  val to = {
+    val out = new File(from + ".out")
+    out.createNewFile()
+    out
+  }
+
+  val in = io.Source.fromFile(from).getLines()
+
+  val rounds = in.next().toInt
+
+  1 to rounds foreach { round =>
+    val field = in.next() :: in.next() :: in.next() :: in.next() :: Nil
+    val solution = TicTacToeTomek.solve(round, field.mkString("\n"))
+
+
+    println(solution)
+    Files.append(solution + "\n", to, Charsets.UTF_8)
+
+    in.next()
+  }
+
+}

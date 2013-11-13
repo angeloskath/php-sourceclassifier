@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+
+var brokenBoard; // If part of the board is buffered
+
+process.stdin.resume();
+process.stdin.on('data', function (data) {
+  var boards = ('' + data).trim().replace(/\d/g, '').split(/\n{2,}/g);
+
+  var checkRows = function (board, letter) {
+    return board.some(function (row) {
+      return row.every(function (pos) {
+        return pos === letter || pos === 'T';
+      });
+    });
+  };
+
+  var checkCols = function (board, letter) {
+    return board.some(function (row, index) {
+      return row.map(function (_, colIndex) {
+        return board[colIndex][index];
+      }).every(function (pos) {
+        return pos === letter || pos === 'T';
+      });
+    });
+  };
+
+  var checkDiagonal = function (board, letter) {
+    return board.map(function (_, index) {
+      return board[index][index];
+    }).every(function (pos) {
+      return pos === letter || pos === 'T';
+    });
+  };
+
+  var checkDiagonals = function (board, letter) {
+    if (checkDiagonal(board, letter)) { return true; }
+    if (checkDiagonal(board.reverse(), letter)) { return true; }
+    return false;
+  };
+
+  boards.map(function (board) {
+    return board.split(/\n/g).filter(function (row) {
+      return !!row;
+    }).map(function (row) {
+      return row.trim().split('');
+    });
+  }).forEach(function (board, index) {
+    if (checkRows(board, 'O')) {
+      return console.log('Case #' + (index + 1) + ': O won');
+    }
+    if (checkRows(board, 'X')) {
+      return console.log('Case #' + (index + 1) + ': X won');
+    }
+
+    if (checkCols(board, 'O')) {
+      return console.log('Case #' + (index + 1) + ': O won');
+    }
+    if (checkCols(board, 'X')) {
+      return console.log('Case #' + (index + 1) + ': X won');
+    }
+
+    if (checkDiagonals(board, 'O')) {
+      return console.log('Case #' + (index + 1) + ': O won');
+    }
+    if (checkDiagonals(board, 'X')) {
+      return console.log('Case #' + (index + 1) + ': X won');
+    }
+
+    if (~Array.prototype.concat.apply([], board).indexOf('.')) {
+      return console.log('Case #' + (index + 1) + ': Game has not completed');
+    }
+
+    return console.log('Case #' + (index + 1) + ': Draw');
+  });
+});

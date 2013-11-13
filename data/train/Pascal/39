@@ -1,0 +1,54 @@
+ 
+var 
+  i,j,k,m,n:longint;
+  b:array[1..4] of string;
+  boardfull:boolean;
+  c:char;
+ 
+  function test():string;
+  begin
+    boardfull:=true;
+    for k:=1 to 4 do
+      for m:=1 to 4 do
+        if b[k][m]='.' then boardfull:=false;
+    for c in ['O','X'] do begin
+      for k:=1 to 4 do
+        for m:=1 to 4 do begin
+          if (b[k][m]<>c) and (b[k][m]<>'T') then break;
+          if m=4 then exit(c + ' won');
+        end;
+      for k:=1 to 4 do
+        for m:=1 to 4 do begin
+          if (b[m][k]<>c) and (b[m][k]<>'T') then break;
+          if m=4 then exit(c + ' won');
+        end;
+      for k:=1 to 4 do begin
+        if (b[k][k]<>c) and (b[k][k]<>'T') then break;
+        if k=4 then exit(c + ' won');
+      end;    
+      for k:=1 to 4 do begin
+        if (b[k][5-k]<>c) and (b[k][5-k]<>'T') then break;
+        if k=4 then exit(c + ' won');
+      end;    
+    end;  
+    if boardfull then exit('Draw')
+    else exit('Game has not completed');  
+  end;
+ 
+ 
+begin
+  assign(input,'cj1.in'); reset(input);
+  assign(output,'cj1.out'); rewrite(output);
+
+  readln(n);
+  for i:=1 to n do begin
+    for j:=1 to 4 do
+      readln(b[j]);
+    readln;
+    //for j:=1 to 4 do
+    //  writeln(b[j]);
+    writeln('Case #',i,': ',test());
+  end;
+
+  close(output);
+end.

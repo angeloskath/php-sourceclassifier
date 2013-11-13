@@ -1,0 +1,48 @@
+//
+// node.js required
+// http://nodejs.org/
+//
+
+
+var fs = require('fs');
+
+
+fs.readFile('A-large.in', 'utf-8', function(err, data) {
+	if(err) throw err;
+
+	var idx = data.indexOf('\n');
+
+	var output = data.substr(idx+1).trim().split('\n\n').map(function(fields, index) {
+		var dot = fields.indexOf('.')+1;
+		var res = '';
+		var str = 'Case #' + (index+1) + ': ';
+		for(var i = 0; i < 4; ++i)
+			if(res=check(fields, 5*i, 1))
+				return str + res;
+		for(var i = 0; i < 4; ++i)
+			if(res=check(fields, i, 5))
+				return str + res;
+		
+		if(res=check(fields, 0, 6))
+			return str + res;
+		if(res=check(fields, 3, 4))
+			return str + res;
+		return str+(dot ? 'Game has not completed' : 'Draw')
+
+	}).join('\n');
+
+	fs.writeFile('A-large.out', output);
+
+})
+
+function check(fields, s, j) {
+	var c = 'T';
+	var f = '';
+	for(var i = 0; i < 4; ++i) {
+		f = fields[s+i*j];
+		if(f=='.') return '';
+		if(c=='T') c = f;
+		else if(c!=f&&f!='T') return '';
+	}
+	return c + ' won';
+}

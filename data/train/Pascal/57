@@ -1,0 +1,89 @@
+program TicTacToe;
+
+var i,T: integer;
+    c: array [1..4,1..4] of char;
+    m: array [0..4,0..4] of shortint;
+    answer: array [1..1000] of string;
+    h,w,d1,d2: integer;
+    q,O,X: boolean;
+    f: text;
+begin
+assign(f,'A-large.in');
+reset(f);
+readln(f,t);
+
+for i:=1 to T do
+
+
+
+
+begin
+for h:=0 to 4 do for w:=0 to 4 do m[h,w]:=0;
+q:=false;
+
+
+for h:=1 to 4 do
+begin
+for w:=1 to 4 do read(f,c[h,w]);
+readln(f);
+end;
+
+
+
+
+
+for h:=1 to 4 do
+begin
+for w:=1 to 4 do
+if c[h,w]='X'
+then m[h,w]:=2
+else if c[h,w]='O'
+then m[h,w]:=-2
+else if c[h,w]='T'
+then m[h,w]:=1
+else q:=true;
+end;
+
+
+for h:=1 to 4 do
+begin
+m[h,0]:=0;  for w:=1 to 4 do m[h,0]:=m[h,0]+m[h,w];
+end;
+
+for w:=1 to 4 do
+begin
+m[0,w]:=0;  for h:=1 to 4 do m[0,w]:=m[0,w]+m[h,w];
+end;
+d1:=m[1,1]+m[2,2]+m[3,3]+m[4,4];
+d2:=m[1,4]+m[2,3]+m[3,2]+m[4,1];
+O:=false;
+
+
+for h:=1 to 4 do O:=O or (m[h,0]=-8)
+                              or (m[h,0]=-5);
+for w:=1 to 4 do O:=O or (m[0,w]=-8)
+                              or (m[0,w]=-5);
+O:=O or (d1=-8) or (d1=-5);
+O:=O or (d2=-8) or (d2=-5);
+
+X:=false;
+for h:=1 to 4 do X:=X or (m[h,0]=+8)
+                              or (m[h,0]=+7);
+for w:=1 to 4 do X:=X or (m[0,w]=+8)
+                              or (m[0,w]=+7);
+
+X:=X or (d1=+8) or (d1=+7);
+X:=X or (d2=+8) or (d2=+7);
+if i<t then readln(f);
+if O      then answer[I]:='O won' else
+if X    then answer[I]:='X won' else
+if q then answer[I]:='Game has not completed' else
+                   answer[I]:='Draw';
+end;
+close(f);
+assign(f,'output.out');
+rewrite(f);
+
+for i:=1 to T do writeln(f,'Case #',i,': ',answer[i]);
+close(f);
+   end.

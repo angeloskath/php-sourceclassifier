@@ -1,0 +1,113 @@
+package de
+
+import annotation.tailrec
+
+package object mritter {
+
+	final def until(max: Int)(f: Int => Unit) {
+		var i = 0
+		while (i < max) {
+			f(i)
+			i += 1
+		}
+	}
+
+	final def until(maxOuter: Int, maxInner: Int)(f: (Int, Int) => Unit) {
+		var i = 0
+		while (i < maxOuter) {
+			var j = 0
+			while (j < maxInner) {
+				f(i, j)
+				j += 1
+			}
+			i += 1
+		}
+	}
+
+	@tailrec
+	final def cfor[@specialized T](i: T)(test: T => Boolean, inc: T => T)(f: T => Unit) {
+		if(test(i)) {
+			f(i)
+			cfor(inc(i))(test, inc)(f)
+		}
+	}
+}import sbt._
+import Keys._
+
+object Build extends Build {
+
+	lazy val project = Project("root", file(".")).settings(
+
+	    name := "mritter-codejam13",
+	    organization := "de.mritter",
+	    version := "0.0.1",
+	    scalaVersion := "2.10.1",
+
+	    libraryDependencies ++= Seq(
+		)
+	)
+}
+package de.mritter.codejam.quali
+
+import de.mritter._
+
+class TomekField(val field: Array[String]) {
+
+	val over = !field.exists(_.contains("."))
+
+	def mapField(c: Char): Array[Int] = {
+		val counts = new Array[Int](10)
+		until(4, 4) { (row, col) =>
+			val x = field(row)(col) match {
+				case `c` => 1
+				case 'T' => 0
+				case _ => -1 
+			}
+
+			counts(row) += x
+			counts(4 + col) += x
+			if (row == col) {
+				counts(8) += x
+			}
+			if (row == 3 - col) {
+				counts(9) += x
+			}
+		}
+		counts
+	}
+
+	def winX = mapField('X').exists(_ >= 3)
+
+	def winO = mapField('O').exists(_ >= 3)
+
+	def status = if (winX) {
+		1
+	} else if (winO) {
+		2
+	} else 	if (over) {
+		0
+	} else {
+		-1
+	}
+}
+
+object Tomek extends App {
+	val lines = scala.io.Source.fromFile("src/main/resources/quali/tomek-large.txt").getLines
+	val games = lines.next.toInt
+	val outcomes = new Array[String](games)
+	until(games) { g =>
+		var firstLine = ""
+		while (firstLine.length == 0)
+			firstLine = lines.next
+		println(s"game: $g")
+		val field = new TomekField(Array(firstLine, lines.next, lines.next, lines.next))
+		val status = field.status match {
+			case -1 => "Game has not completed"
+			case  0 => "Draw"
+			case  1 => "X won"
+			case  2 => "O won"
+		}
+		outcomes(g) = s"Case #${g+1}: $status"
+	}
+	Some(new java.io.PrintWriter("submit/tomek-large.txt")).foreach{p => p.write(outcomes.mkString("\n")); p.close}
+}

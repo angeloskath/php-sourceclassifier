@@ -1,0 +1,79 @@
+// ProblemA
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	var N int;
+	fmt.Scan(&N);
+	for i := 1; i <= N; i++ {
+		xrows := make([]int, 4);
+		yrows := make([]int, 4);
+		xcols := make([]int, 4);
+		ycols := make([]int, 4);
+		xdown := 0;
+		xup := 0;
+		ydown := 0;
+		yup := 0;
+		var row string;
+		//var status string;
+		var dots int;
+		var xwon bool;
+		var ywon bool;
+		for ri := 0; ri < 4; ri++ {
+			fmt.Scan(&row);
+			for ci := 0; ci < 4; ci++ {
+				if row[ci] == 'X' {
+					xrows[ri]++;
+					xcols[ci]++;
+					if ri == ci {
+						xdown++;
+					}
+					if ri == (3-ci) {
+						xup++;
+					}
+				} else if row[ci] == 'O' {
+					yrows[ri]++;
+					ycols[ci]++;
+					if ri == ci {
+						ydown++;
+					}
+					if ri == (3-ci) {
+						yup++;
+					}
+				} else if row[ci] == 'T' {
+					xrows[ri]++;
+					xcols[ci]++;
+					yrows[ri]++;
+					ycols[ci]++;
+					if ri == ci {
+						xdown++;
+						ydown++;
+					}
+					if ri == (3-ci) {
+						xup++;
+						yup++;
+					}
+				} else if row[ci] == '.' {
+					dots++;
+				} else {
+					panic(0);
+				}
+				xwon = xwon || (xrows[ri] == 4 || xcols[ci] == 4 || xdown == 4 || xup == 4);
+				ywon = ywon || (yrows[ri] == 4 || ycols[ci] == 4 || ydown == 4 || yup == 4);
+			}
+		}
+		//fmt.Scan(&row);
+		if xwon {
+			fmt.Printf("Case #%d: X won\n", i);
+		} else if ywon {
+			fmt.Printf("Case #%d: O won\n", i);
+		} else if dots > 0 {
+			fmt.Printf("Case #%d: Game has not completed\n", i);
+		} else {
+			fmt.Printf("Case #%d: Draw\n", i);
+		}
+	}
+}

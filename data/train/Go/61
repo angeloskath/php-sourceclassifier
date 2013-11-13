@@ -1,0 +1,163 @@
+package main
+import(
+"flag"
+"fmt"
+"os"
+"bufio"
+"strconv"
+"strings"
+)
+var file string
+func init() {
+	flag.StringVar(&file, "f", "in.txt", "Input file")
+}
+
+func main(){
+	flag.Parse()
+	read(file)
+}
+
+func read(file string){
+	fi, _ := os.Open(file)
+	r := bufio.NewReader(fi)
+	tstring, _ := r.ReadString('\n')
+	tests, _ := strconv.Atoi(strings.TrimSpace(tstring))
+	read := 0
+	for read < tests {
+		line1,_ := r.ReadString('\n')
+		line2,_ := r.ReadString('\n')
+		line3,_ := r.ReadString('\n')
+		line4,_ := r.ReadString('\n')
+		r.ReadString('\n')
+		winner, draw, notdone := evaluate(getArr(line1), getArr(line2), getArr(line3), getArr(line4))
+		read ++
+		rstr := strconv.Itoa(read)
+		if !draw && !notdone{
+			fmt.Println("Case #"+rstr+": "+ winner+" won")
+		}else if draw{
+			fmt.Println("Case #"+rstr+": Draw")
+		} else{
+			fmt.Println("Case #"+rstr+": Game has not completed")
+		}
+	}
+}
+
+func getArr(line string)[]string{
+	return strings.Split(strings.TrimSpace(line),"")
+}
+
+func evaluate(line1, line2, line3, line4 []string)(string, bool, bool){
+	winner, done, empties := checkHorizontals(line1, line2, line3, line4) 
+	if done{
+		return winner, false, false
+	}
+	winner, done = checkVerticals(line1, line2, line3, line4) 
+	if done{
+		return winner, false, false
+	}
+	winner, done = checkDiags(line1, line2, line3, line4)
+	if done{
+		return winner, false, false
+	}
+	return "NONE", !empties, empties
+}
+
+func checkDiags(line1, line2, line3, line4 []string)(winner string, done bool){
+	winner, done, _ = checkLine([]string{line1[0], line2[1], line3[2], line4[3]})
+	if !done{
+		winner, done, _ = checkLine([]string{line1[3], line2[2], line3[1], line4[0]})
+	}
+	return winner, done
+}
+
+func checkVerticals(line1, line2, line3, line4 []string)(winner string, done bool){
+	winner, done,_ = checkLine([]string{line1[0],line2[0],line3[0],line4[0]})
+	if done{
+		return winner, true 
+	} 
+	winner, done,_ = checkLine([]string{line1[1],line2[1],line3[1],line4[1]})
+	if done{
+		return winner, true 
+	} 
+	winner, done,_ = checkLine([]string{line1[2],line2[2],line3[2],line4[2]})
+	if done{
+		return winner, true 
+	} 
+	winner, done,_ = checkLine([]string{line1[3],line2[3],line3[3],line4[3]})
+	if done{
+		return winner, true 
+	}
+	return "NONE", false
+}
+
+
+func checkHorizontals(line1, line2, line3, line4 []string)(winner string, done, empties bool){
+	var e1, e2, e3, e4 bool
+	winner, done, e1 = checkLine(line1)
+	if done{
+		return winner, true, false 
+	} 
+	winner, done, e2 = checkLine(line2)
+	if done{
+		return winner, true, false 
+	} 
+	winner, done, e3 = checkLine(line3)
+	if done{
+		return winner, true, false 
+	} 
+	winner, done, e4 = checkLine(line4)
+	if done{
+		return winner, true, false 
+	}
+	empties = e1 || e2 || e3 || e4
+	return "NONE", false, empties
+}
+
+func hasEmpties(line []string)bool{
+	if line[0] == "." || line[1] == "."  || line[2] == "." || line[3] == "."{
+		return true
+	}
+	return false
+}
+
+func checkLine(line []string) (winner string, done, empties bool){
+	if hasEmpties(line){
+		winner, done, empties =  "", false, true
+	} else{
+		hasT := line[0] == "T" || line[1] == "T" || line[2] == "T"|| line[3] == "T"
+		if !hasT{
+			winner, done, empties = line[0], line[0] == line[1] && line[0] == line[2] && line[0] == line[3], false 
+		} else if checkElement(line[0], line[1], line[2], line[3]){
+			winner, done, empties = line[0], true, false
+		} else if checkElement(line[1], line[0], line[2], line[3]){
+			winner, done, empties = line[1],true, false
+		} else if checkElement(line[2], line[0], line[1], line[3]){
+			winner, done, empties = line[2],true, false
+		} else if checkElement(line[3], line[0], line[1], line[2]){
+			winner, done, empties = line[3],true, false
+		}
+	} 
+	return winner, done, empties
+
+} 
+
+func checkElement(e, a, b, c string)bool{
+	if isPlayer(e) {
+		count := 0
+		if e == a{
+			count ++
+		}
+		if e == b{
+			count ++
+		}
+		if e == c{
+			count ++
+		}
+		return count == 2
+	}
+	return false
+}
+
+func isPlayer(e string)bool{
+	return e == "X" || e == "O"
+}

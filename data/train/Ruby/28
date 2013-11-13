@@ -1,0 +1,48 @@
+def result(n, res, winner)
+  n = n + 1
+  case res
+  when "Draw"
+    "Case \##{n}: Draw"
+  when "NotFinished"
+    "Case \##{n}: Game has not completed"
+  else
+    "Case \##{n}: #{winner} won"
+  end
+end
+
+T = gets.to_i
+
+T.times do |t|
+  board = []
+  4.times do |i|
+    board[i] = gets.chomp.split ''
+  end
+  gets
+
+  runs = [
+    board,
+    board.transpose,
+    [[board[0][0], board[1][1], board[2][2], board[3][3]],
+    [board[0][3], board[1][2], board[2][1], board[3][0]]]
+  ].enum_for.reduce(:+)
+
+  res = nil
+  runs.each do |run|
+    if run.select{ |v| ["X", "T"].include? v }.size == 4
+      res = result t, "win", "X"
+    elsif run.select{ |v| ["O", "T"].include? v }.size == 4
+      res = result t, "win", "O"
+    end
+  end
+
+  if res == nil
+    if board.flatten.select{ |v| v == "." }.size == 0
+      res = result t, "Draw", nil
+    else
+      res = result t, "NotFinished", nil
+    end
+  end
+
+  puts res
+end
+

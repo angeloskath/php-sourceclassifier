@@ -1,0 +1,83 @@
+program tomek;
+var
+  test,tests,i,j,x,y,count:longint;
+  ff,flag:boolean;
+  map:array[1..4,1..4] of char;
+procedure judge(ch:char);
+  begin
+    for i:=1 to 4 do
+      begin
+        ff:=true;
+        for j:=1 to 4 do
+          if map[i,j]<>ch then
+            begin
+              ff:=false;
+              break;
+            end;
+        if ff=true then break;
+      end;
+    if ff=true then begin flag:=true;exit;end;
+    for j:=1 to 4 do
+      begin
+        ff:=true;
+        for i:=1 to 4 do
+          if map[i,j]<>ch then
+            begin
+              ff:=false;
+              break;
+            end;
+        if ff=true then break;
+      end;
+    if ff=true then begin flag:=true;exit;end;
+    ff:=true;
+    for i:=1 to 4 do if map[i,i]<>ch then begin ff:=false;break;end;
+    if ff=true then begin flag:=true;exit;end;
+    ff:=true;
+    for i:=1 to 4 do if map[i,5-i]<>ch then begin ff:=false;break;end;
+    if ff=true then begin flag:=true;exit;end;
+  end;
+begin
+  assign(input,'tomek.in');reset(input);
+  assign(output,'tomek.out');rewrite(output);
+  readln(tests);
+  for test:=1 to tests do
+  begin
+  x:=0;y:=0;
+  count:=0;
+  for i:=1 to 4 do
+    begin
+      for j:=1 to 4 do
+        begin
+          read(map[i,j]);
+          if map[i,j]='T' then
+            begin
+              x:=i;y:=j;
+            end;
+          if map[i,j]<>'.' then inc(count);
+        end;
+      readln;
+    end;
+  readln;
+  flag:=false;
+  if (x<>0)and(y<>0) then map[x,y]:='X';
+  judge('X');
+  if (x<>0)and(y<>0) then map[x,y]:='T';
+  write('Case #',test,': ');
+  if flag=true then writeln('X won')
+  else
+    begin
+      flag:=false;
+      if (x<>0)and(y<>0) then map[x,y]:='O';
+      judge('O');
+      if (x<>0)and(y<>0) then map[x,y]:='T';
+      if flag=true then writeln('O won')
+      else
+        if count<>16 then
+          writeln('Game has not completed')
+        else
+          writeln('Draw');
+    end;
+  end;
+  close(input);
+  close(output);
+end.

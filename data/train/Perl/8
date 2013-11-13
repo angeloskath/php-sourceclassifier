@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+$| = 1;
+
+
+# the game is over, and X won
+my $x_won = "X won";
+# the game is over, and O won
+my $o_won = "O won";
+# the game is over, and it ended in a draw
+my $draw = "Draw";
+# the game is not over yet
+my $not_complete = "Game has not completed";
+
+
+my %victory = (
+	"XXXX" => $x_won,
+	"XXXT" => $x_won,
+	"XXTX" => $x_won,
+	"XTXX" => $x_won,
+	"TXXX" => $x_won,
+	"OOOO" => $o_won,
+	"OOOT" => $o_won,
+	"OOTO" => $o_won,
+	"OTOO" => $o_won,
+	"TOOO" => $o_won,
+);
+
+my $in_file	 = "input";
+my $out_file = "output";
+open FILE, "$in_file" or die $!;
+open OUT,  ">$out_file" or die $!;
+
+my @file = <FILE>;
+my $nb_test = shift @file;
+
+foreach my $line ( 0 ... ($nb_test -1) ) {
+	my $result = main_action(
+			$file[ $line *5 ],
+			$file[ $line *5 +1 ],
+			$file[ $line *5 +2 ],
+			$file[ $line *5 +3 ],
+		);
+	print OUT "Case #". ($line + 1) .": ". $result ."\n";
+	print_debug( "Case #". ($line + 1) .": ". $result );
+}
+
+exit;
+
+#################################################################
+### Fonctions private
+#################################################################
+
+sub init {
+}
+
+sub main_action {
+	my @board = parse_board( @_ );
+	# print Dumper \@board;
+	
+	foreach ( @board ) {
+		return ( $victory{ $_ } ) if ( exists $victory{ $_ } );
+	}
+	
+	# Pas de victoire de X ou O
+	my $chaine = join '', @board;
+	if ( $chaine =~ /\./ ) {
+		return $not_complete;
+	}
+
+	return $draw;
+}
+
+sub parse_board {
+	# Enleve le caracter de fin de ligne
+	chomp @_;
+
+	my @board = @_;
+	my @tab;
+
+	foreach my $i ( 0 ... 3 ) {
+		my @a = split '', $_[ $i ];
+		$tab[ $i ] = \@a;
+	}
+
+	# Colonne vers ligne
+	foreach my $i ( 0 ... 3 ) {
+		my $row = "";
+		foreach my $j ( 0 ... 3 ) {
+			$row .= $tab[ $j ][ $i ];
+		}
+		push @board, $row;
+	}
+
+	# Diagonale vers ligne
+	my $row1 = "";
+	my $row2 = "";
+	foreach my $i ( 0 ... 3 ) {
+		$row1 .= $tab[ $i ][ $i ];
+		$row2 .= $tab[ $i ][ 3-$i ];
+	}
+
+	return @board, $row1, $row2;
+}
+
+sub print_debug {
+	print STDERR shift, "\n";
+}
+
+__DATA__
+XXXX
+XXXT
+XXTX
+XTXX
+TXXX
+OOOO
+OOOT
+OOTO
+OTOO
+TOOO

@@ -1,0 +1,41 @@
+(ns tic-tac.core)
+
+(def horizontals (map vec (partition 4 (range 16))))
+(def verticals (vals (group-by #(mod % 4) (range 16))))
+(def diagonals [[3 6 9 12] [0 5 10 15]])
+(def directions (concat horizontals verticals diagonals))
+
+(defn parse-input [data]
+  (->> data (slurp) (partition-by #(= \newline %)) (drop 2) (partition-by #(= '(\newline \newline) %) ))
+  )
+
+(defn check-direction [board row]
+  (let [line (frequencies(map #(nth board %) row))]
+    (cond
+      (or (= 4 (line \X)) 
+          (and (= 3 (line \X)) 
+               (= 1 (line \T)))) \X
+      (or (= 4 (line \O)) 
+          (and 
+            (= 3 (line \O)) 
+            (= 1 (line \T)))) \O
+      :else \.
+      )
+    ) 
+  )
+
+(defn result [original-board]
+  (let [board (apply concat (map vec (remove #(= '(\newline) %) original-board)))
+        scores (frequencies (map (partial check-direction board) directions))] 
+    (cond 
+      (and (not= (scores \X) nil) (>= (scores \X) 1)) "X won"
+      (and (not= (scores \O) nil) (>= (scores \O) 1)) "O won"
+      (= ((frequencies board) \.) nil) "Draw"
+      :else "Game has not completed"
+      )))
+
+(defn solve [input output]
+  (let [boards (filter #(not= 1 (count %)) (parse-input input))
+        results (map result boards)]
+    (spit output (reduce str (map #(str "Case #" (first %) ": " (second %) "\n")  (partition 2 (interleave (drop 1 (range)) results)))))))
+

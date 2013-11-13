@@ -1,0 +1,147 @@
+var i,j,k,l,m,n,x,y : longint;
+    s : string;
+    a : array[1..4,1..4] of char;
+    b,c : boolean;
+    fin,fout : text;
+begin
+     assign(fout,'aout.txt'); rewrite(fout);
+     readln(m);
+     for l := 1 to m do
+     begin
+          b := false;
+          for i := 1 to 4 do
+          begin
+              readln(s);
+              for j := 1 to 4 do
+                  a[i,j] := s[j];
+          end;
+          if l = 6 then
+             x := 0;
+          for i := 1 to 4 do
+              for j := 1 to 4 do
+                  if a[i,j] = '.' then
+                     c := true;
+          for i := 1 to 4 do
+          begin
+               x := 0;
+               y := 0;
+               for j := 1 to 4 do
+                   if a[i,j] = 'O' then
+                      x := x+1
+                   else if a[i,j] = 'X' then
+                      y := y+1
+                   else if a[i,j] = 'T' then
+                   begin
+                        x := x+1;
+                        y := y+1;
+                   end;
+               if x = 4 then
+               begin
+                    if not b then
+                    writeln(fout,'Case #',l,': O won');
+                    b := true;
+                    break;
+               end
+               else if y = 4 then
+               begin
+                    if not b then
+                    writeln(fout,'Case #',l,': X won');
+                    b := true;
+                    break;
+               end;
+          end;
+          for i := 1 to 4 do
+          begin
+               x := 0;
+               y := 0;
+               for j := 1 to 4 do
+                   if a[j,i] = 'O' then
+                      x := x+1
+                   else if a[j,i] = 'X' then
+                      y := y+1
+                   else if a[j,i] = 'T' then
+                   begin
+                        x := x+1;
+                        y := y+1;
+                   end;
+               if x = 4 then
+               begin
+                    if not b then
+                    writeln(fout,'Case #',l,': O won');
+                    b := true;
+                    break;
+               end
+               else if y = 4 then
+               begin
+                    if not b then
+                    writeln(fout,'Case #',l,': X won');
+                    b := true;
+                    break;
+               end;
+          end;
+          x := 0;
+          y := 0;
+          for i := 1 to 4 do
+          begin
+              if a[i,i] = 'O' then
+                 x := x+1
+              else if a[i,i] = 'X' then
+                 y := y+1
+              else if a[i,i] = 'T' then
+              begin
+                   x := x+1;
+                   y := y+1;
+              end;
+              if x = 4 then
+              begin
+                   if not b then
+                   writeln(fout,'Case #',l,': O won');
+                   b := true;
+                   break;
+              end
+              else if y = 4 then
+              begin
+                   if not b then
+                   writeln(fout,'Case #',l,': X won');
+                   b := true;
+                   break;
+              end;
+          end;
+          x := 0;
+          y := 0;
+          for i := 1 to 4 do
+          begin
+              if a[i,4-i+1] = 'O' then
+                 x := x+1
+              else if a[i,4-i+1] = 'X' then
+                 y := y+1
+              else if a[i,4-i+1] = 'T' then
+              begin
+                   x := x+1;
+                   y := y+1;
+              end;
+              if x = 4 then
+              begin
+                   if not b then
+                   writeln(fout,'Case #',l,': O won');
+                   b := true;
+                   break;
+              end
+              else if y = 4 then
+              begin
+                   if not b then
+                   writeln(fout,'Case #',l,': X won');
+                   b := true;
+                   break;
+              end;
+          end;
+          if (b = false) and (c) then
+             writeln(fout,'Case #',l,': Game has not completed')
+          else if (b = false) then
+             writeln(fout,'Case #',l,': Draw');
+          b := false;
+          c := false;
+          readln;
+     end;
+     close(fout);
+end.

@@ -1,0 +1,42 @@
+
+import Data.List
+import Data.Array
+
+calc a =
+    let pss = (map . map) (a!) iss
+    in if any (all wx) pss
+         then "X won"
+         else if any (all wo) pss
+                 then "O won"
+                 else if any (any dr) pss
+                        then "Game has not completed"
+                        else "Draw"
+    where
+      wx p = p == 'X' || p == 'T'
+      wo p = p == 'O' || p == 'T'
+      dr p = p == '.'
+
+
+
+is = [[(x,y) | y<-[0..3]] | x<-[0..3]]
+ds = [[(i,i)|i<-[0..3]] , [(i,3-i)|i<-[0..3]]]
+iss = is ++ transpose is ++ ds
+
+parse [] = []
+parse ls =
+    let (c,(_:ls')) = splitAt 4 ls
+    in c : parse ls'
+
+sol ls = calc . listArray ((0,0),(3,3)) . concat $ ls
+
+main = do
+  c <- getContents
+  let (_:ls) = lines c
+      cs = parse ls
+  mapM_ (\(i,cs) -> putStrLn ("Case #" ++ show i ++ ": " ++ sol cs)) (zip [1..] cs)
+
+
+inp = ["XXXT",
+       "....",
+       "OO..",
+       "...."]

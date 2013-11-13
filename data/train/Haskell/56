@@ -1,0 +1,49 @@
+import System.Environment
+import Data.List
+import Data.List(transpose,intersperse)
+
+sample4 = ["OOXX","OXXX","OX.T","O..O"]
+sample5 = ["XXXO","..O.",".O..","T..."]
+
+checkTiTo xs = checkTiTo' [1..((length xs)+1)] xs []
+
+checkTiTo' (k:ks) [] ys | length ys == 4 = [(k `div` 5,(findWinner ys))]
+                        | otherwise = []
+checkTiTo' (k:ks) (x:xs) ys
+    | k `mod` 5 == 0 = [(k `div` 5,(findWinner ys))] ++ checkTiTo' ks xs []
+    | otherwise = checkTiTo' ks xs (ys++[x])
+
+findWinner xs = if lineWin `elem` "XO" then [lineWin] ++ " won" else if colWin `elem` "XO" then [colWin] ++ " won" else if diagWin `elem` "XO" then [diagWin] ++ " won" else if (length (filter ('.'==) (foldl (++) [] xs))) > 0 then "Game has not completed" else "Draw"
+    where
+        lineWin = findLine xs
+        colWin = findVert xs
+        diagWin = findDiag xs
+    
+findLine xs = if any (==4) (map (\lst -> (length (filter (`elem` "XT") lst))) xs) then 'X' else if any (==4) (map (\lst -> (length (filter (`elem` "OT") lst))) xs) then 'O' else 'B'
+
+findVert xs = findLine (transpose xs)
+
+findDiag xs = findLine ys
+    where
+        diag1 = [ c | i <- [0..3], let c = (xs!!i)!!i ]
+        diag2 = [ c | i <- [3,2..0], let c = (xs!!(3-i))!!i ]
+        ys = [diag1] ++ [diag2]
+        
+printDiag xs = ys
+    where
+        diag1 = [ c | i <- [0..3], let c = (xs!!i)!!i ]
+        diag2 = [ c | i <- [3,2..0], let c = (xs!!(3-i))!!i ]
+        ys = [diag1] ++ [diag2]
+    
+main = do
+  (fileIn:fileOut:args) <- getArgs
+  inputs <- readFile fileIn
+  let ls = lines inputs
+  let fi = drop 1 ls
+  --mapM_ putStrLn fi
+  
+  let output = (map (\(n,d) -> "Case #" ++ (show n) ++ ": " ++ d) (checkTiTo fi))
+  mapM_ putStrLn output
+  writeFile fileOut ((intercalate "\n" output)++"\n")
+  
+  return ()

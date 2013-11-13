@@ -1,0 +1,81 @@
+var fs = require("fs");
+
+var db = false;
+function pt(s){if(db)console.log(s);}
+
+var inName = "A-large.in";
+var outName = "./outA.txt";
+var input = fs.readFileSync(inName,'utf8').split("\n");
+fs.unlinkSync(outName);
+function out(s){fs.appendFileSync(outName,s)};
+
+var times = +input[0];
+var m, wc;
+
+
+function popMat(){
+	m = [];
+	for(var i = 0; i < 4; ++i){
+		m.push(input[index++].split(""));
+	}
+	++index;
+}
+
+function get(x,y){
+	return m[y][x];
+}
+
+function row(y){
+	return m[y];
+}
+
+function col(x){
+	return [get(x,0),get(x,1),get(x,2),get(x,3)];
+}
+
+function diag(n){
+	if(n){
+		return [get(0,0),get(1,1),get(2,2),get(3,3)];
+	} else {
+		return [get(3,0),get(2,1),get(1,2),get(0,3)];
+	}
+}
+
+function check(l){
+	var c = {"X":0,"O":0,"T":0,".":0};
+	for(var i = 4; i ; --i){
+		++c[l[i-1]];
+	}
+	if(c.X && c.Y)return "T";
+	if(c.X == 4) return "X";
+	if(c.X == 3 && c.T)return "X";
+	if(c.O == 4) return "O";
+	if(c.O == 3 && c.T)return "O";
+	if(c["."])return ".";
+	return "T";
+}
+
+var index = 1;
+for(var c = 1; c <= times; ++c){
+	pt("Case "+c);
+	popMat();
+	wc = {"X":0,"O":0,"T":0,".":0};
+	// Do rows
+	for(var i = 4; i; --i)
+		++wc[check(row(i-1))];
+	// Do columns
+	for(var i = 4; i; --i)
+		++wc[check(col(i-1))];
+	// Do diagonals
+	++wc[check(diag(0))];
+	++wc[check(diag(1))];
+	if(wc.X){
+		out("Case #"+c+": X won\n");
+	} else if(wc.O){
+		out("Case #"+c+": O won\n");
+	} else if(!wc["."]){
+		out("Case #"+c+": Draw\n");
+	} else {
+		out("Case #"+c+": Game has not completed\n");
+	}
+}

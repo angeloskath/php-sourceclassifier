@@ -1,0 +1,54 @@
+(ns tictac.core
+  (:gen-class))
+
+(defn winning-sequence? [[x & xs]]
+  (case x
+    \. false
+    \X (when (every? #{\X \T} xs) \X)
+    \O (when (every? #{\O \T} xs) \O)
+    \T (or (when (every? #{\X} xs) \X) (when (every? #{\O} xs) \O))))
+
+(defn not-full? [row]
+  (some #{\.} row))
+
+(defn get-seqs [rows]
+  (concat
+    rows
+    ; columns
+    (for [i (range 4)] (mapv #(% i) rows))
+    [;diag tl-br
+    (vec
+      (for [i (range 4)]
+        (get-in rows [i i])))
+    ;diag tr-bl
+    (vec
+      (for [i (range 4)]
+        (get-in rows [i (- 3 i)])))
+    ]))
+
+
+(defn parse-stuff [s]
+  (let [step  (fn step [ls]
+                (when (some identity ls)
+                  (cons (mapv vec (take 4 ls))
+                    (lazy-seq (step (drop 5 ls))))))]
+    (step (drop 1 (clojure.string/split s #"\n")))))
+
+(defn do-test-case [rows]
+  (let [winner (some winning-sequence? (get-seqs rows))]
+    (if winner
+      (str winner " won")
+      (if (some not-full? rows)
+        "Game has not completed"
+        "Draw"))))
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [input_path]
+  (with-open [w (clojure.java.io/writer (str input_path ".out"))]
+    (doseq [[case_number result]  (->> input_path
+                                    slurp
+                                    parse-stuff
+                                    (map do-test-case)
+                                    (map vector (rest (range))))]
+      (.write w (str "Case #" case_number ": " result "\n")))))

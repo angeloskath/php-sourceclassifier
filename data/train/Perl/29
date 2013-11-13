@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+
+sub checkRow
+{
+	my @row = @_;
+	$cntO = 0;
+	$cntT = 0;
+	$cntX = 0;
+
+	for ($a = 0; $a < 4; $a++) {
+		if ($row[$a] =~ /O/) { $cntO++; }
+		if ($row[$a] =~ /T/) { $cntT++; }
+		if ($row[$a] =~ /X/) { $cntX++; }
+	}
+
+	$result = "";
+	if ($cntO + $cntT == 4) { $result .= "O"; }
+	if ($cntX + $cntT == 4) { $result .= "X"; }
+	if (length($result) > 0) { return($result . " won"); }
+	return("");
+}
+
+sub run {
+	open($input, "<", "A-large.in") or die $!;
+	my $testCases = <$input>;
+	my $output = "";
+
+	for ($t = 0; $t < $testCases; $t++) {
+		@table = ();
+		$cntPoints = 0;
+		my $result = "";
+
+		for ($j = 0; $j < 4; $j++) {
+			$line = readline($input);
+			@row = split(//, $line);
+			for ($i = 0; $i < 4; $i++) {
+				push @{$table[$j]}, $row[$i];
+				if ($row[$i] eq '.') { $cntPoints++; }
+			}
+			$result .= checkRow(@row);
+		}
+		if (length($result) > 0) { goto EVALUATE; }
+		
+		@column = ();
+		for ($i = 0; $i < 4; $i++) {
+			for ($j = 0; $j < 4; $j++) {
+				$column[$j] = $table[$j][$i];
+			}
+			$result .= checkRow(@column); if (length($result) > 0) { goto EVALUATE; }
+		}
+
+		## Check diagonal.
+		for ($i = 0; $i < 4; $i++) {
+			$column[$i] = $table[$i][$i];
+		}
+		$result .= checkRow(@column); if (length($result) > 0) { goto EVALUATE; }
+
+		for ($i = 0; $i < 4; $i++) {
+			$column[$i] = $table[$i][3 - $i];
+		}
+		$result .= checkRow(@column); if (length($result) > 0) { goto EVALUATE; }
+
+	EVALUATE:
+		if (length($result) == 0) {
+			if ($cntPoints == 0) { $output .= "Case #" . ($t + 1) . ": Draw\n"; }
+			else { $output .= "Case #" . ($t + 1) . ": Game has not completed\n"; }
+		} else {
+			$output .= "Case #" . ($t + 1) . ": " . $result . "\n";
+		}
+		readline($input);
+	}
+	open($out, ">", "output_large.txt");
+	print $out $output;
+	close($out);
+	close($input); 
+} 
+
+run();

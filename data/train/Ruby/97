@@ -1,0 +1,113 @@
+require 'pp'
+problem = STDIN.read
+lines = problem.split("\n")
+num = lines.shift.to_i
+
+class Board
+  def initialize
+    @board = []
+    @finished = true
+  end
+
+  def add_line(l)
+    if @finished
+      @finished = false if l.include?('.')
+    end
+    @board.push l.split("")
+  end
+
+  def get(x, y)
+    @board[y][x]
+  end
+
+  def width
+    4
+  end
+
+  def height
+    4
+  end
+
+  def col(n)
+    @board[n].join
+  end
+
+  def cols
+    cols = []
+    0.upto(3){|i|
+      cols.push col(i)
+    }
+    cols
+  end
+
+  def row(n)
+    col = []
+    0.upto(3){|i|
+      col.push @board[i][n]
+    }
+    col.join
+  end
+
+  def rows
+    rows = []
+    0.upto(3){|i|
+      rows.push row(i)
+    }
+    rows
+  end
+
+  def diagonals
+    [
+      [
+        @board[0][0],
+        @board[1][1],
+        @board[2][2],
+        @board[3][3],
+      ].join,
+      [
+        @board[0][3],
+        @board[1][2],
+        @board[2][1],
+        @board[3][0],
+      ].join
+    ]
+  end
+
+  def judge
+    (expand_t targets).each{|e|
+      return 'O won' if e == 'OOOO'
+      return 'X won' if e == 'XXXX'
+    }
+    return 'Game has not completed' if not @finished
+    return 'Draw'
+  end
+
+  def targets
+    rows + cols + diagonals
+  end
+
+  def expand_t(targets)
+    expanded = []
+    while targets.length != 0
+      t = targets.shift
+      if t.include?('T')
+        expanded.push t.sub('T', 'O')
+        expanded.push t.sub('T', 'X')
+      else
+        expanded.push t
+      end
+    end
+
+    expanded
+  end
+end
+
+num.times{|i|
+  l = lines.shift
+  b = Board.new
+  while l != "" and not l.nil?
+    b.add_line l
+    l = lines.shift
+  end
+  print "Case ##{i + 1}: #{b.judge}\n"
+}

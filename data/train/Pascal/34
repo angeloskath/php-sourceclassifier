@@ -1,0 +1,127 @@
+uses crt;
+const Ow='O won';
+  Xw='X won';
+  d='Draw';
+  nt='Game has not completed';
+var c1,c2,c3,t,cse:integer;
+  txt,txt2:text;
+  a:char;
+  ray:array[1..4,1..4]of char;
+function O(x:char):boolean;
+begin
+  if (x='T') or (x='O') then
+    O:=true
+  else
+    O:=false;
+end;
+function x(xx:char):boolean;
+begin
+  if (xx='T') or (xx='X') then
+    X:=true
+  else
+    X:=false;
+end;
+function rez:string;
+var cc,c1,c2:integer;
+w:boolean;
+begin
+  w:=false;
+  for cc:=1 to 4 do
+  begin
+    if O(ray[cc,1]) and O(ray[cc,2]) and o(ray[cc,3]) and O(ray[cc,4]) then
+    begin
+      rez:=Ow;
+      break;
+      w:=true;
+    end;
+    if O(ray[1,cc]) and O(ray[2,cc]) and o(ray[3,cc]) and O(ray[4,cc]) then
+    begin
+      rez:=Ow;
+      break;
+      w:=true;
+    end;
+    if O(ray[1,1]) and O(ray[2,2]) and O(ray[3,3]) and O(ray[4,4]) then
+    begin
+      rez:=Ow;
+      break;
+      w:=true;
+    end;
+    if O(ray[4,1]) and O(ray[3,2]) and O(ray[2,3]) and O(ray[1,4]) then
+    begin
+      rez:=Ow;
+      break;
+      w:=true;
+    end;
+  end;
+  for cc:=1 to 4 do
+  begin
+    if X(ray[cc,1]) and X(ray[cc,2]) and X(ray[cc,3]) and X(ray[cc,4]) then
+    begin
+      rez:=Xw;
+      break;
+      w:=true;
+    end;
+    if X(ray[1,cc]) and X(ray[2,cc]) and X(ray[3,cc]) and X(ray[4,cc]) then
+    begin
+      rez:=Xw;
+      break;
+      w:=true;
+    end;
+    if X(ray[1,1]) and X(ray[2,2]) and X(ray[3,3]) and X(ray[4,4]) then
+    begin
+      rez:=Xw;
+      break;
+      w:=true;
+    end;
+    if X(ray[4,1]) and X(ray[3,2]) and X(ray[2,3]) and X(ray[1,4]) then
+    begin
+      rez:=Xw;
+      break;
+      w:=true;
+    end;
+  end;
+  if not W then
+  begin
+    w:=false;
+    for c1:=1 to 4 do
+    begin
+      for c2:=1 to 4 do
+      begin
+        if ray[c1,c2]='.' then
+        begin
+          rez:=d;
+          w:=true;
+          break;
+        end;
+      end;
+    end;
+    if not w then
+      rez:=nt;
+  end;
+end;
+begin
+  assign(txt,'c:\Documents and settings\ingus\Desktop\TTT.txt');
+  reset(txt);
+  clrscr;
+  read(txt,t);
+  read(txt,a);
+  read(txt,a);
+  cse:=0;
+  for c1:=1 to t do
+  begin
+    cse:=cse+1;
+    for c2:=1 to 4 do
+    begin
+      for c3:=1 to 4 do
+      begin
+        read(txt,ray[c2,c3]);
+      end;
+      read(txt,a);
+      read(txt,a);
+    end;
+    read(txt,a);
+    read(txt,a);
+    writeln('Case #',cse,': ',rez{,chr(10)});
+  end;
+  close(txt);
+end.

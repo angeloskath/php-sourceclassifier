@@ -1,0 +1,58 @@
+use strict;
+use warnings;
+
+my $Lines = [
+    [ 0, 1, 2, 3],
+    [ 4, 5, 6, 7],
+    [ 8, 9,10,11],
+    [12,13,14,15],
+    [ 0, 4, 8,12],
+    [ 1, 5, 9,13],
+    [ 2, 6,10,14],
+    [ 3, 7,11,15],
+    [ 0, 5,10,15],
+    [ 3, 6, 9,12],
+];
+
+my $num = <>;
+chomp $num;
+
+foreach my $i (1..$num) {
+    my $board = [];
+    foreach (1..4) {
+        my $line = <>;
+        chomp $line;
+        push @$board, split(//, $line);
+    }
+    <>;
+    
+    my $s = solv($board);
+    printf "Case #%d: %s\n", $i, $s;
+    printf STDERR "Case #%d: %s\n", $i, $s;
+}
+
+sub solv {
+    my $board = shift;
+
+    my $judge = '';
+    foreach my $line (@$Lines) {
+        my $ln = '';
+        foreach my $i (@$line) {
+            $ln .= $board->[$i];
+        }
+        if ($ln =~ /^[XT]{4}$/) {
+            $judge = 'X won';
+            last;
+        }
+        if ($ln =~ /^[OT]{4}$/) {
+            $judge = 'O won';
+            last;
+        }
+    }
+    if ($judge eq '') {
+        $judge =
+            (grep {$_ eq '.'} @$board) ? 'Game has not completed' : 'Draw';
+    }
+    return $judge;
+}
+

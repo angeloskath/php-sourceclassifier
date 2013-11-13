@@ -1,0 +1,47 @@
+module QualA where
+
+import Control.Applicative
+import Data.List
+import Control.Monad
+
+readGrid :: IO [[Char]]
+readGrid = do
+    g <- sequence (replicate 4 getLine)
+    getLine
+    return g
+
+solve :: [[Char]] -> String
+solve g | winner g 'X' = "X won"
+solve g | winner g 'O' = "O won"
+solve g | notElem '.' (concat g) = "Draw"
+solve g = "Game has not completed"
+
+valid :: Char -> Char -> Bool
+valid c x = x == c || x == 'T'
+
+checkLine :: [Char] -> Char -> Bool
+checkLine l c = all (valid c) l
+
+checkLines :: [[Char]] -> Char -> Bool
+checkLines g c = any (flip checkLine c) g
+
+checkCols :: [[Char]] -> Char -> Bool
+checkCols g c = checkLines (transpose g) c
+
+checkDiags g c = checkLine mainDiag c || checkLine antiDiag c
+    where mainDiag = [ (g !! i) !! i | i <- [0..3] ]
+          antiDiag = [ (g !! i) !! (3-i) | i <- [0..3] ]
+
+winner g c = checkLines g c || checkCols g c || checkDiags g c
+
+rsp = do
+    g <- readGrid
+    putStrLn $ solve g
+
+main = do
+    n <- read <$> getLine :: IO Int
+    forM_ [1..n] $ \i -> do
+        putStr "Case #"
+        putStr (show i)
+        putStr ": "
+        rsp

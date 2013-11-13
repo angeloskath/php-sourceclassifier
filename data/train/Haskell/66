@@ -1,0 +1,63 @@
+module Main where
+
+import Data.List (transpose)
+
+-- import CJ.Tools
+import CJ.NoDebug
+-- import CJ.Debug
+
+-- Define the type of input parameters of each case of the problem
+type OneCase = [[Char]]
+
+-- Parse the first several lines to get the first case
+readOneCase :: [String]         -- Lines of input
+               -> ( OneCase     -- The first case parsed
+                  , [String]    -- The rest of the input lines
+                  )
+readOneCase (a:b:c:d:strs) = ([a,b,c,d], tail $ strs)
+readOneCase e = error $ "readOneCase got: " ++ show e
+
+-- Define the type of the results before output
+data Result = Xwon | Owon | Draw | Incomplete
+            deriving (Eq, Show)
+
+-- How to convert Result to actual output String
+showRes :: Result -> String
+showRes Xwon = "X won"
+showRes Owon = "O won"
+showRes Draw = "Draw"
+showRes Incomplete = "Game has not completed"
+
+-- The actual solve
+solve :: OneCase -> Result
+solve game | any (== Xwon) every4 = Xwon
+           | any (== Owon) every4 = Owon
+           | any (== Incomplete) every4 = Incomplete
+           | otherwise = Draw
+  where
+    every4 = map match4 fourLines
+    match4 l | matched 'X' l = Xwon
+             | matched 'O' l = Owon
+             | any (== '.') l = Incomplete
+             | otherwise = Draw
+    fourLines = game ++ transpose game ++
+                [zipWith (!!) game [0..3], zipWith (!!) game [3,2..0]]
+    matched c = all (\x -> x == c || x == 'T')
+
+-- General Tools
+main :: IO ()
+main = putStr . parseLines . lines =<< getContents
+
+parseLines :: [String] -> String
+parseLines [] = error "parseLines got empty"
+parseLines (ns:ds) =
+  let n = read ns :: Int
+      go l oneCase = "Case #" ++ show l ++ ": " ++
+                     (showRes . solve . tsvn' 160 ("-*- CASE #" ++ show l)) oneCase
+  in unlines $ zipWith go [1..n] $ readEachCase ds
+
+readEachCase :: [String] -> [OneCase]
+-- Catch [] here so readOneCase always has something to read
+readEachCase [] = []
+readEachCase inputs = oneCase : readEachCase rests
+  where (oneCase, rests) = readOneCase inputs

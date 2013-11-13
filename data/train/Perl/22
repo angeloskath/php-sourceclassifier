@@ -1,0 +1,19 @@
+use 5.012;
+use warnings;
+
+<>;
+$/ = '';
+my $c;
+while (<>) {
+    print 'Case #' . ++$c . ': ';
+    s/\s+/ /g;
+    if (/[OT]{4}|[OT](?:...[OT]){3}|[OT](?:....[OT]){3}|[OT](?:.....[OT]){3}/) {
+        say 'O won';
+    } elsif (/[XT]{4}|[XT](?:...[XT]){3}|[XT](?:....[XT]){3}|[XT](?:.....[XT]){3}/) {
+        say 'X won';
+    } elsif (/\./) {
+        say 'Game has not completed';
+    } else {
+        say 'Draw';
+    }
+}

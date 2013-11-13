@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<script type="text/javascript">
+
+var infilename="G:\\SSH\\codejam\\A1\\A-small-attempt0.in";
+
+var outfilename="G:\\SSH\\codejam\\A1\\A-small-attempt0.out";
+
+var isempty = false;
+
+function startit(){
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var f = fso.OpenTextFile(infilename,1);
+	
+	var outf = fso.CreateTextFile(outfilename,true);
+	
+	var casecount=0;
+	
+	var casen = 1;
+	
+	if(!f.AtEndOfStream){
+		casecount = Number(f.ReadLine());
+	}
+	
+	var boardarr = new Array();
+	
+	var rown = 0;
+	
+	while(!f.AtEndOfStream){
+	
+		var linedata = f.ReadLine();
+	
+		if(linedata != ""){
+		
+			var browarr = new Array();
+		
+			browarr = linedata.split("");
+		
+			boardarr[rown++] = browarr;
+			
+			if(rown == 4){
+			
+				var jchr;
+			
+				//row
+				var i;
+				for(i=0;i<4;i++){
+				
+					browarr = boardarr[i];
+					
+					jchr = judge(browarr);
+					
+					if(jchr != ""){
+						outf.Write("Case #" + casen + ": " +jchr + " won" + "\n");
+						
+						break;
+					}
+					
+				}
+				
+				if(jchr == ""){
+				
+					//column
+					for(i=0;i<4;i++){
+				
+						var bcolarr = new Array(boardarr[0][i],boardarr[1][i],boardarr[2][i],boardarr[3][i]);
+					
+						jchr = judge(bcolarr);
+					
+						if(jchr != ""){
+							outf.Write("Case #" + casen + ": " +jchr + " won" + "\n");
+						
+							break;
+						}
+					
+					}
+				
+				}
+				
+				if(jchr == ""){
+				
+					//diagonal
+					
+					//1
+					var bdigarr = new Array(boardarr[0][0],boardarr[1][1],boardarr[2][2],boardarr[3][3]);
+					
+					jchr = judge(bdigarr);
+					
+					if(jchr != ""){
+						outf.Write("Case #" + casen + ": " +jchr + " won" + "\n");
+					}else{
+					
+						bdigarr = new Array(boardarr[0][3],boardarr[1][2],boardarr[2][1],boardarr[3][0]);
+						
+						jchr = judge(bdigarr);
+						
+						if(jchr != ""){
+							outf.Write("Case #" + casen + ": " +jchr + " won" + "\n");
+						}
+					}
+				
+				}
+				
+				if(jchr == ""){
+					
+					if(isempty){
+						outf.Write("Case #" + casen + ": Game has not completed" + "\n");
+					}else{
+						outf.Write("Case #" + casen + ": Draw" + "\n");
+					}
+					
+				}
+				
+				casen++;
+			
+				rown = 0;
+				
+				isempty = false;
+			
+			}
+			
+		}
+		
+	}
+	
+	f.Close();
+	
+	outf.Close();
+	
+	alert("FINISH!");
+}
+
+function judge(arr){
+	
+	var j;
+	var jchr = "";
+	for(j=0;j<4;j++){
+		var chr = arr[j];
+		
+		if(chr == "."){
+			isempty = true;
+			return "";
+		}else if(chr != "T" && jchr == ""){
+			
+			jchr = chr;
+			
+		}else if(chr != "T" && chr != jchr){
+			
+			return "";
+			
+		}
+
+	}
+	
+	return jchr;
+	
+}
+</script>
+</HEAD>
+<BODY>
+<input type="button" value="start" onclick="startit();" />
+</BODY>
+</HTML>

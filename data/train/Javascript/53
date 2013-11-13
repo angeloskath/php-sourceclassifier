@@ -1,0 +1,179 @@
+#!/usr/bin/env node
+
+(function () {
+    // constants!!!
+    var fileName = 'a-large';
+    var numOfRows = 4;
+    var numOfColumns = 4;
+    
+    // evaluate condition
+    // throw exception if condition is false
+    function assert(condition, message) {
+        if (!condition) {
+            throw message;
+        }
+    }
+    
+    // read inputs from "filename".in
+    // call parseInput after reading
+    try {
+        require('fs').readFile(
+            fileName + '.in',
+            { 'encoding':'ascii', 'flag':'r' },
+            parseInput);   
+    } catch(e) {
+        console.log(e);
+    }
+    
+    // parse inputs into test case object
+    // call evaluateInput function after parsing
+    function parseInput(error, data) {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        
+        try {
+            var dataLines = data.split(/\n/g);
+        
+            var numOfCases = Number(dataLines[0]);
+            
+            assert(numOfCases > 0, '1: ' + numOfCases + ' > ' + 0);
+            
+            var i = 1;
+            var testCases = [];
+            
+            while (dataLines[i]) {
+                
+                var testCase = {
+                    "rows": [
+                        dataLines[i++].split(""),
+                        dataLines[i++].split(""),
+                        dataLines[i++].split(""),
+                        dataLines[i++].split("")
+                    ]
+                };
+                
+                i++;
+                
+                assert(testCase.rows.length == numOfRows, '2: ' + testCase.rows.length + ' == ' + numOfRows);
+                assert(testCase.rows[0].length == numOfColumns, '3: ' + testCase.rows[0].length + ' == ' + numOfColumns);
+                assert(testCase.rows[1].length == numOfColumns, '4: ' + testCase.rows[1].length + ' == ' + numOfColumns);
+                assert(testCase.rows[2].length == numOfColumns, '5: ' + testCase.rows[2].length + ' == ' + numOfColumns);
+                assert(testCase.rows[3].length == numOfColumns, '6: ' + testCase.rows[3].length + ' == ' + numOfColumns);
+                
+                testCases[testCases.length] = testCase;
+            }
+            
+            assert(testCases.length == numOfCases, '7: ' + testCases.length + ' == ' + numOfCases);
+            
+            evaluateInput(testCases);
+        } catch(e) {
+            console.log(e);
+        }
+    }
+    
+    // call algorithm for each test case
+    // log results
+    // write results to "filename".ou
+    function evaluateInput(testCases) {
+        var results = '';
+        
+        for (var i = 0; i < testCases.length; i++) {
+            results += 'Case #' + (i + 1) + ': ' + algorithm(testCases[i]) + '\r\n';
+        }
+        
+        results = results.replace(/\n$/, '');
+        
+        console.log(results);
+        
+        try {
+            require('fs').writeFile(
+                fileName + '.ou',
+                results,
+                { 'encoding': 'ascii', 'mode': '438', 'flag': 'w' },
+                writeStatus
+            )
+        } catch(e) {
+            console.log(e);
+        }
+    }
+    
+    // algorithm to solve problem
+    function algorithm(testCase) {
+        var drawState = 'Draw';
+        
+        function determineWinner(line) {
+            var regExpX = /[XT]{4}/;
+            if (regExpX.test(line)) {
+                return 'X won'
+            }
+            
+            regExpO = /[OT]{4}/;
+            if (regExpO.test(line)) {
+                return 'O won'
+            }
+            
+            return drawState;
+        }
+        
+        // check for a winner
+        // horizontal
+        for (var i = 0; i < numOfRows; i++) {
+            var row = testCase.rows[i][0]
+                + testCase.rows[i][1]
+                + testCase.rows[i][2]
+                + testCase.rows[i][3];
+            var state = determineWinner(row);
+            if (state != drawState) {
+                return state;
+            }
+        }
+        
+        // vertical
+        for (var i = 0; i < numOfColumns; i++) {
+            var column = testCase.rows[0][i]
+                + testCase.rows[1][i]
+                + testCase.rows[2][i]
+                + testCase.rows[3][i];
+                
+            var state = determineWinner(column);
+            if (state != drawState) {
+                return state;
+            }
+        }
+        
+        // diagonal
+        var backDiagonal = testCase.rows[0][0]
+            + testCase.rows[1][1]
+            + testCase.rows[2][2]
+            + testCase.rows[3][3];
+            
+        var state = determineWinner(backDiagonal);
+        if (state != drawState) {
+            return state;
+        }
+            
+        var forwardDiagonal = testCase.rows[0][3]
+            + testCase.rows[1][2]
+            + testCase.rows[2][1]
+            + testCase.rows[3][0];
+        
+        var state = determineWinner(forwardDiagonal);
+        if (state != drawState) {
+            return state;
+        }
+        
+        // check for complete game
+        if (testCase.rows.toString().indexOf('.') > -1) {
+            return 'Game has not completed';
+        }
+        
+        return drawState;
+    }
+    
+    // display status of the results write
+    function writeStatus(error) {
+        console.log(error ? error : 'write success...');
+    }
+}());

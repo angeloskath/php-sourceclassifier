@@ -1,0 +1,38 @@
+package A
+
+import scala.io.Source
+import java.io.PrintWriter
+
+object TicTacToeTomek {
+  def main(args: Array[String]) {
+    val input = Source.fromFile("src/A/A-large.in")
+    val writer = new PrintWriter("src/A/output.txt")
+    val lines = input.getLines()
+    val t = lines.next().toInt
+    for (i <- 1 to t) {
+      val a = lines.take(4).toList
+      lines.drop(1)
+      def filter(pl: Char)(c: Char) = c == 'T' || c == pl
+      def checkWin(ch: Char) = 0 +
+        (0 to 3).map(a(_).count(filter(ch)) / 4).sum +
+        (0 to 3).map {
+          i => (0 to 3).map {
+            j => a(j)(i)
+          }.count(filter(ch)) / 4
+        }.sum +
+        (0 to 3).map(i => a(i)(i)).count(filter(ch)) / 4 +
+        (0 to 3).map(i => a(i)(3 - i)).count(filter(ch)) / 4 > 0
+      val ans =
+        if (checkWin('X'))
+          "X won"
+        else if (checkWin('O'))
+          "O won"
+        else if (a.map(_.count(_ == '.')).sum == 0)
+          "Draw"
+        else
+          "Game has not completed"
+      writer.println(s"Case #$i: $ans")
+    }
+    writer.close()
+  }
+}

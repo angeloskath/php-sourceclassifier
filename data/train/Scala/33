@@ -1,0 +1,57 @@
+import java.util.Scanner
+
+object A {
+
+  def check(s:String):String={
+    if (s.matches("^[XT]*$")) return "X won"
+    if (s.matches("^[TO]*$")) return "O won"
+    else null
+  }
+  
+  def trans(B:Array[String]):Array[String]={
+    var R: Array[String] = Array("","","","");
+    for(i<-Range(0,4))for(j<-Range(0,4)){
+      R(j)+=B(i)(j)
+    }
+    return R
+  }
+  
+  def diag1(B:Array[String]):String={
+	  var res="";
+	  for(i<-Range(0,4))res+=B(i)(i)
+	  return res;
+  }
+  
+    def diag2(B:Array[String]):String={
+	  var res="";
+	  for(i<-Range(0,4))res+=B(i)(3-i)
+	  return res;
+  }
+  
+  def solve(B:Array[String]):String= {
+    for(s<-B) if(check(s)!=null)return check(s)
+    for(s<-trans(B)) if(check(s)!=null)return check(s)
+    var s = diag1(B)
+    if(check(s)!=null)return check(s)
+    s = diag2(B)
+    if(check(s)!=null)return check(s)
+    for(s<-B){
+      if(s.indexOf(".") > -1)return "Game has not completed"
+    }
+    return "Draw"
+  }
+  
+  def main(args: Array[String]): Unit = {
+    var scan = new Scanner(System.in)
+    var T = scan.nextLine.toInt
+    var p = 1
+    while(p<=T) {
+      var B: Array[String] = new Array(4)
+      for(i<-Range(0,4))B(i)=scan.nextLine();
+      println("Case #"+p+": "+solve(B))
+      if(p<T)scan.nextLine
+      p+=1
+    }
+  }
+
+}

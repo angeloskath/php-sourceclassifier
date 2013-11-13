@@ -1,0 +1,152 @@
+<html>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <head>
+    <title>Tic-Tac-Toe-Tomek</title>
+    <script type="text/javascript">
+    
+    var TTT = {
+        sourceSelector : '#original',
+        targetSelector : '#target',
+        matrix : [],
+        init : function () {
+            this.assignEvents();
+        },
+        assignEvents : function () {
+            var self = this;
+            $(this.sourceSelector).keyup(function () {
+                self.updateMatrix();
+                self.calculateGameResults();
+            });
+        },
+        updateMatrix : function () {
+            var _val = $(this.sourceSelector).val(),
+                totalTestCase = _val[0],
+                text = _val.split(/\r?\n/);
+            
+            this.matrix = [];
+            var newGame = [];
+            for( var i = 1 ; i< text.length ; i++ ) {
+                var c = text[i];
+                if ( c == "" ) {
+                    this.matrix.push(newGame);
+                    newGame = [];
+                } else {
+                    newGame.push( c.split('') );
+                }
+            }
+        },
+        calculateGameResults : function () {
+        	var calc = {
+        		game : [],
+        		iterateHorizontal : function () {
+        			var arr = [];
+        			for ( var i = 0; i < 4; i++ ) {
+        				arr.push( this.game[i] );
+        			}
+        			return this.iterateArr(arr);
+        		},
+        		iterateVertical : function () {
+        			var arr = [],
+        				temp = this.game;
+        			for ( var i = 0; i < 4; i++ ) {
+        				arr.push( [ temp[0][i], temp[1][i], temp[2][i], temp[3][i] ] );
+        			}
+        			return this.iterateArr(arr);
+        		},
+        		iterateDiagonal : function () {
+        			var arr = [],
+	    				temp = this.game;
+	    			arr.push( [ temp[0][0], temp[1][1], temp[2][2], temp[3][3] ] );
+	    			arr.push( [ temp[3][0], temp[2][1], temp[1][2], temp[0][3] ] );
+	    			return this.iterateArr(arr);
+        		},
+        		iterateArr : function (arr) {
+        			var result, incomplete = false;
+        			for ( var i = 0; i < arr.length; i++ ) {
+        				result = this.processCase( arr[i] );
+        				if ( result.indexOf('won') > -1  ) return result;
+        				if ( result !== "Draw" ) incomplete = !result;
+        			}
+        			if ( incomplete ) return "";
+        			else return "Draw";
+        		},
+        		processCase : function (_case) {
+        			var joker = ( _case.indexOf('T') > - 1 ) ? 1 : 0,
+        				totalO = _case.filter(function(value) { return value === 'O' }).length,
+        				totalX = _case.filter(function(value) { return value === 'X' }).length;
+        			
+        			if ( totalO + joker == 4 ) {
+        				return "O won";
+        			} else if( totalX + joker == 4 ) {
+        				return "X won";
+        			} else if ( _case.indexOf('.') > - 1 ) {
+        				return "";
+        			} else {
+        				return "Draw";
+        			}
+        		}
+        	};
+        	
+        	this.output = "";
+        	// iterate games
+        	for ( var i = 0; i < this.matrix.length; i++ ) {
+        		calc.game = this.matrix[i];
+        		var result = calc.iterateHorizontal(),
+        			incomplete = false;
+        		if ( result.indexOf('won') > -1 ) {
+        			this.log(i + 1, result);
+        			continue;
+        		} else {
+        			incomplete = !result;
+        			result = calc.iterateVertical();
+        		}
+        		
+        		if ( result.indexOf('won') > -1 ) {
+        			this.log(i + 1, result);
+        			continue;
+        		} else {
+        			incomplete = !result;
+        			result = calc.iterateDiagonal();
+        		}
+        		
+        		if ( result.indexOf('won') > -1 ) {
+        			this.log(i + 1, result);
+        		} else if ( incomplete ){
+        			this.log(i + 1, "Game has not completed");
+        		} else {
+        			this.log(i + 1, "Draw");
+        		}
+        	}
+        	
+        	$(this.targetSelector).html(this.output);
+        },
+        output : "",
+        log : function (_case, msg) {
+        	this.output += "Case #" + _case + ": " + msg + "<br>";
+        }
+    };
+    
+    $(document).ready(function () {
+        TTT.init();
+    });
+    
+    </script>
+    
+    
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <textarea id="original" style="width: 1000px; height: 400px;">Paste input here</textarea>
+                </td>
+            <tr>
+                <td id="translated"></td>
+            </tr>
+            <tr>
+                <td colspan="2" id="unassign"></td>
+            </tr>
+        </table>
+        <p id="target"></p>
+    </body>
+</html>

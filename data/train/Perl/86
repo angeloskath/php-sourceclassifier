@@ -1,0 +1,33 @@
+#!/home/utils/perl-5.16/5.16.2-nothreads-64/bin/perl
+#!C:\strawberry\perl\bin
+
+use strict;
+use warnings;
+
+chomp(my $T = <>);
+foreach my $t ( 1..$T ) {
+  my @a = ();
+  my @b = ();
+  my @c = ();
+
+  my $status = "Draw";
+  my $saw_dot = 0;
+  foreach my $idx ( 0..3 ) {
+    chomp(my $row = <>);
+    $saw_dot = 1 if ( $row =~ /\./ );
+    $a[$idx] = [split(//,$row)];
+    my $i = 0;
+    map { $b[$i++][$idx] = $_ } @{$a[$idx]};
+    $c[0][$idx] = $a[$idx][$idx];
+    $c[1][$idx] = $a[$idx][(3-$idx)];
+  }
+  foreach my $way ( @a, @b, @c ) {
+    my $line = join("",@{$way});
+    $status = "X won" if ( $line =~ /[XT]{4}/ );
+    $status = "O won" if ( $line =~ /[OT]{4}/ );
+  }
+  $status = "Game has not completed" if ( $status =~ /Draw/ && $saw_dot);
+  my $junk = <> if ( $t != $T );
+
+  print "Case #$t: $status\n";
+}

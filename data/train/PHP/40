@@ -1,0 +1,175 @@
+<?php
+
+$input = explode("\n", file_get_contents('input.txt'));
+
+$output = array();
+
+for($set = 0; $set < $input[0]; $set++) {
+
+	$data = array();
+
+	//set default vars
+	$xwin = false;
+	$owin = false;
+	$none = false;
+
+	for($i = 1; $i < 5; $i++) {
+
+		$a = $input[$set*5+$i][0];
+		$b = $input[$set*5+$i][1];
+		$c = $input[$set*5+$i][2];
+		$d = $input[$set*5+$i][3];
+
+		$data[] = array($a, $b, $c, $d);
+
+		if(none($a) || none($b) || none($c) || none($d)) {
+			$none = true;
+		//	continue;
+		}
+
+		if(o($a) && o($b) && o($c) && o($d)) {
+			$owin = true;
+			break;
+		}
+
+		if(x($a) && x($b) && x($c) && x($d)) {
+			$xwin = true;
+			break;
+		}
+
+	}
+
+	//check if solved
+	//horizontal is checked
+	if($xwin) {
+		$output[] = 'x';
+		continue;
+	}elseif($owin) {
+		$output[] = 'o';
+		continue;
+	}
+
+	//check vertical
+	for($i = 0; $i < 4; $i++) {
+		if(o($data[0][$i]) && o($data[1][$i]) && o($data[2][$i]) && o($data[3][$i])) {
+			$owin = true;
+			break;
+		}
+		if(x($data[0][$i]) && x($data[1][$i]) && x($data[2][$i]) && x($data[3][$i])) {
+			$xwin = true;
+			break;
+		}
+
+	}
+
+	//check if solved
+	//vertical is checked
+	if($xwin) {
+		$output[] = 'x';
+		continue;
+	}elseif($owin) {
+		$output[] = 'o';
+		continue;
+	}
+
+	//now check diagonal left
+	$possible_x = true;
+	$possible_o = true;
+	for($i = 0; $i < 4; $i++) {
+		if(!o($data[$i][$i])) {
+			$possible_o = false;
+		}
+		if(!x($data[$i][$i])) {
+			$possible_x = false;
+		}
+	}
+
+	if($possible_x) {
+		$output[] = 'x';
+		continue;
+	}
+	if($possible_o) {
+		$output[] = 'o';
+		continue;
+	}
+
+	//now check diagonal right
+	$possible_x = true;
+	$possible_o = true;
+	for($i = 0; $i < 4; $i++) {
+		if(!o($data[$i][3-$i])) {
+			$possible_o = false;
+		}
+		if(!x($data[$i][3-$i])) {
+			$possible_x = false;
+		}
+	}
+
+	if($possible_x) {
+		$output[] = 'x';
+		continue;
+	}
+	if($possible_o) {
+		$output[] = 'o';
+		continue;
+	}
+
+	if($none) {
+		$output[] = 'none';
+		continue;
+	}else {
+		$output[] = 'draw';
+		continue;
+	}
+
+}
+
+//print_r($output);
+
+$data = '';
+
+for($i = 0, $count = count($output); $i < $count; $i++) {
+	$case = $i + 1;
+	switch ($output[$i]) {
+		case 'x':
+			$data .= 'Case #'.$case.': X won';
+		break;
+		case 'o':
+			$data .= 'Case #'.$case.': O won';
+		break;
+		case 'draw':
+			$data .= 'Case #'.$case.': Draw';
+		break;
+		case 'none':
+			$data .= 'Case #'.$case.': Game has not completed';
+		break;
+		
+	}
+	if($case !== $count) {
+		$data .= "\n";
+	}
+}
+
+file_put_contents('output.txt', $data);
+
+function o($in) {
+	if($in === 'O' || $in === 'T') {
+		return true;
+	}
+	return false;
+}
+
+function x($in) {
+	if($in === 'X' || $in === 'T') {
+		return true;
+	}
+	return false;
+}
+
+function none($in) {
+	if($in === '.') {
+		return true;
+	}
+	return false;
+}
+

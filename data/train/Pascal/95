@@ -1,0 +1,30 @@
+program ex;
+uses wincrt;
+var ch:string;
+b:boolean;
+i,x:integer;
+
+
+begin
+repeat
+readln(ch) ;
+i:=0;
+repeat
+i:=i+1;
+b:=ch[i] in ['0','1']
+until (not(b)) or (i=length(ch));
+until b;
+i:=1;
+repeat
+x:=1;
+while (ch[i]=ch[i+1]) and (i<=length(ch) )do
+begin
+x:=x+1;
+i:=i+1;
+end;
+write (x,ch[i],' ');
+i:=i+1;
+until i=length(ch)+1;
+end.
+ 
+

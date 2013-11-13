@@ -1,0 +1,70 @@
+<?php
+
+$output = '';
+
+$file = file('input.txt');
+
+$number_of_cases = $file[0];
+array_shift($file);
+$file = array_filter($file, function($line) {
+  return preg_match('/[\w\.]/', $line);
+});
+
+
+for ($i=0; $i < $number_of_cases; $i++) {
+  $board = array_slice($file, $i*4, 4);
+  $board = array_map('trim', $board);
+  $str_board = join('', $board);
+  $went_last = who_went_last($str_board);
+
+  $str_board = str_replace('T', $went_last, $str_board);
+
+  $board = str_split($str_board, 4);
+  
+  if (check_winner($board, $went_last)) {
+    $outcome = "$went_last won";
+  } else {
+    $outcome = is_game_over($str_board) ? 'Draw' : 'Game has not completed';
+  }
+  $output .= "Case #".($i+1).": $outcome\n";
+}
+
+file_put_contents('output.txt', $output);;
+
+function who_went_last($board)
+{
+  $xs = substr_count($board, 'X');
+  $os = substr_count($board, 'O');
+  return ($xs > $os) ? 'X' : 'O';
+}
+
+function check_winner($board, $went_last) {
+  return check_rows($board, $went_last) or check_cols($board, $went_last) or check_diags($board, $went_last);
+}
+
+
+function check_rows($board, $went_last)
+{
+  return in_array(str_repeat($went_last, 4), $board);
+}
+function check_cols($board, $went_last)
+{
+  for ($i=0; $i < 3; $i++) { 
+    if ($board[0][$i] == $went_last and $board[1][$i] == $went_last and $board[2][$i] == $went_last and $board[3][$i] == $went_last)
+      return true;
+  }
+  return false;
+}
+function check_diags($board, $went_last)
+{
+  if ($board[0][0] == $went_last and $board[1][1] == $went_last and $board[2][2] == $went_last and $board[3][3] == $went_last)
+    return true;
+  if ($board[3][0] == $went_last and $board[2][1] == $went_last and $board[1][2] == $went_last and $board[0][3] == $went_last)
+    return true;
+  return false;
+}
+
+function is_game_over($board)
+{
+  return !preg_match('/\./', $board);
+}

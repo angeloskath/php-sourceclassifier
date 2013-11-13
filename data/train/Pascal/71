@@ -1,0 +1,193 @@
+Program Problem1;
+
+type
+	A = array [1..4,1..4] of char;
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+procedure Reeding(
+	var tab : A
+);
+var i : integer;
+begin
+	for i:=1 to 4 do begin
+	Readln(tab[i,1],tab[i,2],tab[i,3],tab[i,4]);
+	end;
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+procedure rowo(
+	tab : A;
+	var o : integer
+);
+var i,j,k,a,b : integer;
+var hor,ver,dig1,dig2 : integer;
+
+begin
+	o:=0;
+	for i:=1 to 4 do
+		for j:=1 to 4 do begin
+		
+		dig1:=1;  dig2:=1;  hor:=1;   ver:=1;
+		
+		if ((tab[i,j]='O') or (tab[i,j]='T')) then begin
+			
+		for k:=1 to 3 do begin
+			a:=j+k;
+			if ((1<= a) and (a<=4)) then
+				if ((tab[i,a]='O') or (tab[i,a]='T')) then
+					hor:=hor+1;
+			
+			a:=i+k;
+			if ((1<= a) and (a<=4)) then
+				if ((tab[a,j]='O') or (tab[a,j]='T')) then
+					ver:=ver+1;
+				
+			a:=i+k;
+			b:=j+k;
+			if ( ((1<= a) and (a<=4)) and ((1<= b) and (b<=4)) ) then
+				if ((tab[a,b]='O') or (tab[a,b]='T')) then
+					dig1:=dig1+1;
+			a:=i+k;
+			b:=j-k;	
+			if ( ((1<= a) and (a<=4)) and ((1<= b) and (b<=4)) ) then
+				if ((tab[a,b]='O') or (tab[a,b]='T')) then
+					dig2:=dig2+1;
+		
+		end;
+		
+	if ((dig1=4) or (dig2=4) or (hor=4) or (ver=4)) then begin
+			
+		o:= o+1
+	end;
+	end;
+	end;	
+				
+end;	
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+procedure rowx(
+	tab : A;
+	var x : integer
+);
+var i,j,k,a,b : integer;
+var hor,ver,dig1,dig2 : integer;
+
+begin
+	x:=0;
+	for i:=1 to 4 do
+		for j:=1 to 4 do begin
+		
+		dig1:=1;  dig2:=1;  hor:=1;   ver:=1;
+		
+		if ((tab[i,j]='X') or (tab[i,j]='T')) then begin
+			
+		for k:=1 to 3 do begin
+			a:=j+k;
+			if ((1<= a) and (a<=4)) then
+				if ((tab[i,a]='X') or (tab[i,a]='T')) then
+					hor:=hor+1;
+			
+			a:=i+k;
+			if ((1<= a) and (a<=4)) then
+				if ((tab[a,j]='X') or (tab[a,j]='T')) then
+					ver:=ver+1;
+				
+			a:=i+k;
+			b:=j+k;
+			if ( ((1<= a) and (a<=4)) and ((1<= b) and (b<=4)) ) then
+				if ((tab[a,b]='X') or (tab[a,b]='T')) then
+					dig1:=dig1+1;
+			a:=i+k;
+			b:=j-k;	
+			if ( ((1<= a) and (a<=4)) and ((1<= b) and (b<=4)) ) then
+				if ((tab[a,b]='X') or (tab[a,b]='T')) then
+					dig2:=dig2+1;
+		
+		end;
+		
+	if ((dig1=4) or (dig2=4) or (hor=4) or (ver=4)) then begin
+		x:= x+1;
+			
+	end;
+	
+	end;
+	end;	
+				
+end;		
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+procedure tablerolleno(
+	tab: A;
+	var draw : boolean
+);
+var i,j : integer;
+var p : boolean;
+
+	
+begin
+	p:=false;
+	for i:=1 to 4 do 
+		for j:=1 to 4 do 
+			p:=(p or (tab[i,j]='.'));
+		
+		 
+	if p=false then
+		draw:=true
+	else if p=true then
+		draw:=false;
+end;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+var
+	tab : A;
+	x,o:integer;
+	draw : boolean;
+	n,T: integer;
+
+
+begin
+
+readln(T);
+for n:=1 to T do begin
+
+Reeding(tab);
+
+rowx(tab,x);
+if x>=1 then begin
+	writeln('Case #',n,': X won')
+	end
+else if x<1 then begin
+ 	rowo(tab,o);
+ 	if o>=1 then 
+ 		writeln('Case #',n,': O won')
+ 	else if ((o<1) and (x<1)) then begin
+
+ 		tablerolleno(tab,draw);
+ 		if (draw = false) then 
+ 			writeln('Case #',n,': Game has not completed')
+ 		else if (draw = true) then 
+ 			writeln('Case #',n,': Draw');
+ 	end;
+end;
+readln();
+
+end;
+	
+end.

@@ -1,0 +1,80 @@
+import collection.BitSet
+import io.Source
+
+/**
+  * Created with IntelliJ IDEA.
+  * User: mitch
+  * Date: 4/13/13
+  * Time: 7:28 AM
+  * To change this template use File | Settings | File Templates.
+  */
+object ProblemA extends App{
+
+  val winningMoves = List(
+    BitSet(0,1,2,3),
+    BitSet(4,5,6,7),
+    BitSet(8,9,10,11),
+    BitSet(12,13,14,15),
+    BitSet(0,4,8,12),
+    BitSet(1,5,9,13),
+    BitSet(2,6,10,14),
+    BitSet(3,7,11,15),
+    BitSet(0,5,10,15),
+    BitSet(3,6,9,12)
+
+  )
+
+   def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+     val p = new java.io.PrintWriter(f)
+     try { op(p) } finally { p.close() }
+   }
+
+   def isWinner(moves:BitSet):Boolean = {
+     winningMoves.foreach(w => println(w & moves))
+
+     val filteredMoves = winningMoves.filter{winningMove => (winningMove & moves).size == 4}
+     !filteredMoves.isEmpty
+   }
+   def isDraw(xMoves:BitSet,yMoves:BitSet) = {
+     val foo = !isWinner(xMoves) && !isWinner(yMoves) && boardIsFull(xMoves ++ yMoves)
+     val bar = xMoves ++ yMoves
+     foo
+   }
+   def boardIsFull(moves:BitSet) = moves.size == 16
+   def boardForPlayer(c:Char, board:String) = BitSet() ++ board.zipWithIndex.filter(foo => (foo._1 == c ^ foo._1 == 'T')).map(_._2).toSet[Int]
+
+
+  val lines = for {
+    line <- Source.fromFile("/home/mitch/IdeaProjects/codejam2013/src/input.txt").getLines().toList
+  } yield line
+
+  val testCaseCount = lines.head.toInt
+  val boardsWithIndex = lines.tail.grouped(5).map(_.foldLeft("")(_ + _)).map(_.trim).zipWithIndex
+
+
+   printToFile(new java.io.File("out.txt"))(
+     p => {
+        boardsWithIndex.foreach {
+          boardWithIndex => {
+            val testCaseNum = boardWithIndex._2 + 1
+            val xBoard = boardForPlayer('X',boardWithIndex._1)
+            val oBoard = boardForPlayer('O',boardWithIndex._1)
+            if (isWinner(xBoard)){
+              p.println("Case #" + testCaseNum + ": X won")
+            }
+            else if (isWinner(oBoard)){
+              p.println("Case #" + testCaseNum + ": O won")
+            }
+            else if (isDraw(xBoard,oBoard)){
+              p.println("Case #" + testCaseNum + ": Draw")
+            }
+            else if (!boardIsFull(xBoard ^ oBoard)){
+              p.println("Case #" + testCaseNum + ": Game has not completed")
+            }
+          }
+        }
+     }
+   )
+
+
+ }

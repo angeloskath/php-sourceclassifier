@@ -1,0 +1,59 @@
+
+import Control.Monad(mapM, forM)
+import Data.List(partition)
+import Text.Printf
+
+main :: IO()
+main = do
+     txt <- getContents
+     let ls = (lines txt)
+         t = (ls !! 0)
+         ps = mklist $ tail ls
+     forM (zip ps [1..(length ps)]) $ \(p,i) ->
+          printf "Case #%d: %s\n" i (solve p)
+     return ()
+
+mklist :: [String] -> [[String]]
+mklist xs = case break (=="") xs of
+                 ([],_) -> []
+                 (ys,[]) -> [ys]
+                 (ys,ws) -> ys : (mklist $ tail ws)
+
+solve :: [String] -> String
+solve xs = case xs of
+                xs
+                    | owon xs -> "O won"
+                    | xwon xs -> "X won"
+                    | incomplete xs -> "Game has not completed"
+                    | otherwise -> "Draw"
+           where win sy xs = all (\c -> (c == sy || c == 'T')) xs
+                 owon xs = any (win 'O') $ strs xs
+                 xwon xs = any (win 'X') $ strs xs
+                 incomplete xs = any ('.'==) $ (concat xs)
+                 
+
+strs :: [String] -> [String]
+strs xs = xs ++ map (\i -> column i xs) [0..(length xs)-1] ++
+          [diagLR xs, diagRL xs]
+
+column :: Int -> [String] -> String
+column i xs = map (!! i) xs
+
+diagLR :: [String] -> String
+diagLR xs = map (\(a,b) -> a !! b) $ zip xs [0..(length xs)-1]
+
+diagRL :: [String] -> String
+diagRL xs = map (\(a,b) -> a !! b) $ zip xs (reverse [0..(length xs)-1])
+
+
+
+
+
+
+
+
+
+
+
+
+

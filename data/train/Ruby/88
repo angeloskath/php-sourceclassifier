@@ -1,0 +1,33 @@
+def check(l)
+  l = l.uniq
+  return :X if l - %w(X T) == []
+  return :O if l - %w(O T) == []
+  nil
+end
+
+gets.to_i.times do |n|
+  field = (0..3).map { gets.chomp.chars.to_a }
+  gets
+  win = nil
+  catch(:ok) do
+    2.times do
+      field.each do |l|
+        win = check(l)
+        throw :ok if win
+      end
+      field = field.transpose
+    end
+    win = check([field[0][0], field[1][1], field[2][2], field[3][3]])
+    throw :ok if win
+    win = check([field[0][3], field[1][2], field[2][1], field[3][0]])
+  end
+  msg =
+    if win
+      "#{ win } won"
+    elsif field.flatten.include?(".")
+      "Game has not completed"
+    else
+      "Draw"
+    end
+  puts "Case ##{ n + 1 }: #{ msg }"
+end

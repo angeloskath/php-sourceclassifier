@@ -1,0 +1,115 @@
+#I'm sleepy!
+use strict;
+
+my $cases = <>;
+for(my $case = 1; $case <= $cases; $case++) {
+  my @board;
+  for my $i (0..3) {
+	my @ln = split(//,<>);
+	chomp @ln;
+	push(@board,\@ln);
+  }
+  <>;
+
+  my $done = 1;
+  my $check;
+  for my $i (0..3) {
+	#check horizontals
+	$check = $board[$i][0];
+	if ($check eq "T") {$check = $board[$i][1];}
+	for my $j (1..3) {
+	  if ($check eq ".") {last;}
+	  my $c = $board[$i][$j];
+	  if ($c eq ".") {
+		$done = 0;
+		$check = ".";
+	  }elsif ($c ne $check and $c ne "T") {
+		$check = ".";
+	  }
+	}
+
+	if ($check ne ".") {
+	  last;
+	}
+
+	#check verticals
+	$check = $board[0][$i];
+	if ($check eq "T") {$check = $board[1][$i];}
+	for my $j (1..3) {
+	  if ($check eq ".") {last;}
+	  my $c = $board[$j][$i];
+	  if ($c eq ".") {
+		$done = 0;
+		$check = ".";
+	  } elsif ($c ne $check and $c ne "T") {
+		$check = ".";
+	  }
+	}
+
+	if ($check ne ".") {
+	  last;
+	}
+  }
+
+  #check diagonal from top left
+  if ($check eq ".") {
+	$check = $board[0][0];
+	if ($check eq "T") {$check = $board[1][1];}
+	for my $j (1..3) {
+	  if ($check eq ".") {last;}
+	  my $c = $board[$j][$j];
+	  if ($c eq ".") {
+		$done = 0;
+		$check = ".";
+		last;
+	  } elsif ($c ne $check and $c ne "T") {
+		$check = ".";
+		last;
+	  }
+	}
+  }
+
+  #check diagonal from bot left
+  if ($check eq ".") {
+	$check = $board[3][0];
+	if ($check eq "T") {$check = $board[2][1];}
+	for my $j (1..3) {
+	  if ($check eq ".") {last;}
+	  my $c = $board[3-$j][$j];
+	  if ($c eq ".") {
+		$done = 0;
+		$check = ".";
+		last;
+	  } elsif ($c ne $check and $c ne "T") {
+		$check = ".";
+		last;
+	  }
+	}
+  }
+
+  my $result;
+  if ($check eq ".") {
+	if ($done == 0) {$result = "Game has not completed";}
+	else {
+	  for my $i (0..3) {
+		for my $j (0..3) {
+		  if ($board[$i][$j] eq ".") {
+			$done = 0;
+			last;
+		  }
+		}
+		if ($done == 0) {
+		  $result = "Game has not completed";
+		  last;
+		}
+	  }
+	}
+	if ($done == 1) {
+	  $result = "Draw";
+	}
+  } else {
+	$result = "$check won";
+  }
+
+  print "Case #$case: $result\n";
+}

@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+use strict;
+
+my($BOARD_SIZE) = 4;
+
+my($cases);
+my($case) = 0;
+my($board) = "";
+while (<>)
+{
+
+    chomp;
+    $cases = $_ unless $cases;
+
+    if (/^[\.TXO]{$BOARD_SIZE}$/)
+    {
+        $board .= $_;
+    }
+    elsif (/^$/)
+    {
+        $case++;
+
+        my($expected_length) = $BOARD_SIZE * $BOARD_SIZE;
+        print STDERR "$0: expected board to be $expected_length characters but found " .  length($board) . "\n"
+            if length($board) != $expected_length;
+
+        my($status) = &status($board);
+        print "Case #$case: $status\n";
+        $board = "";
+
+    }
+
+}
+
+print STDERR "$0: expected $cases cases but found $case\n"
+    if ($cases != $case);
+
+sub status
+{
+
+    my($board) = @_;
+
+    my(@lines) = ();
+    for (my($i) = 0; $i < $BOARD_SIZE; $i++)
+    {
+        push(@lines, row($i, $board));
+        push(@lines, column($i, $board));
+    }
+    push(@lines, board_line(0, 0, 1, 1, $board));
+    push(@lines, board_line($BOARD_SIZE - 1, 0, -1, 1, $board));
+
+    foreach (@lines)
+    {
+        my($winner) = winner($_);
+        return "$winner won" if $winner;
+    }
+
+    return "Draw" if (!($board =~ /\./));
+    return "Game has not completed";
+}
+
+sub cell_at
+{
+    my($x, $y, $board) = @_;
+    my($index) = ($BOARD_SIZE * $y) + $x; 
+    return substr($board, $index, 1);
+}
+
+sub board_line
+{
+    my($x, $y, $dx, $dy, $board) = @_;
+    my($line) = "";
+    for (my($i) = 0; $i < $BOARD_SIZE; $i++)
+    {
+        $line .= cell_at($x, $y, $board);
+        $x += $dx;
+        $y += $dy;
+    }
+    return $line;
+}
+
+sub row 
+{
+    my($row, $board) = @_;
+    return board_line(0, $row, 1, 0, $board);
+}
+
+sub column
+{
+    my($column, $board) = @_;
+    return board_line($column, 0, 0, 1, $board);
+}
+
+sub winner
+{
+    my($line) = @_;
+    return "X" if ($line =~ /^[XT]{$BOARD_SIZE}$/);
+    return "O" if ($line =~ /^[OT]{$BOARD_SIZE}$/);
+    return 0;
+}

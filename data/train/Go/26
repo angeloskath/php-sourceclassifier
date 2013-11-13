@@ -1,0 +1,128 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+
+const (
+	CONST_X		= 88
+	CONST_O		= 79
+	CONST_T		= 84
+	CONST_NA	= 46
+)
+
+func countFilled(data []byte) int {
+	count := 0
+
+	for c := 0; c < 16; c++ {
+		if data[c] != CONST_NA {
+			count++
+		}
+	}
+
+	return count
+}
+
+func check(data []byte, i1 int, i2 int, i3 int, i4 int) int {
+	x_count := 0
+	o_count := 0
+	t_count := 0
+
+	i_all := []int{i1, i2, i3, i4}
+	for i_index := 0; i_index < 4; i_index++ {
+		i := i_all[i_index]
+		switch data[i] {
+		case CONST_X:
+			x_count++
+			break
+		case CONST_O:
+			o_count++
+			break
+		case CONST_T:
+			t_count++
+			break
+		}
+	}
+
+	if x_count + t_count == 4 {
+		return CONST_X
+	}
+
+	if o_count + t_count == 4 {
+		return CONST_O
+	}
+
+	return CONST_NA
+}
+
+func findWinner(data []byte) int {
+	var tmp_winner int
+
+	for r := 0; r < 4; r++ {
+		tmp_winner = check(data, r*4, r*4+1, r*4+2, r*4+3)
+		if tmp_winner != CONST_NA {
+			return tmp_winner
+		}
+	}
+
+	for c := 0; c < 4; c++ {
+		tmp_winner = check(data, c, 4+c, 8+c, 12+c)
+		if tmp_winner != CONST_NA {
+			return tmp_winner
+		}
+	}
+
+	tmp_winner = check(data, 0, 5, 10, 15)
+	if tmp_winner != CONST_NA {
+		return tmp_winner
+	}
+
+	tmp_winner = check(data, 3, 6, 9, 12)
+	if tmp_winner != CONST_NA {
+		return tmp_winner
+	}
+
+	return CONST_NA
+}
+
+func output(i int, data []byte) {
+	filled := countFilled(data)
+	winner := findWinner(data)
+
+	switch winner {
+	case CONST_X:
+		fmt.Printf("Case #%d: X won\n", i + 1)
+		break;
+	case CONST_O:
+		fmt.Printf("Case #%d: O won\n", i + 1)
+		break;
+	case CONST_NA:
+		if filled == 16 {
+			fmt.Printf("Case #%d: Draw\n", i + 1)
+		} else {
+			fmt.Printf("Case #%d: Game has not completed\n", i + 1)
+		}
+	}
+}
+
+func main() {
+	var n int
+	_, _ = fmt.Scanf("%d", &n)
+
+	reader := bufio.NewReader(os.Stdin)
+	data := make([]byte, 16)
+	for i := 0; i < n; i++ {
+		for r := 0; r < 4; r++ {
+			input, _ := reader.ReadString('\n')
+
+			for c := 0; c < 4; c++ {
+				data[r*4+c] = input[c]
+			}
+		}
+		_, _ = reader.ReadString('\n')
+
+		output(i, data)
+	}
+}

@@ -1,0 +1,123 @@
+var
+ x,y,n,m,i,j,k,T:longint;
+ a:array[0..10,0..10] of char;
+ c,winner:char;
+ draw,running:string;
+ Space,win,nichia:boolean;
+ f,ff:text;
+begin
+ assign(f,'codejam1A.in');
+ reset(f);
+ assign(ff,'codejam1A.out');
+ rewrite(ff);
+ readln(f,T);
+  draw:='Draw';
+  running:='Game has not completed';
+  win:=false;
+
+ for k:=1 to T do
+ begin
+
+  for i:=1 to 4 do
+  begin
+   for j:=1 to 4 do
+   begin
+    read(f,a[i][j]);
+    if a[i][j]='.' then space:=true;
+   end;
+   readln(f);
+  end;
+
+  {Raw}
+  for i:=1 to 4 do
+  begin
+   c:=a[i][1];
+   //Case if T
+   if c='T' then c:=a[i][2];
+   //Break;
+   //if c='.' then break;
+
+   for j:=1 to 4 do
+    if (a[i][j]=c) or (a[i][j]='T') then
+     inc(m);
+
+   if (m=4) and (c<>'.') then
+   begin
+    win:=true;
+    winner:=c;
+    break;
+   end;
+    m:=0;
+  end;
+  m:=0;
+  {Column}
+  for j:=1 to 4 do
+  begin
+   c:=a[1][j];
+   //Case if T
+   if c='T' then
+    c:=a[2][j];
+   //if c='.' then break;
+
+   for i:=1 to 4 do
+    if (a[i][j]=c) or (a[i][j]='T') then
+     inc(m);
+
+   if (m=4) and (c<>'.') then
+   begin
+    win:=true;
+    winner:=c;
+    break;
+   end;
+    m:=0;
+  end;
+  m:=0;
+  {Diagonals}
+   c:=a[1][1];
+   //Case if 'T'
+   if a[1][1]='T' then
+    c:=a[2][2];
+
+   if c<>'.' then
+    for i:=1 to 4 do
+     if (a[i][i]=c) or (a[i][i]='T') then
+      inc(m);
+    if m=4 then
+    begin
+     winner:=c;
+     win:=true;
+    end;
+    m:=0;
+  //Diagonal2
+  c:=a[1][4];
+  //Case if 'T'
+  if a[1][4]='T' then c:=a[2][3];
+  if c<>'.' then
+   for i:=1 to 4 do
+    if (a[i][5-i]=c) or (a[i][5-i]='T') then
+     inc(m);
+   if m=4 then
+   begin
+    winner:=c;
+    win:=true;
+   end;
+    m:=0;
+
+
+  {Check}
+  if winner='.' then win:=false;
+  if win then
+   writeln(ff,'Case #',k,': ', winner,' won') else
+   if space then
+   writeln(ff,'Case #',k,': ', running) else
+   writeln(ff,'Case #',k,': ', draw);
+
+   {RESET}
+   win:=false;
+   space:=false;
+  readln(f);
+ end;
+
+ close(f);
+ close(ff);
+end.

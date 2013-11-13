@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+
+use Data::Dumper;
+
+
+sub check
+{
+	my $x  = shift;
+	my $y  = shift;
+	my $dx = shift;
+	my $dy = shift;
+	#print "$x $y $dx $dy ";
+	my $aref = shift;
+	my %out = ();
+	for (my $i = 0;$i < 4; $i++)
+	{
+		$out{$$aref[$x][$y]}++;
+		$x+=$dx;
+		$y+=$dy;
+	}
+	#print Dumper(\%out);
+	return \%out;
+
+}
+
+sub game
+{
+	my $aref = shift;
+	my $unfinished = 0;
+	my @checks = ([0,0,1,1],[0,3,1,-1],[0,0,1,0],[0,1,1,0],[0,2,1,0],[0,3,1,0],[0,0,0,1],[1,0,0,1],[2,0,0,1],[3,0,0,1]);
+	#print Dumper(\@checks);
+	for (my $c = 0;$c < @checks; $c++)
+	{
+		my $res = check(@{$checks[$c]},$aref);
+		if ($res->{'X'}+$res->{'T'} == 4)
+		{
+			return "X won";
+		}
+		elsif ($res->{'O'}+$res->{'T'} == 4)
+		{
+			return "O won";
+		};
+		$unfinished += $res->{'.'};
+	}
+	if ($unfinished) 
+	{
+		return "Game has not completed";
+	}
+	else
+	{
+		return "Draw";
+	}
+}
+
+my $T;
+
+
+my $T = <>; chomp $T;
+
+for (my $t = 0; $t < $T; $t++)
+{
+	
+	my @arr = ();
+	for (my $i = 0;$i <4;$i++)
+	{
+		my $in = <>;
+		#print $in;
+		chomp $in;
+		my @a= split('',$in);
+		$arr[$i] = \@a;
+	}
+
+	#print Dumper(\@arr);
+	
+
+
+	
+
+	print "Case #".($t+1).": ".game(\@arr)."\n";
+
+
+	<>;
+
+}
+

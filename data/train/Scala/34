@@ -1,0 +1,88 @@
+package a.tictactoetomek
+
+import java.util.Scanner
+import java.util.Arrays
+import java.io.File
+import java.io.BufferedWriter
+import java.io.PrintStream
+
+object Tictactoetomek {
+
+   abstract class Status
+   object NotCompleted extends Status { override def toString = "Game has not completed" }
+   object XWon extends Status { override def toString = "X won" }
+   object OWon extends Status { override def toString = "O won" }
+   object Draw extends Status { override def toString = "Draw" }
+
+   def main(args: Array[String]): Unit = {
+      val filename = "A-large"
+      val scanner = new Scanner(new File(f"data/${filename}.in"))
+      System.setOut(new PrintStream(f"data/${filename}.out"))
+
+      val T = scanner.nextInt
+
+      val board = Array.fill(4, 4)('.')
+
+      for (t <- 1 to T) {
+         scanner.nextLine
+
+         for (row <- 0 until 4; val line = scanner.nextLine.toList; col <- 0 until 4)
+            board(row)(col) = line(col)
+
+         var result: Status = NotCompleted
+
+         def checkLine(line: List[Char]) = {
+            if (!line.contains('.') && !line.contains('O'))
+               result = XWon
+            else if (!line.contains('.') && !line.contains('X'))
+               result = OWon
+         }
+
+         for (row <- 0 until 4)
+            checkLine(List.tabulate(4)(board(row)(_)))
+
+         for (col <- 0 until 4)
+            checkLine(List.tabulate(4)(board(_)(col)))
+
+         checkLine(List.tabulate(4)(i => board(i)(i)))
+         checkLine(List.tabulate(4)(i => board(3 - i)(i)))
+
+         if (result == NotCompleted && !List.tabulate(4, 4)((i, j) => board(i)(j)).flatten.contains('.'))
+            result = Draw
+
+         println(f"Case #${t}: ${result}")
+      }
+
+   }
+
+   val input = """6
+XXXT
+....
+OO..
+....
+
+XOXT
+XXOO
+OXOX
+XXOO
+
+XOX.
+OX..
+....
+....
+
+OOXX
+OXXX
+OX.T
+O..O
+
+XXXO
+..O.
+.O..
+T...
+
+OXXX
+XO..
+..O.
+...O"""
+}

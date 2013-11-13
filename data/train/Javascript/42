@@ -1,0 +1,100 @@
+#!/usr/bin/env
+
+var fs = require('fs')
+  , DEBUG_FLAG = process.argv[2] == 'debug'
+  , EXAM = 'A'
+  , SCOPE = ['small', 'large'][1]
+  , inputFile = './' + EXAM + '-' + SCOPE + '.in'
+  , outputFile = inputFile + '.out'
+  , info = console.log.bind(console)
+  , log = function () { if (DEBUG_FLAG) { console.log(arguments); } };
+
+fs.readFile(inputFile, function (err, data) {
+    var lines = data.toString().split('\n')
+      , tests = lines.shift()
+      , output = [];
+    
+    // pop out empty line
+    lines.pop();
+
+    // algo run
+    for (var i = 0, j = 1; i < lines.length; i+=5, j++) {
+        var data = [lines[i].split(''), lines[i+1].split(''), lines[i+2].split(''), lines[i+3].split('')];
+        output.push(['Case #', j, ': ', algoRun(data)].join(''));
+    }
+
+    // output
+    fs.writeFile(outputFile, output.join('\n'), function (err) {
+        if (err) {
+            log(err, 'err');
+        } else {
+            log('file is saved');
+        }
+    });
+});
+
+function whoWin(key, input) {
+    var win = false;
+    for (var i = 0; i < 4; i++) {
+        if ((input[i][0] === key || input[i][0] === 'T') && 
+            (input[i][1] === key || input[i][1] === 'T') && 
+            (input[i][2] === key || input[i][2] === 'T') && 
+            (input[i][3] === key || input[i][3] === 'T')) {
+            win = true;
+        }
+    }
+
+    for (var i = 0; i < 4; i++) {
+        if ((input[0][i]=== key || input[0][i] === 'T') && 
+            (input[1][i]=== key || input[1][i] === 'T') && 
+            (input[2][i]=== key || input[2][i] === 'T') && 
+            (input[3][i]=== key || input[3][i] === 'T')) {
+            win = true;
+        }
+    }
+    if ((input[0][0]=== key || input[0][0] === 'T') &&
+        (input[1][1]=== key || input[1][1] === 'T') &&
+        (input[2][2]=== key || input[2][2] === 'T') &&
+        (input[3][3]=== key || input[3][3] === 'T')) {
+        win = true;
+    }
+    if ((input[0][3]=== key || input[0][3] === 'T') &&
+        (input[1][2]=== key || input[1][2] === 'T') &&
+        (input[2][1]=== key || input[2][1] === 'T') &&
+        (input[3][0]=== key || input[3][0] === 'T')) {
+        win = true;
+    }
+
+    return win;
+}
+
+function notComplete(input) {
+    for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 4; j++) {
+            if (input[i][j] === '.') {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function algoRun (input) {
+    var xWin = whoWin('X', input),
+        oWin = whoWin('O', input),
+        isNotComplete = notComplete(input),
+        output;
+
+    if (xWin) {
+        output = 'X won';
+    } else if (oWin) {
+        output = 'O won';
+    } else if (isNotComplete) {
+        output = 'Game has not completed';
+    } else {
+        output = 'Draw';
+    }
+
+    return output;
+}

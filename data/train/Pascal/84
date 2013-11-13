@@ -1,0 +1,165 @@
+program Project2234567;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils;
+
+var
+  a : array[1..4, 1..4] of char;
+  c : char;
+  p, q, t, i, j, k : integer;
+
+begin
+  {$IFNDEF ONLINE_JUDGE}
+    reset(input, 'A-large.in');
+    rewrite(output, 'output.txt');
+  {$ENDIF}
+
+  readln(t);
+
+  for i := 1 to t do begin
+    q := 0;
+    for j := 1 to 4 do begin
+      for k := 1 to 4 do
+        read(a[j, k]);
+      readln;
+    end;
+    readln;
+
+    c := 'X';
+
+    for j := 1 to 4 do begin
+      p := 1;
+      for k := 1 to 4 do
+        if not((a[j, k] = 'T') or (a[j, k] = c)) then begin
+          p := 0;
+          break;
+        end;
+      if p = 1 then begin
+        q := 1;
+        writeln('Case #', i, ': ', c, ' won');
+        break;
+      end;
+    end;
+
+    if q = 1 then
+      continue;
+
+    for j := 1 to 4 do begin
+      p := 1;
+      for k := 1 to 4 do
+        if not((a[k, j] = 'T') or (a[k, j] = c)) then begin
+          p := 0;
+          break;
+        end;
+      if p = 1 then begin
+        q := 1;
+        writeln('Case #', i, ': ', c, ' won');
+        break;
+      end;
+    end;
+
+    if q = 1 then
+      continue;
+
+    p := 1;
+    for j := 1 to 4 do begin
+      if not((a[j, j] = 'T') or (a[j, j] = c)) then begin
+        p := 0;
+        break;
+      end;
+    end;
+    if p = 1 then begin
+      writeln('Case #', i, ': ', c, ' won');
+      continue;
+    end;
+
+    p := 1;
+    for j := 1 to 4 do begin
+      if not((a[j, 5 - j] = 'T') or (a[j, 5 - j] = c)) then begin
+        p := 0;
+        break;
+      end;
+    end;
+    if p = 1 then begin
+      writeln('Case #', i, ': ', c, ' won');
+      continue;
+    end;
+
+    c := 'O';
+
+    for j := 1 to 4 do begin
+      p := 1;
+      for k := 1 to 4 do
+        if not((a[j, k] = 'T') or (a[j, k] = c)) then begin
+          p := 0;
+          break;
+        end;
+      if p = 1 then begin
+        q := 1;
+        writeln('Case #', i, ': ', c, ' won');
+        break;
+      end;
+    end;
+
+    if q = 1 then
+      continue;
+
+    for j := 1 to 4 do begin
+      p := 1;
+      for k := 1 to 4 do
+        if not((a[k, j] = 'T') or (a[k, j] = c)) then begin
+          p := 0;
+          break;
+        end;
+      if p = 1 then begin
+        q := 1;
+        writeln('Case #', i, ': ', c, ' won');
+        break;
+      end;
+    end;
+
+    if q = 1 then
+      continue;
+
+    p := 1;
+    for j := 1 to 4 do begin
+      if not((a[j, j] = 'T') or (a[j, j] = c)) then begin
+        p := 0;
+        break;
+      end;
+    end;
+    if p = 1 then begin
+      writeln('Case #', i, ': ', c, ' won');
+      continue;
+    end;
+
+    p := 1;
+    for j := 1 to 4 do begin
+      if not((a[j, 5 - j] = 'T') or (a[j, 5 - j] = c)) then begin
+        p := 0;
+        break;
+      end;
+    end;
+    if p = 1 then begin
+      writeln('Case #', i, ': ', c, ' won');
+      continue;
+    end;
+
+    for j := 1 to 4 do begin
+      for k := 1 to 4 do
+        if a[j, k] = '.' then begin
+          q := 1;
+          writeln('Case #', i, ': Game has not completed');
+          break;
+        end;
+      if q = 1 then
+        break;
+    end;
+
+    if q = 0 then
+      writeln('Case #', i, ': Draw');
+
+  end;
+end.

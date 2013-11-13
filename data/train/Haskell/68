@@ -1,0 +1,39 @@
+import Data.List
+import Data.Array
+import Data.Bits
+import Data.Ord
+import Control.Monad
+import Control.Applicative
+
+type Z = Integer
+-- type Z = Int
+type Q = Rational
+type R = Double
+type S = String
+
+fi = fromIntegral
+yesno True = "YES"
+yesno False = "NO"
+
+gcj solver = readLn >>=
+  sequence_ . flip take [solver >>= output num | num <- [1..]] where
+    output num ans = putStrLn $ "Case #"++show num++": "++ans
+
+main = gcj $ do
+  bd <- replicateM 4 getLine
+  getLine
+  return $ solve bd
+
+type Board = [[Char]]
+solve :: Board -> String
+solve bd =
+  if line 'X' bd then "X won" else
+    if line 'O' bd then "O won" else
+      if any (elem '.') bd then "Game has not completed" else "Draw"
+    
+line :: Char -> Board -> Bool
+line x bd = any (chk x) $ bd ++ transpose bd ++
+  [ [bd!!i!!i | i<-[0..3]], [bd!!i!!(3-i) | i<-[0..3]]]
+
+chk :: Char -> [Char] -> Bool
+chk x = all (\ c -> c==x || c=='T')

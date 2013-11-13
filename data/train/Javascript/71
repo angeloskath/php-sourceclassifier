@@ -1,0 +1,160 @@
+var fs = require('fs');
+
+
+var input = fs.createReadStream('lines.txt');
+var output = fs.createWriteStream('result.out');
+var isFirstline = true;
+var numOfSet = 0;
+var lineNumber = 0;
+var linesPerSet = 5;
+
+var linesInSet = [];
+
+var setNum = 0;
+
+function readLines(input, func) {
+  var remaining = '';
+
+  input.on('data', function(data) {
+    remaining += data;
+    var index = remaining.indexOf('\n');
+    while (index > -1) {
+
+      var line = remaining.substring(0, index);
+      remaining = remaining.substring(index + 1);
+
+      index = remaining.indexOf('\n');
+
+      if (isFirstline) {
+        isFirstline = false;
+        numOfSet = line;
+      }else{
+        
+        if (lineNumber < linesPerSet){
+          linesInSet.push(line);
+
+          lineNumber++;
+
+          if (lineNumber == linesPerSet) {
+            lineNumber = 0;
+            setNum++;
+            calculateDataSet();
+          };
+
+        }
+
+      } 
+    }
+
+  });
+
+  input.on('end', function() {
+    if (remaining.length > 0) {
+      func(remaining);
+    }
+  });
+}
+
+function func(data) {
+  console.log('Line: ' + data);
+}
+
+function calculateDataSet () {
+
+
+
+  var XOSet = [];
+  for (var i = 0; i < 4; i++) {
+    line = linesInSet[i];
+    charArray = line.split('');
+    charArray = charArray.sort();
+    charArray = charArray.join('');
+    XOSet.push(charArray);
+  }
+
+  for (var i = 0; i < 4; i++) {
+    var veLine = [];
+    for (var j = 0; j < 4; j++) {
+      line = linesInSet[j];
+      veLine.push(line.charAt(i));
+    };
+    veLine = veLine.sort();
+    veLine = veLine.join('');
+    XOSet.push(veLine);
+  }
+
+  crossLeft = [];
+  for (var i = 0; i < 4; i++) {
+    crossLeft.push(linesInSet[i].charAt(i));
+  }
+  crossLeft = crossLeft.sort()
+  crossLeft = crossLeft.join('');
+  XOSet.push(crossLeft);
+
+
+  crossRight = [];
+  for (var i = 0; i < 4; i++) {
+    crossRight.push(linesInSet[i].charAt(3 - i));
+  }
+  crossRight = crossRight.sort()
+  crossRight = crossRight.join('');
+  XOSet.push(crossRight);
+
+
+  console.log(XOSet);
+
+  var winner = checkForWinner(XOSet);
+
+  if (winner != -1){
+    console.log("Case #" + setNum + ": "+winner);
+    output.write("Case #" + setNum + ": "+winner);
+  }else{
+    var isDraw = checkForDraw(XOSet);
+    if (isDraw){
+      output.write("Case #" + setNum + ": Draw");
+    }else{
+      output.write("Case #" + setNum + ": Game has not completed");
+    }
+  }
+
+
+
+  
+
+  
+  // output.write("true");
+
+
+  // func(numberOfNum);
+  
+  // new line
+  output.write('\n');
+  // clear lines set
+  linesInSet = [];
+}
+
+function checkForWinner (XOSet) {
+  for (var i = 0; i < XOSet.length; i++) {
+    line = XOSet[i];
+    if (line == 'OOOT' || line == 'OOOO') {
+      return "O won";
+    }else if(line == "XXXX" || line == "TXXX"){
+      return "X won";
+    }
+  }
+  return -1;
+}
+
+function checkForDraw (XOSet) {
+  for (var i = 0; i < XOSet.length; i++) {
+    line = XOSet[i].split('');
+    if (line.indexOf('.') != -1) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// Start function here
+readLines(input, func);

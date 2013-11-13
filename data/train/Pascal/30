@@ -1,0 +1,101 @@
+uses crt;
+label ex;
+var f1,f2:text;
+    count,i,j,n:integer;
+    c:char;
+    sum:integer;
+    a:array [1..4, 1..4] of integer;
+    xwin,owin,uncompleted:boolean;
+
+begin
+
+
+clrscr;
+assign (f1,'1.in');
+reset (f1);
+readln (f1,n);
+
+assign (f2,'out.txt');
+rewrite (f2);
+
+for count:=1 to n do
+ begin
+ sum:=0;
+ xwin:=false;
+owin:=false;
+uncompleted:=false;
+
+
+  for i:=1 to 4 do
+  begin
+   for j:=1 to 4 do
+   begin
+
+    read (f1,c);
+    case c of
+    'X':a[i,j]:=2;
+    'O':a[i,j]:=-2;
+    '.':a[i,j]:=0;
+    'T':a[i,j]:=1;
+    end;
+    end;
+    readln (f1);
+
+    end;
+
+    //----
+
+    //stroki
+ for i:=1 to 4 do
+ begin
+ sum:=0;
+  for j:=1 to 4 do
+   sum:=sum+a[i,j];
+   if (sum=8) or (sum=7) then begin xwin:=true; goto ex; end;
+   if (sum=-8) or (sum=-5) then begin owin:=true; goto ex; end;
+ end;
+
+ //stolbci
+ for i:=1 to 4 do
+ begin
+ sum:=0;
+ for j:=1 to 4 do
+  sum:=sum+a[j,i];
+  if (sum=8) or (sum=7) then begin xwin:=true; goto ex; end;
+  if (sum=-8) or (sum=-5) then begin owin:=true; goto ex; end;
+  end;
+
+ //main diag
+ sum:=0;
+ sum:=a[1,1]+a[2,2]+a[3,3]+a[4,4];
+ if (sum=8) or (sum=7) then begin xwin:=true; sum:=0; goto ex; end;
+ if (sum=-8) or (sum=-5) then begin owin:=true; sum:=0; goto ex; end;
+
+  sum:=0;
+ //sub diag
+ sum:=a[1,4]+a[2,3]+a[3,2]+a[4,1];
+ if (sum=-8) or (sum =-5) then begin owin:=true;sum:=0; goto ex; end;
+ if (sum=8) or (sum=7) then begin xwin:=true; sum:=0; goto ex; end;
+
+ for i:=1 to 4 do
+  for j:=1 to 4 do
+   if a[i,j]=0 then begin uncompleted:=true; goto ex; end;
+
+
+
+ex:
+if xwin=true then writeln (f2, 'Case #',count,': X won') else
+if owin=true then writeln (f2, 'Case #',count,': O won') else
+if uncompleted=true then writeln (f2, 'Case #',count,': Game has not completed') else
+if (xwin=false) and (owin=false) and (uncompleted=false) then writeln (f2, 'Case #', count,': Draw');
+              readln(f1);
+
+
+ end;
+
+
+
+close (f1);
+close (f2);
+end.
+

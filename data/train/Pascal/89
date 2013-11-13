@@ -1,0 +1,63 @@
+label l1;
+var a:array[1..6,1..6] of longint;
+t,n,i,j,q,i1,j1,f,p,k,r:longint; w,s:string;
+begin
+ASSIGN(input,'A-small-attempt5.in');
+reset(input);
+assign(output,'1.out');
+rewrite(output);
+readln(t);  f:=0; readln(s);
+for q:=1 to t do
+begin
+f:=0;
+for i:=1 to 6 do
+for j:=1 to 6 do
+a[i,j]:=0;
+ for i:=1 to 4 do
+ begin
+ for j:=1 to 4 do
+  begin
+  inc(r);
+  w:=copy(s,r,1);
+   if w='X' then a[i,j]:=1;
+   if w='O' then a[i,j]:=-1;
+   if w='T' then begin k:=1; i1:=i; j1:=j; end;
+   if w='.' then f:=1;
+  end; end;
+
+
+
+   if k=1 then a[i1,j1]:=1;
+ for i:=1 to 4 do
+  begin
+    a[i,5]:=a[i,1]+a[i,2]+a[i,3]+a[i,4];
+    if a[i,5]=4 then begin writeln('Case #',q,': X won'); goto l1; break; end;
+  end;
+ for i:=1 to 4 do
+  begin
+   a[5,i]:=a[1,i]+a[2,i]+a[3,i]+a[4,i];
+   if a[5,i]=4 then begin writeln('Case #',q,': X won'); goto l1; break; end;
+  end;
+ if a[1,1]+a[2,2]+a[3,3]+a[4,4]=4 then begin writeln('Case #',q,': X won'); goto l1; end;
+ if a[1,4]+a[2,3]+a[3,2]+a[4,1]=4 then begin writeln('Case #',q,': X won'); goto l1; end;
+
+if k=1 then a[i1,j1]:=-1;
+ for i:=1 to 4 do
+  begin
+   a[i,6]:=a[i,1]+a[i,2]+a[i,3]+a[i,4];
+   if a[i,6]=-4 then begin writeln('Case #',q,': O won'); goto l1; break; end;
+  end;
+ for i:=1 to 4 do
+  begin
+   a[6,i]:=a[1,i]+a[2,i]+a[3,i]+a[4,i];
+   if a[6,i]=-4 then begin writeln('Case #',q,': O won'); goto l1; break; end;
+  end;
+ if a[1,1]+a[2,2]+a[3,3]+a[4,4]=-4 then begin writeln('Case #',q,': O won'); goto l1; end;
+ if a[1,4]+a[2,3]+a[3,2]+a[4,1]=-4 then begin writeln('Case #',q,': O won'); goto l1; end;
+ if f=0 then begin writeln('Case #',q,': Draw'); goto l1; end;
+ if f=1 then begin writeln('Case #',q,': Game has not completed');goto l1; end;
+l1:;
+ end;
+ close(input);
+ close(output);
+end.

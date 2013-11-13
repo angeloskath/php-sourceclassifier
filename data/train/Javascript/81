@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<textarea style="width: 400px; height: 500px; position: absolute;" onchange="start();" name="" id="inputEdt"></textarea>
+<textarea style="width: 400px;  height: 500px; position: absolute; top:0; right: 0;" id="output"></textarea>
+<script type="text/javascript">
+
+	function mapChar(v){
+		switch (v){
+			case "X":
+				return 10;
+			case "O":
+				return 1;
+			case "T":
+				return 0;
+			case ".":
+				return -100;
+		}
+	}
+
+	function mapRow(row){
+		return [].map.call(row, mapChar)
+	}
+
+	function solve(testCase){
+		for (var i = 0; i < 4; i++){
+			var res = checkRow(testCase[0 + 4*i], testCase[1 + 4*i], testCase[2 + 4*i], testCase[3 + 4*i]);
+			if (res){
+				return res + " won";
+			}
+		}
+		for (var i = 0; i < 4; i++){
+			var res = checkRow(testCase[i], testCase[4 + i], testCase[8 + i], testCase[12 + i]);
+			if (res){
+				return res + " won";
+			}
+		}
+
+		var res = checkRow(testCase[0], testCase[5], testCase[10], testCase[15]);
+		if (res){
+			return res + " won";
+		}
+
+		var res = checkRow(testCase[3], testCase[6], testCase[9], testCase[12]);
+		if (res){
+			return res + " won";
+		}
+
+		if (testCase.indexOf(-100) == -1){
+			return "Draw";
+		} else {
+			return "Game has not completed";
+		}
+
+	}
+
+	function checkRow(a, b, c, d){
+		var summ = a + b + c + d;
+		if (summ == 30 || summ == 40) {
+			return "X";
+		}
+		if (summ == 3 || summ == 4) {
+			return "O";
+		}
+		return false;
+	}
+
+	var inn = [
+		"10",
+		"XXOO",
+		"OOXX",
+		"OXXT",
+		"XOOX",
+		".XOX",
+		".X.X",
+		"O.O.",
+		"OTXO",
+		"OOXT",
+		"XOOX",
+		"OXXX",
+		"XOOX",
+		"....",
+		"....",
+		"....",
+		"....",
+		"OXXO",
+		"OXOX",
+		"OOXO",
+		"XOXX",
+		"XO..",
+		"XTXX",
+		"X.OO",
+		"X.OO",
+		"XXXX",
+		"XOOX",
+		"XOO.",
+		".OO.",
+		"O...",
+		"XO..",
+		"O.OX",
+		"XXXO",
+		"XOOX",
+		".OXX",
+		"XOX.",
+		"TO.O",
+		"O.OO",
+		"XOX.",
+		"...O",
+		"XXXX"
+	];
+	function stdIn(input){
+		var innn = inn.shift();
+		return innn || inn.shift();
+	};
+	function start(){
+		//debugger;
+		inn = document.getElementById("inputEdt").value;
+		inn = inn.split("\n").join("?").split("?");
+
+		var numberOfTestCases = Number(stdIn());
+		var testCases = [];
+		for(var i = 0; i < numberOfTestCases; i++){
+			testCases[i] = [];
+			for (var j = 0; j < 4; j++) {
+				var converterInput = mapRow(stdIn());
+				testCases[i] = testCases[i].concat(converterInput);
+			}
+		}
+
+		var result = [];
+		for (var i = 0 ; i < numberOfTestCases; i++){
+			result.push("Case #" + (1 + i) + ": " + solve(testCases[i]));
+		}
+
+		document.getElementById("output").value = result.join("\n");
+	}
+
+
+</script>
+</body>
+</html>

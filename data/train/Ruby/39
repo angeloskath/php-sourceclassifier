@@ -1,0 +1,51 @@
+tests = Integer(gets.chomp)
+for k in 1..tests do
+  horizontal = [[".",".",".","."],[".",".",".","."],[".",".",".","."],[".",".",".","."]]
+  vertical = [[".",".",".","."],[".",".",".","."],[".",".",".","."],[".",".",".","."]]
+  for i in 0..3 do
+    line = gets.chomp.split("")
+    line.each_with_index do |item, j|
+      horizontal[i][j] = item
+      vertical[j][i] = item
+    end
+  end
+  slant1 = []
+  for i in 0..3
+    slant1 << horizontal[i][i]
+  end
+  slant2 = [horizontal[0][3],horizontal[1][2],horizontal[2][1],horizontal[3][0]]
+  x_won = false
+  o_won = false
+  draw = true
+  [horizontal, vertical].each do |arr|
+    arr.each do |line|
+      if line.count {|x| ["X","T"].include?(x)} == 4
+        x_won = true
+      elsif line.count {|x| ["O","T"].include?(x)} == 4
+        o_won = true
+      end
+    end
+  end
+  [slant1, slant2].each do |line|
+    if line.count {|x| ["X","T"].include?(x)} == 4
+      x_won = true
+    elsif line.count {|x| ["O","T"].include?(x)} == 4
+      o_won = true
+    end
+  end
+  horizontal.each do |line|
+    line.each do |elem|
+       draw = false if elem == "."
+    end
+  end
+  if x_won
+    puts "Case ##{k}: X won"
+  elsif o_won
+    puts "Case ##{k}: O won"
+  elsif draw
+    puts "Case ##{k}: Draw"
+  else
+    puts "Case ##{k}: Game has not completed"
+  end
+  gets.chomp unless k == tests
+end

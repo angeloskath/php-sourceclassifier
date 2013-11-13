@@ -1,0 +1,57 @@
+     % open input file
+     fid = fopen ("/Users/anilanair/Documents/Octave/Google Code Jam 2013/QR1/input.txt");
+     
+     %open output file
+     ofid = fopen("/Users/anilanair/Documents/Octave/Google Code Jam 2013/QR1/output.txt", 'w');
+     
+     % retreive number of test cases
+     num = fgets(fid);
+     
+     for i=1:str2num(num)  
+      	% to check if there are empty cells
+     	ncflag = 0; 
+     	
+     	%for each test case, create 2 matrices Xmat and Omat which store X, O info
+     	for row = 1:4
+     		for col = 1:4
+     			str = fgets(fid,1);
+     			if (str == 'X')
+        			Xmat(row,col) = 1;
+        			Omat(row,col) = 0;
+        		elseif (str == 'O')
+        			Xmat(row,col) = 0;
+        			Omat(row,col) = 1;
+        		elseif (str == 'T')
+        			Xmat(row,col) = 1;
+        			Omat(row,col) = 1;
+        		else
+        			Xmat(row,col) = 0;
+        			Omat(row,col) = 0;
+        			ncflag = 1;
+        		end
+        	endfor
+        	% to skip enter at the end of each line
+        	fgets(fid,1);
+    	endfor
+    
+    	Xres = (sum(Xmat(1,1:4)) == 4 || sum(Xmat(2,1:4)) == 4 || sum(Xmat(3,1:4)) == 4 || sum(Xmat(4,1:4)) == 4 || sum(Xmat(1:4,1)) == 4 || sum(Xmat(1:4,2)) == 4 || sum(Xmat(1:4,3)) == 4 || sum(Xmat(1:4,4)) == 4 || sum(diag(Xmat)) == 4 || sum(diag(fliplr(Xmat))) == 4 );
+    	Ores = (sum(Omat(1,1:4)) == 4 || sum(Omat(2,1:4)) == 4 || sum(Omat(3,1:4)) == 4 || sum(Omat(4,1:4)) == 4 || sum(Omat(1:4,1)) == 4 || sum(Omat(1:4,2)) == 4 || sum(Omat(1:4,3)) == 4 || sum(Omat(1:4,4)) == 4 || sum(diag(Omat)) == 4 || sum(diag(fliplr(Omat))) == 4 );
+ 		
+ 		
+ 		if ( Xres == 1 && Ores == 0)
+ 			fprintf(ofid,'Case #%d: %s\n',i,"X won");
+ 		elseif ( Xres == 0 && Ores == 1)
+ 			fprintf(ofid,'Case #%d: %s\n',i,"O won");
+ 		elseif (ncflag == 1)
+ 			fprintf(ofid,'Case #%d: %s\n',i,"Game has not completed");
+ 		else 
+ 			fprintf(ofid,'Case #%d: %s\n',i,"Draw");
+ 		end
+    	
+    	
+    	% to skip the extra line between test cases
+    	fgets(fid,1);
+    endfor		
+
+     fclose(fid);
+     fclose(ofid);

@@ -1,0 +1,92 @@
+<?
+$output = '';
+
+$input = 'inputa.txt';
+$file = file($input);
+$offset = 0;
+$case = 0;
+$boards = array();
+while(array_key_exists($offset,$file) && array_key_exists(($offset+1),$file)){
+	if($offset != 0){
+		for($i=0;$i<4;$i++){
+			$boards[$case][] = trim($file[$offset]);
+			$offset++;
+		}
+	}
+	$offset++;
+	$case++;
+}
+
+$output = '';
+foreach($boards as $case=>$b){
+	$lines = getLines($b);
+	$winner = 0;
+	$notdone = false;
+	foreach($lines as $l){
+		if(str_replace("T","X",$l) == "XXXX"){
+			$winner = 1;
+			break;
+		}
+		else if(str_replace("T","O",$l) == "OOOO"){
+			$winner = 2;
+			break;
+		}
+		else{
+			if(strpos($l,".") !== false){
+				$notdone = true;
+			}
+		}
+	}
+	$output .= "Case #".$case.": ";
+	if($winner == 1){
+		$output .= "X won";
+	}
+	else if($winner == 2){
+		$output .= "O won";
+	}
+	else if($notdone == true){
+		$output .= "Game has not completed";
+	}
+	else{
+		$output .= "Draw";
+	}
+	$output .= "\n";
+}
+
+$write_file = true;
+
+if ($write_file == true){
+	$fileopen = fopen($input.'.out','wb');
+	fwrite($fileopen,$output);
+	fclose($fileopen);
+}
+else{
+	print $output."<br />\n";
+}
+print "done";
+
+function getLines($arr){
+	$lines = array();
+	foreach($arr as $a){
+		$lines[] = $a;
+	}
+	for($i=0;$i<4;$i++){
+		$str = '';
+		for($j=0;$j<4;$j++){
+			$str .= $arr[$j][$i];
+		}
+		$lines[] = $str;
+	}
+	$str = '';
+	for($i=0;$i<4;$i++){
+		$str .= $arr[$i][$i];
+	}
+	$lines[] = $str;
+	$str = '';
+	for($i=0;$i<4;$i++){
+		$str .= $arr[$i][(3-$i)];
+	}
+	$lines[] = $str;
+	return $lines;
+}
+?>

@@ -1,0 +1,133 @@
+my %one=();
+my %two=();
+my %three=();
+my %four=();
+
+my $dot=5;
+
+
+
+my %value=(
+		"O"=>"0",
+		"X"=>"1",
+		"."=>"11",
+		"T"=>"5",
+);
+
+
+open(IN,"A-large.in") or die "file not found!\n";
+
+my $file_in_line = join "", <IN>;
+
+#$file_in_line=~ s/\r\s*\n/===/g;
+$file_in_line=~ s/\n/--/g;
+
+my $cases="";
+if($file_in_line =~ s/^(\d+)\s*--/----/)
+{
+	$case=$1;
+	#print $case."\n";
+}
+
+
+
+
+
+
+
+my $dot=".";
+
+my %check=(
+		"0"=>"O",
+		"5"=>"O",
+		"8"=>"X",
+		"4"=>"X",
+		
+);
+
+
+my $count=0;
+while($file_in_line=~ s/^----(.*?)(----|$)/$2/)
+{
+     #print $1."\n";
+     my $case=$1;
+     my $temp_case=$case;
+     $count++;
+     if($case=~ s/([OX\.T])([OX\.T])([OX\.T])([OX\.T])--([OX\.T])([OX\.T])([OX\.T])([OX\.T])--([OX\.T])([OX\.T])([OX\.T])([OX\.T])--([OX\.T])([OX\.T])([OX\.T])([OX\.T])//)
+     {
+     	#print $5."\n";
+        my $v1=$1;
+        my $v2=$2;
+        my $v3=$3;
+        my $v4=$4;
+        my $v5=$5;
+        my $v6=$6;
+        my $v7=$7;
+        my $v8=$8;
+        my $v9=$9;
+        my $v10=$10;
+        my $v11=$11;
+        my $v12=$12;
+        my $v13=$13;
+        my $v14=$14;
+        my $v15=$15;
+        my $v16=$16;
+        
+        $one{1}=$value{$v1};
+        $one{2}=$value{$v2};
+        $one{3}=$value{$v3};
+        $one{4}=$value{$v4};
+     
+     	$two{1}=$value{$v5};
+	$two{2}=$value{$v6};
+	$two{3}=$value{$v7};
+        $two{4}=$value{$v8};
+          
+     	$three{1}=$value{$v9};
+	$three{2}=$value{$v10};
+	$three{3}=$value{$v11};
+        $three{4}=$value{$v12};
+        
+      	$four{1}=$value{$v13};
+	$four{2}=$value{$v14};
+	$four{3}=$value{$v15};
+        $four{4}=$value{$v16};       
+     
+     	#print $two{1}."\n";
+     	   	   #for diagonal
+     	   my $dia1=$one{1}+$two{2}+$three{3}+$four{4};
+     	   my $dia2=$one{4}+$two{3}+$three{2}+$four{1};
+     	   my $hor1=$one{1}+$one{2}+$one{3}+$one{4};
+     	   my $hor2=$two{1}+$two{2}+$two{3}+$two{4};
+     	   my $hor3=$three{1}+$three{2}+$three{3}+$three{4};
+     	   my $hor4=$four{1}+$four{2}+$four{3}+$four{4};
+     	   my $ver1=$one{1}+$two{1}+$three{1}+$four{1};
+	   my $ver2=$one{2}+$two{2}+$three{2}+$four{2};
+	   my $ver3=$one{3}+$two{3}+$three{3}+$four{3};
+     	   my $ver4=$one{4}+$two{4}+$three{4}+$four{4};
+     	   
+     	   #print $dia1." ".$dia2." ".$hor1." ".$hor2." ".$hor3." ".$hor4." ".$ver1." ".$ver2." ".$ver3." ".$ver4."\n";
+     	   
+     	   if(my $v=($check{$dia1}||$check{$dia2}||$check{$hor1}||$check{$hor2}||$check{$hor3}||$check{$hor4}||$check{$ver1}||$check{$ver2}||$check{$ver3}||$check{$ver4}))
+     	   {
+     	   	print "Case #$count: $v won\n";
+     	   }
+     	   else
+     	   {
+     	   	if($temp_case=~ m/\./)
+     	   	{
+     	   	     print "Case #$count: Game has not completed\n";
+     	   		
+     	   	}
+     	   	else
+     	   	{
+     	   	     print "Case #$count: Draw\n";
+     	   	}
+     	   }
+     	   
+     	
+     	
+      }
+     
+}
+

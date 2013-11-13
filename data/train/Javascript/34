@@ -1,0 +1,44 @@
+
+var fs = require('fs');
+
+var lines = (fs.readFileSync('./A-large.in') + '').replace(/\r/g, '').split('\n');
+var T = parseInt(lines[0], 10);
+var li = 1;
+
+for (var ti = 0; ti < T; ti++)
+{
+	var b = [lines[li + 0],
+		lines[li + 1],
+		lines[li + 2],
+		lines[li + 3],
+		(lines[li + 0][0] + lines[li + 1][0] + lines[li + 2][0] + lines[li + 3][0]),
+		(lines[li + 0][1] + lines[li + 1][1] + lines[li + 2][1] + lines[li + 3][1]),
+		(lines[li + 0][2] + lines[li + 1][2] + lines[li + 2][2] + lines[li + 3][2]),
+		(lines[li + 0][3] + lines[li + 1][3] + lines[li + 2][3] + lines[li + 3][3]),
+		(lines[li + 0][0] + lines[li + 1][1] + lines[li + 2][2] + lines[li + 3][3]),
+		(lines[li + 0][3] + lines[li + 1][2] + lines[li + 2][1] + lines[li + 3][0])
+	];
+	li += 5;
+
+	var msg = '';
+	var hasDots = false;
+	for (var bi = 0; bi < b.length; bi++)
+	{
+		var c = { 'X': 0, 'O': 0, '.': 0, 'T': 0 };
+
+		for (var ci = 0; ci < 4; ci++) c[b[bi][ci]]++;
+
+		if (c.X + c.T == 4) msg = 'X won';
+		else if (c.O + c.T == 4) msg = 'O won';
+
+		if (c['.'] !== 0) hasDots = true;
+	}
+
+	if (msg === '')
+	{
+		msg =  hasDots ? 'Game has not completed' : 'Draw';
+	}
+
+	console.log('Case #' + (ti + 1) + ': ' + msg);
+}
+

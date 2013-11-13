@@ -1,0 +1,54 @@
+var s1,s2,s3,s4:string;i,t:longint;c:char;
+function chk(a,b,c,d:char):char;
+  begin
+    if (a='.') or (b='.') or (c='.') or (d='.') then exit('.');
+    if a='T' then a:=b;
+    if b='T' then b:=a;
+    if c='T' then c:=a;
+    if d='T' then d:=a;
+    if (a=b) and (b=c) and (c=d) then exit(a);
+    exit('.');
+  end;
+function comp(a,b:char):char;
+  begin
+    if (a<>'.') then exit(a);
+    if (b<>'.') then exit(b);
+    exit('.');
+  end;
+function chk2(s:string):boolean;
+  begin
+    exit((s[1]='.')or(s[2]='.')or(s[3]='.')or(s[4]='.'));
+  end;
+begin
+  assign(input,'A-large.in');
+  reset(input);
+  assign(output,'A-large.out');
+  rewrite(output);
+  readln(t);
+  for i:=1 to t do
+    begin
+      readln(s1);
+      readln(s2);
+      readln(s3);
+      readln(s4);
+      readln();
+      c:=comp(comp(comp(chk(s1[1],s1[2],s1[3],s1[4]),
+      chk(s2[1],s2[2],s2[3],s2[4])),
+      comp(chk(s3[1],s3[2],s3[3],s3[4]),
+      chk(s4[1],s4[2],s4[3],s4[4]))),
+      comp(comp(comp(chk(s1[1],s2[1],s3[1],s4[1]),
+      chk(s1[2],s2[2],s3[2],s4[2])),
+      comp(chk(s1[3],s2[3],s3[3],s4[3]),
+      chk(s1[4],s2[4],s3[4],s4[4]))),
+      comp(chk(s1[1],s2[2],s3[3],s4[4]),
+      chk(s1[4],s2[3],s3[2],s4[1]))));
+	  write('Case #');
+	  write(i);
+	  write(': ');
+	  if c='O' then writeln('O won') else
+	  if c='X' then writeln('X won') else
+	  if chk2(s1) or chk2(s2) or chk2(s3) or chk2(s4) then writeln('Game has not completed') else writeln('Draw');
+    end;
+  close(input);
+  close(output);
+end.

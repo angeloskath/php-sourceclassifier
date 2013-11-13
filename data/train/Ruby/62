@@ -1,0 +1,93 @@
+def ev
+	if $numo == 3 && $t
+		$fin=true
+		puts "O won"
+		return true
+	end
+	if $numx == 3 && $t
+		$fin=true
+		puts "X won"
+		return true
+	end
+	if $numo == 4
+		$fin=true
+		puts "O won"
+		return true
+	end
+	if $numx == 4
+		$fin=true
+		puts "X won"
+		return true
+	end
+	return false
+end
+n=gets.chomp.to_i
+map=Array.new(4){Array.new(4)}
+for i in 1..n
+	print "Case ##{i}: "
+	for k in 0..3
+		s=gets.chomp
+		for z in 0..3
+			map[z][k]=s[z]
+		end
+	end
+	gets
+	
+	sum=0
+	$fin = false
+	for x in 0..3
+		$numo=0
+		$numx=0
+		$t=false
+		for y in 0..3
+			$numo = $numo + 1 if map[x][y] == 'O'
+			$numx = $numx + 1 if map[x][y] == 'X'
+			$t=true if map[x][y] == 'T'
+		end
+		sum+=$numo+$numx+($t ? 1 : 0)
+		$kon=ev
+		break if $kon
+	end
+	next if $kon
+	for y in 0..3
+		$numo=0
+		$numx=0
+		$t=false
+		for x in 0..3
+			$numo = $numo + 1 if map[x][y] == 'O'
+			$numx = $numx + 1 if map[x][y] == 'X'
+			$t=true if map[x][y] == 'T'
+		end
+		$kon = ev
+		sum+=$numo+$numx+($t ? 1 : 0)
+		break if $kon
+	end
+	next if $kon
+	$numo=0
+	$numx=0
+	for z in 0..3
+		$numo = $numo + 1 if map[z][z] == 'O'
+		$numx = $numx + 1 if map[z][z] == 'X'
+		$t=true if map[z][z] == 'T'
+	end
+	$kon = ev
+	next if $kon
+	sum+=$numo+$numx+($t ? 1 : 0)
+	$numo=0
+	$numx=0
+	for z in 0..3
+		$numo = $numo + 1 if map[z][3-z] == 'O'
+		$numx = $numx + 1 if map[z][3-z] == 'X'
+		$t=true if map[z][3-z] == 'T'
+	end
+	$kon = ev
+	next if $kon
+	sum+=$numo+$numx+($t ? 1 : 0)
+	if !$fin
+		if sum == 40
+			puts "Draw"
+		else
+			puts "Game has not completed"
+		end
+	end
+end

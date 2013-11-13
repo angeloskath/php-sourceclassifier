@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+
+file_name = "A-large.in"
+
+def find_winner(grid)
+  (0..3).each do |row|
+    row = grid[row].join
+    x = row.include? 'X'
+    o = row.include? 'O'
+    t = row.include? 'T'
+
+    next if row.include? '.'
+    if x && !o
+      winner = 'X'
+    elsif o && !x
+      winner = 'O'
+    end
+    return winner if winner
+  end
+
+  (0..3).each do |col|
+    col = grid.map{|r| r[col]}.join
+    x = col.include? 'X'
+    o = col.include? 'O'
+    t = col.include? 'T'
+
+    next if col.include? '.'
+    if x && !o
+      winner = 'X'
+    elsif o && !x
+      winner = 'O'
+    end
+    return winner if winner
+  end
+
+  i = 0
+  h = grid.map{|r| v = r[i]; i += 1; v}.join
+  x = h.include? 'X'
+  o = h.include? 'O'
+  t = h.include? 'T'
+
+  unless h.include? '.'
+    if x && !o
+      winner = 'X'
+    elsif o && !x
+      winner = 'O'
+    end
+  end
+
+  i = 3
+  h = grid.map{|r| v = r[i]; i -= 1; v}.join
+  x = h.include? 'X'
+  o = h.include? 'O'
+  t = h.include? 'T'
+
+  unless h.include? '.'
+    if x && !o
+      winner = 'X'
+    elsif o && !x
+      winner = 'O'
+    end
+  end
+
+  winner
+end
+
+File.open(file_name, "r") do |file|
+  cases = file.gets.to_i
+  case_num = 0
+
+  while case_num < cases
+    case_num += 1
+    print "Case ##{case_num}: "
+
+    found_empty = false
+
+    grid = []
+    (0..3).each do |i|
+      grid[i] = file.gets.split('')
+      grid[i].each do |c|
+        found_empty = true if c == '.'
+      end
+    end
+
+    winner = find_winner grid
+
+    if winner.nil?
+      if found_empty
+        puts "Game has not completed"
+      else
+        puts "Draw"
+      end
+    else
+      puts "#{winner} won"
+    end
+
+    file.gets
+  end
+end

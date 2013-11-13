@@ -1,0 +1,129 @@
+--
+-- Google Code Jam 2013
+-- Problem A
+--
+-- Seth Bruder
+--
+
+module Main where
+
+import Control.Monad
+import Data.List
+import System.IO
+
+type Input = [InputCase]
+
+type InputCase = [Row]
+
+type Row = [Point]
+
+data Point = X
+           | O
+           | T
+           | E -- empty
+           deriving Eq
+
+data OutCase = XWon
+             | OWon
+             | Draw
+             | Incomplete
+
+instance Show OutCase where
+  show XWon = "X won"
+  show OWon = "O won"
+  show Draw = "Draw"
+  show Incomplete = "Game has not completed"
+
+main :: IO ()
+
+main = do
+  input <- readInput
+  let
+    numCases = length input
+    output = map solve input
+  sequence_ $ zipWith showOutCase [1..numCases] output
+
+solve :: [[Point]] -> OutCase
+solve inCase
+  = let
+    haveEmptyCell = E `elem` (concat inCase)
+    allSeqs = inCase ++ (transpose inCase) ++ (diags inCase)
+    xwoncond = and . (map (\pt -> (pt == X) || (pt == T)))
+    owoncond = and . (map (\pt -> (pt == O) || (pt == T)))
+    
+  in
+     if or $ map xwoncond allSeqs then
+       XWon
+     else if or $ map owoncond allSeqs then
+            OWon
+          else if haveEmptyCell then
+                 Incomplete
+               else
+                 Draw
+
+diags inCase 
+  = [[(inCase !! 0) !! 0, 
+      (inCase !! 1) !! 1, 
+      (inCase !! 2) !! 2,
+      (inCase !! 3) !! 3],
+     [(inCase !! 0) !! 3, 
+      (inCase !! 1) !! 2, 
+      (inCase !! 2) !! 1,
+      (inCase !! 3) !! 0]]
+
+parseInputCase :: [String] -> InputCase
+parseInputCase lines =
+  let
+    rows = map lineToRow lines
+  in
+   if ((length rows) /= 4) then
+     error "Bad case."
+   else
+     rows
+
+lineToRow :: String -> [Point]
+lineToRow line = let
+    points = map charToPoint line
+  in
+     if ((length points) /= 4) then
+       error "Wrong number of columns."
+     else
+       points
+
+charToPoint :: Char -> Point
+charToPoint 'X' = X
+charToPoint 'O' = O
+charToPoint 'T' = T
+charToPoint '.' = E
+
+readInput :: IO Input
+readInput = do
+  numCases <- readIntLn
+  input <- replicateM numCases readInputCase
+  return input
+
+readInputCase :: IO InputCase
+readInputCase = do
+  linesBeforeEmpty <- readCaseLines
+  return (parseInputCase linesBeforeEmpty)
+
+readCaseLines :: IO [String]
+readCaseLines = do
+  line <- getLine
+  if (null line) then
+      return []
+    else do
+      rest <- readCaseLines
+      return (line : rest)
+
+readIntLn :: IO Int
+readIntLn = readLn
+
+--
+-- Utility functions
+--
+
+showOutCase :: Int -> OutCase -> IO ()
+showOutCase caseNum outCase = do
+  putStrLn ("Case #" ++ (show caseNum) ++ ": " ++ (show outCase))
+  

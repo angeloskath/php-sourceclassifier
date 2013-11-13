@@ -1,0 +1,42 @@
+# 2013.04.13(Sat) 08:00 JST
+# Google Code Jam 2013 Qualification Round
+# AOKI Taichi
+
+#  raise "!!! SOME THING IS WRONG !!!!"
+
+#require 'rubygems'
+#require 'memoize'
+#include Memoize
+
+def generate_01_board(contestant, board)
+  return board.map{|arr|
+    arr.map{|e| (if (e==contestant or e=="T") then 1 else 0 end) }}
+end
+
+def won?(contestant, board)
+  b01=generate_01_board(contestant, board)
+  b01.each{
+    |arr| return true if 4==arr.reduce(:+)}
+  b01.transpose.each{
+    |arr| return true if 4==arr.reduce(:+)}
+  return true if 4==(0..3).map{|i| b01[i][i]}.reduce(:+)
+  return true if 4==(0..3).map{|i| b01[i][3-i]}.reduce(:+)
+  return false
+end
+
+test_n=gets.to_i
+test_n.times{|test_i|
+  print "Case ##{test_i+1}: "
+#  a1,a2,b1,b2 = gets.chomp.split(" ").map{|s|s.to_i}
+  board=[]
+  4.times{
+    board << gets.chomp.split("")
+  }
+  gets # empty line
+
+  if won?("O",board) then (puts "O won"; next) end
+  if won?("X",board) then (puts "X won"; next) end
+  if board.flatten.include?(".") then (puts "Game has not completed"; next) end
+  puts "Draw"
+  #puts board
+}

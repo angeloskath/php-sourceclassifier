@@ -1,0 +1,90 @@
+package main
+
+import (
+	"fmt"
+	"bufio"
+	"bytes"
+	"os"
+	"strconv"
+)
+
+var in = bufio.NewScanner(os.Stdin)
+
+func nextLine() string {
+	in.Scan()
+	return in.Text()
+}
+
+func main() {
+	n, err := strconv.Atoi(nextLine())
+	if err != nil {
+		panic("Convert")
+	}
+
+	for i := 0; i < n; i++ {
+		lines := make([][]byte,0)
+		for l := nextLine(); l != ""; l = nextLine() {
+			lines = append(lines,[]byte(l))
+		}
+
+		fmt.Printf("Case #%d: %s\n",i+1,state(lines))
+
+	}
+
+}
+
+type Result string
+
+const (
+	Xwon = Result("X won")
+	Owon = Result("O won")
+	Draw = Result("Draw")
+	Playing = Result("Game has not completed")
+)
+
+
+func state(g [][]byte) (s Result) {
+	defer func() {
+		if err := recover(); err != nil {
+			switch v := err.(type) {
+			case Result:
+				s = v
+			default:
+				panic(err)
+			}
+		}
+	}()
+
+	foundDot := false
+
+	for i := 0; i < 4; i++ {
+		foundDot = check(g[i]) || foundDot
+		foundDot = check([]byte{g[0][i],g[1][i],g[2][i],g[3][i]}) || foundDot
+	}
+
+	foundDot = check([]byte{g[0][0],g[1][1],g[2][2],g[3][3]}) || foundDot
+	foundDot = check([]byte{g[0][3],g[1][2],g[2][1],g[3][0]}) || foundDot
+
+	if foundDot {
+		return Playing
+	}
+
+	return Draw
+}
+
+func check(line []byte) bool {
+	if bytes.IndexByte(line, '.') >= 0 {
+		return true
+	}
+
+	target := 4
+
+	if tpos := bytes.IndexByte(line, 'T'); tpos >= 0 {
+		target--
+	}
+
+	if bytes.Count(line,[]byte("X")) == target { panic(Xwon) }
+	if bytes.Count(line,[]byte("O")) == target { panic(Owon) }
+
+	return false
+}

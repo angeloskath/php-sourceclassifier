@@ -1,0 +1,125 @@
+fileID = fopen('Q1input.txt');
+rawData = fscanf(fileID,'%s');
+rawLength = length(rawData);
+nDigits = mod(rawLength,16);
+numCases = str2double(rawData(1:nDigits));
+data = rawData(nDigits+1:end);
+
+for t = 1:numCases
+    stillDots = 0;
+    xWin = 0;
+    oWin = 0;
+    board = data(16*t-15:16*t);
+    if any(board == '.')
+        stillDots = 1;
+    end
+    testCase = board(1:4);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board(5:8);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board(9:12);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board(13:16);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([1 5 9 13]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([2 6 10 14]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([3 7 11 15]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([4 8 12 16]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([1 6 11 16]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    testCase = board([4 7 10 13]);
+    X = sum(testCase == 'X');
+    XT = X + sum(testCase == 'T');
+    O = sum(testCase == 'O');
+    OT = O + sum(testCase == 'T');
+    if X == 4 || XT == 4
+        xWin = 1;
+    elseif O == 4 || OT == 4
+        oWin = 1;
+    end
+    if xWin
+        fprintf('Case #%i: X won\n',t)
+    elseif oWin
+        fprintf('Case #%i: O won\n',t)
+    elseif stillDots
+        fprintf('Case #%i: Game has not completed\n',t)
+    else
+        fprintf('Case #%i: Draw\n',t)
+    end
+end %t

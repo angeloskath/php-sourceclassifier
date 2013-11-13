@@ -1,0 +1,46 @@
+class Solver
+	def cases
+		1.upto($stdin.gets.to_i) do |i|
+			print "Case \##{i}: "
+			solve
+		end
+	end
+
+	def solve
+		board = Array.new(4).map!{$stdin.gets.chomp!}.join
+		$stdin.gets||''.chomp!
+		starts  = [0,1,2,3,0,4,8,12,0,3]
+		offsets = [4,4,4,4,1,1,1, 1,5,3]
+		oWon = false
+		xWon = false
+		starts.zip(offsets).each do |s,o|
+			oMaybe = true
+			xMaybe = true
+			[s,s+o,s+2*o,s+3*o].each do |p|
+				if board[p] == 'X'||board[p] == '.' then
+					oMaybe = false
+				end
+				if board[p] == 'O'||board[p] == '.' then
+					xMaybe = false
+				end
+			end
+			if oMaybe then
+				oWon = true
+			end
+			if xMaybe then
+				xWon = true
+			end
+		end
+		if oWon then
+			puts "O won"
+		elsif xWon then
+			puts "X won"
+		elsif board.include?('.') then
+			puts "Game has not completed"
+		else
+			puts "Draw"
+		end
+	end
+end
+
+Solver.new.cases

@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+
+# Tic-Tac-Toe-Tomek.pl
+#
+# Created by Gideon Dsouza on 2013-04-13
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+
+my $count = <STDIN>;
+my $game = []; 
+my $case = 1;
+while(my $line = <STDIN>)  {
+    if($line eq "\n"){
+		print "Case #$case: ".processGame()."\n";
+		$game = [];
+		$case++;
+	} else {
+		chomp($line);
+		#print $line."->".checkLine($line)."\n";
+		push @$game, $line;
+	}
+	last if $. == (5 * $count) + 1;
+}
+sub processGame {
+	my $filled = 1;
+	#horizontal checks
+	foreach my $x (@$game) {
+		if(index($x, ".") != -1)
+		{
+			$filled = 0;#this means it is a non-filled game
+		}
+		my $stat = checkLine($x);
+		if($stat eq "X"){
+			return "X won";
+		} elsif($stat eq "O") {
+			return "O won";			
+		}
+	}
+	#vertical check
+	for (my $i = 1; $i <= 4; $i++) {
+		my $a = substr($game->[0], $i-1, 1);
+		my $b = substr($game->[1], $i-1, 1);
+		my $c = substr($game->[2], $i-1, 1);
+		my $d = substr($game->[3], $i-1, 1);
+		my $stat = checkLine($a.$b.$c.$d);
+		if($stat eq "X"){
+			return "X won";
+		} elsif($stat eq "O") {
+			return "O won";			
+		}
+	}
+	#diagonal #1---------------------
+	my $a = substr($game->[0], 1-1, 1);
+	my $b = substr($game->[1], 2-1, 1);
+	my $c = substr($game->[2], 3-1, 1);
+	my $d = substr($game->[3], 4-1, 1);
+	#ugly but it's a copy.
+	my $stat1 = checkLine($a.$b.$c.$d);
+	if($stat1 eq "X"){
+		return "X won";
+	} elsif($stat1 eq "O") {
+		return "O won";			
+	}
+	#diagonal #2-------------------
+	my $p = substr($game->[0], 4-1, 1);
+	my $q = substr($game->[1], 3-1, 1);
+	my $r = substr($game->[2], 2-1, 1);
+	my $s = substr($game->[3], 1-1, 1);
+	#ugly but it's a copy.
+	my $stat2 = checkLine($p.$q.$r.$s);
+	if($stat2 eq "X"){
+		return "X won";
+	} elsif($stat2 eq "O") {
+		return "O won";			
+	}
+	if($filled) {
+		return "Draw";
+	} else {
+		return "Game has not completed";
+	}
+}
+sub checkLine {
+	if(index($_[0], ".") == -1) {
+		my $x = 0;
+		my $o = 0;
+		foreach (split //, $_[0]) {
+			if($_ eq "X") {
+				$x++;
+			} elsif ($_ eq "O"){
+				$o++;
+			}
+		}
+		if($x == 4) {
+			return "X";
+		} elsif($o == 4) {
+			return "O";
+		} elsif($x == 3 && index($_[0], "T") != -1) {
+			return "X";
+		} elsif($o == 3 && index($_[0], "T") != -1) {
+			return "O";
+		} else {
+			return "D";
+		}
+	} else {
+		return "D";#draw
+	}
+}
+

@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+use diagnostics;
+use strict;
+use warnings;
+
+use FindBin;
+
+my $totalCases = 0;
+my $currentCase = 1;
+
+my @currentGame;
+my $currentLineGameParser = 0;
+
+my $winnerString;
+my $winnerExist = 0;
+open (MYFILE, '>>'.$FindBin::Bin.'/output.txt');
+
+for (<>) {
+	if ($totalCases == 0) { $totalCases = $_}
+	else {
+		if ($currentLineGameParser == 4) {
+			@currentGame = grep { $_ ne "\n" } @currentGame;
+			#print @currentGame;
+			
+			searchForWinner();
+			
+			if ($winnerExist == 0) {
+				checkForDots();
+			}
+			
+			$winnerExist = 0;
+			$currentCase++;
+			$currentLineGameParser = 0;
+			print MYFILE "\n";
+		} else {
+			if ($currentLineGameParser == 0) {
+				@currentGame = ();
+			}
+			push(@currentGame,split("", $_));
+			$currentLineGameParser++;
+			
+		}
+	}
+}
+
+#print "casos:".($totalCases);
+
+
+sub searchForWinner {
+	$winnerString = "XT";
+	verticalCheck();
+	if ($winnerExist) { return};
+	horizontalCheck();
+	if ($winnerExist) { return};
+	diagonalCheck();
+	if ($winnerExist) { return};
+	
+	$winnerString = "OT";
+	verticalCheck();
+	if ($winnerExist) { return};
+	horizontalCheck();
+	if ($winnerExist) { return};
+	diagonalCheck();
+	if ($winnerExist) { return};
+
+}
+
+sub checkWinnerFor {
+		my $checkWinner = 0;
+		foreach (@_) {
+			if( index ( $winnerString, $currentGame[$_]) != -1){
+				#print "$currentGame[$_] is in the array\n";
+				$checkWinner ++;
+			}
+		}
+		if ($checkWinner == 4) {
+			my $winnerName = substr $winnerString, 0, 1;
+			print MYFILE "Case #$currentCase: $winnerName won";
+			$winnerExist = 1;
+			return;
+		}
+
+}
+
+sub diagonalCheck {
+		my @diagonal = (0,4+1,8+2,12+3);
+		checkWinnerFor (@diagonal);
+		my @diagonal2 = (3,4+2,8+1,12);
+		checkWinnerFor (@diagonal2);
+
+}
+
+sub horizontalCheck {
+	for (my $x=0; $x < 4; $x = $x+1) {
+		my @horizontals = (4*$x,4*$x+1,4*$x+2,4*$x+3);
+		checkWinnerFor (@horizontals);
+	}
+}
+
+sub verticalCheck {
+	for (my $x=0; $x < 4; $x = $x+1) {
+		my @verticals = (0+$x,4+$x,8+$x,12+$x);
+		checkWinnerFor (@verticals);
+	}
+}
+
+sub checkForDots {
+			my $level = join('', @currentGame);
+			#print $level."\n";
+			if( index ($level,'.') != -1){
+				print MYFILE "Case #$currentCase: Game has not completed";
+			} else {
+				print MYFILE "Case #$currentCase: Draw";
+			}
+
+}

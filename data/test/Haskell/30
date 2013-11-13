@@ -1,0 +1,63 @@
+module Main where
+
+import Control.Monad
+import Data.List( transpose )
+
+data Pos = T | X | O | E
+         deriving (Show, Eq)
+
+toChar E = '.'
+toChar x = head $ show x
+
+data Square = Square { rows :: [[Pos]] }
+            deriving Show
+
+columns = transpose . rows
+
+diagonals (Square cols) =
+  [ map (\i -> cols !! i !! i) [0..3]
+  , map (\i -> cols !! i !! (3-i)) [0..3]
+  ]
+
+dropLast = reverse . drop 1 . reverse
+
+won :: Pos -> Square -> Bool
+won p s = any (all isGood) $ rows s ++ columns s ++ diagonals s
+  where
+    isGood = (`elem` [p, T])
+
+full = not . any ( any (== E) ) . rows
+
+result :: Square -> String
+result s =
+  if won X s then "X won"
+  else if won O s then "O won"
+       else if full s then "Draw"
+            else "Game has not completed"
+
+readSquares :: IO [Square]
+readSquares = do
+  n <- readLn
+  sequence $ replicate n readSquare
+  where
+    readSquare :: IO Square
+    readSquare = do
+      s <- liftM Square $ sequence $ replicate 4 readRow
+      getLine
+      return s
+    readRow :: IO [Pos]
+    readRow = liftM readPoss getLine
+    readPoss xs =
+      map readPos $ take 4 xs
+    readPos 'X' = X
+    readPos 'T' = T
+    readPos 'O' = O
+    readPos '.' = E
+
+main :: IO()
+main = do
+  ss <- readSquares
+  mapM ( putStrLn . process ) $ zip [1..] ss
+  return ()
+  where
+    process (i, s) = "Case #" ++ show i ++ ": " ++ result s

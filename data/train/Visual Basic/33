@@ -1,0 +1,127 @@
+VERSION 5.00
+Begin VB.Form frmMain 
+   Caption         =   "Tic-Tac-Toe-Tomek"
+   ClientHeight    =   2025
+   ClientLeft      =   60
+   ClientTop       =   345
+   ClientWidth     =   3225
+   LinkTopic       =   "Form1"
+   ScaleHeight     =   2025
+   ScaleWidth      =   3225
+   StartUpPosition =   3  'Windows Default
+   Begin VB.CommandButton cmdGo 
+      Caption         =   "Go"
+      Height          =   495
+      Left            =   960
+      TabIndex        =   4
+      Top             =   1320
+      Width           =   1215
+   End
+   Begin VB.TextBox txtOut 
+      Height          =   285
+      Left            =   960
+      TabIndex        =   3
+      Text            =   "out.txt"
+      Top             =   840
+      Width           =   1215
+   End
+   Begin VB.TextBox txtIn 
+      Height          =   285
+      Left            =   960
+      TabIndex        =   1
+      Text            =   "in.txt"
+      Top             =   360
+      Width           =   1215
+   End
+   Begin VB.Label Label2 
+      Caption         =   "Out:"
+      Height          =   255
+      Left            =   120
+      TabIndex        =   2
+      Top             =   840
+      Width           =   735
+   End
+   Begin VB.Label Label1 
+      Caption         =   "In:"
+      Height          =   255
+      Left            =   120
+      TabIndex        =   0
+      Top             =   360
+      Width           =   735
+   End
+End
+Attribute VB_Name = "frmMain"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, ByVal Length As Long)
+
+Private Sub cmdGo_Click()
+    Dim grid(3, 3, 1) As String * 1, I As Long, P As Long, Cnt As Long, A As Long
+    Dim strIn As String
+    Dim strWin As String * 1
+    
+    
+    Open txtIn For Input As #1
+    Open txtOut For Output As #2
+    Input #1, Cnt
+    ' Count of Grids
+    For I = 1 To Cnt
+        ' Count of 4 lines
+        For A = 0 To 3
+            Line Input #1, strIn
+            For P = 0 To 3
+                Select Case Mid(strIn, P + 1, 1) ' Easier Viewing
+                Case ".": grid(P, A, 0) = ".": grid(P, A, 1) = "."
+                Case "X": grid(P, A, 0) = "X": grid(P, A, 1) = "X"
+                Case "O": grid(P, A, 0) = "O": grid(P, A, 1) = "O"
+                Case "T": grid(P, A, 0) = "X": grid(P, A, 1) = "O"
+                End Select
+            Next P
+        Next A
+        ' MT Line
+        Line Input #1, strIn
+        
+        
+        
+        ' Check Grid
+        For A = 0 To 1
+            strWin = "?"
+            For P = 0 To 3
+                If (grid(0, P, A) & grid(1, P, A) & grid(2, P, A) & grid(3, P, A)) = IIf(A = 0, "XXXX", "OOOO") Then
+                    strWin = IIf(A = 0, "X", "O"): GoTo JumpOutWin
+                End If
+            Next P
+            For P = 0 To 3
+                If (grid(P, 0, A) & grid(P, 1, A) & grid(P, 2, A) & grid(P, 3, A)) = IIf(A = 0, "XXXX", "OOOO") Then
+                    strWin = IIf(A = 0, "X", "O"): GoTo JumpOutWin
+                End If
+            Next P
+            If (grid(0, 0, A) & grid(1, 1, A) & grid(2, 2, A) & grid(3, 3, A)) = IIf(A = 0, "XXXX", "OOOO") Then
+                strWin = IIf(A = 0, "X", "O"): GoTo JumpOutWin
+            End If
+            If (grid(3, 0, A) & grid(2, 1, A) & grid(1, 2, A) & grid(0, 3, A)) = IIf(A = 0, "XXXX", "OOOO") Then
+                strWin = IIf(A = 0, "X", "O"): GoTo JumpOutWin
+            End If
+        Next A
+        
+        For P = 0 To 3
+            For A = 0 To 3
+                If grid(P, A, 0) = "." Then strWin = "N": GoTo JumpOutWin
+            Next A
+        Next P
+        
+        
+        
+JumpOutWin:
+        Select Case strWin
+        Case "?": strIn = "Draw"
+        Case "X": strIn = "X won"
+        Case "O": strIn = "O won"
+        Case "N": strIn = "Game has not completed"
+        End Select
+        Print #2, "Case #" & I & ": " & strIn
+    Next I ' Next Board
+End Sub

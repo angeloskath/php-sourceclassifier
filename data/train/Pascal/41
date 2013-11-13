@@ -1,0 +1,89 @@
+var full:boolean;
+    a,b:array[1..4,1..4] of char;
+    test,testcase,i,j:longint;
+    
+function check:boolean;
+ var i,j:longint;
+     flag:boolean;
+begin
+ for i:=1 to 4 do
+   begin
+     flag:=true;
+     for j:=1 to 4 do if a[i][j]<>'X' then flag:=false;
+     if flag then exit(true);
+   end;
+   
+ for j:=1 to 4 do
+   begin
+     flag:=true;
+     for i:=1 to 4 do if a[i][j]<>'X' then flag:=false;
+     if flag then exit(true);
+   end;
+   
+ flag:=true;
+ for i:=1 to 4 do if a[i,i]<>'X' then flag:=false;
+ if flag then exit(true);
+
+ flag:=true;
+ for i:=1 to 4 do if a[i,5-i]<>'X' then flag:=false;
+ if flag then exit(true);
+ 
+ exit(false);
+end;
+
+function check2:boolean;
+ var i,j:longint;
+     flag:boolean;
+begin
+ for i:=1 to 4 do
+   begin
+     flag:=true;
+     for j:=1 to 4 do if b[i][j]<>'O' then flag:=false;
+     if flag then exit(true);
+   end;
+
+ for j:=1 to 4 do
+   begin
+     flag:=true;
+     for i:=1 to 4 do if b[i][j]<>'O' then flag:=false;
+     if flag then exit(true);
+   end;
+
+ flag:=true;
+ for i:=1 to 4 do if b[i,i]<>'O' then flag:=false;
+ if flag then exit(true);
+
+ flag:=true;
+ for i:=1 to 4 do if b[i,5-i]<>'O' then flag:=false;
+ if flag then exit(true);
+
+ exit(false);
+end;
+
+begin
+assign(input,'x.in');reset(input);
+assign(output,'x.out');rewrite(output);
+ readln(testcase);
+ for test:=1 to testcase do
+   begin
+     write('Case #',test,': ');
+     full:=true;
+     for i:=1 to 4 do
+       begin
+         for j:=1 to 4 do
+           begin
+             read(a[i][j]);
+             if a[i][j]='.' then full:=false;
+             if a[i][j]='T' then begin a[i][j]:='X'; b[i][j]:='O'; end
+                            else b[i][j]:=a[i][j];
+           end;
+         readln;
+       end;
+     readln;
+     if check then writeln('X won')
+        else if check2 then writeln('O won')
+          else if full then writeln('Draw')
+            else writeln('Game has not completed');
+   end;
+close(input);close(output);
+end.

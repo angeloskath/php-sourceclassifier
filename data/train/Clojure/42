@@ -1,0 +1,49 @@
+(ns code-jam.tic-tac-tomek
+  (:use [clojure.string :only [split]]))
+
+(defn read-int
+  "Read a single integer on a line from stdin."
+  []
+  (let [line (read-line)
+        int (Integer/parseInt line)]
+    int))
+
+(defn read-ints
+  "Read a space-separated list of integers from stdin."
+  []
+  (let [line (read-line)
+        strings (.split line " ")
+        ints (map #(Integer/parseInt %) strings)]
+    (vec ints)))
+
+(defn lines
+  [grid]
+  (concat grid
+          (apply map list grid)
+          (list (for [i (range (count grid))]
+                  (nth (nth grid i) i))
+                (for [i (range (count grid))]
+                  (nth (nth (reverse grid) i) i)))))
+
+(defn tic-tac-toe-tomek
+  [grid]
+  (let [ls (lines grid)]
+    (cond (some (fn [line] (every? #{\X \T} line)) ls) "X won"
+          (some (fn [line] (every? #{\O \T} line)) ls) "O won"
+          (every? (fn [line] (not-any? #{\.} line)) ls) "Draw"
+          :else "Game has not completed")))
+
+(defn main
+  []
+  (dotimes [x (read-int)]
+    (let [a (read-line)
+          b (read-line)
+          c (read-line)
+          d (read-line)
+          grid [a b c d]
+          answer (tic-tac-toe-tomek grid)]
+      (print (str "Case #" (inc x) ": "))
+      (println answer)
+      (read-line))))
+
+(main)

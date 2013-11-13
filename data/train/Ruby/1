@@ -1,0 +1,59 @@
+$SIZE=4
+
+def won(lines,char)
+	for i in 0...$SIZE
+		j=0
+		while j<$SIZE and (lines[i][j]==char or lines[i][j]=="T")
+			j+=1
+		end
+		if j==$SIZE; return true; end
+		j=0
+		while j<$SIZE and (lines[j][i]==char or lines[j][i]=="T")
+			j+=1
+		end
+		if j==$SIZE; return true; end
+	end
+	i=0
+	while i<$SIZE and (lines[i][i]==char or lines[i][i]=="T")
+		i+=1
+	end
+	if i==$SIZE; return true; end
+	i=0
+	while i<$SIZE and (lines[i][$SIZE-i-1]==char or lines[i][$SIZE-i-1]=="T")
+		i+=1
+	end
+	if i==$SIZE; return true; end
+	return false
+end
+
+def full(lines)
+	for i in 0...$SIZE
+		for j in 0...$SIZE
+			if lines[i][j]=="."; return false; end
+		end
+	end
+	return true
+end
+
+$T=gets.chomp.to_i
+(1..$T).each do |repeat|
+	lines=[]
+	for i in 0...$SIZE
+		lines<<gets.chomp
+	end
+	if repeat<$T; gets; end
+	print "Case #%d: "%repeat
+	if won(lines,"X")
+		puts "X won"
+		next
+	end
+	if won(lines,"O")
+		puts "O won"
+		next
+	end
+	if full(lines)
+		puts "Draw"
+		next
+	end
+	puts "Game has not completed"
+end

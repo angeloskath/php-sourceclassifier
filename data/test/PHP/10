@@ -1,0 +1,99 @@
+<?php
+    class Task1 {
+        public function getTestCases($filename)
+        {
+            $handle = fopen($filename, "r");
+            $T = (int) fgets($handle);
+            return array($handle, $T);
+        }
+        public function getNextTestCase($handle)
+        {
+            $test_case = array();
+            // $N_K = trim(fgets($handle));
+           
+            for($i = 0; $i <= 3; $i++)
+            {
+                $test_case[] = trim(fgets($handle));
+            }
+            fgets($handle);
+            return array($handle, $test_case);
+        }
+        public function solve($test_case)
+        {
+            $this->free_slot = false;
+            $this->X_won = false;
+            $this->O_won = false;
+            $this->testSet($test_case[0]);
+            $i =0;
+            $columns = array(0 => '', 1 => '', 2 => '', 3 => '');
+            foreach ($test_case as $key => $row)
+            {
+                // var_dump();
+
+                $columns[0] .= $row[0];
+                $columns[1] .= $row[1];
+                $columns[2] .= $row[2];
+                $columns[3] .= $row[3];
+                $this->testSet($row);
+                if ($this->X_won === true) return 'X won';
+                if ($this->O_won === true) return 'O won';
+                $i++;
+            }
+            // var_dump($columns);
+             foreach ($columns as $key => $row)
+            {
+                $this->testSet($row);
+                if ($this->X_won === true) return 'X won';
+                if ($this->O_won === true) return 'O won';
+                $i++;
+            }
+            $this->testSet($test_case[0][0].$test_case[1][1].$test_case[2][2].$test_case[3][3]);
+            if ($this->X_won === true) return 'X won';
+            if ($this->O_won === true) return 'O won';
+
+            $this->testSet($test_case[3][0].$test_case[2][1].$test_case[1][2].$test_case[0][3]);
+            if ($this->X_won === true) return 'X won';
+            if ($this->O_won === true) return 'O won';
+
+            if ($this->free_slot)
+            {
+                return "Game has not completed";
+            } else {
+                return "Draw";
+            }
+        }
+        public function testSet($set)
+        {
+            if (strpos($set, '.') !== false) {
+                $this->free_slot = true;
+            } else {
+                if (strpos($set, 'O') === false) {
+                    $this->X_won = true;
+                }
+                if (strpos($set, 'X') === false) {
+                    $this->O_won = true;
+                }
+            }
+        }
+        public function appendResult($T, $word)
+        {
+            // if ($result[0] == false & $result[1] == false) $word = 'Neither';
+            // if ($result[0] == true & $result[1] == false) $word = 'Red';
+            // if ($result[0] == false & $result[1] == true) $word = 'Blue';
+            // if ($result[0] == true & $result[1] == true) $word = 'Both';
+            $text = "Case #{$T}: ".$word;
+            file_put_contents('output.out', $text. "\n", FILE_APPEND);
+        }
+    }
+    
+    $task = new Task1();
+    list($handle, $T) = $task->getTestCases("A-large.in");
+    file_put_contents('output.out', '');
+    // $T = 1;
+    for ($i=0; $i < $T; $i++)
+    {
+        list($handle, $test_case) = $task->getNextTestCase($handle);
+        $board = $task->solve($test_case);
+        // var_dump($board);
+        $task->appendResult($i+1, $board);
+    }

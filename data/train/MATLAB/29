@@ -1,0 +1,45 @@
+%% A
+tic;
+fid = fopen('A-large.in','r');
+no_cases = fscanf(fid,'%4d');
+t = fscanf(fid,'%s');
+fid2 = fopen('outA.txt','w');
+for n = 1:no_cases
+    fprintf(fid2,'Case #%d: ',n);
+    b = t((16*n)-15:16*n);
+    for i = 1:4
+        x = unique(b((4*i)-3:4*i));  %row check
+        y = unique(b(i:4:16));       %column check
+        z1 = unique(b(1:5:16));
+        z2 = unique(b(4:3:13));
+        if (strncmp(x,'X',1)&&length(x)==1) || (strncmp(x,'TX',2)&&length(x)==2) || (strncmp(y,'X',1)&&length(y)==1) || (strncmp(y,'TX',2)&&length(y)==2) || (strncmp(z1,'X',1)&&length(z1)==1) || (strncmp(z1,'TX',2)&&length(z1)==2) || (strncmp(z2,'X',1)&&length(z2)==1) || (strncmp(z2,'TX',2)&&length(z2)==2)
+            out = 1; break;
+        elseif (strncmp(x,'O',1)&&length(x)==1) || (strncmp(x,'OT',2)&&length(x)==2) || (strncmp(y,'O',1)&&length(y)==1) || (strncmp(y,'OT',2)&&length(y)==2) || (strncmp(z1,'O',1)&&length(z1)==1) || (strncmp(z1,'OT',2)&&length(z1)==2) || (strncmp(z2,'O',1)&&length(z2)==1) || (strncmp(z2,'OT',2)&&length(z2)==2)
+            out = 2; break;
+        else
+            out = 0;
+        end
+    end
+    if out==0
+        if sum(b=='.')==0
+           out = 3;
+        else
+           out = 4;
+        end
+    end
+        
+    switch out
+        case 1
+            fprintf(fid2,'X won\n');
+        case 2
+            fprintf(fid2,'O won\n');
+        case 3
+            fprintf(fid2,'Draw\n');              
+        case 4
+            fprintf(fid2,'Game has not completed\n');                
+    end
+end
+fclose(fid);
+fclose(fid2);
+TimeElapsed = toc;
+disp(['Time Elapsed = ', num2str(TimeElapsed*1000), 'ms' ]);

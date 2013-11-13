@@ -1,0 +1,56 @@
+import Data.List
+import Control.Monad
+import Control.Applicative
+import Text.Printf
+
+readBoard = do
+    board <- sequence $ replicate 4 getLine
+    getLine
+    return board
+
+readInput = do
+    num <- readLn :: IO Int
+    cases <- sequence $ replicate num readBoard
+    return cases
+
+getRow :: [[a]] -> Int -> [a]
+getRow = (!!)
+
+getColumn :: [[a]] -> Int -> [a]
+getColumn [] _ = []
+getColumn (x : xs) i = x !! i : getColumn xs i
+
+getDiag1 [] = []
+getDiag1 (x : xs) = (head x) : getDiag1 (map tail xs)
+
+getDiag2 = getDiag1 . map reverse
+
+count elem xs = length $ elemIndices elem xs
+
+isDone board = count '.' (concat board) == 0
+
+rows = length
+cols = length . head
+
+removeAll _ [] = []
+removeAll e (x : xs) | e == x = removeAll e xs
+                     | otherwise = x : removeAll e xs
+
+check_ row = case groupBy (==) row of
+                ['.' : _] -> Nothing
+                [l : _] -> Just l
+                _ -> Nothing
+check row = check_ $ removeAll 'T' row
+
+checkBoard board = checkRows board <|> checkCols board <|> check (getDiag1 board) <|> check (getDiag2 board)
+    where checkRows board = c getRow
+          checkCols board = c getColumn
+          c getter = foldr (\x y -> check (getter board x) <|> y) Nothing [0..3]
+
+main = do
+    boards <- readInput
+    forM_ (zip [1 :: Int ..] boards) $ \(num, board) -> do
+        printf "Case #%d: " num
+        case checkBoard board of
+            Just winner -> printf "%c won\n" winner
+            Nothing -> putStrLn $ if (isDone board) then "Draw" else "Game has not completed"

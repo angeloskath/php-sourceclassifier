@@ -1,0 +1,91 @@
+
+(function() {
+  var buf = ''
+
+  process.stdin.setEncoding('utf8')
+  process.stdin.on('data', function(chunk) {
+    buf += chunk
+  })
+  process.stdin.on('end', function() {
+    run(buf)
+  })
+})()
+
+var winCode = {
+  '316': 'O won',
+  '321': 'O won',
+  '352': 'X won',
+  '348': 'X won',
+  '1332': 'Draw',
+  '1341': 'Draw',
+  '1336': 'Draw'
+}
+
+function run(input) {
+  var count, max, output
+
+  input = input.split('\n')
+  count = Number(input.shift())
+  max = count
+
+  while(count--) {
+    output = 'Case #' + (max - count) + ': '
+    output += solve(input.splice(0, 4).map(function(line) {
+      return line.split('').map(function(piece) {
+        return piece.charCodeAt(0)
+      })
+    }))
+
+    input.splice(0, 1)
+
+    console.log(output)
+  }
+}
+
+function solve(input) {
+  return solve$horizontal(input)
+      || solve$vertical(input)
+      || solve$diagonal(input)
+      || solve$draw(input)
+      || 'Game has not completed'
+}
+
+function solve$horizontal(input) {
+  function solve$line(line) {
+    var sum = line.reduce(function(prev, piece) {
+      return prev + piece
+    }, 0)
+
+
+    return winCode[sum]
+  }
+
+  return solve$line(input[0])
+      || solve$line(input[1])
+      || solve$line(input[2])
+      || solve$line(input[3])
+}
+
+function solve$vertical(input) {
+  return solve$horizontal(transpose(input))
+}
+
+function solve$diagonal(input) {
+  var diag1sum = String(input[0][0] + input[1][1] + input[2][2] + input[3][3])
+  var diag2sum = String(input[3][0] + input[2][1] + input[1][2] + input[0][3])
+
+  return winCode[diag1sum] || winCode[diag2sum]
+}
+
+function solve$draw(input) {
+  return winCode[String(input.reduce(function(prev, line) {
+    return prev + line.reduce(function(prev, piece) {
+      return prev + piece
+    }, 0)
+  }, 0))]
+}
+
+// http://www.codesuck.com/2012/02/transpose-javascript-array-in-one-line.html
+function transpose(a) {
+  return Object.keys(a[0]).map(function (c) { return a.map(function (r) { return r[c]; }); });
+}

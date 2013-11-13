@@ -1,0 +1,102 @@
+N=4;
+
+fi = fopen("input.txt","r");
+T=fscanf(fi,"%d");
+M=fscanf(fi,"%s",[N,N*T])';
+fo = fopen("output.txt","w");
+
+xwin="X won";
+owin="O won";
+draw="Draw";
+yet="Game has not completed";
+
+MM=toascii(M);
+
+#input: X,O,T,.
+b=toascii("XOT.");
+
+#put zeros in matrices instead or respective symbol
+TT=ceil(abs(MM-b(3))./(abs(MM-b(3))+1));
+X=TT.*ceil(abs(MM-b(1))./(abs(MM-b(1))+1));
+O=TT.*ceil(abs(MM-b(2))./(abs(MM-b(2))+1));
+dot=ceil(abs(MM-b(4))./(abs(MM-b(4))+1));
+
+
+for k=1:T
+#indices of M change in range
+#((k-1)*N+i, j), i=1:N, j=1:N
+
+#stick to k-th Matrix now
+txt=sprintf("Case #%d: ",k);
+
+while 1
+
+
+#X-win
+  x1=0;
+  x2=0;
+  flagx=0;
+  for i=1:N
+    
+    if  ( !( sum (X ( (k-1)*N+i,: ) ) ) || !(sum( X ( (k-1)*N+1 : (k-1)*N+N ,i)) )  )
+      txt=sprintf("%s%s",txt,xwin);
+      flagx=1;
+      break;
+    endif
+
+    x1+=X( (k-1)*N+i, i);
+    x2+=X( (k-1)*N+i, N-i+1);
+
+  endfor
+
+  if (flagx)
+    break;
+  elseif ( !x1 || !x2 ) 
+      txt=sprintf("%s%s",txt,xwin);
+      flagx=1;
+      break;
+  endif
+
+
+#O-win
+  o1=0;
+  o2=0;
+  flago=0;
+  for i=1:N
+    
+    if  ( !( sum (O ( (k-1)*N+i,: ) ) ) || !(sum( O ( (k-1)*N+1 : (k-1)*N+N ,i)) )  )
+      txt=sprintf("%s%s",txt,owin);
+      flago=1;
+      break;
+    endif
+
+    o1+=O( (k-1)*N+i, i);
+    o2+=O( (k-1)*N+i, N-i+1);
+
+  endfor
+
+  if (flago)
+    break;
+  elseif ( !o1 || !o2 )
+      txt=sprintf("%s%s",txt,owin);
+      flago=1;
+      break;
+  endif
+
+  if ( sum(sum ( dot ((k-1)*N+1:(k-1)*N+N ,1:N  )))<16 )
+    txt=sprintf("%s%s",txt,yet);
+    break;
+  else
+    txt=sprintf("%s%s",txt,draw);
+    break;
+  endif
+
+endwhile
+
+fprintf(fo, "%s\n", txt);
+
+
+endfor
+
+fclose(fi);
+fclose(fo);

@@ -1,0 +1,60 @@
+t =gets.to_i
+t.times do |caze|
+  map = Array.new(4).map{|a| gets.strip.split(//)}
+  # p map
+  # 'X' win?
+  x = ['X', 'T']
+  row = Array.new(4){true}
+  col = Array.new(4){true}
+  dig = Array.new(2){true}
+  for i in 0..3
+    for j in 0..3
+      unless x.include?(map[i][j])
+        row[i]=false
+        col[j]=false
+      end
+    end
+    unless x.include?(map[i][i])
+      dig[0] = false
+    end
+    unless x.include?(map[3-i][i])
+      dig[1] = false
+    end
+  end
+  if row.include?(true) || col.include?(true) || dig.include?(true)
+    puts "Case ##{caze+1}: X won"
+    gets
+    next
+  end
+  x = ['O', 'T']
+  row = Array.new(4){true}
+  col = Array.new(4){true}
+  dig = Array.new(2){true}
+  for i in 0..3
+    for j in 0..3
+      unless x.include?(map[i][j])
+        row[i]=false
+        col[j]=false
+      end
+    end
+    unless x.include?(map[i][i])
+      dig[0] = false
+    end
+    unless x.include?(map[3-i][i])
+      dig[1] = false
+    end
+  end
+  if row.include?(true) || col.include?(true) || dig.include?(true)
+    puts "Case ##{caze+1}: O won"
+    gets
+    next
+  end
+  if map.map{|a| a.include?('.')}.include?(true)
+    puts "Case ##{caze+1}: Game has not completed"
+  else
+
+    puts "Case ##{caze+1}: Draw"
+  
+  end
+  gets
+end

@@ -1,0 +1,211 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+	"os"
+	"bufio"
+)
+
+const (
+	height = 4
+	width = 4
+)
+
+type CellState byte
+
+var (
+	X CellState = 'X'
+	O CellState = 'O'
+	T CellState = 'T'
+	Empty CellState = '.'
+)
+
+type Verdict int
+
+const (
+	// None implies no verdict has been reached
+	None Verdict = iota
+	XWins
+	OWins
+	Draw
+	Busy
+)
+
+func (this Verdict) combine(other Verdict) Verdict {
+	if this == other {
+		return this
+	}
+	if other == None {
+		return this
+	}
+	if this == None {
+		return other
+	}
+	if other == Busy {
+		return this
+	}
+	if this == Busy {
+		return other
+	}
+	if this == Draw || other == Draw {
+		return this
+	}
+	return Draw
+}
+
+type Board [][]byte
+
+func displayVerdict(current int, verdict Verdict) {
+	prefix := fmt.Sprintf("Case #%d: ", current+1)
+	switch verdict {
+	case XWins:
+		fmt.Printf(prefix + "X won\n")
+	case OWins:
+		fmt.Printf(prefix + "O won\n")
+	case Draw, None:
+		fmt.Printf(prefix + "Draw\n")
+	case Busy:
+		fmt.Printf(prefix + "Game has not completed\n")
+	default:
+		panic(fmt.Errorf("Case %d has unknown verdict: %v", current, verdict))
+	}
+}
+
+func verdictFrom(numX, numO, numT int) Verdict {
+	if numX + numO + numT != 4 {
+		return Busy
+	}
+	if numX > 0 && numO > 0 {
+		return None
+	}
+	if numT == 4 {
+		return Draw
+	}
+	if numX + numT == 4 {
+		return XWins
+	}
+	if numO + numT == 4 {
+		return OWins
+	}
+	panic("unreachable")
+}
+
+func solveHorizontal(board Board) (verdict Verdict) {
+	for i := 0; i < 4; i++ {
+		var numX, numO, numT int
+		for j := 0; j < 4; j++ {
+			switch CellState(board[i][j]) {
+			case Empty:
+			case X:
+				numX++
+			case O:
+				numO++
+			case T:
+				numT++
+			default:
+				panic("unreachable")
+			}
+		}
+		verdict = verdict.combine(verdictFrom(numX, numO, numT))
+	}
+	return verdict
+}
+
+func solveVertical(board Board) (verdict Verdict) {
+	for i := 0; i < 4; i++ {
+		var numX, numO, numT int
+		for j := 0; j < 4; j++ {
+			switch CellState(board[j][i]) {
+			case Empty:
+			case X:
+				numX++
+			case O:
+				numO++
+			case T:
+				numT++
+			default:
+				panic("unreachable")
+			}
+		}
+		verdict = verdict.combine(verdictFrom(numX, numO, numT))
+	}
+	return verdict
+}
+
+func solveDiagonalDown(board Board) (verdict Verdict) {
+	var numX, numO, numT int
+	for i := 0; i < 4; i++ {
+		switch CellState(board[i][i]) {
+		case Empty:
+		case X:
+			numX++
+		case O:
+			numO++
+		case T:
+			numT++
+		default:
+			panic("unreachable")
+		}
+	}
+	return verdictFrom(numX, numO, numT)
+}
+
+func solveDiagonalUp(board Board) (verdict Verdict) {
+	var numX, numO, numT int
+	for i := 0; i < 4; i++ {
+		switch CellState(board[3-i][i]) {
+		case Empty:
+		case X:
+			numX++
+		case O:
+			numO++
+		case T:
+			numT++
+		default:
+			panic("unreachable")
+		}
+	}
+	return verdictFrom(numX, numO, numT)
+}
+
+func solve(board Board) (verdict Verdict) {
+	verdict = solveHorizontal(board)
+	verdict = verdict.combine(solveVertical(board))
+	verdict = verdict.combine(solveDiagonalDown(board))
+	verdict = verdict.combine(solveDiagonalUp(board))
+	return verdict
+}
+
+func readBoard(r *bufio.Reader) (board Board) {
+	for i:=0; i<4; i++ {
+		line, _, err := r.ReadLine()
+		if err != nil {
+			panic(err)
+		}
+		board = append(board, line)
+	}
+	// Skip empty line
+	_, _, err := r.ReadLine()
+	if err != nil {
+		panic(err)
+	}
+	return board
+}
+
+func main() {
+	r := bufio.NewReader(os.Stdin)
+	cstr, _, err := r.ReadLine()
+	if err != nil {
+		panic(err)
+	}
+	cases, err := strconv.Atoi(string(cstr))
+	if err != nil {
+		panic(err)
+	}
+	for current:=0; current < cases; current++ {
+		board := readBoard(r)
+		verdict := solve(board)
+		displayVerdict(current, verdict)
+	}
+}

@@ -1,0 +1,80 @@
+import Text.Parsec hiding (Empty)
+import Text.ParserCombinators.Parsec.Number
+import System.IO
+import Data.List
+import Data.Maybe
+
+import Control.Monad
+
+import Data.Functor.Identity (Identity)
+
+data Field = O | X | T | Empty
+	deriving (Show, Eq)
+
+data Result = OWon | XWon | Draw | Incomplete
+	deriving (Eq)
+
+instance Show Result where
+	show OWon = "O won"
+	show XWon = "X won"
+	show Draw = "Draw"
+	show Incomplete = "Game has not completed"
+
+main :: IO ()
+main = do
+	input <- hGetContents stdin
+	let mresult = runP parseFile "stdin" "" input
+	case mresult of
+		(Right result) -> mapM_ printResult (zip [1..] (map analyze result))
+		_ -> return ()
+
+printResult :: (Int, Result) -> IO ()
+printResult (i, r) = putStrLn ("Case #" ++ (show i) ++ ": " ++ (show r))
+
+parseFile :: ParsecT [Char] st Identity [[[Field]]]
+parseFile = do
+	c <- int
+	count c parseField
+
+parseField :: ParsecT [Char] u Identity [[Field]]
+parseField = do
+	void newline
+	count 4 parseLine
+
+parseLine :: ParsecT [Char] u Identity [Field]
+parseLine = do
+	res <- count 4 ((char 'O' >> return O) <|> (char 'X' >> return X) <|> (char 'T' >> return T)  <|> (char '.' >> return Empty))
+	void newline
+	return res
+
+forX :: Field -> Bool
+forX X = True
+forX T = True
+forX _ = False
+
+forO :: Field -> Bool
+forO O = True
+forO T = True
+forO _ = False
+
+winner :: [Field] -> Maybe Result
+winner xs | all forX xs = Just XWon
+winner xs | all forO xs = Just OWon
+winner _ = Nothing
+
+diagonal :: [[a]] -> [a]
+diagonal [] = []
+diagonal (x:xs) = (head x):(diagonal $ map tail xs)
+
+analyze :: [[Field]] -> Result
+analyze xs | Just r <- analyze_ xs = r
+analyze xs | Just r <- analyze_ (transpose xs) = r
+analyze xs | Just r <- winner (diagonal xs) = r
+analyze xs | Just r <- winner (diagonal $ map reverse xs) = r
+analyze xs | any (any (== Empty)) xs = Incomplete
+analyze _ | otherwise = Draw
+
+analyze_ :: [[Field]] -> Maybe Result
+analyze_ xs =
+	let rows = map winner xs
+	in listToMaybe $ catMaybes rows

@@ -1,0 +1,54 @@
+<?php
+  $infile = $argv[1];
+  $outfile = @eregi_replace('^(.*)\.[^\.]*$', '\1.out', $infile);
+  $file = file($infile);
+  array_walk($file,create_function('&$value','$value = trim($value);'));
+  list($T) = explode(' ',array_shift($file));
+  
+  $dirs = array(
+    array(0,0,0,1),
+    array(1,0,0,1),
+    array(2,0,0,1),
+    array(3,0,0,1),
+    array(0,0,1,0),
+    array(0,1,1,0),
+    array(0,2,1,0),
+    array(0,3,1,0),
+    array(0,0,1,1),
+    array(3,0,-1,1),
+  );
+  
+  for($i = 1; $i <= $T; $i++ )
+  { 
+    $a = array();
+    $gameover = 1;
+    for($j = 0; $j < 4; $j++) {
+      $a[$j] = array_shift($file);
+      if(strpos($a[$j],'.')!==false)
+        $gameover = 0;
+    }
+    $out .= "Case #".$i.": ";
+    $won = '';
+    foreach(array('X','O') as $x)
+      foreach($dirs as $dir) {
+        $ok = 1;
+        for($j = 0; $j < 4; $j++)
+          if(!in_array($a[ $dir[0]+$j*$dir[2] ][ $dir[1]+$j*$dir[3] ], array('T',$x)))
+            $ok = 0;
+        if($ok) {
+          $won = $x;
+          break 2;
+        }
+      }
+    if($won)
+      $out .= $won.' won';
+    else
+      if($gameover)
+        $out .= 'Draw';
+      else
+        $out .= 'Game has not completed';
+    $out .= "\n";
+    @array_shift($file);
+  }
+  file_put_contents( $outfile, $out );
+?>

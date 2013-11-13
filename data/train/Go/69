@@ -1,0 +1,187 @@
+package main
+
+import (
+	"testing"
+	"bytes"
+)
+
+func Test1(t *testing.T) {
+	test := [][]byte{
+		[]byte("XXXT"),
+		[]byte("...."),
+		[]byte("OO.."),
+		[]byte("....")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("X won")) {
+            t.Errorf("%s", out)
+        }
+}
+
+func Test2(t *testing.T) {
+	test := [][]byte{
+		[]byte("XOXT"),
+		[]byte("XXOO"),
+		[]byte("OXOX"),
+		[]byte("XXOO")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("Draw")) {
+            t.Errorf("%s", out)
+        }
+}
+
+func Test3(t *testing.T) {
+	test := [][]byte{
+		[]byte("XOX."),
+		[]byte("OX.."),
+		[]byte("...."),
+		[]byte("....")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("Game has not completed")) {
+            t.Errorf("%s", out)
+        }
+}
+
+func Test4(t *testing.T) {
+	test := [][]byte{
+		[]byte("OOXX"),
+		[]byte("OXXX"),
+		[]byte("OX.T"),
+		[]byte("O..O")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("O won")) {
+            t.Errorf("%s", out)
+        }
+}
+
+func Test5(t *testing.T) {
+	test := [][]byte{
+		[]byte("XXXO"),
+		[]byte("..O."),
+		[]byte(".O.."),
+		[]byte("T...")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("O won")) {
+            t.Errorf("%s", out)
+        }
+}
+
+func Test6(t *testing.T) {
+	test := [][]byte{
+		[]byte("OXXX"),
+		[]byte("XO.."),
+		[]byte("..O."),
+		[]byte("...O")}
+
+        out := getOutput(test)
+        if ! bytes.Equal(out,[]byte("O won")) {
+            t.Errorf("%s", out)
+        }
+}
+package main
+
+import (
+	"fmt"
+)
+
+const size = 4
+
+func isDiag(arr [][]byte, c byte) bool {
+	success := true
+	for i := 0; i < size; i++ {
+		if arr[i][i] != c && arr[i][i] != 'T' {
+			success = false
+			break
+		}
+	}
+	if success {
+		return true
+	}
+	success = true
+
+	for i := 0; i < size; i++ {
+		if arr[i][size-i-1] != c && arr[i][size-i-1] != 'T' {
+			success = false
+			break
+		}
+	}
+	return success
+}
+
+func isVert(arr [][]byte, c byte) bool {
+	for i := 0; i < size; i++ {
+		success := true
+		for j := 0; j < size; j++ {
+			if arr[i][j] != c && arr[i][j] != 'T' {
+				success = false
+				break
+			}
+		}
+		if success {
+			return true
+		}
+	}
+	return false
+}
+
+func isHoriz(arr [][]byte, c byte) bool {
+	for i := 0; i < size; i++ {
+		success := true
+		for j := 0; j < size; j++ {
+			if arr[j][i] != c && arr[i][j] != 'T' {
+				success = false
+				break
+			}
+		}
+		if success {
+			return true
+		}
+	}
+	return false
+}
+
+func getOutput(arr [][]byte) []byte {
+	/*
+	   for i := 0; i < size; i++ {
+	       fmt.Println(string(arr[i]))
+	   }
+	*/
+	if isDiag(arr, 'X') || isVert(arr, 'X') || isHoriz(arr, 'X') {
+		return []byte("X won")
+	}
+	if isDiag(arr, 'O') || isVert(arr, 'O') || isHoriz(arr, 'O') {
+		return []byte("O won")
+	}
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			if arr[i][j] == '.' {
+				return []byte("Game has not completed")
+			}
+		}
+	}
+	return []byte("Draw")
+}
+
+func main() {
+	var T int
+	var arr [][]byte = make([][]byte, size)
+	for j := 0; j < size; j++ {
+		arr[j] = make([]byte, size)
+	}
+
+	fmt.Scanf("%d", &T)
+
+	for i := 0; i < T; i++ {
+		var str string
+		for j := 0; j < size; j++ {
+			fmt.Scanf("%s", &str)
+			arr[j] = []byte(str)
+		}
+		fmt.Scanf("%s", &str) /* ignore the new line. */
+        fmt.Printf("Case #%d: %s\n", i+1, string(getOutput(arr)))
+	}
+}

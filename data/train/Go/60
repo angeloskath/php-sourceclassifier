@@ -1,0 +1,109 @@
+package main
+import "fmt"
+import "strconv"
+
+const(
+	SIZE = 4
+)
+
+type testCase struct{
+	fields [SIZE][SIZE]rune
+	result string
+}
+
+func Solve(b, field rune) rune {
+	switch (b) {
+	case 0:
+		return field
+	case '.':
+		return '.'
+	case 'X':
+		if field != 'X' && field != 'T' {
+			return '.'
+		} else {
+			return 'X'
+		}
+	case 'O':
+		if field != 'O' && field != 'T' {
+			return '.'
+		} else {
+			return 'O'
+		}
+	case 'T':
+		return field
+	}
+	return '.'
+}
+
+func (t *testCase) Solve(num int, ch chan string) {
+	var rowStat [SIZE]rune
+	var colStat [SIZE]rune
+	var diagStat [2]rune
+	hasDot := false
+	res := "Case #" + strconv.Itoa(num)+": "
+	for i := 0; i < SIZE; i++ {
+		for j := 0; j < SIZE; j++ {
+			if t.fields[i][j] == '.' {
+				hasDot = true
+			}
+			if i == j {
+				diagStat[0] = Solve(diagStat[0], t.fields[i][j])
+			}
+			if i == SIZE-j-1 {
+				diagStat[1] = Solve(diagStat[1], t.fields[i][j])
+			}
+			rowStat[i] = Solve(rowStat[i], t.fields[i][j])
+			colStat[j] = Solve(colStat[j], t.fields[i][j])
+		}
+		if Solved(rowStat[i]) {
+			ch <- res + string(rowStat[i]) + " won"
+			return
+		}
+	}
+	for i := 0; i < SIZE; i++ {
+		if Solved(colStat[i]) {
+			ch <- res + string(colStat[i]) + " won"
+			return
+		}
+	}
+	for i := 0; i < len(diagStat); i++ {
+		if Solved(diagStat[i]) {
+			ch <- res + string(diagStat[i]) + " won"
+			return
+		}
+	}
+	if hasDot {
+		ch <- res + "Game has not completed"
+	} else {
+		ch <- res + "Draw"
+	}
+}
+
+func Solved(b rune) bool {
+	return b == 'X' || b == 'O'
+}
+
+
+func main() {
+	var testCount int
+//	var testCases []testCase
+	var tmp byte
+	ch := make(chan string)
+
+	fmt.Scanln(&testCount)
+	for i := 0; i < testCount; i++ {
+		var testCase testCase
+		for j := 0; j < SIZE; j++ {
+			for k := 0; k < SIZE; k++ {
+				fmt.Scanf("%c", &testCase.fields[j][k])
+			}
+			fmt.Scanf("%c", &tmp) // read '/n'
+		}
+		fmt.Scanf("%c", &tmp) // read '/n'
+		go testCase.Solve(i+1, ch)
+		//testCases = append(testCases, testCase)
+	}
+	for i := 0; i < testCount; i++ {
+		fmt.Println(<-ch)
+	}
+}

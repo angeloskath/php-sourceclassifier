@@ -1,0 +1,27 @@
+import Control.Arrow
+import Control.Monad
+import Data.List
+import Data.Maybe
+import Text.Printf
+
+n = 4
+
+checkLine :: String -> Maybe String
+checkLine xs
+	| '.' `elem` xs = Nothing
+	| not $ 'O' `elem` xs = Just "X won"
+	| not $ 'X' `elem` xs = Just "O won"
+	| otherwise = Nothing
+
+diags xs = map ( zipWith (!!) xs ) $ sequence [ id, reverse ] $ [ 0 .. n - 1 ]
+
+noWinner xs = if any ( elem '.' ) xs then "Game has not completed" else "Draw"
+
+solveBoard xs = fromJust . msum $ ( map checkLine $ xs ++ transpose xs ++ diags xs ) ++ [ Just . noWinner $ xs ]
+
+chunk [] = []
+chunk xs = uncurry (:) $ second chunk $ splitAt n xs
+
+prefixLines = zipWith (++) $ map ( printf "Case #%d: " ) [ 1 :: Int .. ]
+
+main = interact $ unlines . prefixLines . map solveBoard . chunk . filter ( not . null ) . tail . lines

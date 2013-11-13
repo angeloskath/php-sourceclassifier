@@ -1,0 +1,110 @@
+var
+  t:longint;
+  s:string;
+  a:array[1..4,1..4] of longint;
+  ta,tb:longint;
+  tt:boolean;
+function winx:boolean;
+var
+  tem,tem1,tem2,tem3:longint;
+  i,j:longint;
+begin
+  for i:=1 to 4 do
+  begin
+    tem:=0;tem1:=0;
+    tem:=a[i,1]+a[i,2]+a[i,3]+a[i,4];
+    tem1:=a[1,i]+a[2,i]+a[3,i]+a[4,i];
+    if tem=4 then exit(true);
+    if tem1=4 then exit(true);
+  end;
+  tem2:=0;tem3:=0;
+  tem2:=a[1,1]+a[2,2]+a[3,3]+a[4,4];
+  tem3:=a[1,4]+a[2,3]+a[3,2]+a[4,1];
+  if tem2=4 then exit(true);
+  if tem3=4 then exit(true);
+  exit(false);
+end;
+function wino:boolean;
+var
+  tem,tem1,tem2,tem3:longint;
+  i,j:longint;
+begin
+  for i:=1 to 4 do
+  begin
+    tem:=0;tem1:=0;
+    tem:=a[i,1]+a[i,2]+a[i,3]+a[i,4];
+    tem1:=a[1,i]+a[2,i]+a[3,i]+a[4,i];
+    if tem=-4 then exit(true);
+    if tem1=-4 then exit(true);
+  end;
+  tem2:=0;tem3:=0;
+  tem2:=a[1,1]+a[2,2]+a[3,3]+a[4,4];
+  tem3:=a[1,4]+a[2,3]+a[3,2]+a[4,1];
+  if tem2=-4 then exit(true);
+  if tem3=-4 then exit(true);
+  exit(false);
+end;
+function full:boolean;
+var
+  i,j:longint;
+begin
+  for i:=1 to 4 do
+    for j:=1 to 4 do
+      begin
+        if a[i,j]=0 then exit(false);
+      end;
+  exit(true);
+end;
+procedure answer(ii,jj:longint);
+begin
+  write('Case #',ii,': ');
+  if jj=1 then write('X won');
+  if jj=-1 then write('O won');
+  if jj=0  then write('Game has not completed');
+  if jj=2 then write('Draw');
+  if ii<>t then writeln;
+end;
+procedure work(num:longint);
+var
+  i,j:longint;
+begin
+    if winx then begin answer(num,1);  exit; end;
+    if wino then begin answer(num,-1); exit;  end;
+    if tt then
+    begin
+      a[ta,tb]:=1;  if winx then begin answer(num,1);  exit; end;
+      a[ta,tb]:=-1;  if wino then begin answer(num,-1); exit;  end;
+    end;
+   if (not full) then begin answer(num,0);exit; end;
+   answer (num,2);
+end;
+procedure init;
+var
+  i,j,k:longint;
+begin
+  readln(t);
+  for i:=1 to t do
+  begin
+    tt:=false;
+    fillchar(a,sizeof(a),0);
+    for j:=1 to 4 do
+    begin
+      readln(s);
+      for k:=1 to 4 do
+      begin
+        if s[k]='X' then a[j,k]:=1;
+        if s[k]='O' then a[j,k]:=-1;
+        if s[k]='T' then begin a[j,k]:=2; ta:=j;tb:=k; tt:=true; end;
+      end;
+    end;
+    work(i);
+    readln;
+  end;
+end;
+begin
+  assign(input,'A-small-attempt2.txt');
+reset(input);
+assign(output,'google1.out');
+rewrite(output);
+  init;
+end.

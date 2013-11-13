@@ -1,0 +1,58 @@
+import scala.io._
+
+object TicTacToeTomek extends App {
+  val xWins = winPredicate('X')
+  val oWins = winPredicate('O')
+
+  val stdin = Source.stdin.getLines()
+  val numPuzzles = stdin.next().toInt
+
+  (1 to numPuzzles) foreach { caseNo =>
+    val puzzle = readPuzzle()
+    printPuzzleState(puzzle, caseNo)
+    stdin.drop(1)
+  }
+
+  def readPuzzle(): IndexedSeq[IndexedSeq[Char]] =
+    stdin.take(4).toIndexedSeq map { _.toIndexedSeq }
+
+  def winPredicate(ch: Char) = (rc: Map[Char, Int]) => {
+    rc.get(ch) match {
+      case Some(n) => n == 4 || n == 3 && rc.getOrElse('T', 0) > 0
+      case None => false
+    }
+  }
+
+  def printPuzzleState(puzzle: Seq[Seq[Char]], caseNo: Int) {
+    def printWinner(ch: Char) {
+      println("Case #%d: %c won" format(caseNo, ch))
+    }
+
+    def charCounts(chars: Seq[Char]): Map[Char, Int] =
+      chars.foldLeft(Map.empty[Char,Int]) { (m,c) =>
+        m.updated(c, m.getOrElse(c, 0) + 1)
+      }
+
+    val rowCounts = puzzle map charCounts
+    val colCounts = puzzle.transpose map charCounts
+    val diagCounts1 = charCounts( (0 to 3) map { i => puzzle(i)(i) } )
+    val diagCounts2 = charCounts( (0 to 3) map { i => puzzle(i)(3-i) } )
+
+    if (
+      rowCounts.exists(xWins) ||
+        colCounts.exists(xWins) ||
+        xWins(diagCounts1) ||
+        xWins(diagCounts2)
+    ) println("Case #%d: %c won" format(caseNo, 'X'))
+    else if (
+      rowCounts.exists(oWins) ||
+        colCounts.exists(oWins) ||
+        oWins(diagCounts1) ||
+        oWins(diagCounts2)
+    ) println("Case #%d: %c won" format(caseNo, 'O'))
+    else if (rowCounts exists { _.getOrElse('.', 0) > 0 })
+      println("Case #%d: Game has not completed" format(caseNo))
+    else
+      println("Case #%d: Draw" format(caseNo))
+  }
+}

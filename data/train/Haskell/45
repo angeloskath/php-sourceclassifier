@@ -1,0 +1,68 @@
+module CodeJam(Problem(..), consume, consumeN, mainCodeJam, consumePair)
+where
+
+import Data.List
+import Text.Printf
+import Control.Monad.State
+import System.Environment
+
+consume :: Int -> State [String] [String]
+consume n = state (splitAt n)
+
+consumeN = consume 1 >>= consume . read . head
+
+consumePair :: (Read a, Read b) => State [String] (a, b)
+consumePair = consume 2 >>= return . asPair
+    where asPair [a, b] = (read a, read b)
+
+mainCodeJam :: (Problem a) => (FilePath -> IO [a]) -> IO ()
+mainCodeJam loader = getArgs >>= loader.head >>= printProblems
+
+class (Show a) => Problem a where
+    readProblem :: State [String] a
+    
+    showSolution :: a -> String
+    showSolution = show
+
+    readProblems :: [String] -> [a]
+    readProblems (count:content) = evalState actions content
+        where actions = sequence $ replicate (read count) readProblem
+
+    loadProblems :: FilePath -> IO [a]
+    loadProblems path = readFile path >>= return.readProblems.words
+
+    printProblems :: [a] -> IO ()
+    printProblems problems = mapM_ putStrLn $ zipWith printProblem ([1..]::[Int]) problems
+        where printProblem i p = printf "Case #%d: %s" i (showSolution p)import CodeJam
+import Data.List
+
+data ProblemA = A [[Char]] deriving Show
+
+instance Problem ProblemA where
+    readProblem = do
+        lns <- consume 4
+        return $ A lns
+
+    showSolution = solve
+
+solve (A matrix) = if testWin 'O' then
+                       "O won"
+                   else if testWin 'X' then 
+                       "X won"
+                   else if hasEmptySlots then
+                       "Game has not completed"
+                   else 
+                       "Draw"
+
+    where testWin char = testWin' char matrix || testWin' char (transpose matrix) 
+          testWin' char m = elem (replicate 4 char) $ map (replace 'T' char) (m ++ diagonals m)
+          hasEmptySlots = any (elem '.') matrix
+
+diagonals m = [fst d, snd d]
+    where d = unzip [(lst !! i, lst !! (length lst - i - 1)) | (i, lst) <- zip [0..] m]
+
+replace c c' lst = [ if x == c then c' else x | x <- lst ]
+
+loader = loadProblems :: FilePath -> IO [ProblemA]
+
+main = mainCodeJam loader

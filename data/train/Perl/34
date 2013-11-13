@@ -1,0 +1,110 @@
+#! /usr/bin/perl -w
+
+use strict;
+use Data::Dumper qw(Dumper);
+
+my @lines = map { chomp; $_ } <>;
+my $T = shift @lines;
+my $SIZE = 4;
+
+$Data::Dumper::Indent = 0;
+
+for (my $t = 1; $t <= $T; $t++) {
+    my @input;
+    for (my $i = 0; $i < $SIZE; $i++) {
+        $input[$i] = [ split //, shift @lines ];
+    }
+    shift @lines;
+
+    print "Case #$t: " . status(\@input) . "\n";
+}
+
+sub _decide {
+    my @entries = @_;
+    if (grep { $_ eq "O" } @entries) {
+        if ((grep { $_ eq "O" or $_ eq "T" } @entries) == $SIZE) {
+            return "O won";
+        }
+    }
+    elsif (grep { $_ eq "X" } @entries) {
+        if ((grep { $_ eq "X" or $_ eq "T" } @entries) == $SIZE) {
+            return "X won";
+        }
+    }
+    else {
+        return "";
+    }
+}
+
+sub _status_row {
+    my $data_ref = shift;
+    for (my $i = 0; $i < $SIZE; $i++) {
+        my @entries;
+        for (my $j = 0; $j < $SIZE; $j++) {
+            push @entries, $data_ref->[$i][$j];
+        }
+        my $result = _decide(@entries);
+        return $result if $result =~ /won/;
+    }
+    return "";
+}
+
+sub _status_col {
+    my $data_ref = shift;
+    for (my $i = 0; $i < $SIZE; $i++) {
+        my @entries;
+        for (my $j = 0; $j < $SIZE; $j++) {
+            push @entries, $data_ref->[$j][$i];
+        }
+        my $result = _decide(@entries);
+        return $result if $result =~ /won/;
+    }
+}
+
+sub _status_diag {
+    my $data_ref = shift;
+    my @entries;
+    for (my $i = 0; $i < $SIZE; $i++) {
+        push @entries, $data_ref->[$i][$i];
+    }
+    my $result = _decide(@entries);
+    return $result if $result =~ /won/;
+
+    @entries = ();
+    for (my $i = 0; $i < $SIZE; $i++) {
+        for (my $j = 0; $j < $SIZE; $j++) {
+            push @entries, $data_ref->[$i][$j] if $i + $j == $SIZE - 1;
+        }
+    }
+    $result = _decide(@entries);
+    return $result if $result =~ /won/;
+    return "";
+}
+
+sub is_draw {
+    my $data_ref = shift;
+    for (my $i = 0; $i < $SIZE; $i++) {
+        for (my $j = 0; $j < $SIZE; $j++) {
+            return 0 if $data_ref->[$i][$j] eq ".";
+        }
+    }
+    return 1;
+}
+
+sub status {
+    my $data_ref = shift;
+    my $status_row = _status_row($data_ref);
+    return $status_row if $status_row;
+    my $status_col = _status_col($data_ref);
+    return $status_col if $status_col;
+    my $status_diag = _status_diag($data_ref);
+    return $status_diag if $status_diag;
+    my $status_draw = is_draw($data_ref);
+    if ($status_draw) {
+        return "Draw";
+    }
+    else {
+        return "Game has not completed";
+    }
+}
+

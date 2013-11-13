@@ -1,0 +1,70 @@
+% Written in MATLAB syntax, running under FreeMat 4.0
+
+function q2013a(infname,outfname)
+
+  fidi=fopen(infname,'r');
+  fido=fopen(outfname,'w');
+
+  N = fgetline(fidi); N = str2num(N);
+  for ii=1:N
+  
+    S = char(zeros(4));
+    for jj=1:5
+      tmp=fgetline(fidi);
+      if (jj<5), S(jj,:)=tmp(1:4); end;
+    end;
+ 
+    % Find the solution
+	
+    a = findsol(S);
+	
+    % Show the output
+
+    fprintf(fido,'Case #%i: %s\n',ii,a);
+    printf('Case #%i: %s\n',ii,a);
+ 	
+  end;
+  fclose(fidi); fclose(fido);
+return;
+
+function a=findsol(s)
+
+  a='';
+
+  for ii=1:2
+  ii
+    if (ii==1)
+      tmp  = (s=='X') || (s=='T');
+	  a = 'X won';
+	else
+      tmp = (s=='O') || (s=='T');
+      a = 'O won';
+	end;
+  
+    % Check diagonals
+  
+    if all(diag(tmp)), z=1; break; end;
+    if all(diag(fliplr(tmp))), z=1; break; end;
+	
+	% Check horizontal and vertical
+	
+	z=0;
+	for jj=1:4
+	  if all(tmp(jj,:)), z=1; break; end;
+	  if all(tmp(:,jj)), z=1; break; end;
+	end;
+	if (z==1), break; end;
+	
+  end;
+  
+  
+  if (z==0)
+    if any(s(:)=='.')
+      a='Game has not completed';
+	else
+	  a='Draw';
+	end;
+  end;
+  
+return;
+

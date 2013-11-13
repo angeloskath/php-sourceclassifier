@@ -1,0 +1,63 @@
+num_inputs = ARGF.readline.strip.to_i
+num_inputs.times do |num_input|
+  board = []
+  4.times do |x|
+    input = ""
+    while (input.strip == "")
+      input = ARGF.readline
+    end
+    board[x] = input.strip.split("")
+  end
+
+  result = "Game has not completed"
+  x_locs, o_locs = [], []
+  t_loc = nil
+  4.times do |x|
+    4.times do |y|
+      current_letter = board[x][y]
+      case current_letter
+      when 'X'
+        x_locs << [x,y]
+      when 'O'
+        o_locs << [x,y]
+      when 'T'
+        t_loc = [x,y]
+      end
+    end
+  end
+
+  win_patterns = []
+  # look for vert win
+  (0..3).each do |x|
+    win_patterns << [
+      [x, 0],
+      [x, 1],
+      [x, 2],
+      [x, 3],
+    ]
+  end
+  # look for vertical win
+  (0..3).each do |y|
+    win_patterns << [
+      [0, y],
+      [1, y],
+      [2, y],
+      [3, y],
+    ]
+  end
+  # look for diagnoal win
+  win_patterns << [[0,0],[1,1],[2,2],[3,3]]
+  win_patterns << [[0,3],[1,2],[2,1],[3,0]]
+
+  valid_x_locs = x_locs.clone << t_loc
+  valid_o_locs = o_locs.clone << t_loc
+  if win_patterns.any?{|win_pattern| win_pattern.all?{|loc| valid_x_locs.include?(loc)} }
+    result = 'X won'
+  elsif win_patterns.any?{|win_pattern| win_pattern.all?{|loc| valid_o_locs.include?(loc)} }
+    result = 'O won'
+  elsif (x_locs.size + o_locs.size + (t_loc ? 1 : 0)) == 16
+    result = 'Draw'
+  end
+
+  puts "Case ##{num_input + 1}: #{result}"
+end

@@ -1,0 +1,83 @@
+package com.google.codejam
+
+import scala.collection.mutable.ListBuffer
+
+class Board(c: Int, rows: List[String]) {
+  override def toString: String = { 
+    checkDiagonals orElse  checkColumns orElse checkRows 
+  }.map("Case #%d: %s".format(c, _)).get
+  
+  def checkRows = Some(rows match {
+    case xWon if rows.exists(_.count {c => c == 'X' || c == 'T' } == 4) => "X won" 
+    case oWon if rows.exists(_.count {c => c == 'O' || c == 'T' } == 4) => "O won"
+    case notComplete if rows.exists( _.exists( _ == '.' ) ) => "Game has not completed"
+    case draw => "Draw"
+  })
+  
+  def checkDiagonals: Option[String] =
+    checkDiagonalBy('X') orElse checkOtherDiagonalBy('X') orElse 
+    	checkDiagonalBy('O') orElse checkOtherDiagonalBy('O')
+  
+  def checkDiagonalBy(andPlayer: Char): Option[String]  = {
+    var qtd = 0
+    for(i <- 0 until 4) {
+      if(rows(i)(i) == andPlayer || rows(i)(i) == 'T')
+        qtd += 1
+    }
+    if ( qtd == 4 ) Some(andPlayer + " won")
+    else None
+  }
+  
+  def checkOtherDiagonalBy(andPlayer: Char): Option[String]  = {
+    var qtd = 0
+    for(i <- 0 until 4) {
+      if(rows(i)(3 - i) == andPlayer || rows(i)(3 - i) == 'T')
+        qtd += 1
+    }
+    if ( qtd == 4 ) Some(andPlayer + " won")
+    else None
+  }
+  
+  def checkColumns: Option[String] = {
+    checkPlayer('X') orElse checkPlayer('O')
+  }
+  
+  def checkPlayer(c: Char): Option[String] = {
+    for(j <- 0 until 4) {
+      var qtd = 0
+      for(i <- 0 until 4) {
+    	  if(rows(i)(j) == c || rows(i)(j) == 'T')
+    	    qtd += 1
+      }
+      if(qtd == 4) return Some(c + " won")
+    }
+    None
+  }
+ }
+
+object Board {
+  def scan(c: Int): Board = {
+    val rows = ListBuffer[String]()
+    for(r <- 1 to 4) {
+      rows += readLine.substring(0, 4)
+    }
+    readLine
+    new Board(c, rows.toList)
+  }
+}
+
+case class Match(t: Int) {
+  def playAll: List[Board] = {
+    val boards = ListBuffer[Board]();
+    for(c <- 1 to t) {
+    	boards += Board.scan(c)
+    }
+    boards.toList
+  }
+}
+
+object TicTacToeTomek {
+  def main(args: Array[String]): Unit = {
+    Match(readInt).playAll.foreach(println)
+  }
+}

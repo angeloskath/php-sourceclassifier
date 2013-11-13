@@ -1,0 +1,131 @@
+var q,t,i,j,k,a,b,c,p:integer;
+s:array [1..4,1..4] of char;
+z:string;
+
+begin
+
+assign(input,'input.txt');
+reset(input);
+assign(output,'output.txt');
+rewrite(output);
+
+readln(t);
+//writeln(t);
+for i:=1 to t do
+  begin
+  //writeln(i);
+  for j:=1 to 4 do
+    begin
+    //writeln(i,' ',j);
+    //readln(z);
+    //writeln(z);
+    readln(s[j,1],s[j,2],s[j,3],s[j,4]);
+    //for k:=1 to 4 do s[j,k]:=z[k];
+    end;
+  readln(z);
+  
+  q:=0;
+  for j:=1 to 4 do
+    for k:=1 to 4 do
+      if s[j,k]='.' then q:=1;
+  
+  p:=0;
+  
+  for j:=1 to 4 do
+    begin
+    a:=0;
+    b:=0;
+    c:=0;
+    
+    for k:=1 to 4 do
+      begin
+      if s[j,k]='X' then a+=1;
+      if s[j,k]='O' then b+=1;
+      if s[j,k]='T' then c+=1;
+      end;
+    
+    if a+b+c=4 then
+      begin
+      if a=0 then p:=2;
+      if b=0 then p:=1;
+      end;
+    
+    if p<>0 then break;
+    
+    a:=0;
+    b:=0;
+    c:=0;
+    
+    for k:=1 to 4 do
+      begin
+      if s[k,j]='X' then a+=1;
+      if s[k,j]='O' then b+=1;
+      if s[k,j]='T' then c+=1;
+      end;
+    
+    if a+b+c=4 then
+      begin
+      if a=0 then p:=2;
+      if b=0 then p:=1;
+      end;
+    
+    if p<>0 then break;
+    
+    end;
+  
+  if p<>0 then
+    begin
+    if p=1 then writeln('Case #',i,': X won') else writeln('Case #',i,': O won');
+    continue;
+    end;
+  
+  a:=0;
+  b:=0;
+  c:=0;
+  
+  for k:=1 to 4 do
+    begin
+    if s[k,k]='X' then a+=1;
+    if s[k,k]='O' then b+=1;
+    if s[k,k]='T' then c+=1;
+    end;
+  
+  if a+b+c=4 then
+    begin
+    if a=0 then p:=2;
+    if b=0 then p:=1;
+    end;
+  
+  if p<>0 then
+    begin
+    if p=1 then writeln('Case #',i,': X won') else writeln('Case #',i,': O won');
+    continue;
+    end;
+  
+  a:=0;
+  b:=0;
+  c:=0;
+  
+  for k:=1 to 4 do
+    begin
+    if s[k,5-k]='X' then a+=1;
+    if s[k,5-k]='O' then b+=1;
+    if s[k,5-k]='T' then c+=1;
+    end;
+  
+  if a+b+c=4 then
+    begin
+    if a=0 then p:=2;
+    if b=0 then p:=1;
+    end;
+  
+  if p<>0 then
+    begin
+    if p=1 then writeln('Case #',i,': X won') else writeln('Case #',i,': O won');
+    continue;
+    end;
+    
+  if q=0 then writeln('Case #',i,': Draw') else writeln('Case #',i,': Game has not completed');
+  
+  end;
+end.

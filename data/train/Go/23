@@ -1,0 +1,118 @@
+package main
+
+import (
+	"fmt"
+	"log"
+)
+
+const (
+	_ = iota
+	xWon
+	oWon
+	draw
+	notCompleted
+)
+
+var (
+	row1  = [4]int{0, 1, 2, 3}
+	row2  = [4]int{4, 5, 6, 7}
+	row3  = [4]int{8, 9, 10, 11}
+	row4  = [4]int{12, 13, 14, 15}
+	col1  = [4]int{0, 4, 8, 12}
+	col2  = [4]int{1, 5, 9, 13}
+	col3  = [4]int{2, 6, 10, 14}
+	col4  = [4]int{3, 7, 11, 15}
+	diag1 = [4]int{0, 5, 10, 15}
+	diag2 = [4]int{3, 6, 9, 12}
+
+	all = [][4]int{row1, row2, row3, row4, col1, col2, col3, col4, diag1, diag2}
+)
+
+type Field struct {
+	field [][]byte
+}
+
+func (f *Field) Get(pos int) byte {
+	return f.field[pos/4][pos%4]
+}
+
+func main() {
+	var T int
+
+	f := Field{make([][]byte, 4)}
+	tmp := make([]byte, 4)
+	fmt.Scanf("%d", &T)
+
+	for i := 0; i < T; i++ {
+		fmt.Scanln(&f.field[0])
+		fmt.Scanln(&f.field[1])
+		fmt.Scanln(&f.field[2])
+		fmt.Scanln(&f.field[3])
+
+		fmt.Printf("Case #%d: %s\n", i+1, Solve(f))
+		fmt.Scanln(&tmp)
+	}
+}
+
+func Solve(f Field) string {
+	result := 0
+	for _, pos := range all {
+		r := check(f, pos)
+		if r <= oWon {
+			return message(r)
+		}
+
+		if result < r {
+			result = r
+		}
+	}
+
+	return message(result)
+}
+
+func message(result int) string {
+	switch result {
+	case xWon:
+		return "X won"
+	case oWon:
+		return "O won"
+	case draw:
+		return "Draw"
+	case notCompleted:
+		return "Game has not completed"
+	default:
+		log.Fatalf("No result type: %v", result)
+	}
+	return ""
+}
+
+func check(f Field, pos [4]int) int {
+	var countX, countO, countDot int
+
+	for i := 0; i < 4; i++ {
+		switch f.Get(pos[i]) {
+		case 'X':
+			countX++
+		case 'O':
+			countO++
+		case '.':
+			countDot++
+		default:
+			// this would be T
+		}
+	}
+
+	if countDot != 0 {
+		return notCompleted
+	}
+
+	if countX >= 3 && countO == 0 {
+		return xWon
+	}
+
+	if countO >= 3 && countX == 0 {
+		return oWon
+	}
+
+	return draw
+}

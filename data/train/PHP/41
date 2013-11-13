@@ -1,0 +1,162 @@
+<?
+	define("X",	0);
+	define("O", 1);
+	
+	$f = fopen('php://stdin', 'r');
+	
+	$first = true;
+	$i = 0;
+	
+	global $struct;
+	global $end;
+	global $bool_end;
+	global $ret;
+	global $draw;
+		
+	$case_index = 1;
+	
+	while( $line = fgets( $f ) ) {
+		if ($first) {
+			$num_cases = (int) ($line);
+			$first = false;
+		} else {
+			if ($i < 4) {
+				for ($j = 0;$j <= 3;$j++) {
+					if (!$end) {
+						$symbol = $line[$j];
+						if ($symbol == '.') {
+							$draw = false;
+						}
+						put_check('v', $i, $symbol);
+						put_check('h', $j, $symbol);
+						if ($i == $j) {
+							put_check('d', 0, $symbol);
+						}
+						if (($i + $j) == 3) {
+							put_check('d', 1, $symbol);
+						}
+					}
+					if ($bool_end) {
+						echo "Case #".$case_index.": ".$ret." won\n";
+						$bool_end = false;
+						$case_index++;
+					}
+				}
+			}
+			if ($i%5 == 3) {
+				if (!$end) {
+					if ($draw) {
+						echo "Case #".$case_index.": Draw\n";
+					} else {
+						echo "Case #".$case_index.": Game has not completed\n";
+					}
+					$case_index++;
+				}
+			}
+			if ($i%5 == 4) {
+				
+				$i = -1;
+				resetz();
+			} 
+			$i++;
+		}
+	}
+	
+	function put_check($ref, $pos, $val) {
+		global $struct;
+		global $end;
+		global $bool_end;
+		global $ret;
+		
+		switch ($val) {
+			case 'X':
+				if ( ++$struct[$ref][$pos][X] == 4) {
+					$end = true;
+					$bool_end = true;
+					$ret = 'X';
+				}
+			break;
+			case 'O':
+				if ( ++$struct[$ref][$pos][O] == 4) {
+					$end = true;
+					$bool_end = true;
+					$ret = 'O';
+				}
+			break;
+			case 'T':
+				if ( ++$struct[$ref][$pos][X] == 4) {
+					$end = true;
+					$bool_end = true;
+					$ret = 'X';
+				}
+				if ( ++$struct[$ref][$pos][O] == 4) {
+					$end = true;
+					$bool_end = true;
+					$ret = 'O';
+				}
+			break;
+		}
+		return '';
+	}
+	
+	function resetz() {
+		global $struct;
+		global $end;
+		global $bool_end;
+		global $draw;
+		
+		$bool_end = false;
+		$end = false;
+		$ret = NULL;
+		$draw = true;
+		
+		$struct['h'] = array(
+			0 => array(
+				X => 0,
+				O => 0
+			),
+			1 => array(
+				X => 0,
+				O => 0
+			),
+			2 => array(
+				X => 0,
+				O => 0
+			),
+			3 => array(
+				X => 0,
+				O => 0
+			)
+		);
+		$struct['v'] = array(
+			0 => array(
+				X => 0,
+				O => 0
+			),
+			1 => array(
+				X => 0,
+				O => 0
+			),
+			2 => array(
+				X => 0,
+				O => 0
+			),
+			3 => array(
+				X => 0,
+				O => 0
+			)
+		);
+		$struct['d'] = array(
+			0 => array(
+				X => 0,
+				O => 0
+			),
+			1 => array(
+				X => 0,
+				O => 0
+			)
+		);
+	}
+	
+	fclose( $f );
+?>

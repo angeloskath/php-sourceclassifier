@@ -1,0 +1,84 @@
+{-# LANGUAGE Safe #-}
+-- | Read CNF format without haskell-platform
+
+module Sat.CNFReadP where
+
+import Control.Applicative ((<$>), (<*>), (<*), (*>))
+import Data.Char
+import Data.List
+import System.IO
+import Text.ParserCombinators.ReadP
+
+-- parser
+{-# INLINE newline #-}
+newline = char '\n'
+
+{-# INLINE digit #-}
+digit = satisfy isDigit
+
+{-# INLINE spaces #-}
+spaces = munch (`elem` " \t")
+
+cell = choice [char '.', char 'T', char 'X', char 'O']
+line = do
+  l1 <- cell
+  l2 <- cell
+  l3 <- cell
+  l4 <- cell
+  return [l1, l2, l3, l4]
+
+board = do
+  l1 <- line <* skipSpaces
+  l2 <- line <* skipSpaces
+  l3 <- line <* skipSpaces
+  l4 <- line <* skipSpaces
+  return [l1, l2, l3, l4]
+
+boards n = mapM (const board) [1..n]
+
+-- |parse a non-signed integer
+{-# INLINE pint #-}
+pint = do
+  n <- munch isDigit
+  return (read n :: Int)
+
+parseInput = do
+  x <- pint
+  skipSpaces
+  l <- boards x
+  return (zip [1.. x] l)
+  
+main = do
+  c <- hGetContents stdin
+  case readP_to_S parseInput c of
+       [(a, _)] -> mapM check a
+  return ()
+
+check (n, x)
+  | winO a = putStrLn $ m ++ "O won"
+  | winX b = putStrLn $ m ++ "X won"
+  | draw a = putStrLn $ m ++ "Draw"
+  | otherwise = putStrLn $ m ++ "Game has not completed"
+  where
+    m = "Case #" ++ show n ++ ": "
+    a = map (replace 'O') x
+    b = map (replace 'X') x
+
+replace t l = [if c == 'T' then t else c | c <- l]
+
+winX x@[a, b, c, d]
+  | elem  "XXXX" x = True
+  | elem "XXXX" (zipWith4 (\a b c d -> [a, b, c, d]) a b c d) = True
+  | "XXXX" == [l !! i | (l, i) <- zip x [0..3]] = True
+  | "XXXX" == [l !! i | (l, i) <- zip x [3,2 .. 0]] = True
+  | otherwise = False
+
+                
+winO x@[a, b, c, d]
+  | elem  "OOOO" x = True
+  | elem "OOOO" (zipWith4 (\a b c d -> [a, b, c, d]) a b c d) = True
+  | "OOOO" == [l !! i | (l, i) <- zip x [0..3]] = True
+  | "OOOO" == [l !! i | (l, i) <- zip x [3,2 .. 0]] = True
+  | otherwise = False
+                
+draw x = notElem '.' $ concat x

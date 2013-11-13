@@ -1,0 +1,86 @@
+%% Read in File
+fid=fopen('ticTacToeInput.txt','r+');
+contents=textscan(fid,'%s','delimiter',' ');
+fclose(fid);
+
+%% Make boards in 3d mat
+
+contents=contents{1};
+
+fid=fopen('ticTacToeResults.txt','w+');
+
+for i=0:(str2double(contents{1})-1)
+    gameBoard=contents(i*4+2:i*4+5);
+    gameBoard=cell2mat(gameBoard);
+    gameBoard=double(gameBoard);
+    
+    gameStatus=0;
+    
+    Xwin=0;
+    Owin=0;
+    gameDrawn=0;
+    notCompleted=0;
+    
+    Xboard=double((gameBoard==double('X')) + double(gameBoard==double('T')));
+    Xwin=double(max(sum(Xboard))==4);
+    Xwin=Xwin+double(max(sum(Xboard'))==4);
+    
+    %Diagonals
+    Xwin=Xwin+double(sum(sum(eye(4).*gameBoard))==352);
+    Xwin=Xwin+double(sum(sum(eye(4).*gameBoard))==348);
+    Xwin=Xwin+double(sum(sum(fliplr(eye(4)).*gameBoard))==352);
+    Xwin=Xwin+double(sum(sum(fliplr(eye(4)).*gameBoard))==348);
+    
+    if Xwin
+        gameStatus=1;
+    end
+    
+    if ~Xwin
+    
+    Oboard=double((gameBoard==double('O')) + double(gameBoard==double('T')));
+    Owin=double(max(sum(Oboard))==4);
+    Owin=Owin+double(max(sum(Oboard'))==4);
+    
+    %Diagonals
+    Owin=Owin+double(sum(sum(eye(4).*gameBoard))==316);
+    Owin=Owin+double(sum(sum(eye(4).*gameBoard))==321);
+    Owin=Owin+double(sum(sum(fliplr(eye(4)).*gameBoard))==316);
+    Owin=Owin+double(sum(sum(fliplr(eye(4)).*gameBoard))==321);
+    
+    if Owin
+        gameStatus=2;
+    end
+    
+    if ~Owin
+        
+        if any(any(gameBoard==double('.')))
+            
+            notCompleted=1;
+            gameStatus=3;
+            
+        else
+            
+            gameDrawn=1;
+            gameStatus=4;
+            
+        end
+        
+    end
+    
+    end   
+    
+    if gameStatus==1
+        fprintf(fid,'Case #%.0f: X won\n',i+1);
+    elseif gameStatus==2
+        fprintf(fid,'Case #%.0f: O won\n',i+1);
+    elseif gameStatus==3
+        fprintf(fid,'Case #%.0f: Game has not completed\n',i+1);
+    elseif gameStatus==4
+        fprintf(fid,'Case #%.0f: Draw\n',i+1);  
+    else
+        disp(gameBoard);error('Game Status not set')
+    end
+    
+end
+
+fclose(fid);

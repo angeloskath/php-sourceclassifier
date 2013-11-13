@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace CodeJam
+{
+	class Program
+	{
+		public const string wildCard = "T";
+
+		static void Main(string[] args)
+		{
+			string[] something = File.ReadAllLines("../../input.txt");
+
+			int numInput = int.Parse(something[0]);
+			int index = 1;
+
+			var boards = new List<List<List<string>>>();
+
+			for (int i = 0; i < numInput; ++i)
+			{
+				var board = new List<List<string>>();
+				for (int j = 0; j < 4; ++j)
+				{
+					var row = something[index].Select(x => x.ToString()).ToList();
+					board.Add(row);
+					++index;
+				}
+				++index;
+				boards.Add(board);
+			}
+
+			using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"../../output.txt"))
+			{
+				int count = 1;
+				foreach (var board in boards)
+				{
+					if (checkForWin("X", board))
+						file.WriteLine("Case #" + count + ": X won");
+					else if (checkForWin("O", board))
+						file.WriteLine("Case #" + count + ": O won");
+					else if(checkForOpenSpace(board))
+						file.WriteLine("Case #" + count + ": Game has not completed");
+					else
+						file.WriteLine("Case #" + count + ": Draw");
+
+
+					++count;
+				}
+
+			}
+		}
+
+		public static bool checkForOpenSpace(List<List<string>> board)
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				for (int j = 0; j < 4; ++j)
+				{
+					if (board[i][j] == ".")
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		public static bool checkForWin(string player, List<List<string>> board)
+		{
+			bool diag1Match = true;
+			bool diag2Match = true;
+			for (int i = 0; i < 4; ++i)
+			{
+				bool verticalMatch = true;
+				bool horizontalMatch = true;
+				for (int j = 0; j < 4; ++j)
+				{
+					if (board[i][j] != player && board[i][j] != wildCard)
+						horizontalMatch = false;
+					if (board[j][i] != player && board[j][i] != wildCard)
+						verticalMatch = false;
+				}
+
+				if (verticalMatch || horizontalMatch)
+					return true;
+
+				if (board[i][i] != player && board[i][i] != wildCard)
+					diag1Match = false;
+				if (board[i][4 - 1 - i] != player && board[i][4 - 1 - i] != wildCard)
+					diag2Match = false;																																
+			}
+
+			if (diag1Match || diag2Match)
+				return true;
+
+			return false;
+		}
+
+	}
+}

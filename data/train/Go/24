@@ -1,0 +1,103 @@
+package main
+
+import (
+	"fmt"
+)
+
+func convert(a byte) int{
+	switch a{
+		case 'X':
+			return 0
+		case 'O':
+			return 1
+		case 'T':
+			return 2
+		case '.':
+			return 3
+		}
+	return 10
+}
+
+func printTab(t [][]int){
+	for _, tab := range t{
+		fmt.Println(tab)
+	}
+}
+
+func getTab() [][]int {
+	var s string
+	fmt.Scanln(&s)
+	out := make([][]int,len(s))
+	n:= len(s)
+	out[0]= []int{}
+	for i:=0; i<n; i++{
+		out[0]=append(out[0],convert(s[i]))
+	}
+	for i:=1; i<n; i++{
+		fmt.Scanln(&s)
+		out[i]=[]int{}
+		for j:=0; j<n; j++{
+			out[i] = append(out[i], convert(s[j]))
+		}
+	}
+	fmt.Scanln(&s)
+	//printTab(out)
+	return out
+}
+
+func test(tab [][]int) int {
+	notfinished:=false
+	n:=len(tab)
+	var row, col, diag1, diag2 [4]int
+	for i:=0; i<n; i++ {
+		row = [4]int{}
+		col = [4]int{}
+		diag1 = [4]int{}
+		diag2 = [4]int{}
+		for j:=0; j<n; j++{
+			row[tab[i][j]]++
+			col[tab[j][i]]++
+			diag1[tab[j][j]]++
+			diag2[tab[j][n-1-j]]++
+		}
+
+		notfinished =  notfinished || (row[3]!=0 || col[3]!=0)
+		row[0]+= row[2]
+		row[1]+= row[2]
+		col[0]+= col[2]
+		col[1]+= col[2]
+		diag2[0]+=diag2[2]
+		diag2[1]+=diag2[2]
+		diag1[0]+=diag1[2]
+		diag1[1]+=diag1[2]
+		if row[0]==n || col[0]==n || diag1[0]==n || diag2[0]==n{
+			return 0
+		}
+		if row[1]==n || col[1]==n || diag1[1]==n || diag2[1]==n{
+		//	printTab(tab)
+		//	fmt.Println(col[1], row[1], diag1[1], diag2[1], i)
+			return 1
+		}
+	}
+	if notfinished {
+		return 3
+	}
+	return 2
+}
+
+func main(){
+	var a int
+	fmt.Scanln(&a)
+	for i:= 0; i<a; i++{
+		switch test(getTab()){
+		case 0:
+			fmt.Printf("Case #%d: X won\n", i+1)
+		case 1:
+			fmt.Printf("Case #%d: O won\n", i+1)
+		case 2:
+			fmt.Printf("Case #%d: Draw\n", i+1)
+		case 3:
+			fmt.Printf("Case #%d: Game has not completed\n", i+1)
+		}
+	 }
+}

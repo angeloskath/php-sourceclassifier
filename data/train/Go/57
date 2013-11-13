@@ -1,0 +1,103 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+)
+
+const (
+	nRows = 4
+	nCols = 4
+)
+
+type Game [nRows][nCols]byte
+
+const (
+	N = 0
+	O = 1
+	X = 1 << 1
+	T = O | X
+)
+
+var values = map[byte]byte{
+	'O': O,
+	'X': X,
+	'T': T,
+}
+
+func result(g *Game) string {
+	draw := true
+
+	seqs := make(chan byte)
+	go func() {
+		var seq byte
+		for row := 0; row < nRows; row++ {
+			seq = T
+			for col := 0; col < nCols; col++ {
+				if g[row][col] == N {
+					draw = false
+				}
+				seq &= g[row][col]
+			}
+			seqs <- seq
+		}
+
+		for col := 0; col < nCols; col++ {
+			seq = T
+			for row := 0; row < nRows; row++ {
+				seq &= g[row][col]
+			}
+			seqs <- seq
+		}
+
+		seqs <- T & g[0][0] & g[1][1] & g[2][2] & g[3][3]
+		seqs <- T & g[0][3] & g[1][2] & g[2][1] & g[3][0]
+		close(seqs)
+	}()
+
+	for result := range seqs {
+		switch result {
+		case X:
+			return "X won"
+		case O:
+			return "O won"
+		}
+	}
+
+	if draw {
+		return "Draw"
+	} else {
+		return "Game has not completed"
+	}
+}
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	// Ignore first line of input
+	scanner.Scan()
+	nText := scanner.Text()
+	n, err := strconv.Atoi(nText)
+	if err != nil {
+		log.Fatalf("not a number %q", nText)
+	}
+
+	var game Game
+
+	for i := 0; i < n; i++ {
+		fmt.Printf("Case #%d: ", i+1)
+		for j := 0; j < nRows; j++ {
+			scanner.Scan()
+			row := scanner.Bytes()
+			for k := 0; k < nCols; k++ {
+				game[j][k] = values[row[k]]
+			}
+		}
+		fmt.Println(result(&game))
+		scanner.Scan()
+	}
+
+}

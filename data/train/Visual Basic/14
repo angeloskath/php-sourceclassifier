@@ -1,0 +1,212 @@
+﻿Imports System.IO
+Imports System.Text
+
+Module Module1
+
+    'Dim fileName As String = "A-small-attempt0"
+    Dim fileName As String = "A-large"
+    'Dim fileName As String = "A-small-practice"
+
+    Dim filepath As String = "C:\Users\abhishek.ganguly\Downloads\"
+    Dim infile As FileStream
+    Dim outfile As StreamWriter
+
+    Sub Main()
+        infile = New FileStream(filepath & fileName & ".in", FileMode.Open)
+        outfile = New StreamWriter(filepath & fileName & ".out")
+
+        Dim X_WON = "X won"
+        Dim O_WON = "O won"
+        Dim DRAW = "Draw"
+        Dim NONE = "Game has not completed"
+
+        Dim TT = getNum()
+        For t As Long = 1 To TT
+
+            Dim board(3, 3) As String
+
+            Dim msg = ""
+
+            For i = 0 To 3
+
+                Dim x = 0, o = 0
+
+                For j = 0 To 3
+                    Dim c = getChar()                    
+                    board(i, j) = c
+
+                    'simultaniously validating rows
+                    If c = "X" Or c = "T" Then x += 1
+                    If c = "O" Or c = "T" Then o += 1
+                Next
+
+                If x = 4 Then
+                    msg = X_WON
+
+                ElseIf o = 4 Then
+                    msg = O_WON
+
+                End If
+            Next
+
+            If msg = "" Then
+                'validating columns
+                For i = 0 To 3
+
+                    Dim x = 0, o = 0
+
+                    For j = 0 To 3
+                        Dim c = board(j, i)
+
+                        'simultaniously validating rows
+                        If c = "X" Or c = "T" Then x += 1
+                        If c = "O" Or c = "T" Then o += 1
+                    Next
+
+                    If x = 4 Then
+                        msg = X_WON
+
+                    ElseIf o = 4 Then
+                        msg = O_WON
+
+                    End If
+                Next
+            End If
+
+            'check for left diagonal
+            If msg = "" Then
+
+                Dim x = 0, o = 0
+
+                For i = 0 To 3
+                    Dim c = board(i, i)
+
+                    If c = "X" Or c = "T" Then x += 1
+                    If c = "O" Or c = "T" Then o += 1
+
+                    If x = 4 Then
+                        msg = X_WON
+
+                    ElseIf o = 4 Then
+                        msg = O_WON
+
+                    End If
+                Next
+            End If
+
+
+            'check for right diagonal
+            If msg = "" Then
+
+                Dim x = 0, o = 0
+
+                For i = 0 To 3
+                    Dim c = board(i, 3 - i)
+
+                    If c = "X" Or c = "T" Then x += 1
+                    If c = "O" Or c = "T" Then o += 1
+
+                    If x = 4 Then
+                        msg = X_WON
+
+                    ElseIf o = 4 Then
+                        msg = O_WON
+
+                    End If
+                Next
+
+            End If
+
+
+            'check for draw or continue
+            If msg = "" Then
+                msg = DRAW ' let
+
+                For Each itm In board
+                    If itm = "." Then
+                        msg = NONE
+                        Exit For
+                    End If
+                Next
+            End If
+
+            outfile.WriteLine("Case #" & t & ": " & msg)
+
+        Next
+        outfile.Flush()
+        outfile.Close()
+    End Sub
+
+
+    Function getNum() As UInt64
+        Dim myNum As UInt64 = 0
+        Dim tempNum As Integer = infile.ReadByte
+
+        'discard line breaks and spaces
+        While tempNum = 10 Or tempNum = 13 Or tempNum = 32
+            tempNum = infile.ReadByte
+        End While
+
+        'read a number if it exists
+        While tempNum > 47 And tempNum < 58
+            myNum = myNum * 10 + (tempNum - 48)
+            tempNum = infile.ReadByte
+        End While
+
+        'return it
+        Return myNum
+    End Function
+
+    Function getChar() As String
+        Dim tempnum = infile.ReadByte
+
+        'discard line breaks and spaces
+        While tempnum = 10 Or tempnum = 13 Or tempnum = 32
+            tempnum = infile.ReadByte
+        End While
+
+        'read a char if it exists
+        Return Char.ConvertFromUtf32(tempnum)
+    End Function
+
+    Function getWord() As String
+        Dim tempnum = infile.ReadByte
+        Using buffer As New StringWriter()
+            'discard line breaks and spaces
+            While tempnum = 10 Or tempnum = 13 Or tempnum = 32
+                tempnum = infile.ReadByte
+            End While
+
+            'read the string
+            While (tempnum > 64 And tempnum < 91) Or (tempnum > 96 And tempnum < 123)
+                buffer.Write(Chr(tempnum))
+                tempnum = infile.ReadByte
+            End While
+
+            Dim ret As String = buffer.ToString
+            buffer.Dispose()
+            Return ret
+        End Using
+    End Function
+
+    Function getString() As String
+        Dim tempnum = infile.ReadByte
+        Using buffer As New StringWriter()
+            'discard line breaks and spaces
+            While tempnum = 10 Or tempnum = 13 Or tempnum = 32
+                tempnum = infile.ReadByte
+            End While
+
+            'read the string
+            While Not (tempnum = 10 Or tempnum = 13 Or tempnum = -1)
+                buffer.Write(Chr(tempnum))
+                tempnum = infile.ReadByte
+            End While
+
+            Dim ret As String = buffer.ToString
+            buffer.Dispose()
+            Return ret
+        End Using
+    End Function
+
+End Module

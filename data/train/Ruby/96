@@ -1,0 +1,133 @@
+class Integer
+  def map
+    ary = (self.times.map { yield })
+    self == 1 ? ary[0] : ary
+  end
+end
+
+class FileWrapper
+  def initialize(infile, outfile)
+    @fin  = File.open(infile, 'r')
+    @fout = File.open(outfile, 'w')
+  end
+
+  def eof?
+    @fin.eof?
+  end
+
+  def line(count=1)
+    count.map { @fin.readline.chomp }
+  end
+
+  def int(count=1)
+    count.map { @fin.readline.chomp.to_i }
+  end
+
+  def ints(count=1)
+    count.map { @fin.readline.chomp.split.map { |i| i.to_i } }
+  end
+
+  def <<(output)
+    @fout << output
+    $stdout << output
+  end
+
+  def close
+    @fin.close
+    @fout.close
+  end
+end
+
+def compare(expected, actual)
+  e_exist = File.exists?(expected)
+  a_exist = File.exists?(actual)
+
+  $stderr << "File doesn't exist: #{expected}\n" unless e_exist
+  $stderr << "File doesn't exist: #{actual}\n" unless a_exist
+
+  if e_exist && a_exist
+    e = File.read(expected).chomp
+    a = File.read(actual).chomp
+    $stderr << "Not same!\nExpected=\n#{e}\nActual=\n#{a}\n" unless e.eql?(a)
+  end
+end
+
+def solve(method, suffix='', infile="#{method}#{suffix}.in", outfile="#{method}#{suffix}.out", expected = "#{method}#{suffix}.ref")
+  puts "======== #{method} ==================================================="
+  solver = Proc.method(method)
+  f      = FileWrapper.new(infile, outfile)
+
+  f.int.times do |i|
+    result = solver.(f)
+    result = result.join(' ') if result.is_a?(Enumerable)
+    f << "Case ##{i+1}: #{result}\n"
+  end
+
+  f.close
+  puts
+
+  compare expected, outfile
+end
+
+def tic_count(a)
+  x = a.reduce(0) { |count, b| b=='X' ? count+1 : count }
+  o = a.reduce(0) { |count, b| b=='O' ? count+1 : count }
+  t = a.reduce(0) { |count, b| b=='T' ? count+1 : count }
+  d = a.reduce(0) { |count, b| b=='.' ? count+1 : count }
+  #puts "a=#{a.inspect}\nc=#{[x, o, t, d].inspect}\n"
+  [x, o, t, d]
+end
+
+def tic_tac_toe_tomek(f)
+  m = f.line(4).map { |a| a.chars.to_a }
+  n = m.transpose
+  c = []                                        #counts
+
+  f.line unless f.eof?                          # read and ignore empty line
+
+  m.each_index { |i| c[i] = tic_count(m[i]) }   # horizontal
+  n.each_index { |i| c[i+4] = tic_count(n[i]) } # vertical
+
+  md = 4.times.map { |i| m[i][i] }
+  nd = 4.times.map { |i| m[i][3-i] }
+
+  c[8] = tic_count(md)                          # diagonal left
+  c[9] = tic_count(nd)                          # diagonal right
+
+  #puts "\n", "m = #{m.inspect}", "n = #{n.inspect}", "md = #{md}", "nd = #{nd}", "c = #{c.inspect}"
+
+  c.each do |a|
+    return 'X won' if a[0]+a[2]==4
+    return 'O won' if a[1]+a[2]==4
+  end
+
+  c.transpose[3].reduce(:+) == 0 ? 'Draw' : "Game has not completed"
+end
+
+def lawnmower(f)
+
+end
+
+def fair_and_square(f)
+
+end
+
+def treasure(f)
+
+end
+
+# solve(:tic_tac_toe_tomek)
+# solve(:tic_tac_toe_tomek, '-small')
+solve(:tic_tac_toe_tomek, '-large')
+
+# solve(:lawnmower)
+# solve(:lawnmower, '-small')
+# solve(:lawnmower, '-large')
+
+# solve(:fair_and_square)
+# solve(:fair_and_square, '-small')
+# solve(:fair_and_square, '-large')
+
+# solve(:treasure)
+# solve(:treasure, '-small')
+# solve(:treasure, '-large')

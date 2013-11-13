@@ -1,0 +1,26 @@
+import Data.List (transpose)
+
+n = 4
+
+main = do
+    t <- fmap read getLine
+    mapM_ solve [1..t]
+
+solve testNum = do
+    board <- sequence $ replicate n getLine
+    getLine
+    putStr "Case #"
+    putStr $ show testNum
+    putStr ": "
+    putStrLn $ status board
+
+status board | won board 'X'              = "X won"
+             | won board 'O'              = "O won"
+             | all (/='.') $ concat board = "Draw"
+             | otherwise                  = "Game has not completed"
+
+won boardWithT player =
+    let board = map (map (\cell -> if cell == 'T' then player else cell)) boardWithT
+        board' = transpose board
+        diag board = map (\i -> board !! i !! i) [0..n - 1]
+    in any (all (==player)) $ diag board:diag (map reverse board):(board ++ board')

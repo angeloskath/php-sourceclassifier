@@ -1,0 +1,190 @@
+var fs = require('fs');
+fs.readFile('A-small-attempt0.in', 'utf8', function (err, data) {
+  lines  = (data.split('\n'));
+  ct =0;
+  op = '';
+  for(ii=1;ii<lines.length;){
+	  if(lines[ii].trim()==''){
+		  ii++;
+		  continue;
+	  }
+	  var arr = [];
+	  for(jj=0;jj<4;jj++){
+		  arr[jj] = new Array(lines[ii+jj].charAt(0),lines[ii+jj].charAt(1),lines[ii+jj].charAt(2),lines[ii+jj].charAt(3));
+	  }
+	  ct++;
+	  log(arr);
+	  op = op+"Case #"+ct+": "+doTtt(arr)+"\n";
+	 
+	  //if(ct==2) break;
+	  ii+=4;
+  }
+  fs.writeFile("op.txt", op, function(err) {
+		if(err) {
+			console.log(err);
+		} else {
+			console.log("The file was saved!");
+		}
+	}); 
+   console.log(op);
+});
+
+function log(data){
+	return;
+	console.log(data);
+}
+function doTtt(board,cse){
+	var incomplete = false;
+	
+	for(i=0;i<4;i++){
+		var sawT = false;
+		var currentChar = null;
+		var currentCharCount =0;
+		for(j=0;j<4;j++){
+			if(j==0&&board[i][j]=='T'){
+				sawT = true;
+				continue;
+			}else if(j!=1){
+				sawT = false;
+			}
+			if(board[i][j]=='.'){
+				currentChar = null;
+				currentCharCount =0;
+				incomplete = true;
+				break;
+			}
+			
+			//update char and charcount
+			if(board[i][j]==currentChar||board[i][j]=='T'){
+				currentCharCount++;
+			}else{
+				currentCharCount = 1;
+				if(sawT){
+					currentCharCount++;
+				}
+				currentChar = board[i][j];
+			}
+			log(currentCharCount);
+			//if won
+			if(currentCharCount==4){
+				return(currentChar+' won');
+			}
+		}
+	}
+	for(j=0;j<4;j++){
+		var sawT = false;
+		var currentChar = null;
+		var currentCharCount =0;
+		for(i=0;i<4;i++){
+			//console.log(i+'X'+j);
+			//continue;
+			if(i==0&&board[i][j]=='T'){
+				sawT = true;
+				continue;
+			}else if(i!=1){
+				sawT = false;
+			}
+			if(board[i][j]=='.'){
+				currentChar = null;
+				currentCharCount =0;
+				incomplete = true;
+				break;
+			}
+			
+			//update char and charcount
+			if(board[i][j]==currentChar||board[i][j]=='T'){
+				currentCharCount++;
+			}else{
+				currentCharCount = 1;
+				if(sawT){
+					currentCharCount++;
+				}
+				currentChar = board[i][j];
+			}
+			log(currentCharCount);
+			//if won
+			if(currentCharCount==4){
+				return(currentChar+' won');
+			}
+		}
+	}
+			var currentChar = null;
+		var currentCharCount =0;
+	for(j=0;j<4;j++){
+		var sawT = false;
+		i=j;
+
+			//continue;
+			if(i==0&&board[i][j]=='T'){
+				sawT = true;
+				continue;
+			}else if(i!=1){
+				sawT = false;
+			}
+			if(board[i][j]=='.'){
+				currentChar = null;
+				currentCharCount =0;
+				incomplete = true;
+				break;
+			}
+			
+			//update char and charcount
+			if(board[i][j]==currentChar||board[i][j]=='T'){
+				currentCharCount++;
+			}else{
+				currentCharCount = 1;
+				if(sawT){
+					currentCharCount++;
+				}
+				currentChar = board[i][j];
+			}
+			log(currentCharCount);
+			//if won
+			if(currentCharCount==4){
+				return(currentChar+' won');
+			}
+		
+	}
+	var currentChar = null;
+	var currentCharCount =0;
+	var sawT = false;
+	for(i=0,j=3;i<4;i++,j--){
+
+			log(i+'X'+j+' -> '+board[i][j]);
+			//continue;
+			if(i==0&&board[i][j]=='T'){
+				sawT = true;
+				continue;
+			}else if(i!=1){
+				sawT = false;
+			}
+			if(board[i][j]=='.'){
+				currentChar = null;
+				currentCharCount =0;
+				incomplete = true;
+				break;
+			}
+			//log(sawT);
+			//update char and charcount
+			if(board[i][j]==currentChar||board[i][j]=='T'){
+				currentCharCount++;
+			}else{
+				currentCharCount = 1;
+				if(sawT){
+					currentCharCount++;
+				}
+				currentChar = board[i][j];
+			}
+			log(currentChar+'-'+currentCharCount);
+			//if won
+			if(currentCharCount==4){
+				return(currentChar+' won');
+			}
+		
+	}
+	if(incomplete){
+		return "Game has not completed";
+	}else{
+		return "Draw";
+	}
+}

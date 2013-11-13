@@ -1,0 +1,124 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"bufio"
+	"strconv"
+)
+
+func main() {
+	fmt.Println(os.Args)
+	inFile, _ := os.Open(os.Args[1])
+	defer func() {inFile.Close()}()
+	in := bufio.NewReader(inFile)
+	
+	outFile, _ := os.Create(os.Args[1] + ".out")
+	defer func() {outFile.Close()}()
+	out := bufio.NewWriter(outFile)
+	
+	temp, _, _ := in.ReadLine()
+	testCases, _ := strconv.ParseInt(string(temp), 10, 32)
+	
+	buf := make([]byte, 21)
+	
+	for i:= 0; i<int(testCases); i++ {
+		in.Read(buf)
+		trim := make([]byte, 0, 16)
+		for _, char := range buf {
+			if char != '\n' {
+				trim = append(trim, char)
+			}
+		}
+		printWrite(out, fmt.Sprintf("Case #%d: %s\n", i+1, checkWin(trim)))
+	}
+	out.Flush()
+}
+
+func printWrite(w *bufio.Writer, str string) {
+	fmt.Printf(str)
+	w.WriteString(str)
+}
+
+// 00 01 02 03
+// 04 05 06 07
+// 08 09 10 11
+// 12 13 14 15
+// ten combinations to win
+func checkWin(buf []byte) string {
+	var line []byte
+	
+	for i := 0; i<10; i++ {
+		switch i {
+		case 0:
+			line = buf[0:4]
+		case 1:
+			line = buf[4:8]
+		case 2:
+			line = buf[8:12]
+		case 3:
+			line = buf[12:16]
+		case 4:
+			line = []byte{buf[0],buf[4],buf[8],buf[12]}
+		case 5:
+			line = []byte{buf[1],buf[5],buf[9],buf[13]}
+		case 6:
+			line = []byte{buf[2],buf[6],buf[10],buf[14]}
+		case 7:
+			line = []byte{buf[3],buf[7],buf[11],buf[15]}
+		case 8:
+			line = []byte{buf[0],buf[5],buf[10],buf[15]}
+		case 9:
+			line = []byte{buf[3],buf[6],buf[9],buf[12]}
+		}
+		// thought I could do checkRow(line...), not sure how slice expansion works, check in future
+		if checkRow(line[0],line[1],line[2],line[3]) {
+			winner := winningByte(line[0],line[1],line[2],line[3])
+			if winner == '.' {
+				continue
+			}
+			fmt.Println(i)
+			fmt.Println(line[0],line[1],line[2],line[3])
+			return string(winner) + " won"
+		}
+	}
+	
+	if checkFull(buf) {
+		return "Draw"
+	} else {
+		return "Game has not completed"
+	}
+}
+
+func checkFull(buf []byte) bool {
+	for i:= 0; i<4; i++ {
+		if buf[i] == '.' {
+			return false
+		}
+		if buf[i+4] == '.' {
+			return false
+		}
+		if buf[i+8] == '.' {
+			return false
+		}
+		if buf[i+12] == '.' {
+			return false
+		}
+	}
+	return true
+}
+
+func winningByte(a, b, c, d byte) byte {
+	if a != 'T' {
+		return a
+	}
+	return b
+}
+
+func checkRow(a, b, c, d byte) bool {
+	return compat(a, b) && compat(b, c) && compat(c, d) && compat(d, a)
+}
+
+func compat(a, b byte) bool {
+	return a == 'T' || b == 'T' || a == b
+}

@@ -1,0 +1,43 @@
+import Control.Applicative
+import Control.Parallel.Strategies
+import Control.Monad
+import Data.Array
+import Data.Char
+import Data.List
+import Data.Maybe
+import Data.Bits
+import Text.Printf
+
+
+gcj :: IO a -> (a -> String) -> IO ()
+gcj input solve = do
+  t <- readLn
+  inputs <- replicateM t input
+  let outputs = map solve inputs
+  forM_ (zip [1..] outputs) $ \(i, o) -> putStrLn $ "Case #" ++ show i ++ ": " ++ o
+
+readOne :: IO ([String])
+readOne = do
+  rows <- replicateM 4 getLine
+  foo <- getLine
+  return (rows)
+
+solve :: ([String]) -> String
+solve (rows)
+  | x_won = "X won"
+  | o_won = "O won"
+  | ended && not x_won && not o_won = "Draw"
+  | not ended && not x_won && not o_won = "Game has not completed"
+  where
+    cells = concat rows
+    ended = all (/='.') cells
+    columns = transpose rows
+    diagonal lines = map head $ zipWith drop [0..3] lines
+    diagonals = [diagonal rows, diagonal $ reverse rows]
+    check win_for_p = any win_for_p rows || any win_for_p columns || any win_for_p diagonals
+    x_won = check win_for_x
+    o_won = check win_for_o
+    win_for_x line = (sort $ nub line) `elem` ["X","TX"]
+    win_for_o line = (sort $ nub line) `elem` ["O","OT"]
+  
+main = gcj readOne solve

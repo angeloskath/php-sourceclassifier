@@ -1,0 +1,68 @@
+tic;
+f = fopen('A-large.in');
+fout = fopen('output.txt','w');
+ncases = str2num(fgetl(f))
+
+cr = zeros(4,4);
+
+for i = 1:ncases
+    drawpossible = true;
+    for l = 1:4
+        row = fgetl(f);
+        if ~isempty( strfind(row, '.') )
+            drawpossible = false;
+        end
+        numeric = strrep(row, 'X', '1');
+        numeric = strrep(numeric, 'O', '2');
+        numeric = strrep(numeric, 'T', '7');
+        numeric = strrep(numeric, '.', '9');
+        cr(l,:) = [str2num(numeric(1)) str2num(numeric(2)) str2num(numeric(3)) str2num(numeric(4))];
+    end
+    row = fgetl(f); %read empty line
+        
+
+    % Start searching
+    winner = '';
+    for r = 1:4
+        tr = prod(cr(r,:));
+        if (tr == 1 || tr == 7)
+            winner = 'X';
+        elseif (tr == 16 || tr == 56)
+            winner = 'O';
+        end
+        tr = prod(cr(:,r));
+        if (tr == 1 || tr == 7)
+            winner = 'X';
+        elseif (tr == 16 || tr == 56)
+            winner = 'O';
+        end
+    end
+    tr = prod(diag(cr));
+    if (tr == 1 || tr == 7)
+        winner = 'X';
+    elseif (tr == 16 || tr == 56)
+        winner = 'O';
+    end    
+    tr = cr(4,1) * cr(3,2) * cr(2,3) * cr(1,4);
+    if (tr == 1 || tr == 7)
+        winner = 'X';
+    elseif (tr == 16 || tr == 56)
+        winner = 'O';
+    end    
+    
+    casedesc = ['Case #', num2str(i),': '];
+    if ( isempty(winner) )
+        if drawpossible
+            casedesc = [casedesc, 'Draw'];
+        else
+            casedesc = [casedesc, 'Game has not completed'];
+        end
+    else
+        casedesc = [casedesc, winner, ' won'];
+    end
+    fprintf(fout, [casedesc,'\n']);
+end
+fclose(fout);
+fclose(f);
+toc
+            

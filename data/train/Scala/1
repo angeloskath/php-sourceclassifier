@@ -1,0 +1,66 @@
+package jam
+
+import scala.io.Source
+import java.io.PrintWriter
+import java.io.OutputStreamWriter
+
+abstract class JamApp(val setSize : String = "micro")  extends App {
+
+  lazy val path = this.getClass().getResource("").getPath().replace("bin", "src")
+  lazy val name = this.getClass().getName().split("\\.").last.dropRight(1)
+  lazy val input = Source.fromFile(path + name + "." + setSize + ".in.txt").getLines.toList
+  lazy val output = new PrintWriter(path + name + "." + setSize + ".out.txt")
+  var currentCase = 1
+  
+  def run()
+  
+  def outputValue(value: Any) {
+    output.println("Case #" + currentCase + ": " + value)
+    currentCase += 1
+  }
+  
+  override def main(args: Array[String]) {
+    currentCase = 1
+    run()
+    output.flush()
+    output.close()
+  }
+  
+  
+}package qualif
+
+import jam.JamApp
+
+object A extends JamApp("large") {
+
+  override def run() {
+    for (in <- input.drop(1).filter(_ != "").grouped(4)) {
+
+      def checkLines(char: Character) = in.find(_.matches("[T" + char + "]{4}")).isDefined
+
+      def checkColumns(char: Character) = {
+        (0 to 3).map(i => in.map(_.charAt(i)).mkString).find(_.matches("[T" + char + "]{4}")).isDefined
+      }
+
+      def checkDiagonals(char: Character) = {
+        (0 to 3).map(i => in(i).charAt(i)).mkString.matches("[T" + char + "]{4}") ||
+          (0 to 3).map(i => in(i).charAt(3 - i)).mkString.matches("[T" + char + "]{4}")
+      }
+
+      def isNotFinished = in.flatten.find(_ == '.').isDefined
+
+      if (checkLines('O') || checkColumns('O') || checkDiagonals('O')) {
+        outputValue("O won")
+      } else if (checkLines('X') || checkColumns('X') || checkDiagonals('X')) {
+        outputValue("X won")
+      } else if (isNotFinished) {
+        outputValue("Game has not completed")
+      } else {
+        outputValue("Draw")
+      }
+
+    }
+
+  }
+
+}

@@ -1,0 +1,74 @@
+(ns tic-tac-toe-tomek
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string]))
+
+(defn parse [f coll]
+  (->> {:remaining coll}
+       (iterate f)
+       (take-while #(not (contains? % :end)))
+       (map :yield)
+       (filter #(not (nil? %)))))
+
+(defn parse-cases-fn
+  [{[token & remaining :as stream] :remaining
+    :keys [state case]
+    :or {case []}}]
+  (let [result {:remaining remaining :state :in-tokens}]
+    (cond
+     (nil? token) (assoc result :end 1)
+     (empty? token) result
+     (= state :in-tokens) (let [case (conj case token)]
+                            (if (= (count case) 4)
+                              (assoc result :yield case)
+                              (assoc result :case case)))
+     :else result)))
+
+(defn nth-vertical
+  [strings n]
+  (string/join (map #(nth % n) strings)))
+
+(defn row-col
+  [case row col]
+  (nth (nth case row) col))
+
+(defn win-lines
+  "Returns all lines from case where a winning could be matched, e.g. all horizontal lines, all vertical lines,
+all diagonal lines with 4 chars. case is a vec of the 4 vertical strings"
+  [case]
+  (conj (for [kind [:horizontal :vertical]
+              n (range 4)]
+          (cond
+           (= kind :vertical) (nth-vertical case n)
+           (= kind :horizontal) (nth case n)
+           ))
+        (str (row-col case 0  0) (row-col case 1 1) (row-col case 2 2) (row-col case 3 3))
+        (str (row-col case 3  0) (row-col case 2 1) (row-col case 1 2) (row-col case 0 3))))
+
+(defn line-state
+  [line]
+  (cond
+   (re-find #"(X|T){4}" line) :xwin
+   (re-find #"(O|T){4}" line) :owin
+   (re-find #"\." line) :incomplete
+   :else :draw))
+
+(defn game-status
+  [win-lines]
+  (cond
+   (some #(= % :xwin) win-lines) "X won"
+   (some #(= % :owin) win-lines) "O won"
+   (some #(= % :incomplete) win-lines) "Game has not completed"
+   (some #(= % :draw) win-lines) "Draw"))
+
+
+(defn test-cases-seq
+  "Returns all test cases as lazy seq, each element a vec of 4 strings"
+  [file]
+  (parse parse-cases-fn (line-seq (io/reader file))))
+
+(reduce (fn [{:keys [count] :as state} token]
+          (printf "Case #%d: %s\n" count token)
+          (assoc state :count (inc count)))
+        {:count 1} (map game-status (map (fn [case] (map line-state (win-lines case)))
+                                         (test-cases-seq "A-large.in"))))
+

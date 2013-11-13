@@ -1,0 +1,43 @@
+var lineReader = require('line-reader');
+
+var noTestCases, 
+	testCaseStr = '',
+	curTestCase = 1;
+
+var winRegExStr = '(ssss|s....s....s....s|^s.....s.....s.....sn$|^...s...s...s...s)'; 
+						// s represents symbol, can be X or O, n for newline
+						// As T apperas only once in the board, we can be sure 
+						// This would work.
+
+var xWinExp = new RegExp(winRegExStr.replace(/s/g,'[XT]')),
+	oWinExp = new RegExp(winRegExStr.replace(/s/g,'[OT]')),
+	incompleteExp = new RegExp('\\.');
+
+
+var testCaseLinesRead = 0;
+
+lineReader.eachLine(process.argv[2], function(line, last) {
+	// If first line, read the no of test cases. Not used right now.
+	if(!noTestCases){ noTestCases = parseInt(line);return; }
+
+	if(testCaseLinesRead == 4){
+		// Reset the readers, and ignore the blank line
+		testCaseStr = '';
+		testCaseLinesRead = 0;
+		return;
+	}
+
+	testCaseLinesRead++;
+	testCaseStr += line + 'n'; // Append a n to represent new line
+
+	if(testCaseLinesRead == 4){
+		if(xWinExp.test(testCaseStr))
+			console.log('Case #' + (curTestCase++) + ': X won');
+		else if(oWinExp.test(testCaseStr))
+			console.log('Case #' + (curTestCase++) + ': O won');
+		else if(incompleteExp.test(testCaseStr))
+			console.log('Case #' + (curTestCase++) + ': Game has not completed');
+		else
+			console.log('Case #' + (curTestCase++) + ': Draw');
+	}
+});

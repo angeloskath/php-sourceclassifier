@@ -1,0 +1,71 @@
+
+def findout( board ) 
+
+	has_dot = 0
+	diag_bs = board[0][3]
+	diag_fs = board[0][0]
+	diag_bs_complete = 1
+	diag_fs_complete = 1
+	(0...4).each { |col|
+		diag_bs = board[col][3-col] if diag_bs == "T"
+		diag_fs = board[col][col] if diag_fs == "T"
+	}
+	(0...4).each { |row|
+
+		diag_bs_complete = 0 if (board[row][3-row] != diag_bs || board[row][3-row] == ".") && board[row][3-row] != "T"
+		diag_fs_complete = 0 if (board[row][row] != diag_fs || board[row][row] == ".") && board[row][row] != "T"
+		row_h 	= board[row][0]
+		col_h 	= board[0][row]
+		
+		(0...4).each { |col|
+			row_h = board[row][col] if row_h == "T"
+			col_h = board[col][row] if col_h == "T"
+		}
+		row_complete = 1
+		col_complete = 1
+		(0...4).each { |col|
+			row_complete = 0 if (board[row][col] != row_h || board[row][col] == ".") && board[row][col] != "T"
+			col_complete = 0 if (board[col][row] != col_h || board[col][row] == ".") && board[col][row] != "T"
+			has_dot = 1 if board[row][col] == "."
+		}
+		
+		return row_h if row_complete == 1
+		return col_h if col_complete == 1
+		
+	}
+
+	return diag_fs if diag_fs_complete == 1
+	return diag_bs if diag_bs_complete == 1
+	return has_dot == 1 ? -1 : 2
+	
+end
+
+
+tc = gets().to_i
+(0...tc).each do
+	|t|
+
+	board = []
+	(0...4).each { |i|
+		board[i] = gets().chomp()
+		board[i] = board[i].split("")
+	}
+	gets()
+	result = findout(board)
+
+	if result == -1 
+		outcome = "Game has not completed"
+	elsif result == "X"
+		outcome = "X won"
+	elsif result == "O"
+		outcome = "O won"
+	else
+		outcome = "Draw"
+	end
+		
+	printf "Case #%d: %s\n", t+1, outcome
+	
+end
+
+
+

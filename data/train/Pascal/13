@@ -1,0 +1,189 @@
+program TicTacToeTomek;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils;
+
+const
+  xw = 'X won';
+  ow = 'O won';
+  dr = 'Draw';
+  nc = 'Game has not completed';
+var
+  f, g: TextFile;
+  a: array [0..3] of array [0..3] of char;
+  verdict: String;
+  verdictAssigned, EmptySpacePresent: Boolean;
+
+procedure ReadData;
+var
+  i, j: Byte;
+begin
+  for i := 0 to 3 do begin
+    for j := 0 to 3 do
+      Read(f, a[i, j]);
+    Readln(f);
+  end;
+  Readln(f);
+end;
+
+procedure AssignVerdict(cx, co, ct: Byte);
+begin
+  if (cx + ct = 4) then begin
+    verdict := xw;
+    verdictAssigned := True;
+  end else if (co + ct = 4) then begin
+    verdict := ow;
+    verdictAssigned := True;
+  end
+end;
+
+procedure ProcessRow(row: Byte);
+var
+  i, cx, co, ct: Byte;
+begin
+  cx := 0;
+  co := 0;
+  ct := 0;
+  for i := 0 to 3 do begin
+    case a[Row, i] of
+      'X': Inc(cx);
+      'O': Inc(co);
+      '.': EmptySpacePresent := true;
+      'T': Inc(ct);
+    end;
+  end;
+  AssignVerdict(cx, co, ct);
+end;
+
+procedure ProcessRows;
+var
+  i: Byte;
+begin
+  for i := 0 to 3 do begin
+    ProcessRow(i);
+  end;
+end;
+
+procedure ProcessCol(col: Byte);
+var
+  i, cx, co, ct: Byte;
+begin
+  cx := 0;
+  co := 0;
+  ct := 0;
+  for i := 0 to 3 do begin
+    case a[i, Col] of
+      'X': Inc(cx);
+      'O': Inc(co);
+      '.': EmptySpacePresent := true;
+      'T': Inc(ct);
+    end;
+  end;
+  AssignVerdict(cx, co, ct);
+end;
+
+procedure ProcessColumns;
+var
+  i: Byte;
+begin
+  for i := 0 to 3 do begin
+    ProcessCol(i);
+  end;
+end;
+
+procedure ProcessMainDiagonal;
+var
+  i, cx, co, ct: Byte;
+begin
+  cx := 0;
+  co := 0;
+  ct := 0;
+  for i := 0 to 3 do begin
+    case a[i, i] of
+      'X': Inc(cx);
+      'O': Inc(co);
+      '.': EmptySpacePresent := true;
+      'T': Inc(ct);
+    end;
+  end;
+  AssignVerdict(cx, co, ct);
+end;
+
+procedure ProcessOtherDiagonal;
+var
+  i, cx, co, ct: Byte;
+begin
+  cx := 0;
+  co := 0;
+  ct := 0;
+  for i := 0 to 3 do begin
+    case a[i, 3 - i] of
+      'X': Inc(cx);
+      'O': Inc(co);
+      '.': EmptySpacePresent := true;
+      'T': Inc(ct);
+    end;
+  end;
+  AssignVerdict(cx, co, ct);
+end;
+
+procedure ProcessData;
+begin
+  ProcessRows;
+  if verdictAssigned then
+    Exit;
+  ProcessColumns;
+  if verdictAssigned then
+    Exit;
+  ProcessMainDiagonal;
+  if verdictAssigned then
+    Exit;
+  ProcessOtherDiagonal;
+  if not verdictAssigned then
+    if EmptySpacePresent then
+      verdict := nc
+    else
+      verdict := dr;
+end;
+
+procedure OutputVerdict(casenum: Word);
+begin
+  writeln(g, 'Case #', casenum, ': ', verdict);
+end;
+
+var
+  i, t: Word;
+
+begin
+  try
+    AssignFile(f, 'input.txt');
+    Reset(f);
+    AssignFile(g, 'output.txt');
+    Rewrite(g);
+    try
+      Readln(f, t);
+      for i := 1 to t do begin
+        verdict := '';
+        EmptySpacePresent := false;
+        verdictAssigned := false;
+        ReadData;
+        ProcessData;
+        OutputVerdict(i);
+      end;
+    finally
+      CloseFile(f);
+      CloseFile(g);
+    end;
+
+    { TODO -oUser -cConsole Main : Insert code here }
+  except
+    on E: Exception do begin
+      Writeln(E.ClassName, ': ', E.Message);
+      readln;
+    end;
+  end;
+end.

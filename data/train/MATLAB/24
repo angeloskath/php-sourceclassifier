@@ -1,0 +1,54 @@
+fid = fopen('A-large.in');
+
+In = textscan(fid, '%d');
+Indata = textscan(fid, '%s');
+
+j = 0;
+In = cell2mat(In);
+Indata = cell2mat(Indata{1,1});
+for i = 1:4:max(size(Indata));
+    j = j + 1;
+    owin = 0;
+    xwin = 0;
+    Test = Indata(i:i+3, 1:4);
+    
+        xlogic = Test == 'X';
+        ts = Test == 'T';
+        xs = xlogic | ts;
+        if max(sum(xs,1)) == 4
+            xwin = 1;
+        elseif max(sum(xs,2)) == 4
+            xwin = 1;
+        elseif trace(xs) == 4 || trace(fliplr(xs)) == 4
+            xwin = 1;
+        else
+            xwin = 0;
+        end
+        ologic = Test == 'O';
+        os = ologic | ts;
+        if max(sum(os,1)) == 4
+            owin = 1;
+        elseif max(sum(os,2)) == 4
+            owin = 1;
+        elseif trace(os) == 4 || trace(fliplr(os)) == 4
+            owin = 1;
+        else
+            owin = 0;
+        end
+    if (owin == 0 && xwin == 0)
+        if max(max((Test == '.'))) == 1
+        fprintf('Case #%d: Game has not completed\n',j);
+        continue
+        end
+        fprintf('Case #%d: Draw\n',j);
+        continue
+    elseif xwin == 1
+        fprintf('Case #%d: X won\n',j);
+        continue
+    elseif owin == 1
+        fprintf('Case #%d: O won\n',j);
+        continue
+    end
+end
+
+        

@@ -1,0 +1,115 @@
+class Board
+  PLAYER_X = :x
+  PLAYER_O = :o
+  JOKER = :t
+  EMPTY = :"."
+
+  attr_accessor :cells, :index
+  def initialize(index)
+    @index = index
+  end
+
+  def read(io)
+    lines = []
+    while lines.length < 4
+      line = (io.readline).strip
+      if line != ''
+        lines << line
+      end
+    end
+    self.cells = lines.map do |line|
+      line.split("").map do |cell|
+        case cell
+        when "T" then JOKER
+        when "O" then PLAYER_O
+        when "X" then PLAYER_X
+        when "." then EMPTY
+        else
+          raise "Unsupported cell"
+        end
+      end
+    end
+    self
+  rescue EOFError
+    nil
+  end
+
+  def to_s
+    "Case ##{self.index}: #{self.status}"
+  end
+
+  def winner
+    winner_rows || winner_cols || winner_diag_1 || winner_diag_2 || nil
+  end
+
+  def completed
+    !cells.flatten.uniq.include? EMPTY
+  end
+
+  def status
+    case winner
+    when PLAYER_X
+      "X won"
+    when PLAYER_O
+      "O won"
+    when nil
+      if completed
+        "Draw"
+      else
+        "Game has not completed"
+      end
+    else
+      winner
+    end
+  end
+
+  private
+
+  def winner_rows
+    cells.each do |row|
+      winner = winner_of(row)
+      return winner if winner
+    end
+    nil
+  end
+
+  def winner_cols
+    4.times do |i|
+      winner = winner_of(cells.map{|r| r[i] })
+      return winner if winner
+    end
+    nil
+  end
+
+  def winner_diag_1
+    tmp = 4.times.map do |i|
+      cells[i][i]
+    end
+    winner_of(tmp)
+  end
+
+  def winner_diag_2
+    tmp = 4.times.map do |i|
+      cells[i][3-i]
+    end
+    winner_of(tmp)
+  end
+
+  def winner_of(cells)
+    unique = cells.uniq - [JOKER]
+    return nil if unique.size != 1
+    winner = unique.first
+    return nil unless winner == PLAYER_O || winner == PLAYER_X
+    winner
+  end
+endrequire './board.rb'
+
+input = File.open(ARGV[0])
+
+i = 1
+boards = input.readline().to_i
+boards.times do |i|
+  board = Board.new(i+1)
+  board.read(input)
+  puts board.to_s
+end

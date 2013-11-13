@@ -1,0 +1,68 @@
+module Main where
+
+import Data.Maybe
+import Data.List
+import Control.Monad
+
+data Cell = X | O | T | Empty
+            deriving Eq
+type Row = [Cell]
+type Board = [Row]
+data Player = PlayerX | PlayerO
+data State = Won Player | Draw | Incomplete
+
+instance Show State where
+  show (Won PlayerX) = "X won"
+  show (Won PlayerO) = "O won"
+  show Draw          = "Draw"
+  show Incomplete    = "Game has not completed"
+
+translate :: Eq a => a -> a -> a -> a
+translate x y c | c == x    = y
+                | otherwise = c
+
+won :: [Cell] -> Maybe Player
+won s | all ((== X) . (translate T X)) s = Just PlayerX
+      | all ((== O) . (translate T O)) s = Just PlayerO
+      | otherwise                        = Nothing
+
+full :: Board -> Bool
+full = all $ all (/= Empty)
+
+boardState :: Board -> State
+boardState board | (not . null) results = Won (head results)
+                 | full board           = Draw
+                 | otherwise            = Incomplete
+  where
+    results = catMaybes $ map won (rows ++ cols ++ diagonals)
+    rows = board
+    cols = transpose board
+    diagonals = [[a !! 0, b !! 1, c !! 2, d !! 3],
+                 [a !! 3, b !! 2, c !! 1, d !! 0]]
+    [a, b, c, d] = board
+
+charToCell :: Char -> Cell
+charToCell 'X' = X
+charToCell 'O' = O
+charToCell 'T' = T
+charToCell '.' = Empty
+charToCell c   = error $ "Invalid character in board: " ++ show c
+
+getRow :: IO Row
+getRow = liftM (map charToCell . take 4) getLine
+
+getBoard :: IO Board
+getBoard = do board <- sequence (replicate 4 getRow)
+              _ <- getLine
+              return board
+
+reportCase :: Show r => Int -> r -> IO ()
+reportCase i r = putStrLn $ "Case #" ++ show i ++ ": " ++ show r
+
+doCase :: Int -> IO ()
+doCase i = do r <- fmap boardState getBoard
+              reportCase i r
+
+main :: IO ()
+main = do t <- readLn
+          sequence_ $ map doCase [1..t]

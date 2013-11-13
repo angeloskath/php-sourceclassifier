@@ -1,0 +1,285 @@
+package main
+
+import "runtime"
+import "fmt"
+import "os"
+import "os/signal"
+import "syscall"
+import "bufio"
+import "bytes"
+import "io"
+import "strconv"
+import "strings"
+import _ "sort"
+
+var CPUs = runtime.NumCPU()
+var inpName = "a.in"
+var outName = "xxa.out"
+var outWG chan bool
+
+var dummy = fmt.Printf
+
+//var dbg_f = fmt.Printf
+//var dbg_ln = fmt.Println
+
+var dbg_f = func(...interface{}) {}
+var dbg_ln = func(...interface{}) {}
+
+var rep_f = fmt.Printf
+
+var PARALLEL bool = false
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+type OneCase struct {
+	Num    int // 0-based number
+	Ans    chan string
+	Weight float64
+
+	L []string
+}
+
+// 1 - X won
+// 0 - nobody
+// -1 - O won
+func (c *OneCase) check(y, x, dy, dx int) int {
+	X, O := false, false
+
+	for i := 0; i < 4; i++ {
+		ly := y + i*dy
+		lx := x + i*dx
+		chr := c.L[ly][lx]
+		if chr == '.' {
+			return 0
+		} else if chr == 'X' {
+			X = true
+		} else if chr == 'O' {
+			O = true
+		}
+	}
+
+	if X && O {
+		return 0
+	}
+	if X {
+		return 1
+	}
+	if O {
+		return -1
+	}
+	return 0
+}
+
+func Solve(c *OneCase) {
+	for i := 0; i < 4; i++ {
+		dbg_ln(c.L[i])
+	}
+
+	chk := 0
+	for i := 0; i < 4 && chk == 0; i++ {
+		if chk == 0 {
+			chk = c.check(i, 0, +0, +1)
+		}
+		if chk == 0 {
+			chk = c.check(0, i, +1, +0)
+		}
+		if chk == 0 {
+			chk = c.check(0, 0, +1, +1)
+		}
+		if chk == 0 {
+			chk = c.check(3, 0, -1, +1)
+		}
+	}
+
+	// write
+	ansStr := "Draw"
+	if chk == 0 {
+		for i := 0; i < 4; i++ {
+			if strings.Contains(c.L[i], ".") {
+				ansStr = "Game has not completed"
+			}
+		}
+	} else if chk == 1 {
+		ansStr = "X won"
+	} else if chk == -1 {
+		ansStr = "O won"
+	}
+	fullAns := fmt.Sprintf("Case #%d: %s", c.Num+1, ansStr)
+	dbg_f("in Solve(): %s\n", fullAns)
+	c.Ans <- fullAns
+}
+
+func ReadCases(inp chan string) []OneCase {
+	T, _ := strconv.Atoi(<-inp)
+	dbg_f("Cases: %d\n", T)
+
+	res := make([]OneCase, T)
+
+	for cs := 0; cs < T; cs++ {
+		// read
+		L := make([]string, 4)
+		for i := 0; i < 4; i++ {
+			L[i] = <-inp
+		}
+		<-inp
+
+		res[cs].L = L
+
+		res[cs].Num = cs
+		res[cs].Weight = 1
+		res[cs].Ans = make(chan string, 1)
+	}
+
+	return res
+}
+
+func main() {
+	sig_sink := make(chan os.Signal, 100)
+	go SigHandler(sig_sink)
+	signal.Notify(sig_sink, syscall.SIGINT)
+	runtime.GOMAXPROCS(1)
+
+	outWG = make(chan bool)
+	inp := Inp()
+
+	dbg_ln("Reading input...")
+	cases := ReadCases(inp)
+	for _, d := range cases {
+		TotalWeight += d.Weight
+	}
+	go WriteOut(outName, cases)
+	dbg_ln("done.")
+
+	if PARALLEL {
+		sem := make(chan bool, CPUs) // semaphore
+		for perm := 0; perm < CPUs; perm++ {
+			sem <- true // add initial values
+		}
+		for cs := 0; cs < len(cases); cs++ {
+			<-sem // read values
+			thiscase := cs
+			go func() {
+				Solve(&cases[thiscase])
+				sem <- true // permit others to continue
+			}()
+		}
+	} else {
+		for cs := 0; cs < len(cases); cs++ {
+			Solve(&cases[cs])
+		}
+	}
+
+	dbg_f("Awaiting writer...")
+	<-outWG
+	dbg_ln("done.")
+}
+
+var TotalWeight float64 = 0
+var ProcessedWeight float64 = 0
+
+func SigHandler(s chan os.Signal) {
+	for _ = range s {
+		tw := TotalWeight
+		if tw == 0 {
+			fmt.Println("Input data is being read.")
+		} else {
+			fmt.Printf("Processed %f       \n", 100.0*ProcessedWeight/TotalWeight)
+		}
+	}
+}
+
+func WriteOut(path string, data []OneCase) {
+	var (
+		file *os.File
+		err  error
+	)
+
+	if file, err = os.Create(path); err != nil {
+		fmt.Println("Error creating file", err)
+		return
+	}
+
+	for idx, d := range data {
+		dbg_f("Waiting for result %d...\n", idx)
+		ProcessedWeight += d.Weight
+		line := <-d.Ans
+		dbg_f("in WriteOut(): %s\n", line)
+		_, err = file.WriteString(line + "\n")
+		if err != nil {
+			fmt.Println("Error writing to output", err)
+		}
+	}
+
+	file.Close()
+	outWG <- true
+	dbg_ln("**** done writing")
+}
+
+func Inp() (res chan string) {
+	res = make(chan string, 100)
+	if len(os.Args) >= 2 {
+		inpName = os.Args[1]
+		outName = strings.Replace(inpName, ".in", ".out", 1)
+	}
+	go FillInp(inpName, res)
+	return
+}
+
+func FillInp(path string, res chan string) {
+	var (
+		file   *os.File
+		part   []byte
+		prefix bool
+		err    error
+	)
+	defer close(res)
+
+	if file, err = os.Open(path); err != nil {
+		fmt.Println("Error opening file", err)
+		return
+	}
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+	buffer := bytes.NewBuffer(make([]byte, 0))
+	for {
+		if part, prefix, err = reader.ReadLine(); err != nil {
+			break
+		}
+		buffer.Write(part)
+		if !prefix {
+			res <- buffer.String()
+			buffer.Reset()
+		}
+	}
+
+	if err == io.EOF {
+		err = nil
+	}
+
+	return
+}
+
+/*
+type arrng []rng
+
+func (r arrng) Len() int {
+	return len(r)
+}
+
+func (r arrng) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
+func (r arrng) Less(i, j int) bool {
+	if r[i].w == r[j].w {
+		return r[i].len < r[j].len
+	} 
+	return r[i].w < r[j].w
+}
+*/

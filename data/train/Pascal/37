@@ -1,0 +1,128 @@
+program tictac;
+
+uses
+  Classes, Sysutils;
+
+const
+  maxY =4;
+  maxX =4;
+
+var
+  sin: TStringList;
+  sout: TStringList;
+  i, n, a, b: integer;
+  t: Array[1..maxX,1..maxY] of char;
+  s: String;
+
+function won: string;
+var
+  x, y: integer;
+  ok: boolean;
+Begin
+  Result:='Draw';// asumo que es empate
+  // horizontales y verticales
+  for x:=1 to maxX do
+  Begin
+    if (t[1,x] in ['X','T']) and (t[2,x]  in ['X','T']) and (t[3,x] in ['X','T']) and (t[4,x] in ['X','T']) then
+    Begin
+      Result:='X won';
+      exit;
+    end;
+    if (t[1,x] in ['O','T']) and (t[2,x]  in ['O','T']) and (t[3,x] in ['O','T']) and (t[4,x] in ['O','T']) then
+    Begin
+      Result:='O won';
+      exit;
+    end;
+    if (t[x,1] in ['X','T']) and (t[x,2]  in ['X','T']) and (t[x,3] in ['X','T']) and (t[x,4] in ['X','T']) then
+    Begin
+      Result:='X won';
+      exit;
+    end;
+    if (t[x,1] in ['O','T']) and (t[x,2]  in ['O','T']) and (t[x,3] in ['O','T']) and (t[x,4] in ['O','T']) then
+    Begin
+      Result:='O won';
+      exit;
+    end;
+  end;
+  // diagonales x
+  ok:=true;
+  for x:=1 to maxY do
+  Begin
+    if not (t[x,x] in ['X','T']) then ok:=FALSE;
+  end;
+  if ok then
+  Begin
+    Result:='X won';
+    exit;
+  end;
+  // diagonales x
+  ok:=true;
+  for x:=1 to maxY do
+  Begin
+    if not (t[x,maxY+1-x] in ['X','T']) then ok:=FALSE;
+  end;
+  if ok then
+  Begin
+    Result:='X won';
+    exit;
+  end;
+  // diagonales o
+  ok:=true;
+  for x:=1 to maxY do
+  Begin
+    if not (t[x,x] in ['O','T']) then ok:=FALSE;
+  end;
+  if ok then
+  Begin
+    Result:='O won';
+    exit;
+  end;
+  // diagonales o
+  ok:=true;
+  for x:=1 to maxY do
+  Begin
+    if not (t[x,maxY+1-x] in ['O','T']) then ok:=FALSE;
+  end;
+  if ok then
+  Begin
+    Result:='O won';
+    exit;
+  end;
+  // verifico que no se ha terminado el juego
+  for x:=1 to maxX do
+  for y:=1 to maxY do
+  Begin
+    if t[x,y]='.' then
+    Begin
+      Result:='Game has not completed';
+      Exit;
+    end;
+  end;
+end;
+
+begin
+  if not FileExists(paramstr(1)) then Exit;
+  sin:= TStringList.Create;
+  sout:= TStringList.Create;
+  sin.LoadFromFile(paramstr(1));
+  n:= StrToInt(sin[0]);  // numero de casos
+  for i:=1 to n do
+  Begin
+    for a:=1 to maxY do
+    for b:=1 to maxX do
+    Begin
+      s:= Copy(sin[(i-1)*5+a],b,1);
+      if Length(s)<>0 then t[a,b]:=s[1];
+    end;
+    s:= 'Case #'+IntToStr(i)+': '+won;
+    sout.Add(s);
+    writeln(s);
+  end;
+  if paramstr(2)<>'' then
+  Begin
+    sout.SaveToFile(paramstr(2));
+  end;
+  sin.Destroy;
+  sout.Destroy;
+end.
+

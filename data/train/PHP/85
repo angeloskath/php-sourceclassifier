@@ -1,0 +1,115 @@
+<?php
+$fp = fopen('php://stdin', 'r');
+
+fscanf($fp, '%d', $fieldCount);
+
+$fields = array();
+$results = array();
+$tempField = '';
+
+function isPlayer($point) {
+	return ($point == 'X' or $point == 'O');
+}
+
+function isDraw($field) {
+	foreach ($field as $row) {
+		if (in_array('.', $row))
+			return true;
+	}
+
+	return false;
+}
+
+function checkStatus($field) {
+	//Horizontal
+	for ($x = 0; $x < 4; $x++) {
+		$winPlayer = (isPlayer($field[$x][0])) ? $field[$x][0] : false;
+
+		if ($winPlayer !== false) {
+			for ($y = 1; $y < 4; $y++) {
+				if ($field[$x][$y] != $winPlayer and $field[$x][$y] != 'T') {
+					$winPlayer = false;
+					break;
+				}
+			}
+
+			if ($winPlayer !== false) {
+				return $winPlayer . ' won';
+			}
+		} else {
+			continue;
+		}
+	}
+
+	//Vertical
+	for ($y = 0; $y < 4; $y++) {
+		$winPlayer = (isPlayer($field[0][$y])) ? $field[0][$y] : false;
+
+		if ($winPlayer !== false) {
+			for ($x = 1; $x < 4; $x++) {
+				if ($field[$x][$y] != $winPlayer and $field[$x][$y] != 'T') {
+					$winPlayer = false;
+					break;
+				}
+			}
+
+			if ($winPlayer !== false) {
+				return $winPlayer . ' won';
+			}
+		} else {
+			continue;
+		}
+	}
+
+	//Diagonal top-left to bottom-right
+	$winPlayer = (isPlayer($field[0][0])) ? $field[0][0] : false;
+
+	if ($winPlayer !== false) {
+		for ($x = 1; $x < 4; $x++) {
+			if ($field[$x][$x] != $winPlayer and $field[$x][$x] != 'T') {
+				$winPlayer = false;
+				break;
+			}
+		}
+
+		if ($winPlayer !== false) {
+			return $winPlayer . ' won';
+		}
+	}
+
+	//Diagonal bottom-left to top-right
+	$winPlayer = (isPlayer($field[0][3])) ? $field[0][3] : false;
+
+	if ($winPlayer !== false) {
+		for ($x = 1; $x < 4; $x++) {
+			if ($field[$x][3-$x] != $winPlayer and $field[$x][3-$x] != 'T') {
+				$winPlayer = false;
+				break;
+			}
+		}
+
+		if ($winPlayer !== false) {
+			return $winPlayer . ' won';
+		}
+	}
+
+	if (isDraw($field))
+		return 'Game has not completed';
+	else
+		return 'Draw';
+}
+
+//Read input
+for ($i = 0; $i < $fieldCount; $i++) {
+	for ($x = 0; $x < 4; $x++) {
+		fscanf($fp, '%s', $tempField);
+		for ($y = 0; $y < 4; $y++) {
+			$fields[$i][$x][$y] = substr($tempField, $y, 1);
+		}
+	}
+	fscanf($fp, '%s');
+}
+
+for ($i = 1; $i <= $fieldCount; $i++) {
+	echo 'Case #' . $i . ': ' . checkStatus($fields[$i-1]) . "\n";
+}

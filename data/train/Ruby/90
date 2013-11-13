@@ -1,0 +1,60 @@
+#!/usr/bin/ruby
+
+require 'set'
+
+x_fails = Set.new ['O','.']
+o_fails = Set.new ['X','.']
+
+File.open(ARGV[0]) do |file|
+  num_cases = file.readline.to_i
+
+  (1..num_cases).each do |case_num|
+    x = Hash.new { |h,k| h[k] = Set.new }
+    o = Hash.new { |h,k| h[k] = Set.new }
+    unplayed_spots = 0
+    table = (0...4).map { |i| file.readline }
+    file.readline #consume blank line after each test-case
+
+    (0...4).each do |row|
+      chars = table[row].chars.collect
+      (0...4).each do |col|
+        token = chars[col]
+        
+        unplayed_spots += 1 if ( token.eql? '.' )
+
+        x_fail = x_fails.member? token
+        o_fail = o_fails.member? token
+        diag1 = row == col
+        diag2 = (row + col) == 3
+
+        if ( x_fail )
+          x[:r] << row
+          x[:c] << col
+          x[:d1] << row if ( diag1 )
+          x[:d2] << row if ( diag2 )
+        end
+        
+        if ( o_fail )
+          o[:r] << row
+          o[:c] << col
+          o[:d1] << row if ( diag1 )
+          o[:d2] << row if ( diag2 )
+        end
+      end
+    end
+
+    result = begin
+      if ( x[:r].size < 4 || x[:c].size < 4 || x[:d1].empty? || x[:d2].empty? )
+        'X won'
+      elsif ( o[:r].size < 4 || o[:c].size < 4 || o[:d1].empty? || o[:d2].empty? )
+        'O won'
+      elsif ( unplayed_spots > 0 )
+        'Game has not completed'
+      else
+        'Draw'
+      end
+    end
+    
+    puts "Case ##{case_num}: #{result}"
+  end
+end

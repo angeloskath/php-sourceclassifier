@@ -1,0 +1,111 @@
+%%
+clc; clear;
+
+input_dir = 'C:\Users\Sumeeth\Desktop\';
+
+fid = fopen([input_dir, 'A-large.in']);
+fido = fopen([input_dir, 'output.txt'], 'wt+');
+
+k = 0; caseInd = 0; mat = '';
+while( 1 )
+    
+    k = k + 1;
+    
+    tline = fgetl(fid);
+    
+    if( k == 1 )
+        continue;
+    end
+    if( ~ischar(tline) )
+        break;
+    end
+    
+    mat = [mat; tline; fgetl(fid); fgetl(fid); fgetl(fid)];
+    
+    % search for potential uncomplete
+    potentialUncomplete = 0;
+    for i = 1 : 4
+        if( strfind(mat(i, :), '.') )
+            potentialUncomplete = 1;
+        end
+    end
+    
+    % check for winners
+    outputStr = '';
+    
+    
+    while( 1 )
+    % rows
+    for i = 1 : 4
+        sumVal = sum(double(mat(i,:)));
+        if( (sumVal == 352) || (sumVal == 348) )
+            outputStr = 'X won';
+            break;
+        elseif( (sumVal == 321) || (sumVal == 316) )
+            outputStr = 'O won';
+            break;
+        end
+    end
+    if( ~isempty(outputStr) )
+        break;
+    end
+    
+    % columns
+    for i = 1 : 4
+        sumVal = sum(double(mat(:,i)));
+        if( (sumVal == 352) || (sumVal == 348) )
+            outputStr = 'X won';
+            break;
+        elseif( (sumVal == 321) || (sumVal == 316) )
+            outputStr = 'O won';
+            break;
+        end
+    end
+    if( ~isempty(outputStr) )
+        break;
+    end
+    
+    % diag
+    sumVal = sum(double([mat(1,1),mat(2,2),mat(3,3),mat(4,4)]));
+    if( (sumVal == 352) || (sumVal == 348) )
+        outputStr = 'X won';
+        break;
+    elseif( (sumVal == 321) || (sumVal == 316) )
+        outputStr = 'O won';
+        break;
+    end
+    if( ~isempty(outputStr) )
+        break;
+    end
+    
+    % diag
+    sumVal = sum(double([mat(1,4),mat(2,3),mat(3,2),mat(4,1)]));
+    if( (sumVal == 352) || (sumVal == 348) )
+        outputStr = 'X won';
+        break;
+    elseif( (sumVal == 321) || (sumVal == 316) )
+        outputStr = 'O won';
+        break;
+    end
+
+    if( potentialUncomplete )
+        outputStr = 'Game has not completed';
+        break;
+    else
+        outputStr = 'Draw';
+        break;
+    end
+    
+    end
+    
+    caseInd = caseInd + 1;
+    
+%     outputStr
+    fprintf(fido, 'Case #%d: %s\n', caseInd, outputStr);
+    
+    tline = fgetl(fid);
+    mat = [];
+    
+end
+
+fclose all;

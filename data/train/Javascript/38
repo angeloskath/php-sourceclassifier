@@ -1,0 +1,92 @@
+var fs = require('fs');
+
+var rows = fs.readFileSync('./input.txt').toString().split('\n');
+
+fs.open("./output.txt", 'w');
+
+var casesCount = rows[0];
+
+var rowHead = 1;
+
+var resultMap = {
+  "X" : "X won",
+  "O" : "O won",
+  "T" : "Draw",
+  "." : "Game has not completed"
+};
+
+function checkRow(row) {
+  var toCheck = row[0];
+
+  var won = true;
+
+  if (toCheck == ".") return ".";
+
+  for (var idx = 1; idx < 4; idx++) {
+    if (row[idx] == ".") return ".";
+
+    if (row[idx] == "T") continue;
+
+    if ((row[idx] == "X" || row[idx] == "O") && toCheck == "T") {
+      toCheck = row[idx];
+      continue;
+    }
+    if ((toCheck != "T") && (row[idx] != toCheck)) {
+      won = false;
+    }
+  }
+
+  return (won ? toCheck : "T");
+}
+
+function checkRows(rowsToCheck) {
+  var rowResults = [];
+  var emptyPlaceLeft = false;
+  for (var idx = 0, length = rowsToCheck.length; idx < length; idx++) {
+    var rowResult = checkRow(rowsToCheck[idx]);
+    if (rowResult  == "X" || rowResult == "O") {
+      return rowResult;
+    } else {
+      rowResults.push(rowResult);
+    }
+  }
+
+  for (var idx = 0, length = rowResults.length; idx < length; idx++) {
+    if (rowResults[idx] == ".") {
+      emptyPlaceLeft = true;
+    }
+  }
+
+  return emptyPlaceLeft ? "." : "T";
+
+}
+
+for (var idx = 0, length = casesCount; idx < length; idx++) {
+  var table = [rows[rowHead++], rows[rowHead++], rows[rowHead++], rows[rowHead++]];
+  var result;
+
+  var rowsToCheck = [table[0], table[1], table[2], table[3]];
+  for (var colIdx = 0; colIdx < 4; colIdx++) {
+    var col = [];
+    for (var rowIdx = 0; rowIdx < 4; rowIdx++) {
+      col.push( table[rowIdx][colIdx] );
+    }
+    rowsToCheck.push(col);
+  }
+  
+  var diag1 = [], diag2 = [];
+  for (var rowIdx = 0; rowIdx < 4; rowIdx++) {
+    diag1.push( table[rowIdx][rowIdx] );
+    diag2.push( table[rowIdx][3 - rowIdx] );
+  }
+
+  rowsToCheck.push(diag1);
+  rowsToCheck.push(diag2);
+
+  var result = checkRows(rowsToCheck);
+
+
+  fs.appendFile('output.txt', 'Case #' + (idx + 1) + ': ' + resultMap[result] + '\n');
+
+  rowHead++;
+}

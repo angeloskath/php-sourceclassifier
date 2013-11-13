@@ -1,0 +1,90 @@
+program ticTacToe;
+
+var	f: array[ 1..4, 1..4 ] of char;
+
+function solve(): string;
+var	i, j: longInt;
+	cnt: array[ #0..#255 ] of longInt;
+begin
+	fillchar( cnt, sizeOf(cnt), 0 );
+	
+	for i := 1 to 4 do
+	begin
+		cnt['O'] := 0;
+		cnt['X'] := 0;
+		cnt['T'] := 0;
+		
+		for j := 1 to 4 do
+			inc( cnt[ f[i][j] ] );
+			
+		if ( cnt['O'] + cnt['T'] = 4 ) then
+			exit( 'O won' )
+		else if ( cnt['X'] + cnt['T'] = 4 ) then
+			exit( 'X won' );
+	end;
+	
+	for j := 1 to 4 do
+	begin
+		cnt['O'] := 0;
+		cnt['X'] := 0;
+		cnt['T'] := 0;
+		
+		for i := 1 to 4 do
+			inc( cnt[ f[i][j] ] );
+			
+		if ( cnt['O'] + cnt['T'] = 4 ) then
+			exit( 'O won' )
+		else if ( cnt['X'] + cnt['T'] = 4 ) then
+			exit( 'X won' );
+	end;
+
+	cnt['O'] := 0;
+	cnt['X'] := 0;
+	cnt['T'] := 0;
+	
+	for i := 1 to 4 do
+		inc( cnt[ f[i][i] ] );
+	
+	if ( cnt['O'] + cnt['T'] = 4 ) then
+		exit( 'O won' )
+	else if ( cnt['X'] + cnt['T'] = 4 ) then
+		exit( 'X won' );
+
+	cnt['O'] := 0;
+	cnt['X'] := 0;
+	cnt['T'] := 0;
+	
+	for i := 1 to 4 do
+		inc( cnt[ f[i][5-i] ] );
+	
+	if ( cnt['O'] + cnt['T'] = 4 ) then
+		exit( 'O won' )
+	else if ( cnt['X'] + cnt['T'] = 4 ) then
+		exit( 'X won' );
+		
+	if ( cnt['.'] = 0 ) then
+		exit( 'Draw' )
+	else
+		exit( 'Game has not completed' );
+end;
+
+var	t, i, j, k: longInt;
+
+begin
+	readln( t );
+	for i := 1 to t do
+	begin
+		if ( i > 1 ) then
+			readln();
+	
+		for j := 1 to 4 do
+		begin
+			for k := 1 to 4 do
+				read( f[j][k] );
+				
+			readln();
+		end;
+		
+		writeln( 'Case #', i, ': ', solve() );
+	end;
+end.

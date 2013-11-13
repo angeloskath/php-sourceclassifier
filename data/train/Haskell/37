@@ -1,0 +1,171 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleContexts #-}
+import Control.Monad.Supply
+import Clahey.GCJ
+
+import Control.Applicative
+import Control.Monad
+import Control.Monad.State
+import Control.Monad.Writer
+import Data.Tuple
+import Data.List
+import Data.Monoid
+import Data.Maybe
+import Data.Array
+import Control.Lens
+import qualified Data.Map as M
+import qualified Data.Set as S
+import qualified Text.Trifecta as Tri
+
+-- Case items
+data Player = X | O | Neither | T deriving (Show, Eq)
+playerFromChar 'X' = X
+playerFromChar 'O' = O
+playerFromChar '.' = Neither
+playerFromChar 'T' = T
+
+addPlayer O O = O
+addPlayer X X = X
+addPlayer T a = a
+addPlayer a T = a
+addPlayer _ _ = Neither
+
+data Answer = Unfinished | OWin | XWin | Draw deriving (Eq)
+
+instance Show Answer
+    where
+      show Unfinished = "Game has not completed"
+      show OWin = "O won"
+      show XWin = "X won"
+      show Draw = "Draw"
+
+
+-- (active, count, solved)
+data SearchState = SearchState { _answer :: Answer, _winner :: Player} deriving (Show)
+
+
+makeLenses ''SearchState
+
+data Case = Case [[Player]] deriving (Show)
+
+checkPoint current = do
+  winner %= addPlayer current
+  oldAnswer <- use answer
+  if oldAnswer == Draw && current == Neither
+  then void (answer .= Unfinished)
+  else return ()
+
+row array i = ixmap (bounds array & each %~ snd) (\j -> (i, j)) array
+col array j = ixmap (bounds array & each %~ fst) (\i -> (i, j)) array
+diag array k = ixmap (0, len - 1) imap array
+    where ((basex, basey), (right, bottom)) = bounds array
+          width = right + 1
+          height = bottom + 1
+          len = min width . min height . min (height + width - k - 1) $ (k + 1)
+          offset = max (k - width + 1) 0
+          imap ix = (basex + ix + offset, basey + k - ix - offset)
+gaid array k = diag (ixmap (bounds array) (_2 %~ (right -)) array) k
+                         where right = bounds array ^. _2 . _2
+               
+
+check :: (Functor m, MonadWriter String m, MonadState SearchState m) => Array Int Player -> m ()
+check array = do
+  tell "\n"
+  whenM (uses answer (\a -> a == Draw || a == Unfinished))
+            (winner .= T >> mapM checkPoint (elems array))
+  whenM (uses winner (/= Neither))
+        (whenM' (uses winner (== O)) (answer .= OWin) (answer .= XWin))
+
+parseCase = do
+  rowStrings <- gcjParseCases supply False 4
+  supply
+  return (Case (map (map playerFromChar) rowStrings))
+
+solve :: Case -> String
+solve (Case grid) =
+    (show . (^. answer))
+    (execute
+     (mapM check (map (row array) [0 .. 3] ++ map (col array) [0 .. 3] ++ [diag array 3] ++ [gaid array 3]))
+     (SearchState Draw T))
+        where array = (listToArray2 grid Neither (4, 4))
+
+main = gcjMain solve parseCase
+{-# LANGUAGE UndecidableInstances #-}
+module Clahey.GCJ (gcjMain, gcjMainFull, gcjParse, gcjParseLines, gcjParseCases, gcjOutput, findMatchWith, listToArray, listToArray2, gcjParseString, gcjParseStringFromSupply, whenM, whenM', debug, execute, evaluate)
+
+where
+
+import Control.Applicative
+import Control.Monad.State
+import Control.Monad.Supply
+import Control.Monad.Writer
+import Control.Monad
+import Data.Array.IArray
+import Data.Monoid
+import qualified Text.Trifecta as Tri
+import qualified Text.Trifecta.Result as Tri.Result
+
+type Handler = Supply String
+
+gcjParseString :: Tri.Parser a -> String -> a
+gcjParseString parsePattern line = let Tri.Result.Success patt = Tri.parseString parsePattern mempty line in patt
+
+gcjParseStringFromSupply :: Tri.Parser a -> Handler a
+gcjParseStringFromSupply parsePattern = gcjParseString parsePattern <$> supply
+
+gcjParse :: Handler ([a], m) -> String -> ([a], m)
+gcjParse parseLines = evalSupply parseLines . lines
+
+gcjParseLines :: Handler a -> Handler ([a], ())
+gcjParseLines parseCase = do
+  caseCount <- read <$> supply
+  cases <- gcjParseCases parseCase True caseCount
+  return (cases, ())
+
+gcjParseCases :: Handler a -> Bool -> Int -> Handler [a]
+gcjParseCases parseCase True 0 = do 
+  isExhausted <- exhausted
+  if isExhausted 
+    then return []
+    else error "Too much data"
+gcjParseCases parseCase False 0 = return []
+gcjParseCases parseCase check n =
+    return (:) `ap` parseCase `ap` (gcjParseCases parseCase check (n - 1))
+
+gcjOutput results = unlines (map output' (zip [1..] results))
+output' (n, output) = "Case #" ++ show n ++ ": " ++ output
+
+solveFull :: (a -> m -> String) -> ([a], m) -> [String]
+solveFull solve (as, m) = map (flip solve m) as
+
+gcjMainFull :: (a -> m -> String) -> Handler ([a], m) -> IO ()
+gcjMainFull solve parseLines = (gcjOutput . solveFull solve . gcjParse parseLines <$> getContents) >>= putStr
+
+gcjMain :: (a -> String) -> Handler a -> IO ()
+gcjMain solve parseCase = gcjMainFull (\a m -> solve a) (gcjParseLines parseCase)
+
+
+findMatchWith comp (a:as) (b:bs)
+    | order == LT = findMatchWith comp (as) (b:bs)
+    | order == GT = findMatchWith comp (a:as) (bs)
+    | order == EQ = [a, b]
+    where order = comp a b
+findMatchWith _ _ _ = error "No match found"
+
+listToArray a = listArray (0, length a - 1) a
+
+listToArray2 :: [[a]] -> a -> (Int, Int) -> Array (Int, Int) a
+listToArray2 list def (rows, cols) = blank // values
+    where blank = listArray ((0, 0), (rows - 1, cols -1))
+                  (replicate (rows * cols) def)
+          values = concat (zipWith innerzip [0..] list)
+          innerzip i = zip (zip (repeat i) [0..])
+
+whenM p m = p >>= (flip when (void m))
+whenM' p mt mf = p >>= (\p' -> if p' then mt else mf)
+
+
+-- Typish for use here: (Show b, Functor m, MonadWriter String m, MonadState a m) => m b
+debug m start = execWriter (runStateT m start)
+execute m start = execState (execWriterT m) start
+evaluate m start = (show . fst) (evalState (runWriterT m) start)

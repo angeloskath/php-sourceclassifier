@@ -1,0 +1,45 @@
+
+// Language: Scala
+// Problem: A. Tic-Tac-Toe-Tomek
+// User: samuel.gruetter
+
+import java.util.Scanner
+import java.io.BufferedInputStream
+
+
+object A {
+  
+  def won(c: Char, F: Array[Array[Char]]): Boolean = {
+    def f(chr: Char) = chr == c || chr == 'T'
+    for (i <- 0 to 3) if ((for (j <- 0 to 3) yield F(i)(j)).forall(f(_))) return true
+    for (i <- 0 to 3) if ((for (j <- 0 to 3) yield F(j)(i)).forall(f(_))) return true
+    if ((for (j <- 0 to 3) yield F(j)(j)).forall(f(_))) return true
+    if ((for (j <- 0 to 3) yield F(j)(3-j)).forall(f(_))) return true
+    false
+  }
+  
+  def full(F: Array[Array[Char]]): Boolean = {
+    for (i <- 0 to 3) for (j <- 0 to 3) if (F(i)(j) == '.') return false
+    true
+  }
+  
+  def solve(F: Array[Array[Char]]): String = {
+    // it's not possible that both players win because once a player wins, the game ends
+    if (won('X', F)) return "X won"
+    if (won('O', F)) return "O won"
+    if (full(F)) return "Draw"
+    "Game has not completed"
+  }
+
+  def main(args: Array[String]): Unit = {
+    val sc = new Scanner(new BufferedInputStream(System.in))
+    val T = sc.nextInt()
+    for (i <- 1 to T) {
+      sc.nextLine()
+      val F = (for (line <- 0 to 3) yield 
+        sc.nextLine().trim().toCharArray()
+      ).toArray
+      println("Case #%d: %s".format(i, solve(F)))
+    }
+  }
+}
